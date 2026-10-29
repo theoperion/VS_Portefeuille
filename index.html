@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Versus Portefeuille</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#0D1015">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Versus">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&family=Saira:wght@400;500;600&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Concept : une tour de chronométrage. Le classement des quatre portefeuilles s'affiche
+   comme une course : position, couleur de l'écurie, écart au leader, indices en voitures fantômes. */
+:root {
+  --bg: #0D1015;        /* asphalte de nuit */
+  --panel: #151A21;
+  --panel-2: #1C222B;
+  --ink: #EDF0F4;
+  --ink-2: #A9B1BD;
+  --ink-3: #7A8391;
+  --rule: #262D37;
+  --rule-2: #1E242D;
+  --accent: #9B87FF;    /* violet de la tour */
+  --accent-ink: #B8A9FF;
+  --up: #4ADE80;
+  --down: #FF6B6B;
+  --up-bg: rgba(74, 222, 128, .12);
+  --down-bg: rgba(255, 107, 107, .12);
+  --gold: #F5C542;
+  --p0: #FF8A3D; --p1: #4C9AFF; --p2: #F25C9A; --p3: #2FD1C0;
+  --idx: #8C95A3;
+  --shade: rgba(0, 0, 0, .35);
+  --f-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-text: "Saira", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-num: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #EEF0F3; --panel: #FFFFFF; --panel-2: #F5F6F8; --ink: #11151B; --ink-2: #4A5361; --ink-3: #697281;
+    --rule: #D4D8DF; --rule-2: #E4E7EC; --accent: #5B3FE0; --accent-ink: #4B30C9;
+    --up: #15803D; --down: #C62828; --up-bg: rgba(21, 128, 61, .10); --down-bg: rgba(198, 40, 40, .09);
+    --gold: #B7791F; --p0: #C25A0E; --p1: #1F64D1; --p2: #C2185B; --p3: #0B8A7E; --idx: #6B7380;
+    --shade: rgba(17, 21, 27, .10); color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #EEF0F3; --panel: #FFFFFF; --panel-2: #F5F6F8; --ink: #11151B; --ink-2: #4A5361; --ink-3: #697281;
+  --rule: #D4D8DF; --rule-2: #E4E7EC; --accent: #5B3FE0; --accent-ink: #4B30C9;
+  --up: #15803D; --down: #C62828; --up-bg: rgba(21, 128, 61, .10); --down-bg: rgba(198, 40, 40, .09);
+  --gold: #B7791F; --p0: #C25A0E; --p1: #1F64D1; --p2: #C2185B; --p3: #0B8A7E; --idx: #6B7380;
+  --shade: rgba(17, 21, 27, .10); color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink); font: 15px/1.45 var(--f-text);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 calc(88px + env(safe-area-inset-bottom, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--ink-3); }
+.muted { color: var(--ink-3); }
+.app { max-width: 640px; margin: 0 auto; }
+
+/* En-tête */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 10px; background: var(--bg); padding-block: 12px 10px; }
+.brand { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.logo { display: inline-flex; align-items: stretch; height: 28px; transform: skewX(-12deg); }
+.logo i { width: 6px; margin-right: 3px; }
+.logo b { font: italic 800 26px/28px var(--f-display); letter-spacing: .04em; text-transform: uppercase; margin-left: 6px; transform: skewX(12deg); }
+.brand small { font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-btn { width: 38px; height: 38px; display: grid; place-items: center; flex: none; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); cursor: pointer; }
+.icon-btn svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn.spin svg { animation: tourne .9s linear infinite; }
+@keyframes tourne { to { transform: rotate(360deg); } }
+
+/* Bandeau marchés */
+.ticker { margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); background: var(--panel); border-block: 1px solid var(--rule); overflow: hidden; font: 500 12px/1 var(--f-num); font-variant-numeric: tabular-nums; }
+.ticker-track { display: flex; width: max-content; animation: defile 52s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.tk { display: flex; gap: 8px; align-items: baseline; padding: 9px 16px; border-right: 1px solid var(--rule); white-space: nowrap; }
+.tk .n { font: 700 12px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.tk .l { color: var(--ink-3); font-size: 10.5px; }
+@keyframes defile { to { transform: translateX(-50%); } }
+.demo-band { margin-top: 10px; padding: 8px 12px; border: 1px dashed var(--accent); border-radius: 10px; font-size: 12.5px; color: var(--accent-ink); }
+
+main { padding-top: 4px; }
+.view { display: grid; gap: 22px; padding-top: 14px; }
+.view > * { min-width: 0; }
+h2.sec { margin: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font: italic 800 19px/1.1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--rule); text-wrap: balance; }
+h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transform: none; color: var(--ink-3); font-style: normal; text-align: right; }
+
+/* Filtres */
+.filtres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.filtres.trois { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sel { position: relative; display: grid; gap: 3px; min-width: 0; }
+.sel span { font: 700 10.5px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding-left: 2px; }
+.sel select { appearance: none; -webkit-appearance: none; width: 100%; min-width: 0; padding: 9px 28px 9px 11px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); font-size: 14px; font-weight: 500; cursor: pointer; text-overflow: ellipsis; }
+.sel::after { content: ""; position: absolute; right: 12px; bottom: 15px; width: 7px; height: 7px; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); pointer-events: none; }
+.periode { font-size: 12.5px; color: var(--ink-3); }
+
+/* Tour de chronométrage */
+.bref { padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); font-size: 14px; color: var(--ink-2); }
+.bref b { color: var(--ink); font-weight: 600; }
+.tour { display: grid; border-radius: 14px; overflow: hidden; background: var(--panel); border: 1px solid var(--rule); }
+.tour-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 78px; gap: 10px; padding: 8px 12px; font: 700 10.5px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); background: var(--panel-2); }
+.tour-h span:nth-child(3), .tour-h span:nth-child(4) { text-align: right; }
+.pos { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 78px; gap: 10px; align-items: center; padding: 11px 12px; border-top: 1px solid var(--rule-2); cursor: pointer; position: relative; }
+.pos:hover { background: var(--panel-2); }
+.pos .rk { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; background: var(--ink); color: var(--bg); font: italic 800 17px/1 var(--f-display); }
+.pos .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.pos .who i { width: 5px; align-self: stretch; min-height: 30px; border-radius: 2px; transform: skewX(-12deg); flex: none; }
+.pos .who div { min-width: 0; }
+.pos .who b { display: block; font: italic 700 18px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos .who small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos .t { font: 700 17px/1 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; }
+.pos .g { font: 500 12px/1.2 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-2); }
+.pos .g.lead { font: 800 11px/1 var(--f-display); letter-spacing: .12em; color: var(--accent-ink); }
+.pos.ghost { cursor: default; }
+.pos.ghost:hover { background: none; }
+.pos.ghost .rk { background: none; border: 1px dashed var(--idx); color: var(--idx); font-size: 13px; }
+.pos.ghost .who i { background: repeating-linear-gradient(180deg, var(--idx) 0 4px, transparent 4px 7px) !important; }
+.pos.ghost .who b { color: var(--ink-2); font-size: 15px; }
+.pos.ghost .t { color: var(--ink-2); font-size: 15px; }
+.tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 4px; font: 700 10px/1.4 var(--f-display); letter-spacing: .08em; text-transform: uppercase; vertical-align: 2px; font-style: normal; }
+.tag.manque { background: var(--down-bg); color: var(--down); }
+.tag.moi { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
+.detail { padding: 2px 12px 14px 56px; border-top: 0; }
+.mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; padding: 12px; background: var(--panel-2); border-radius: 10px; }
+.mini div { display: grid; gap: 2px; min-width: 0; }
+.mini span { font-size: 11px; color: var(--ink-3); }
+.mini b { font: 600 13.5px/1.15 var(--f-num); font-variant-numeric: tabular-nums; }
+
+/* Graphiques */
+.chart-box { position: relative; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 10px 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); padding: 0 4px 8px; }
+.legend i { display: inline-block; width: 16px; height: 0; border-top: 2.5px solid; vertical-align: middle; margin-right: 6px; }
+.legend i.dash { border-top-style: dashed; border-top-width: 2px; }
+.chart { width: 100%; display: block; touch-action: pan-y; }
+.chart text { font: 500 10.5px var(--f-num); fill: var(--ink-3); }
+.tip { position: absolute; pointer-events: none; z-index: 5; min-width: 160px; background: var(--ink); color: var(--bg); border-radius: 8px; padding: 8px 10px; font: 500 12px/1.5 var(--f-num); font-variant-numeric: tabular-nums; box-shadow: 0 6px 18px var(--shade); }
+.tip b { display: block; font: italic 700 12px/1.3 var(--f-display); letter-spacing: .08em; text-transform: uppercase; opacity: .75; margin-bottom: 2px; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; }
+.tip .row span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+.tip .row span:first-child::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.resume { font-size: 13px; color: var(--ink-2); margin: 0; }
+
+/* Tableaux */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tab { border-collapse: collapse; width: 100%; }
+.tab th { font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: right; padding: 0 0 7px 10px; white-space: nowrap; }
+.tab td { padding: 10px 0 10px 10px; border-top: 1px solid var(--rule); text-align: right; font: 500 13px/1.2 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tab th:first-child, .tab td:first-child { text-align: left; padding-left: 0; }
+.tab td:first-child { font-family: var(--f-text); font-weight: 600; font-size: 14px; }
+.tab td .pastille { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 8px; transform: skewX(-12deg); }
+.tab tr.indice td { color: var(--ink-3); }
+.tab tr.indice td:first-child { font-weight: 500; }
+.barre { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--rule); }
+.barre .a { font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.barre .b { font: 600 14px/1.2 var(--f-num); text-align: right; }
+.barre .c { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; font: 400 12px/1.2 var(--f-num); color: var(--ink-3); }
+.jauge { height: 6px; background: var(--rule-2); border-radius: 3px; overflow: hidden; position: relative; }
+.jauge i { display: block; height: 100%; border-radius: 3px; }
+
+/* Grille des mois */
+.grille { border-collapse: separate; border-spacing: 3px; }
+.grille th { font: 700 10.5px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 0 2px 4px; white-space: nowrap; }
+.grille td { min-width: 54px; height: 38px; border-radius: 6px; text-align: center; font: 600 12px/1 var(--f-num); font-variant-numeric: tabular-nums; position: relative; }
+.grille td.nom { white-space: nowrap; min-width: 76px; text-align: left; font: italic 700 13px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; position: sticky; left: 0; background: var(--bg); z-index: 1; padding-right: 6px; }
+.grille td.nom i { display: inline-block; width: 4px; height: 14px; margin-right: 6px; vertical-align: -2px; transform: skewX(-12deg); border-radius: 1px; }
+.grille td.vide { background: var(--rule-2); color: var(--ink-3); font-weight: 400; }
+.grille td.star { box-shadow: inset 0 0 0 2px var(--gold); }
+.grille td.star::after { content: "★"; position: absolute; top: 1px; right: 3px; font-size: 9px; color: var(--gold); }
+.grille tr.indice td.nom { color: var(--ink-3); font-size: 12px; }
+.leg-grille { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-3); }
+.leg-grille span { display: inline-flex; align-items: center; gap: 6px; }
+.leg-grille i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+/* Fiche */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--rule); background: var(--panel); border-radius: 999px; padding: 7px 13px; font: 600 13px/1 var(--f-text); cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; gap: 7px; }
+.chip i { width: 8px; height: 8px; border-radius: 2px; transform: skewX(-12deg); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.hero { display: grid; gap: 6px; }
+.eyebrow { font: 700 12px/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.big { font: 700 clamp(34px, 10vw, 48px)/1 var(--f-num); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.hero .sous { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13px; color: var(--ink-2); }
+.badge { display: inline-flex; align-items: baseline; gap: 6px; padding: 3px 9px; border-radius: 999px; font: 600 13px/1.2 var(--f-num); font-variant-numeric: tabular-nums; }
+.badge.up { background: var(--up-bg); } .badge.down { background: var(--down-bg); } .badge.flat { background: var(--rule-2); }
+.tuiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.tuiles > div { background: var(--panel); padding: 11px 12px; display: grid; gap: 3px; min-width: 0; }
+.tuiles .lab { font-size: 11.5px; color: var(--ink-3); }
+.tuiles .val { font: 600 19px/1.15 var(--f-num); font-variant-numeric: tabular-nums; }
+.tuiles .sub { font-size: 11.5px; color: var(--ink-3); }
+.tuiles .sub b { font-family: var(--f-num); font-weight: 600; color: var(--ink-2); }
+.stack { display: flex; gap: 2px; height: 16px; border-radius: 4px; overflow: hidden; }
+.stack i { display: block; height: 100%; min-width: 3px; }
+
+/* Objectifs */
+.obj { display: grid; gap: 10px; padding: 14px; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; }
+.obj-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.obj-h b { font: italic 800 20px/1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.obj-h b i { width: 5px; height: 18px; transform: skewX(-12deg); border-radius: 1px; }
+.obj-h span { font: 600 14px/1 var(--f-num); }
+.piste { position: relative; height: 12px; border-radius: 6px; background: var(--rule-2); overflow: hidden; }
+.piste i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
+.piste::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 12px; background: repeating-conic-gradient(var(--ink) 0 25%, var(--panel) 0 50%) 0 0 / 6px 6px; opacity: .8; }
+.obj-l { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.obj-l div { display: grid; gap: 2px; min-width: 0; }
+.obj-l span { font-size: 11px; color: var(--ink-3); }
+.obj-l b { font: 600 13.5px/1.2 var(--f-num); font-variant-numeric: tabular-nums; }
+.info { font-size: 12.5px; color: var(--ink-3); margin: 0; }
+
+/* Barre du bas */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: var(--panel); border-top: 1px solid var(--rule); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabbar nav { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; }
+.onglet { border: 0; background: none; cursor: pointer; display: grid; justify-items: center; gap: 4px; padding: 9px 2px 10px; color: var(--ink-3); position: relative; }
+.onglet svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.onglet span { font: 700 11px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; }
+.onglet[aria-current="page"] { color: var(--ink); }
+.onglet[aria-current="page"]::before { content: ""; position: absolute; top: -1px; left: 26%; right: 26%; height: 3px; border-radius: 0 0 3px 3px; background: var(--accent); }
+.plus { border: 0; background: none; cursor: pointer; display: grid; place-items: center; padding: 0; }
+.plus span { width: 56px; height: 56px; margin-top: -20px; border-radius: 16px; display: grid; place-items: center; background: var(--accent); box-shadow: 0 6px 16px var(--shade), 0 0 0 4px var(--bg); transform: skewX(-8deg); }
+.plus svg { width: 26px; height: 26px; stroke: #fff; stroke-width: 2.6; fill: none; stroke-linecap: round; transform: skewX(8deg); }
+
+/* Feuilles (saisie, réglages) */
+.voile { position: fixed; inset: 0; z-index: 40; background: rgba(5, 7, 10, .55); display: grid; align-items: end; }
+.feuille { background: var(--bg); border-radius: 18px 18px 0 0; max-width: 640px; width: 100%; margin: 0 auto; padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 16px; max-height: 90vh; overflow-y: auto; }
+.feuille h3 { margin: 0; font: italic 800 21px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+.champ { display: grid; gap: 6px; min-width: 0; }
+.champ label { font-size: 12.5px; color: var(--ink-2); font-weight: 500; }
+.champ input { font: 500 15px/1.2 var(--f-num); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); width: 100%; min-width: 0; }
+.env-saisie { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); }
+.env-saisie .h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.env-saisie .h b { font: italic 800 16px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+.env-saisie .h span { white-space: nowrap; font: 500 12px/1.2 var(--f-num); color: var(--ink-3); text-align: right; }
+.rang { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.btn { border: 0; border-radius: 10px; padding: 12px 16px; cursor: pointer; font-weight: 600; background: var(--ink); color: var(--bg); }
+.btn.acc { background: var(--accent); color: #fff; }
+.btn.ghost { background: var(--panel); color: var(--ink); border: 1px solid var(--rule); }
+.btn.plein { width: 100%; padding: 14px 16px; font-size: 15px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.lien { border: 0; background: none; padding: 2px 0; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent-ink); justify-self: start; }
+.alerte { font-size: 13px; padding: 9px 12px; border-radius: 10px; border-left: 3px solid var(--ink-3); background: var(--panel); }
+.alerte.err { border-color: var(--down); background: var(--down-bg); }
+.alerte.warn { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); }
+.alerte .btn { margin-top: 8px; padding: 9px 12px; }
+.recap { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); font-size: 13px; color: var(--ink-2); }
+.recap b { font-family: var(--f-num); color: var(--ink); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); z-index: 60; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); max-width: min(520px, calc(100% - 32px)); background: var(--ink); color: var(--bg); padding: 11px 16px; border-radius: 12px; font-size: 14px; box-shadow: 0 8px 24px var(--shade); border-left: 3px solid var(--accent); }
+.lock { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: grid; place-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.lock form { width: min(360px, 100%); display: grid; gap: 14px; }
+.lock p { margin: 0; color: var(--ink-2); font-size: 14px; }
+.lock input { font: 500 16px/1.2 var(--f-num); padding: 13px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); width: 100%; }
+.err-txt { color: var(--down); font-size: 13px; margin: 0; min-height: 1em; }
+.vide { padding: 30px 0; text-align: center; color: var(--ink-3); font-size: 14px; }
+
+@media (max-width: 420px) {
+  .mini { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detail { padding-left: 12px; }
+  .filtres.trois { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filtres.trois .sel:last-child { grid-column: 1 / -1; }
+  .tuiles .val { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker { overflow-x: auto; }
+  .ticker-track, .icon-btn.spin svg { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><i style="background:var(--p0)"></i><i style="background:var(--p1)"></i><i style="background:var(--p2)"></i><i style="background:var(--p3)"></i><b>Versus</b></span>
+      <small id="sous-titre"></small>
+    </div>
+    <button class="icon-btn" id="btn-maj" type="button" aria-label="Actualiser">
+      <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-reglages" type="button" aria-label="Réglages">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+  <div class="ticker" aria-label="Marchés"><div class="ticker-track" id="ticker"></div></div>
+  <div class="demo-band" id="bandeau" hidden></div>
+  <main>
+    <section class="view" id="v-classement" data-vue="classement"></section>
+    <section class="view" id="v-mois" data-vue="mois" hidden></section>
+    <section class="view" id="v-fiche" data-vue="fiche" hidden></section>
+    <section class="view" id="v-objectifs" data-vue="objectifs" hidden></section>
+  </main>
+</div>
+
+<div class="tabbar">
+  <nav aria-label="Navigation">
+    <button class="onglet" type="button" data-vue="classement"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg><span>Classement</span></button>
+    <button class="onglet" type="button" data-vue="mois"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg><span>Mois</span></button>
+    <button class="plus" type="button" id="btn-saisie" aria-label="Saisir un relevé"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
+    <button class="onglet" type="button" data-vue="fiche"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Fiche</span></button>
+    <button class="onglet" type="button" data-vue="objectifs"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h13l-2 4 2 4H5"/></svg><span>Objectifs</span></button>
+  </nav>
+</div>
+
+<div class="voile" id="saisie" hidden>
+  <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="titre-saisie">
+    <h3 id="titre-saisie">Relevé du mois <button class="icon-btn" type="button" id="fermer-saisie" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
+    <div id="corps-saisie"></div>
+  </div>
+</div>
+
+<div class="voile" id="reglages" hidden>
+  <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="titre-reglages">
+    <h3 id="titre-reglages">Réglages <button class="icon-btn" type="button" id="fermer-reglages" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
+    <div class="champ"><label>Je suis</label><div class="chips" id="choix-moi"></div></div>
+    <div class="champ"><label>Thème</label>
+      <div class="chips" id="choix-theme">
+        <button class="chip" type="button" data-theme-choix="auto">Système</button>
+        <button class="chip" type="button" data-theme-choix="dark">Sombre</button>
+        <button class="chip" type="button" data-theme-choix="light">Clair</button>
+      </div>
+    </div>
+    <div class="champ">
+      <label for="champ-api">Adresse de l'API (web app Apps Script)</label>
+      <input id="champ-api" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec">
+      <p class="info">Vide = aperçu avec les chiffres de démonstration.</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn" type="button" id="enregistrer-api">Enregistrer l'adresse</button>
+      <button class="btn ghost" type="button" id="oublier-cle">Changer de clé</button>
+    </div>
+    <p class="info" id="etat-source"></p>
+  </div>
+</div>
+
+<div class="lock" id="ecran-cle" hidden>
+  <form id="form-cle" autocomplete="off">
+    <span class="logo" aria-hidden="true"><i style="background:var(--p0)"></i><i style="background:var(--p1)"></i><i style="background:var(--p2)"></i><i style="background:var(--p3)"></i><b>Versus</b></span>
+    <p>Entre la clé d'accès pour ouvrir le classement. Elle reste enregistrée sur cet appareil.</p>
+    <input id="champ-cle" type="password" autocomplete="current-password" placeholder="Clé d'accès" aria-label="Clé d'accès">
+    <button class="btn acc" type="submit">Ouvrir</button>
+    <p class="err-txt" id="err-cle" role="alert"></p>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="demo-data.js"></script>
+<script src="moteur.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
+   ou saisis-la dans Réglages. Vide = chiffres de démonstration.
+   ============================================================ */
+const API_URL = "";
+
+const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
+const stock = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* indisponible */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* indisponible */ } }
+};
+const $ = s => document.querySelector(s);
+const reduit = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let D = null, SOURCE = "demo";
+const ETAT = Object.assign({ env: 0, per: "ytd", i1: 0, i2: 1, moi: "Théo", fiche: null }, (() => { try { return JSON.parse(stock.get(CLES.etat) || "{}"); } catch (e) { return {}; } })());
+function garder() { stock.set(CLES.etat, JSON.stringify(ETAT)); }
+
+/* ---------- Format ---------- */
+const MOINS = "−", NB = " ";
+const nf = (a, b) => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: a, maximumFractionDigits: b });
+const F0 = nf(0, 0), F1 = nf(1, 1), F2 = nf(2, 2);
+const ok = v => v !== null && v !== undefined && isFinite(v);
+function sg(v) { return v > 0 ? "+" : v < 0 ? MOINS : ""; }
+function eur(v, dec = 0, signe = false) {
+  if (!ok(v)) return "—";
+  const r = Math.round(v * 10 ** dec);
+  return (signe ? sg(r) : (r < 0 ? MOINS : "")) + nf(dec, dec).format(Math.abs(v)) + NB + "€";
+}
+function pct(v, dec = 1, signe = true) {
+  if (!ok(v)) return "—";
+  const r = Math.round(v * 100 * 10 ** dec);
+  return (signe ? sg(r) : (r < 0 ? MOINS : "")) + nf(dec, dec).format(Math.abs(v * 100)) + NB + "%";
+}
+function pts(v) { if (!ok(v)) return "—"; const r = Math.round(v * 1000); return sg(r) + F1.format(Math.abs(v * 100)) + NB + "pt" + (Math.abs(v * 100) >= 2 ? "s" : ""); }
+function sens(v) { return !ok(v) || Math.abs(v) < 1e-9 ? "flat" : v > 0 ? "up" : "down"; }
+function esc(t) { return String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const MOIS_L = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+function moisCourt(k) { return MOIS[k % 100 - 1] + " " + String(Math.floor(k / 100)).slice(2); }
+function moisLong(k) { return MOIS_L[k % 100 - 1] + " " + Math.floor(k / 100); }
+function finMois(k) { const d = cleVersDate(k); return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear(); }
+function isoFr(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "—"; }
+function isoMois(iso) { return iso ? MOIS[+iso.slice(5, 7) - 1] + " " + iso.slice(0, 4) : "—"; }
+
+/* ---------- Couleurs des personnes ---------- */
+function couleur(nom) { const i = D.personnes.findIndex(p => p.nom === nom); return "var(--p" + (i < 0 ? 0 : i % 4) + ")"; }
+function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function couleurReelle(c) { const m = /var\((--[\w-]+)\)/.exec(c); return m ? css(m[1]) : c; }
+
+const PERIODES = [["mois", "Mois en cours (dernier relevé)"], ["3m", "3 derniers mois"], ["6m", "6 derniers mois"], ["ytd", "Année en cours"], ["12m", "12 derniers mois"], ["comp", "Depuis la date de comparaison"], ["tout", "Depuis le début"]];
+
+/* ---------- Thème ---------- */
+function appliquerTheme(c) {
+  if (c === "light" || c === "dark") document.documentElement.setAttribute("data-theme", c); else document.documentElement.removeAttribute("data-theme");
+  document.querySelectorAll("[data-theme-choix]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeChoix === (c || "auto"))));
+  if (D) rendreVue(vueActive());
+}
+
+/* ---------- Données ---------- */
+function apiUrl() { return (stock.get(CLES.api) || API_URL || "").trim(); }
+async function charger(frais) {
+  const url = apiUrl();
+  if (!url) { D = window.DEMO_DATA; SOURCE = "demo"; afficherTout(); return; }
+  const cle = stock.get(CLES.cle);
+  if (!cle) { ouvrirCle(""); return; }
+  const btn = $("#btn-maj"); btn.classList.add("spin");
+  try {
+    const rep = await fetch(url + (url.includes("?") ? "&" : "?") + "action=data&cle=" + encodeURIComponent(cle) + (frais ? "&frais=1" : ""), { cache: "no-store" });
+    const json = await rep.json();
+    if (!json.ok) {
+      if (json.erreur === "cle" || json.erreur === "bloque") { stock.del(CLES.cle); ouvrirCle(json.message); return; }
+      throw new Error(json.message || "Réponse inattendue");
+    }
+    D = json; SOURCE = "api"; stock.set(CLES.cache, JSON.stringify(json)); afficherTout();
+  } catch (e) {
+    const c = stock.get(CLES.cache);
+    if (c) { try { D = JSON.parse(c); SOURCE = "cache"; afficherTout(); return; } catch (er) { /* cache illisible */ } }
+    $("#v-classement").innerHTML = '<div class="vide">Impossible de joindre le fichier.<br><small>' + esc(e.message || e) + '</small><br><br><button class="btn" type="button" id="reessayer">Réessayer</button></div>';
+    $("#reessayer").addEventListener("click", () => charger(true));
+  } finally { btn.classList.remove("spin"); }
+}
+function ouvrirCle(msg) { $("#ecran-cle").hidden = false; $("#err-cle").textContent = msg || ""; setTimeout(() => $("#champ-cle").focus(), 50); }
+$("#form-cle").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("#champ-cle").value.trim();
+  if (!v) { $("#err-cle").textContent = "Saisis la clé d'accès."; return; }
+  stock.set(CLES.cle, v); $("#champ-cle").value = ""; $("#ecran-cle").hidden = true; charger(true);
+});
+
+function afficherTout() {
+  if (!D.personnes.find(p => p.nom === ETAT.moi)) ETAT.moi = D.personnes[0].nom;
+  if (!ETAT.fiche || !D.personnes.find(p => p.nom === ETAT.fiche)) ETAT.fiche = ETAT.moi;
+  const b = $("#bandeau");
+  b.hidden = SOURCE === "api";
+  b.textContent = SOURCE === "demo" ? "Aperçu · chiffres du fichier au 29/10/2026. Ajoute l'adresse de l'API dans Réglages pour passer en direct."
+    : "Hors connexion · dernières données reçues (" + (D.majTexte || "") + ").";
+  $("#sous-titre").textContent = D.majTexte || "";
+  rendreTicker();
+  rendreVue(vueActive());
+  $("#etat-source").textContent = SOURCE === "demo" ? "Source : démonstration (aucune adresse d'API)." : SOURCE === "cache" ? "Source : copie locale, l'API n'a pas répondu." : "Source : le fichier « Versus Portefeuille ».";
+  $("#choix-moi").innerHTML = D.personnes.map(p => '<button class="chip" type="button" data-moi="' + esc(p.nom) + '" aria-pressed="' + (p.nom === ETAT.moi) + '"><i style="background:' + couleur(p.nom) + '"></i>' + esc(p.nom) + "</button>").join("");
+  document.querySelectorAll("[data-moi]").forEach(x => x.addEventListener("click", () => { ETAT.moi = x.dataset.moi; ETAT.fiche = x.dataset.moi; garder(); afficherTout(); }));
+}
+
+function rendreTicker() {
+  const r = (D.marche.resume || []).map(i => '<div class="tk"><span class="n">' + esc(i.nom) + '</span><span class="l">mois</span><span class="' + sens(i.mois) + '">' + pct(i.mois) + '</span><span class="l">depuis janv.</span><span class="' + sens(i.ytd) + '">' + pct(i.ytd) + "</span></div>").join("");
+  $("#ticker").innerHTML = r + (reduit ? "" : r);
+}
+
+/* ---------- Filtres partagés ---------- */
+function filtres(avecIndices, avecPeriode = true) {
+  const opt = (v, l, cur) => '<option value="' + v + '"' + (String(v) === String(cur) ? " selected" : "") + ">" + esc(l) + "</option>";
+  const env = '<label class="sel"><span>Enveloppe</span><select id="f-env">' + ENVELOPPES.map((e, i) => opt(i, e, ETAT.env)).join("") + "</select></label>";
+  const per = avecPeriode ? '<label class="sel"><span>Période</span><select id="f-per">' + PERIODES.map(([k, l]) => opt(k, l, ETAT.per)).join("") + "</select></label>" : "";
+  const idx = avecIndices ? '<label class="sel"><span>Indice de référence</span><select id="f-i1">' + D.marche.indices.map((n, i) => opt(i, n, ETAT.i1)).join("") + "</select></label>" : "";
+  return '<div class="filtres' + (avecIndices && avecPeriode ? " trois" : "") + '">' + env + per + idx + "</div>";
+}
+function brancherFiltres(vue) {
+  [["#f-env", "env", Number], ["#f-per", "per", String], ["#f-i1", "i1", Number]].forEach(([s, k, f]) => {
+    const el = document.querySelector("#v-" + vue + " " + s);
+    if (el) el.addEventListener("change", () => { ETAT[k] = f(el.value); if (k === "i1" && ETAT.i2 === ETAT.i1) ETAT.i2 = ETAT.i1 === 1 ? 0 : 1; garder(); rendreVue(vue); });
+  });
+}
+function cadre() {
+  const fin = finGlobale(D, ETAT.env);
+  const deb = debutPeriode(D, ETAT.per, fin);
+  return { fin, deb };
+}
+function textePeriode(deb, fin, n) {
+  return (deb ? "Du " + finMois(deb) : "Depuis le premier relevé") + " au " + finMois(fin) + " · " + n + " mois";
+}
+
+/* ---------- Graphique générique ---------- */
+function tracer(box, conf) {
+  const svg = box.querySelector("svg"), tip = box.querySelector(".tip");
+  const xs = conf.x, n = xs.length;
+  if (n < 2) { svg.innerHTML = ""; svg.setAttribute("height", 0); return; }
+  const W = Math.max(280, box.clientWidth - 20), H = conf.h || (W < 420 ? 220 : 250);
+  const m = { l: 46, r: conf.finEtiq ? 56 : 12, t: 10, b: 24 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("height", H);
+  const vals = conf.series.flatMap(s => s.v).filter(ok);
+  if (conf.ligneH !== undefined) vals.push(conf.ligneH);
+  let mn = Math.min(...vals), mx = Math.max(...vals);
+  const pad = (mx - mn) * .08 || Math.abs(mx) * .05 || 1;
+  mn -= pad; mx += pad;
+  if (conf.zeroMin && mn < 0 && Math.min(...vals) >= 0) mn = 0;
+  const brut = (mx - mn) / 4, p10 = Math.pow(10, Math.floor(Math.log10(brut)));
+  const pas = [1, 2, 2.5, 5, 10].map(x => x * p10).find(x => x >= brut);
+  const ticks = []; for (let v = Math.ceil(mn / pas) * pas; v <= mx; v += pas) ticks.push(+v.toFixed(8));
+  const X = i => m.l + i / (n - 1) * iw, Y = v => m.t + ih - (v - mn) / (mx - mn) * ih;
+  const C = n2 => couleurReelle(n2);
+  let o = "";
+  ticks.forEach(t => {
+    o += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '" stroke="' + C(conf.base && Math.abs(t) < 1e-9 ? "var(--ink-3)" : "var(--rule)") + '" stroke-width="1"/>';
+    o += '<text x="' + (m.l - 6) + '" y="' + (Y(t) + 3.5).toFixed(1) + '" text-anchor="end">' + esc(conf.fmtAxe(t)) + "</text>";
+  });
+  let dx = -99;
+  xs.forEach((k, i) => {
+    const marque = n <= 14 || (n <= 36 ? k % 100 % 3 === 1 : k % 100 === 1);
+    if (!marque) return;
+    const x = X(i); if (x - dx < 40) return; dx = x;
+    o += '<text x="' + x.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(k % 100 === 1 ? String(Math.floor(k / 100)) : MOIS[k % 100 - 1]) + "</text>";
+  });
+  if (conf.ligneH !== undefined) o += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(conf.ligneH).toFixed(1) + '" y2="' + Y(conf.ligneH).toFixed(1) + '" stroke="' + C("var(--gold)") + '" stroke-width="1.5" stroke-dasharray="6 4"/>';
+  const fins = [];
+  conf.series.forEach(s => {
+    let d = "", ouvert = false, dernier = null;
+    s.v.forEach((v, i) => {
+      if (!ok(v)) { ouvert = false; return; }
+      const x = X(i).toFixed(1), y = Y(v).toFixed(1);
+      d += (ouvert ? (s.marche ? "H" + x + "V" + y : "L" + x + " " + y) : "M" + x + " " + y);
+      ouvert = true; dernier = i;
+    });
+    if (s.aire && d) {
+      const premier = s.v.findIndex(ok);
+      o += '<path d="' + d + "L" + X(dernier).toFixed(1) + " " + (m.t + ih) + "L" + X(premier).toFixed(1) + " " + (m.t + ih) + 'Z" fill="' + C(s.c) + '" fill-opacity=".14" stroke="none"/>';
+    }
+    o += '<path d="' + d + '" fill="none" stroke="' + C(s.c) + '" stroke-width="' + (s.w || 2) + '" stroke-linejoin="round" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="5 4"' : "") + "/>";
+    if (dernier !== null) {
+      o += '<circle cx="' + X(dernier).toFixed(1) + '" cy="' + Y(s.v[dernier]).toFixed(1) + '" r="3.5" fill="' + C(s.c) + '" stroke="' + C("var(--panel)") + '" stroke-width="2"/>';
+      if (conf.finEtiq) fins.push({ y: Y(s.v[dernier]), t: conf.fmt(s.v[dernier]), c: s.c });
+    }
+  });
+  fins.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < fins.length; i++) if (fins[i].y - fins[i - 1].y < 13) fins[i].y = fins[i - 1].y + 13;
+  fins.forEach(f => { o += '<text x="' + (W - m.r + 6) + '" y="' + (f.y + 4).toFixed(1) + '" fill="' + C(f.c) + '" style="fill:' + C(f.c) + ';font-weight:600">' + esc(f.t) + "</text>"; });
+  o += '<line class="cross" x1="0" x2="0" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="' + C("var(--ink-3)") + '" visibility="hidden"/><g class="dots"></g>';
+  o += '<rect class="hit" x="' + m.l + '" y="0" width="' + iw + '" height="' + H + '" fill="transparent"/>';
+  svg.innerHTML = o;
+  const cross = svg.querySelector(".cross"), dots = svg.querySelector(".dots"), hit = svg.querySelector(".hit");
+  const montrer = ev => {
+    const r = svg.getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.round(((ev.clientX - r.left) * W / r.width - m.l) / iw * (n - 1))));
+    const x = X(i);
+    cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("visibility", "visible");
+    dots.innerHTML = conf.series.filter(s => ok(s.v[i])).map(s => '<circle cx="' + x.toFixed(1) + '" cy="' + Y(s.v[i]).toFixed(1) + '" r="4" fill="' + C(s.c) + '" stroke="' + C("var(--panel)") + '" stroke-width="2"/>').join("");
+    const lignes = conf.series.filter(s => ok(s.v[i])).sort((a, b) => b.v[i] - a.v[i]);
+    tip.hidden = false;
+    tip.innerHTML = "<b>" + esc(conf.titreX(xs[i])) + "</b>" + lignes.map(s => '<div class="row" style="--c:' + C(s.c) + '"><span>' + esc(s.nom) + "</span><span>" + conf.fmt(s.v[i]) + "</span></div>").join("");
+    const bx = box.getBoundingClientRect(), px = x / W * r.width + (r.left - bx.left), tw = tip.offsetWidth;
+    let left = px + 14; if (left + tw > bx.width - 6) left = px - tw - 14;
+    tip.style.left = Math.max(6, left) + "px"; tip.style.top = "38px";
+  };
+  hit.addEventListener("pointermove", montrer); hit.addEventListener("pointerdown", montrer);
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); dots.innerHTML = ""; tip.hidden = true; });
+}
+function boiteGraphe(id, legende) {
+  return '<div class="chart-box" id="' + id + '"><div class="legend">' + legende.map(l => '<span><i class="' + (l.dash ? "dash" : "") + '" style="border-color:' + l.c + '"></i>' + esc(l.nom) + "</span>").join("") +
+    '</div><svg class="chart" role="img" aria-label="Graphique"></svg><div class="tip" hidden></div></div>';
+}
+
+/* ---------- Vue Classement ---------- */
+function rendreClassement() {
+  const { fin, deb } = cadre();
+  const v = $("#v-classement");
+  if (!fin) { v.innerHTML = filtres(true) + '<div class="vide">Aucun relevé pour cette enveloppe.</div>'; brancherFiltres("classement"); return; }
+  const env = ETAT.env, i1 = ETAT.i1;
+  const st = D.personnes.map(p => stats(D, p, env, deb, fin, i1, null)).filter(s => s.n > 0);
+  const idx = statsIndice(D, i1, deb, fin);
+  const finPf = finGlobale(D, 0);
+  const manque = new Set(D.personnes.filter(p => { const s = serie(p, 0).filter(x => x.val); return s.length && s[s.length - 1].k < finPf; }).map(p => p.nom));
+  const tri = st.slice().sort((a, b) => b.twr - a.twr);
+  const leader = tri[0];
+  const lignes = tri.slice();
+  if (idx) lignes.push(Object.assign({ fantome: true }, idx));
+  lignes.sort((a, b) => b.twr - a.twr);
+  let rang = 0;
+  const nMois = Math.max(...st.map(s => s.n), idx ? idx.n : 0);
+
+  // En bref : dernier mois
+  const der = fin;
+  const duMois = D.personnes.map(p => { const x = serie(p, env).find(s => s.k === der && typeof s.r === "number"); return x ? { nom: p.nom, r: x.r } : null; }).filter(Boolean).sort((a, b) => b.r - a.r);
+  const iDer = (D.marche.mois.find(l => l[0] === der) || [])[i1 + 1];
+  const battent = st.filter(s => s.i1 && s.twr > s.i1.twr).map(s => s.nom);
+  let bref = "";
+  if (duMois.length) bref += "<b>" + esc(moisLong(der)) + "</b> : meilleur mois pour <b>" + esc(duMois[0].nom) + "</b> (" + pct(duMois[0].r) + ")" + (duMois.length > 1 ? ", plus dur pour <b>" + esc(duMois[duMois.length - 1].nom) + "</b> (" + pct(duMois[duMois.length - 1].r) + ")" : "") + (ok(iDer) ? ", " + esc(D.marche.indices[i1]) + " " + pct(iDer) : "") + ". ";
+  if (leader) bref += "Sur la période, <b>" + esc(leader.nom) + "</b> mène avec " + pct(leader.twr) + (battent.length ? ", " + battent.map(esc).join(" et ") + (battent.length > 1 ? " battent " : " bat ") + esc(D.marche.indices[i1]) + " à mois égaux." : " ; personne ne bat " + esc(D.marche.indices[i1]) + " à mois égaux.");
+
+  const tour = lignes.map(s => {
+    if (s.fantome) {
+      return '<div class="pos ghost"><span class="rk">IDX</span><div class="who"><i></i><div><b>' + esc(s.nom) + "</b><small>indice · " + s.n + ' mois</small></div></div><span class="t ' + sens(s.twr) + '">' + pct(s.twr) + '</span><span class="g">' + pts(s.twr - leader.twr) + "</span></div>";
+    }
+    rang++;
+    const ecart = s.i1 ? s.twr - s.i1.twr : null;
+    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who"><i style="background:' + couleur(s.nom) + '"></i><div><b>' + esc(s.nom) +
+      (s.nom === ETAT.moi ? '<span class="tag moi">moi</span>' : "") + (manque.has(s.nom) ? '<span class="tag manque">relevé à saisir</span>' : "") +
+      "</b><small>" + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '">' + pct(s.twr) + "</span>" +
+      (s === leader ? '<span class="g lead">LEADER</span>' : '<span class="g">' + pts(s.twr - leader.twr) + "</span>") + "</div>";
+  }).join("");
+
+  // Courbes base 100
+  const ks = [deb || null].concat([...new Set(st.flatMap(s => s.mois.map(x => x.k)).concat(idx ? idx.chemin.slice(1).map(c => c.k) : []))].sort((a, b) => a - b));
+  if (!ks[0]) ks[0] = cleMoins(ks[1], 1);
+  const aligne = chemin => {
+    const out = ks.map(() => null);
+    const debutK = cleMoins(chemin[1].k, 1);
+    chemin.forEach((c, j) => { const k = j === 0 ? debutK : c.k; const i = ks.indexOf(k); if (i >= 0) out[i] = c.v / 100 - 1; });
+    return out;
+  };
+  const series = st.map(s => ({ nom: s.nom, v: aligne(s.chemin), c: couleur(s.nom), w: s.nom === ETAT.moi ? 2.8 : 2 }));
+  if (idx) series.push({ nom: idx.nom, v: aligne(idx.chemin), c: "var(--idx)", dash: true, w: 1.6 });
+
+  // Plus-value réelle depuis l'ouverture
+  const pv = D.personnes.map(p => stats(D, p, env, 0, fin, null, null)).filter(s => ok(s.valeur)).sort((a, b) => b.pvLatentePct - a.pvLatentePct);
+  const maxPv = Math.max(...pv.map(s => Math.abs(s.pvLatentePct || 0)), .01);
+
+  v.innerHTML = filtres(true) +
+    '<div class="periode">' + esc(textePeriode(deb, fin, nMois)) + (deb && st.some(s => s.n < nMois) ? " · chaque courbe démarre au premier relevé de la personne" : "") + "</div>" +
+    (bref ? '<div class="bref">' + bref + "</div>" : "") +
+    '<div><h2 class="sec">Classement <small>performance (TWR), versements neutralisés</small></h2></div>' +
+    '<div class="tour"><div class="tour-h"><span>Pos.</span><span>Portefeuille</span><span>TWR</span><span>Écart</span></div>' + tour + "</div>" +
+    "<div>" + '<h2 class="sec">La course <small>performance cumulée</small></h2></div>' +
+    boiteGraphe("g-course", series.map(s => ({ nom: s.nom, c: s.c, dash: s.dash }))) +
+    '<div><h2 class="sec">Gain réel <small>depuis l\'ouverture · ' + esc(ENVELOPPES[env]) + "</small></h2>" +
+    pv.map(s => '<div class="barre"><span class="a"><i style="width:9px;height:9px;border-radius:2px;transform:skewX(-12deg);background:' + couleur(s.nom) + '"></i>' + esc(s.nom) + '</span><span class="b ' + sens(s.pvLatente) + '">' + eur(s.pvLatente, 0, true) + "</span>" +
+      '<span class="c"><span class="jauge"><i style="width:' + (Math.abs(s.pvLatentePct || 0) / maxPv * 100).toFixed(1) + "%;background:" + (s.pvLatente >= 0 ? "var(--up)" : "var(--down)") + '"></i></span><span>' + pct(s.pvLatentePct) + " · " + eur(s.valeur) + " pour " + eur(s.verse) + " versés</span></span></div>").join("") + "</div>" +
+    '<div><h2 class="sec">Régularité <small>sur la période</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Personne</th><th>Mois positifs</th><th>Bat ' + esc(D.marche.indices[i1]) + "</th><th>Versé</th><th>Plus-value</th></tr></thead><tbody>" +
+    tri.map(s => '<tr><td><span class="pastille" style="background:' + couleur(s.nom) + '"></span>' + esc(s.nom) + "</td><td>" + pct(s.positifs, 0, false) + "</td><td>" + pct(s.i1 && s.i1.battus, 0, false) + "</td><td>" + eur(s.versePeriode) + '</td><td class="' + sens(s.pvPeriode) + '">' + eur(s.pvPeriode, 0, true) + "</td></tr>").join("") +
+    "</tbody></table></div></div>";
+
+  brancherFiltres("classement");
+  tracer($("#g-course"), { x: ks, series: series, base: true, finEtiq: true, fmt: x => pct(x), fmtAxe: t => pct(t, 0), titreX: k => "Fin " + moisCourt(k) });
+  v.querySelectorAll(".pos[data-nom]").forEach(el => {
+    const ouvrir = () => {
+      const s = st.find(x => x.nom === el.dataset.nom);
+      const suiv = el.nextElementSibling;
+      if (suiv && suiv.classList.contains("detail")) { suiv.remove(); el.setAttribute("aria-expanded", "false"); return; }
+      const c = (l, val, cls) => "<div><span>" + l + '</span><b class="' + (cls || "") + '">' + val + "</b></div>";
+      const d = document.createElement("div"); d.className = "detail";
+      d.innerHTML = '<div class="mini">' + c("Volatilité", pct(s.vol, 1, false)) + c("Sharpe", ok(s.sharpe) ? F2.format(s.sharpe) : "—") + c("Pire baisse", pct(s.baisseMax), sens(s.baisseMax)) +
+        c("Meilleur (" + moisCourt(s.meilleur.k) + ")", pct(s.meilleur.r), sens(s.meilleur.r)) + c("Pire (" + moisCourt(s.pire.k) + ")", pct(s.pire.r), sens(s.pire.r)) + c("MWR", pct(s.mwr), sens(s.mwr)) +
+        c(esc(D.marche.indices[i1]) + " même période", pct(s.i1 && s.i1.twr)) + c("Mois battant l'indice", pct(s.i1 && s.i1.battus, 0, false)) + c("Plus-value période", eur(s.pvPeriode, 0, true), sens(s.pvPeriode)) +
+        '</div><button class="lien" type="button" style="margin-top:8px">Ouvrir la fiche de ' + esc(s.nom) + " →</button>";
+      d.querySelector(".lien").addEventListener("click", () => { ETAT.fiche = s.nom; garder(); allerA("fiche"); });
+      el.after(d); el.setAttribute("aria-expanded", "true");
+    };
+    el.addEventListener("click", ouvrir);
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ouvrir(); } });
+  });
+}
+
+/* ---------- Vue Mois ---------- */
+function teinte(r, max) {
+  if (!ok(r)) return "";
+  const a = Math.min(1, Math.abs(r) / max) * .55 + .08;
+  return "background:color-mix(in srgb, var(" + (r >= 0 ? "--up" : "--down") + ") " + Math.round(a * 100) + "%, var(--panel))";
+}
+function rendreMois() {
+  const env = ETAT.env, i1 = ETAT.i1, i2 = ETAT.i2;
+  const fin = finGlobale(D, env);
+  const v = $("#v-mois");
+  if (!fin) { v.innerHTML = filtres(true, false) + '<div class="vide">Aucun relevé pour cette enveloppe.</div>'; brancherFiltres("mois"); return; }
+  const ks = [...new Set(D.personnes.flatMap(p => serie(p, env).filter(x => typeof x.r === "number" && x.k <= fin).map(x => x.k)))].sort((a, b) => a - b).reverse();
+  const lignes = D.personnes.map(p => { const s = serie(p, env); return { nom: p.nom, r: ks.map(k => { const x = s.find(y => y.k === k); return x && typeof x.r === "number" ? x.r : null; }) }; });
+  const ri = n => { const m = {}; D.marche.mois.forEach(l => m[l[0]] = l[n + 1]); return ks.map(k => ok(m[k]) ? m[k] : null); };
+  const max = Math.max(.04, ...lignes.flatMap(l => l.r).filter(ok).map(Math.abs));
+  const meilleurs = ks.map((k, j) => { let b = null; lignes.forEach(l => { if (ok(l.r[j]) && (b === null || l.r[j] > b.r)) b = { nom: l.nom, r: l.r[j] }; }); return b && lignes.filter(l => ok(l.r[j])).length > 1 ? b.nom : null; });
+  const cell = (r, star) => ok(r) ? '<td class="' + (star ? "star" : "") + '" style="' + teinte(r, max) + '">' + pct(r) + "</td>" : '<td class="vide">·</td>';
+  const pal = palmares(D, env, i1, i2);
+  const gagnees = {}; D.personnes.forEach(p => gagnees[p.nom] = 0); pal.forEach(l => { if (l.vainqueur) gagnees[l.vainqueur]++; });
+
+  v.innerHTML = filtres(true, false) +
+    '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + " · ★ meilleur du mois</small></h2></div>" +
+    '<div class="scroll-x"><table class="grille"><thead><tr><th></th>' + ks.map(k => "<th>" + esc(moisCourt(k)) + "</th>").join("") + "</tr></thead><tbody>" +
+    lignes.map(l => '<tr><td class="nom"><i style="background:' + couleur(l.nom) + '"></i>' + esc(l.nom) + "</td>" + l.r.map((r, j) => cell(r, meilleurs[j] === l.nom)).join("") + "</tr>").join("") +
+    [i1, i2].map(n => '<tr class="indice"><td class="nom"><i style="background:var(--idx)"></i>' + esc(D.marche.indices[n]) + "</td>" + ri(n).map(r => cell(r, false)).join("") + "</tr>").join("") +
+    "</tbody></table></div>" +
+    '<div class="leg-grille"><span><i style="' + teinte(max, max) + '"></i>hausse</span><span><i style="' + teinte(-max, max) + '"></i>baisse</span><span><i style="box-shadow:inset 0 0 0 2px var(--gold)"></i>meilleur du mois entre vous</span></div>' +
+    '<div class="filtres"><label class="sel"><span>Second indice</span><select id="f-i2">' + D.marche.indices.map((n, i) => '<option value="' + i + '"' + (i === i2 ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label></div>" +
+    '<div><h2 class="sec">Palmarès annuel <small>années civiles · figé</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Année</th>' +
+    D.personnes.map(p => "<th>" + esc(p.nom) + "</th>").join("") + "<th>" + esc(D.marche.indices[i1]) + "</th><th>" + esc(D.marche.indices[i2]) + "</th><th>Vainqueur</th></tr></thead><tbody>" +
+    pal.map(l => "<tr><td>" + l.annee + '<br><small class="muted" style="font-weight:400;font-size:11px">' + l.mois + " mois" + (l.enCours ? " · en cours" : l.mois < 12 ? " · partiel" : "") + "</small></td>" +
+      D.personnes.map(p => '<td class="' + sens(l.personnes[p.nom]) + '">' + (p.nom in l.personnes ? pct(l.personnes[p.nom]) : "—") + "</td>").join("") +
+      '<td class="muted">' + pct(l.i1) + '</td><td class="muted">' + pct(l.i2) + "</td><td>" + (l.vainqueur ? '<span class="pastille" style="background:' + couleur(l.vainqueur) + '"></span>' + esc(l.vainqueur) : "—") + "</td></tr>").join("") +
+    "<tr><td>Années gagnées</td>" + D.personnes.map(p => "<td>" + gagnees[p.nom] + "</td>").join("") + "<td></td><td></td><td></td></tr>" +
+    "</tbody></table></div></div>";
+  brancherFiltres("mois");
+  $("#f-i2").addEventListener("change", e => { ETAT.i2 = +e.target.value; garder(); rendreMois(); });
+}
+
+/* ---------- Vue Fiche ---------- */
+function rendreFiche() {
+  const p = D.personnes.find(x => x.nom === ETAT.fiche) || D.personnes[0];
+  const env = ETAT.env, i1 = ETAT.i1;
+  const sAll = serie(p, env);
+  const finP = (sAll.filter(x => x.val !== null && x.val !== undefined).pop() || {}).k;
+  const v = $("#v-fiche");
+  const chips = '<div class="chips" role="group" aria-label="Personne">' + D.personnes.map(x => '<button class="chip" type="button" data-fiche="' + esc(x.nom) + '" aria-pressed="' + (x.nom === p.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>";
+  if (!finP) {
+    v.innerHTML = chips + filtres(true) + '<div class="vide">Pas encore de relevé pour ' + esc(p.nom) + " dans " + esc(ENVELOPPES[env]) + ".</div>";
+  } else {
+    const deb = debutPeriode(D, ETAT.per, finP);
+    const s = stats(D, p, env, deb, finP, i1, null);
+    const tuile = (lab, val, cls, sub) => '<div><span class="lab">' + lab + '</span><span class="val ' + (cls || "") + '">' + val + '</span><span class="sub">' + (sub || "&nbsp;") + "</span></div>";
+    // toutes enveloppes, même période
+    const envs = ENVELOPPES.map((nom, e) => ({ nom, s: stats(D, p, e, deb, finP, i1, null) })).filter(x => ok(x.s.valeur) && x.s.valeur > 0);
+    const totalV = (envs.find(x => x.nom === "Portefeuille") || {}).s;
+    // courbe valeur / versé
+    const pts2 = sAll.filter(x => x.k >= (deb || 0) && x.k <= finP && ok(x.val));
+    const vx = pts2.map(x => x.k);
+    // grille annuelle
+    const annees = [...new Set(sAll.filter(x => typeof x.r === "number").map(x => Math.floor(x.k / 100)))].sort().reverse();
+    const max = Math.max(.04, ...sAll.filter(x => typeof x.r === "number").map(x => Math.abs(x.r)));
+    const obj = (D.objectifs || []).find(o => o.personne === p.nom);
+
+    v.innerHTML = chips + filtres(true) +
+      '<div class="periode">' + esc(textePeriode(deb, finP, s.n)) + (s.debutK && deb && s.debutK > cleMoins(deb, -1) ? " · l'enveloppe a démarré après le début demandé" : "") + "</div>" +
+      '<div class="hero"><span class="eyebrow">' + esc(ENVELOPPES[env]) + " · " + esc(p.nom) + '</span><span class="big">' + eur(s.valeur) + '</span><div class="sous"><span class="badge ' + sens(s.pvLatente) + '">' + eur(s.pvLatente, 0, true) + " · " + pct(s.pvLatentePct) + "</span><span>de plus-value pour " + eur(s.verse) + " versés</span></div></div>" +
+      (s.n ? '<div class="tuiles">' +
+        tuile("Performance (TWR)", pct(s.twr), sens(s.twr), "MWR <b>" + pct(s.mwr) + "</b>") +
+        tuile(esc(D.marche.indices[i1]) + " même période", pct(s.i1.twr), "", "Écart <b class=\"" + sens(s.twr - s.i1.twr) + "\">" + pts(s.twr - s.i1.twr) + "</b>") +
+        tuile("Pire baisse depuis un plus haut", pct(s.baisseMax), sens(s.baisseMax), "Actuelle <b>" + pct(s.baisseActuelle) + "</b>") +
+        tuile("Volatilité annualisée", pct(s.vol, 1, false), "", "Sharpe <b>" + (ok(s.sharpe) ? F2.format(s.sharpe) : "—") + "</b>") +
+        tuile("Meilleur mois (" + moisCourt(s.meilleur.k) + ")", pct(s.meilleur.r), sens(s.meilleur.r), "Pire (" + moisCourt(s.pire.k) + ") <b>" + pct(s.pire.r) + "</b>") +
+        tuile("Plus-value sur la période", eur(s.pvPeriode, 0, true), sens(s.pvPeriode), "Versé <b>" + eur(s.versePeriode) + "</b>") +
+        "</div>" : '<div class="vide">Pas de rendement sur cette période.</div>') +
+      (vx.length > 1 ? '<div><h2 class="sec">Valeur et versements <small>fin de mois</small></h2></div>' + boiteGraphe("g-fiche", [{ nom: "Valeur", c: couleur(p.nom) }, { nom: "Versé cumulé", c: "var(--idx)", dash: true }]) : "") +
+      (env === 0 && envs.length > 1 ? '<div><h2 class="sec">Toutes enveloppes <small>même période</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Enveloppe</th><th>TWR</th><th>Volatilité</th><th>Valeur</th><th>Plus-value</th><th>Poids</th></tr></thead><tbody>' +
+        envs.map(x => "<tr><td>" + esc(x.nom) + '</td><td class="' + sens(x.s.twr) + '">' + pct(x.s.twr) + "</td><td>" + pct(x.s.vol, 1, false) + "</td><td>" + eur(x.s.valeur) + '</td><td class="' + sens(x.s.pvLatente) + '">' + eur(x.s.pvLatente, 0, true) + "<br><small>" + pct(x.s.pvLatentePct) + "</small></td><td>" + pct(totalV ? x.s.valeur / totalV.valeur : null, 0, false) + "</td></tr>").join("") +
+        "</tbody></table></div>" +
+        '<div class="stack" style="margin-top:12px" role="img" aria-label="Répartition">' + envs.filter(x => x.nom !== "Portefeuille").map((x, j) => '<i title="' + esc(x.nom) + '" style="flex:' + x.s.valeur + ";background:color-mix(in srgb, " + couleur(p.nom) + " " + (100 - j * 22) + '%, var(--panel))"></i>').join("") + "</div></div>" : "") +
+      '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + '</small></h2><div class="scroll-x"><table class="grille"><thead><tr><th></th>' + MOIS.map(m => "<th>" + m + "</th>").join("") + "<th>Année</th></tr></thead><tbody>" +
+        annees.map(y => { const st = stats(D, p, env, (y - 1) * 100 + 12, y * 100 + 12, null, null); return '<tr><td class="nom">' + y + "</td>" + MOIS.map((m, j) => { const x = sAll.find(z => z.k === y * 100 + j + 1); return x && typeof x.r === "number" ? '<td style="' + teinte(x.r, max) + '">' + pct(x.r) + "</td>" : '<td class="vide">·</td>'; }).join("") + '<td style="' + teinte(st.twr, max * 3) + '"><b>' + pct(st.twr) + "</b></td></tr>"; }).join("") +
+      "</tbody></table></div></div>" +
+      (obj && env === 0 ? '<div><h2 class="sec">Objectif <small>' + eur(obj.objectif) + " au " + esc(isoFr(obj.dateCible)) + '</small></h2></div><button class="lien" type="button" id="vers-obj">Voir la projection →</button>' : "");
+    if (vx.length > 1) tracer($("#g-fiche"), { x: vx, zeroMin: true, series: [{ nom: "Valeur", v: pts2.map(x => x.val), c: couleur(p.nom), aire: true, w: 2.2 }, { nom: "Versé cumulé", v: pts2.map(x => x.cum), c: "var(--idx)", marche: true, dash: true, w: 1.6 }], fmt: x => eur(x), fmtAxe: t => t >= 1000 ? F0.format(t / 1000) + "k" : F0.format(t), titreX: k => "Fin " + moisCourt(k) });
+    const vo = $("#vers-obj"); if (vo) vo.addEventListener("click", () => allerA("objectifs"));
+  }
+  brancherFiltres("fiche");
+  v.querySelectorAll("[data-fiche]").forEach(b => b.addEventListener("click", () => { ETAT.fiche = b.dataset.fiche; garder(); rendreFiche(); }));
+}
+
+/* ---------- Vue Objectifs ---------- */
+function rendreObjectifs() {
+  const v = $("#v-objectifs");
+  const objs = (D.objectifs || []).filter(o => ok(o.objectif) && o.objectif > 0);
+  if (!objs.length) { v.innerHTML = '<div class="vide">Aucun objectif dans l\'onglet Objectifs du Sheet.</div>'; return; }
+  const choisi = objs.find(o => o.personne === ETAT.fiche) || objs.find(o => o.personne === ETAT.moi) || objs[0];
+  const p = D.personnes.find(x => x.nom === choisi.personne);
+  const der = p ? (serie(p, 0).filter(x => x.val).pop() || {}).k : null;
+  const proj = der && choisi.dateCible ? projection(choisi.valeur, choisi.versementRetenu, choisi.rendement, der, choisi.dateCible) : [];
+  const hist = p ? serie(p, 0).filter(x => x.val) : [];
+  const ks = hist.map(x => x.k).concat(proj.slice(1).map(x => x.k));
+  const reel = ks.map(k => { const x = hist.find(h => h.k === k); return x ? x.val : null; });
+  const pr = ks.map(k => { const x = proj.find(h => h.k === k); return x ? x.v : null; });
+  const atteint = o => /^\d{4}-/.test(String(o.atteint)) ? isoMois(o.atteint) : (o.atteint || "—");
+
+  v.innerHTML = '<div><h2 class="sec">Objectifs <small>à modifier dans l\'onglet Objectifs du Sheet</small></h2></div>' +
+    objs.map(o => {
+      const pc = Math.max(0, Math.min(1, o.progression || 0));
+      return '<div class="obj"><div class="obj-h"><b><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</b><span>" + eur(o.valeur) + ' <span class="muted">/ ' + eur(o.objectif) + "</span></span></div>" +
+        '<div class="piste" role="img" aria-label="Progression ' + pct(pc, 0, false) + '"><i style="width:' + (pc * 100).toFixed(1) + "%;background:" + couleur(o.personne) + '"></i></div>' +
+        '<div class="obj-l"><div><span>Progression</span><b>' + pct(o.progression, 0, false) + "</b></div><div><span>Atteint vers</span><b>" + esc(atteint(o)) + "</b></div><div><span>Projection au " + esc(isoFr(o.dateCible)) + '</span><b class="' + sens(o.ecart) + '">' + eur(o.projection) + "</b></div>" +
+        "<div><span>Versement retenu</span><b>" + eur(o.versementRetenu) + " /mois</b></div><div><span>Rendement supposé</span><b>" + pct(o.rendement, 1, false) + "</b></div><div><span>Écart à l'objectif</span><b class=\"" + sens(o.ecart) + '">' + eur(o.ecart, 0, true) + "</b></div></div></div>";
+    }).join("") +
+    (ks.length > 1 ? '<div><h2 class="sec">Projection <small>' + esc(choisi.personne) + "</small></h2></div>" +
+      '<div class="chips" role="group" aria-label="Personne">' + objs.map(o => '<button class="chip" type="button" data-proj="' + esc(o.personne) + '" aria-pressed="' + (o === choisi) + '"><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</button>").join("") + "</div>" +
+      boiteGraphe("g-proj", [{ nom: "Valeur réelle", c: couleur(choisi.personne) }, { nom: "Projection", c: couleur(choisi.personne), dash: true }, { nom: "Objectif", c: "var(--gold)", dash: true }]) +
+      '<p class="info">Projection : valeur du dernier relevé, + ' + eur(choisi.versementRetenu) + " versés chaque fin de mois, à " + pct(choisi.rendement, 1, false) + " par an. Ce n'est qu'un scénario régulier, les marchés ne le sont pas.</p>" : "");
+  if (ks.length > 1) tracer($("#g-proj"), { x: ks, zeroMin: true, ligneH: choisi.objectif, series: [{ nom: "Valeur réelle", v: reel, c: couleur(choisi.personne), aire: true, w: 2.2 }, { nom: "Projection", v: pr, c: couleur(choisi.personne), dash: true, w: 1.8 }], fmt: x => eur(x), fmtAxe: t => t >= 1000 ? F0.format(t / 1000) + "k" : F0.format(t), titreX: k => "Fin " + moisCourt(k) });
+  v.querySelectorAll("[data-proj]").forEach(b => b.addEventListener("click", () => { ETAT.fiche = b.dataset.proj; garder(); rendreObjectifs(); }));
+}
+
+/* ---------- Saisie du relevé ---------- */
+const NOMS_ENV = ["PEA", "Assurance vie", "CTO", "Crypto"];
+let R = null;
+function lireNb(t) { if (t === null || t === undefined) return null; const x = String(t).replace(/[\s  €]/g, "").replace(",", "."); if (x === "") return null; const n = Number(x); return isFinite(n) ? n : NaN; }
+function enSaisie(n) { return ok(n) ? String(n).replace(".", ",") : ""; }
+function ouvrirSaisie() {
+  if (!D) return;
+  const p = D.personnes.find(x => x.nom === ETAT.moi) || D.personnes[0];
+  R = { nom: p.nom, k: null, forcer: null, erreur: "", envoi: false, tout: false };
+  choisirMoisParDefaut();
+  $("#saisie").hidden = false;
+  rendreSaisie();
+}
+function choisirMoisParDefaut() {
+  const p = D.personnes.find(x => x.nom === R.nom);
+  const rows = p.rows;
+  const vide = rows.find((r, i) => i > 0 && !(r[3][1] > 0) && rows.slice(0, i).some(x => x[3][1] > 0));
+  R.k = vide ? vide[0] : rows[rows.length - 1][0];
+  chargerValeurs();
+}
+function chargerValeurs() {
+  const p = D.personnes.find(x => x.nom === R.nom);
+  const r = p.rows.find(x => x[0] === R.k);
+  R.v = (r ? r[2] : Array(8).fill(null)).map(enSaisie);
+  R.forcer = null; R.erreur = "";
+}
+function utilisees(p) { return NOMS_ENV.map((_, e) => p.rows.some(r => ok(r[2][2 * e + 1]) || (r[2][2 * e] || 0) !== 0)); }
+function rendreSaisie() {
+  const p = D.personnes.find(x => x.nom === R.nom);
+  const idx = p.rows.findIndex(x => x[0] === R.k);
+  const prev = idx > 0 ? p.rows[idx - 1] : null;
+  const util = utilisees(p);
+  const montrer = NOMS_ENV.map((_, e) => R.tout || util[e] || !util.some(Boolean));
+  const opts = p.rows.slice().reverse().map(r => '<option value="' + r[0] + '"' + (r[0] === R.k ? " selected" : "") + ">" + esc(moisLong(r[0])) + (r[3][1] > 0 ? "" : " · à saisir") + "</option>").join("");
+  $("#corps-saisie").innerHTML = '<form class="form" id="form-releve" novalidate style="display:grid;gap:14px">' +
+    '<div class="chips" role="group" aria-label="Personne">' + D.personnes.map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
+    '<label class="sel"><span>Mois (valeurs au ' + finMois(R.k) + ')</span><select id="r-mois">' + opts + "</select></label>" +
+    NOMS_ENV.map((nom, e) => !montrer[e] ? "" :
+      '<div class="env-saisie"><div class="h"><b>' + nom + '</b><span id="r-info-' + e + '"></span></div><div class="rang">' +
+      '<div class="champ"><label for="r-v' + e + '">Versé ce mois (€)</label><input id="r-v' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(R.v[2 * e]) + '"></div>' +
+      '<div class="champ"><label for="r-c' + e + '">Valeur fin de mois (€)</label><input id="r-c' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="—" value="' + esc(R.v[2 * e + 1]) + '"></div></div></div>').join("") +
+    (montrer.every(Boolean) ? "" : '<button class="lien" type="button" id="r-tout">Afficher les autres enveloppes</button>') +
+    '<p class="info">Versé : 0 si rien, négatif si retrait. Valeur : le total affiché par la banque en fin de mois.</p>' +
+    '<div class="recap" id="r-recap"></div><div id="r-alertes" style="display:grid;gap:6px"></div>' +
+    '<button class="btn acc plein" type="submit" id="r-envoyer">Enregistrer le relevé</button></form>';
+  document.querySelectorAll("[data-rp]").forEach(b => b.addEventListener("click", () => { R.nom = b.dataset.rp; R.tout = false; choisirMoisParDefaut(); rendreSaisie(); }));
+  $("#r-mois").addEventListener("change", e => { R.k = +e.target.value; chargerValeurs(); rendreSaisie(); });
+  if ($("#r-tout")) $("#r-tout").addEventListener("click", () => { R.tout = true; rendreSaisie(); });
+  NOMS_ENV.forEach((_, e) => ["v", "c"].forEach((t, j) => { const el = $("#r-" + t + e); if (el) el.addEventListener("input", () => { R.v[2 * e + j] = el.value; R.forcer = null; R.erreur = ""; majSaisie(prev); }); }));
+  $("#form-releve").addEventListener("submit", ev => { ev.preventDefault(); envoyerReleve(false); });
+  majSaisie(prev);
+}
+function majSaisie(prev) {
+  let total = 0, aTotal = false, bloque = false, gain = 0, base = 0;
+  const err = [];
+  NOMS_ENV.forEach((nom, e) => {
+    const vers = lireNb(R.v[2 * e]), val = lireNb(R.v[2 * e + 1]);
+    const info = $("#r-info-" + e);
+    if (Number.isNaN(vers) || Number.isNaN(val)) { bloque = true; err.push(nom + " : montant illisible."); }
+    if (ok(val) && val < 0) { bloque = true; err.push(nom + " : la valeur ne peut pas être négative."); }
+    const pv = prev && ok(prev[2][2 * e + 1]) ? prev[2][2 * e + 1] : 0;
+    if (ok(val)) { total += val; aTotal = true; }
+    if (info) {
+      if (ok(val) && pv + (vers || 0) >= 1) {
+        const r = (val - pv - (vers || 0)) / (pv + (vers || 0));
+        gain += val - pv - (vers || 0); base += pv + (vers || 0);
+        info.innerHTML = 'mois <b class="' + sens(r) + '">' + pct(r) + "</b> · avant " + eur(pv);
+      } else info.textContent = pv ? "avant " + eur(pv) : "";
+    }
+  });
+  $("#r-recap").innerHTML = "<span>Valeur totale</span><b>" + (aTotal ? eur(total, 2) : "—") + (base ? ' · <span class="' + sens(gain) + '">' + pct(gain / base) + "</span>" : "") + "</b>";
+  let al = err.map(t => '<div class="alerte err">' + esc(t) + "</div>").join("");
+  if (R.erreur) al += '<div class="alerte err">' + esc(R.erreur) + "</div>";
+  if (R.forcer) al += '<div class="alerte warn">' + esc(R.forcer) + '<br><button class="btn" type="button" id="r-forcer">Enregistrer quand même</button></div>';
+  $("#r-alertes").innerHTML = al;
+  if ($("#r-forcer")) $("#r-forcer").addEventListener("click", () => envoyerReleve(true));
+  const b = $("#r-envoyer"); b.disabled = bloque || R.envoi; b.textContent = R.envoi ? "Enregistrement…" : "Enregistrer le relevé";
+}
+async function envoyerReleve(forcer) {
+  const valeurs = R.v.map(t => { const n = lireNb(t); return ok(n) ? n : null; });
+  if (SOURCE !== "api") { toast(SOURCE === "demo" ? "Aperçu : le relevé est contrôlé mais rien n'est écrit sans adresse d'API." : "Hors connexion : le relevé n'a pas été envoyé."); if (SOURCE === "demo") $("#saisie").hidden = true; return; }
+  R.envoi = true; R.erreur = ""; majSaisie(null);
+  let rep;
+  try { rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ cle: stock.get(CLES.cle), action: "releve", personne: R.nom, cle: R.k, valeurs, forcer: !!forcer }) })).json(); }
+  catch (e) { rep = { ok: false, message: "Impossible de joindre le fichier : vérifie la connexion puis réessaie." }; }
+  R.envoi = false;
+  if (rep.ok) { $("#saisie").hidden = true; toast(rep.message || "Relevé enregistré."); charger(true); return; }
+  if (rep.erreur === "cle" || rep.erreur === "bloque") { stock.del(CLES.cle); $("#saisie").hidden = true; ouvrirCle(rep.message); return; }
+  if (rep.erreur === "avertissement") R.forcer = rep.message; else R.erreur = rep.message || "Erreur inattendue.";
+  const p = D.personnes.find(x => x.nom === R.nom), i = p.rows.findIndex(x => x[0] === R.k);
+  majSaisie(i > 0 ? p.rows[i - 1] : null);
+}
+let minuteur;
+function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(() => { el.hidden = true; }, 4200); }
+
+/* ---------- Navigation ---------- */
+const VUES = ["classement", "mois", "fiche", "objectifs"];
+function vueActive() { const h = location.hash.replace("#", ""); return VUES.includes(h) ? h : (stock.get(CLES.vue) || "classement"); }
+function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs })[v](); }
+function montrerVue(v) {
+  if (!VUES.includes(v)) v = "classement";
+  document.querySelectorAll(".view").forEach(s => { s.hidden = s.dataset.vue !== v; });
+  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v ? "page" : "false"));
+  stock.set(CLES.vue, v);
+  if (D) rendreVue(v);
+  window.scrollTo(0, 0);
+}
+function allerA(v) { if (location.hash !== "#" + v) location.hash = v; else montrerVue(v); }
+document.querySelectorAll(".onglet").forEach(t => t.addEventListener("click", () => allerA(t.dataset.vue)));
+window.addEventListener("hashchange", () => montrerVue(vueActive()));
+
+/* ---------- Réglages ---------- */
+$("#btn-reglages").addEventListener("click", () => { $("#champ-api").value = stock.get(CLES.api) || API_URL; $("#reglages").hidden = false; });
+$("#fermer-reglages").addEventListener("click", () => { $("#reglages").hidden = true; });
+$("#reglages").addEventListener("click", e => { if (e.target.id === "reglages") $("#reglages").hidden = true; });
+$("#saisie").addEventListener("click", e => { if (e.target.id === "saisie") $("#saisie").hidden = true; });
+$("#fermer-saisie").addEventListener("click", () => { $("#saisie").hidden = true; });
+$("#btn-saisie").addEventListener("click", ouvrirSaisie);
+document.querySelectorAll("[data-theme-choix]").forEach(b => b.addEventListener("click", () => { stock.set(CLES.theme, b.dataset.themeChoix); appliquerTheme(b.dataset.themeChoix); }));
+$("#enregistrer-api").addEventListener("click", () => {
+  const v = $("#champ-api").value.trim();
+  if (v && !/^https:\/\/script\.google(usercontent)?\.com\//.test(v)) { $("#etat-source").textContent = "L'adresse doit être celle de la web app Apps Script (https://script.google.com/…/exec)."; return; }
+  if (v) stock.set(CLES.api, v); else stock.del(CLES.api);
+  $("#reglages").hidden = true; charger(true);
+});
+$("#oublier-cle").addEventListener("click", () => { stock.del(CLES.cle); $("#reglages").hidden = true; if (apiUrl()) ouvrirCle(""); });
+$("#btn-maj").addEventListener("click", () => charger(true));
+document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie").hidden = true; $("#reglages").hidden = true; } });
+let attente, largeur = window.innerWidth;
+window.addEventListener("resize", () => { if (window.innerWidth === largeur) return; largeur = window.innerWidth; clearTimeout(attente); attente = setTimeout(() => { if (D) rendreVue(vueActive()); }, 150); });
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (D) rendreVue(vueActive()); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden && SOURCE !== "demo") charger(false); });
+
+/* ---------- Démarrage ---------- */
+appliquerTheme(stock.get(CLES.theme) || "auto");
+montrerVue(vueActive());
+charger(false);
+</script>
+</body>
+</html>
