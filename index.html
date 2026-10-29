@@ -61,6 +61,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { min-height: 100%; }
 body {
   background: var(--bg); color: var(--ink); font: 15px/1.45 var(--f-text);
@@ -117,10 +118,10 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 /* Tour de chronométrage */
 .bref { padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); font-size: 14px; color: var(--ink-2); }
 .bref b { color: var(--ink); font-weight: 600; }
-.tour { display: grid; border-radius: 14px; overflow: hidden; background: var(--panel); border: 1px solid var(--rule); }
+.tour { position: relative; display: grid; border-radius: 14px; overflow: hidden; background: var(--panel); border: 1px solid var(--rule); }
 .tour-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 78px; gap: 10px; padding: 8px 12px; font: 700 10.5px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); background: var(--panel-2); }
 .tour-h span:nth-child(3), .tour-h span:nth-child(4) { text-align: right; }
-.pos { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 78px; gap: 10px; align-items: center; padding: 11px 12px; border-top: 1px solid var(--rule-2); cursor: pointer; position: relative; }
+.pos { will-change: transform; background: var(--panel); display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 78px; gap: 10px; align-items: center; padding: 11px 12px; border-top: 1px solid var(--rule-2); cursor: pointer; position: relative; }
 .pos:hover { background: var(--panel-2); }
 .pos .rk { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; background: var(--ink); color: var(--bg); font: italic 800 17px/1 var(--f-display); }
 .pos .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -464,7 +465,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbzRnBOjVh1PizKhUZi8wfE8ADXiOyajPgwOvF9AfwDu62XXJpF0iQMhLJDOf3Mcg50-Ig/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwNW8BGSk0jXJMFMvVQAdjEiujyorG2PGxu9nUc0i5vHg8VAopPz5Nhfy_AM7aGwRcBUA/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -495,6 +496,9 @@ function pct(v, dec = 1, signe = true) {
   const r = Math.round(v * 100 * 10 ** dec);
   return (signe ? sg(r) : (r < 0 ? MOINS : "")) + nf(dec, dec).format(Math.abs(v * 100)) + NB + "%";
 }
+const RECUL = 6;
+function volTxt(s) { return s.n < RECUL ? "peu de recul" : pct(s.vol, 1, false); }
+function sharpeTxt(s) { return s.n < RECUL || !ok(s.sharpe) ? "—" : F2.format(s.sharpe); }
 function pts(v) { if (!ok(v)) return "—"; const r = Math.round(v * 1000); return sg(r) + F1.format(Math.abs(v * 100)) + NB + "pt" + (Math.abs(v * 100) >= 2 ? "s" : ""); }
 function sens(v) { return !ok(v) || Math.abs(v) < 1e-9 ? "flat" : v > 0 ? "up" : "down"; }
 function esc(t) { return String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -502,7 +506,10 @@ const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août"
 const MOIS_L = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 function moisCourt(k) { return MOIS[k % 100 - 1] + " " + String(Math.floor(k / 100)).slice(2); }
 function moisLong(k) { return MOIS_L[k % 100 - 1] + " " + Math.floor(k / 100); }
-function finMois(k) { const d = cleVersDate(k); return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear(); }
+function jourReleve(y, m) { const d = new Date(y, m, 0, 12); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1); return d; }
+function finMois(k) {
+  const r = D && D.personnes && D.personnes[0] && D.personnes[0].rows.find(x => x[0] === k);
+  const d = r && r[1] ? new Date(r[1] + "T12:00:00") : jourReleve(Math.floor(k / 100), k % 100); return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear(); }
 function isoFr(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "—"; }
 function isoMois(iso) { return iso ? MOIS[+iso.slice(5, 7) - 1] + " " + iso.slice(0, 4) : "—"; }
 
@@ -690,6 +697,40 @@ function textePeriode(deb, fin, n) {
   return (deb ? "Du " + finMois(deb) : "Depuis le premier relevé") + " au " + finMois(fin) + " · " + n + " mois";
 }
 
+/* ---------- Animations (coupées si « réduire les animations ») ---------- */
+const ANIM = !reduit;
+const adoucir = t => 1 - Math.pow(1 - t, 3);
+function devoiler(rect, de, a) {
+  if (!rect) return;
+  const t0 = performance.now(), duree = 950;
+  const pas = t => { const x = Math.min(1, (t - t0) / duree); rect.setAttribute("width", de + (a - de) * adoucir(x)); if (x < 1) requestAnimationFrame(pas); };
+  requestAnimationFrame(pas);
+}
+/* Chiffres qui défilent : éléments marqués data-cv (valeur) et data-cf (« pct » ou « eur ») */
+function compterChiffres(racine) {
+  if (!ANIM || !racine) return;
+  racine.querySelectorAll("[data-cv]").forEach(el => {
+    const fin = Number(el.dataset.cv), f = el.dataset.cf === "eur" ? (v => eur(v)) : (v => pct(v));
+    if (!isFinite(fin) || (el.dataset.cf === "eur" && ETAT.discret === "oui")) return;
+    const t0 = performance.now(), duree = 750;
+    const pas = t => { const x = Math.min(1, (t - t0) / duree); el.textContent = f(fin * adoucir(x)); if (x < 1) requestAnimationFrame(pas); else el.textContent = f(fin); };
+    requestAnimationFrame(pas);
+  });
+}
+/* Tour de classement : les lignes glissent vers leur nouvelle position */
+function positionsTour(v) { const p = {}; v.querySelectorAll(".pos[data-key]").forEach(el => p[el.dataset.key] = el.offsetTop); return p; }
+function glisserTour(v, avant) {
+  if (!ANIM || !avant || !Object.keys(avant).length) return;
+  v.querySelectorAll(".pos[data-key]").forEach(el => {
+    const ancien = avant[el.dataset.key]; if (ancien === undefined) return;
+    const dy = ancien - el.offsetTop; if (Math.abs(dy) < 2) return;
+    el.style.transition = "none"; el.style.transform = "translateY(" + dy + "px)"; el.style.zIndex = dy > 0 ? 2 : 1;
+    el.getBoundingClientRect();
+    el.style.transition = "transform .55s cubic-bezier(.2,.8,.2,1)"; el.style.transform = "";
+    el.addEventListener("transitionend", () => { el.style.zIndex = ""; el.style.transition = ""; }, { once: true });
+  });
+}
+
 /* ---------- Graphique générique ---------- */
 function tracer(box, conf) {
   const svg = box.querySelector("svg"), tip = box.querySelector(".tip");
@@ -723,6 +764,8 @@ function tracer(box, conf) {
     o += '<text x="' + x.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(k % 100 === 1 ? String(Math.floor(k / 100)) : MOIS[k % 100 - 1]) + "</text>";
   });
   if (conf.ligneH !== undefined) o += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(conf.ligneH).toFixed(1) + '" y2="' + Y(conf.ligneH).toFixed(1) + '" stroke="' + C("var(--gold)") + '" stroke-width="1.5" stroke-dasharray="6 4"/>';
+  const cid = "clip-" + (box.id || "g");
+  o += '<defs><clipPath id="' + cid + '"><rect class="revele" x="0" y="0" width="' + (ANIM ? m.l : W) + '" height="' + H + '"/></clipPath></defs><g clip-path="url(#' + cid + ')">';
   const fins = [];
   conf.series.forEach(s => {
     let d = "", ouvert = false, dernier = null;
@@ -745,9 +788,11 @@ function tracer(box, conf) {
   fins.sort((a, b) => a.y - b.y);
   for (let i = 1; i < fins.length; i++) if (fins[i].y - fins[i - 1].y < 13) fins[i].y = fins[i - 1].y + 13;
   fins.forEach(f => { o += '<text x="' + (W - m.r + 6) + '" y="' + (f.y + 4).toFixed(1) + '" fill="' + C(f.c) + '" style="fill:' + C(f.c) + ';font-weight:600">' + esc(f.t) + "</text>"; });
+  o += "</g>";
   o += '<line class="cross" x1="0" x2="0" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="' + C("var(--ink-3)") + '" visibility="hidden"/><g class="dots"></g>';
   o += '<rect class="hit" x="' + m.l + '" y="0" width="' + iw + '" height="' + H + '" fill="transparent"/>';
   svg.innerHTML = o;
+  if (ANIM) devoiler(svg.querySelector(".revele"), m.l, W);
   const cross = svg.querySelector(".cross"), dots = svg.querySelector(".dots"), hit = svg.querySelector(".hit");
   const montrer = ev => {
     const r = svg.getBoundingClientRect();
@@ -774,6 +819,7 @@ function boiteGraphe(id, legende) {
 function rendreClassement() {
   const { fin, deb } = cadre();
   const v = $("#v-classement");
+  const avantTour = positionsTour(v);
   if (!fin) { v.innerHTML = filtres(true) + '<div class="vide">Aucun relevé pour cette enveloppe.</div>'; brancherFiltres("classement"); return; }
   const env = ETAT.env, i1 = ETAT.i1;
   const st = D.personnes.map(p => stats(D, p, env, deb, fin, i1, null)).filter(s => s.n > 0);
@@ -793,19 +839,23 @@ function rendreClassement() {
   const duMois = D.personnes.map(p => { const x = serie(p, env).find(s => s.k === der && typeof s.r === "number"); return x ? { nom: p.nom, r: x.r } : null; }).filter(Boolean).sort((a, b) => b.r - a.r);
   const iDer = (D.marche.mois.find(l => l[0] === der) || [])[i1 + 1];
   const battent = st.filter(s => s.i1 && s.twr > s.i1.twr).map(s => s.nom);
+  const anomalies = anomaliesDonnees(env);
+  const pal = victoires(env);
+  const enSerie = Object.entries(pal).filter(([, x]) => x.serie >= 2).sort((a, b) => b[1].serie - a[1].serie)[0];
   let bref = "";
   if (duMois.length) bref += "<b>" + esc(moisLong(der)) + "</b> : meilleur mois pour <b>" + esc(duMois[0].nom) + "</b> (" + pct(duMois[0].r) + ")" + (duMois.length > 1 ? ", plus dur pour <b>" + esc(duMois[duMois.length - 1].nom) + "</b> (" + pct(duMois[duMois.length - 1].r) + ")" : "") + (ok(iDer) ? ", " + esc(D.marche.indices[i1]) + " " + pct(iDer) : "") + ". ";
+  if (enSerie) bref += "<b>" + esc(enSerie[0]) + "</b> enchaîne " + enSerie[1].serie + " victoires mensuelles d'affilée. ";
   if (leader) bref += "Sur la période, <b>" + esc(leader.nom) + "</b> mène avec " + pct(leader.twr) + (battent.length ? ", " + battent.map(esc).join(" et ") + (battent.length > 1 ? " battent " : " bat ") + esc(D.marche.indices[i1]) + " à mois égaux." : " ; personne ne bat " + esc(D.marche.indices[i1]) + " à mois égaux.");
 
   const tour = lignes.map(s => {
     if (s.fantome) {
-      return '<div class="pos ghost"><span class="rk">IDX</span><div class="who"><i></i><div><b>' + esc(s.nom) + "</b><small>indice · " + s.n + ' mois</small></div></div><span class="t ' + sens(s.twr) + '">' + pct(s.twr) + '</span><span class="g">' + pts(s.twr - leader.twr) + "</span></div>";
+      return '<div class="pos ghost" data-key="idx"><span class="rk">IDX</span><div class="who"><i></i><div><b>' + esc(s.nom) + "</b><small>indice · " + s.n + ' mois</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + '</span><span class="g">' + pts(s.twr - leader.twr) + "</span></div>";
     }
     rang++;
     const ecart = s.i1 ? s.twr - s.i1.twr : null;
-    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who"><i style="background:' + couleur(s.nom) + '"></i><div><b>' + esc(s.nom) +
+    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who"><i style="background:' + couleur(s.nom) + '"></i><div><b>' + esc(s.nom) +
       (s.nom === ETAT.moi ? '<span class="tag moi">moi</span>' : "") + (manque.has(s.nom) ? '<span class="tag manque">relevé à saisir</span>' : "") +
-      "</b><small>" + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '">' + pct(s.twr) + "</span>" +
+      "</b><small>" + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
       (s === leader ? '<span class="g lead">LEADER</span>' : '<span class="g">' + pts(s.twr - leader.twr) + "</span>") + "</div>";
   }).join("");
 
@@ -828,6 +878,7 @@ function rendreClassement() {
   v.innerHTML = filtres(true) +
     '<div class="periode">' + esc(textePeriode(deb, fin, nMois)) + (deb && st.some(s => s.n < nMois) ? " · chaque courbe démarre au premier relevé de la personne" : "") + "</div>" +
     (bref ? '<div class="bref">' + bref + "</div>" : "") +
+    (anomalies.length ? '<div style="display:grid;gap:6px">' + anomalies.map(t => '<div class="alerte warn">' + t + "</div>").join("") + "</div>" : "") +
     '<div><h2 class="sec">Classement <small>performance (TWR), versements neutralisés</small></h2></div>' +
     '<div class="tour"><div class="tour-h"><span>Pos.</span><span>Portefeuille</span><span>TWR</span><span>Écart</span></div>' + tour + "</div>" +
     "<div>" + '<h2 class="sec">La course <small>performance cumulée</small></h2></div>' +
@@ -841,6 +892,8 @@ function rendreClassement() {
 
   brancherFiltres("classement");
   tracer($("#g-course"), { x: ks, series: series, base: true, finEtiq: true, fmt: x => pct(x), fmtAxe: t => pct(t, 0), titreX: k => "Fin " + moisCourt(k) });
+  glisserTour(v, avantTour);
+  if (!Object.keys(avantTour).length) compterChiffres(v.querySelector(".tour"));
   v.querySelectorAll(".pos[data-nom]").forEach(el => {
     const ouvrir = () => {
       const s = st.find(x => x.nom === el.dataset.nom);
@@ -848,7 +901,7 @@ function rendreClassement() {
       if (suiv && suiv.classList.contains("detail")) { suiv.remove(); el.setAttribute("aria-expanded", "false"); return; }
       const c = (l, val, cls) => "<div><span>" + l + '</span><b class="' + (cls || "") + '">' + val + "</b></div>";
       const d = document.createElement("div"); d.className = "detail";
-      d.innerHTML = '<div class="mini">' + c("Volatilité", pct(s.vol, 1, false)) + c("Sharpe", ok(s.sharpe) ? F2.format(s.sharpe) : "—") + c("Pire baisse", pct(s.baisseMax), sens(s.baisseMax)) +
+      d.innerHTML = '<div class="mini">' + c("Volatilité", volTxt(s)) + c("Sharpe", sharpeTxt(s)) + c("Pire baisse", pct(s.baisseMax), sens(s.baisseMax)) +
         c("Meilleur (" + moisCourt(s.meilleur.k) + ")", pct(s.meilleur.r), sens(s.meilleur.r)) + c("Pire (" + moisCourt(s.pire.k) + ")", pct(s.pire.r), sens(s.pire.r)) + c("MWR", pct(s.mwr), sens(s.mwr)) +
         c(esc(D.marche.indices[i1]) + " même période", pct(s.i1 && s.i1.twr)) + c("Mois battant l'indice", pct(s.i1 && s.i1.battus, 0, false)) + c("Plus-value période", eur(s.pvPeriode, 0, true), sens(s.pvPeriode)) +
         '</div><button class="lien" type="button" style="margin-top:8px">Ouvrir la fiche de ' + esc(s.nom) + " →</button>";
@@ -858,6 +911,53 @@ function rendreClassement() {
     el.addEventListener("click", ouvrir);
     el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ouvrir(); } });
   });
+}
+
+/* ---------- Anomalies dans les relevés déjà saisis ---------- */
+function anomaliesDonnees(env) {
+  const out = [];
+  D.personnes.forEach(p => {
+    const rows = p.rows.filter(r => aUnReleveBrut(r[2]));
+    if (rows.length < 2) return;
+    const r = rows[rows.length - 1], pr = rows[rows.length - 2];
+    ["PEA", "Assurance vie", "CTO", "Crypto"].forEach((nom, e) => {
+      const v = r[2][2 * e + 1], pv = pr[2][2 * e + 1], ve = r[2][2 * e] || 0;
+      if (!ok(v) && ok(pv) && pv > 0) out.push("<b>" + esc(p.nom) + "</b>, " + esc(moisLong(r[0])) + " : valeur " + nom + " manquante (" + eur(pv) + " le mois d'avant). Le total du portefeuille est faussé.");
+      else if (ok(v) && ok(pv) && pv > 0 && pv + ve / 2 > 0) {
+        const x = (v - pv - ve) / (pv + ve / 2);
+        if (Math.abs(x) > .25) out.push("<b>" + esc(p.nom) + "</b>, " + esc(moisLong(r[0])) + " : " + nom + " " + pct(x, 0) + " sur le mois, à vérifier.");
+      }
+    });
+  });
+  return out;
+}
+function aUnReleveBrut(b) { return [1, 3, 5, 7].some(i => ok(b[i])); }
+
+/* ---------- Victoires mensuelles, séries et mois en tête ---------- */
+function victoires(env) {
+  const fin = finGlobale(D, env);
+  const ks = [...new Set(D.personnes.flatMap(p => serie(p, env).filter(x => typeof x.r === "number" && x.k <= fin).map(x => x.k)))].sort((a, b) => a - b);
+  const res = {};
+  D.personnes.forEach(p => res[p.nom] = { victoires: 0, serie: 0, record: 0, enTete: 0, battu: 0, mois: 0 });
+  const series = D.personnes.map(p => ({ nom: p.nom, s: serie(p, env) }));
+  const iMois = {}; D.marche.mois.forEach(l => iMois[l[0]] = l[ETAT.i1 + 1]);
+  const courant = {};
+  ks.forEach(k => {
+    const du = series.map(x => { const y = x.s.find(z => z.k === k); return { nom: x.nom, r: y && typeof y.r === "number" ? y.r : null }; }).filter(x => x.r !== null);
+    du.forEach(x => { res[x.nom].mois++; if (ok(iMois[k]) && x.r > iMois[k]) res[x.nom].battu++; });
+    const best = du.length > 1 ? du.reduce((a, b) => b.r > a.r ? b : a) : null;
+    D.personnes.forEach(p => {
+      if (best && best.nom === p.nom) { res[p.nom].victoires++; courant[p.nom] = (courant[p.nom] || 0) + 1; res[p.nom].record = Math.max(res[p.nom].record, courant[p.nom]); }
+      else if (du.some(x => x.nom === p.nom)) courant[p.nom] = 0;
+    });
+    // en tête du classement de l'année à la fin de ce mois
+    const y = Math.floor(k / 100), deb = (y - 1) * 100 + 12;
+    let lead = null, lt = -Infinity;
+    D.personnes.forEach(p => { const st = stats(D, p, env, deb, k, null, null); if (st.n && st.twr > lt && serie(p, env).some(z => z.k === k && typeof z.r === "number")) { lt = st.twr; lead = p.nom; } });
+    if (lead) res[lead].enTete++;
+  });
+  D.personnes.forEach(p => res[p.nom].serie = courant[p.nom] || 0);
+  return res;
 }
 
 /* ---------- Vue Mois ---------- */
@@ -888,6 +988,7 @@ function rendreMois() {
     "</tbody></table></div>" +
     '<div class="leg-grille"><span><i style="' + teinte(max, max) + '"></i>hausse</span><span><i style="' + teinte(-max, max) + '"></i>baisse</span><span><i style="box-shadow:inset 0 0 0 2px var(--gold)"></i>meilleur du mois entre vous</span></div>' +
     '<div class="filtres"><label class="sel"><span>Second indice</span><select id="f-i2">' + D.marche.indices.map((n, i) => '<option value="' + i + '"' + (i === i2 ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label></div>" +
+    palmaresMois(env) +
     '<div><h2 class="sec">Palmarès annuel <small>années civiles · figé</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Année</th>' +
     D.personnes.map(p => "<th>" + esc(p.nom) + "</th>").join("") + "<th>" + esc(D.marche.indices[i1]) + "</th><th>" + esc(D.marche.indices[i2]) + "</th><th>Vainqueur</th></tr></thead><tbody>" +
     pal.map(l => "<tr><td>" + l.annee + '<br><small class="muted" style="font-weight:400;font-size:11px">' + l.mois + " mois" + (l.enCours ? " · en cours" : l.mois < 12 ? " · partiel" : "") + "</small></td>" +
@@ -897,6 +998,14 @@ function rendreMois() {
     "</tbody></table></div></div>";
   brancherFiltres("mois");
   $("#f-i2").addEventListener("change", e => { ETAT.i2 = +e.target.value; garder(); rendreMois(); });
+}
+
+function palmaresMois(env) {
+  const v = victoires(env);
+  const tri = D.personnes.map(p => Object.assign({ nom: p.nom }, v[p.nom])).filter(x => x.mois).sort((a, b) => b.victoires - a.victoires || b.enTete - a.enTete);
+  return '<div><h2 class="sec">Victoires <small>★ = meilleur mois entre vous</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Personne</th><th>★ Victoires</th><th>Série en cours</th><th>Record</th><th>Mois en tête</th><th>Bat ' + esc(D.marche.indices[ETAT.i1]) + "</th></tr></thead><tbody>" +
+    tri.map(x => '<tr><td><span class="pastille" style="background:' + couleur(x.nom) + '"></span>' + esc(x.nom) + "</td><td>" + x.victoires + " / " + x.mois + "</td><td>" + (x.serie >= 2 ? "<b>" + x.serie + "</b>" : x.serie || "—") + "</td><td>" + x.record + "</td><td>" + x.enTete + "</td><td>" + pct(x.mois ? x.battu / x.mois : null, 0, false) + "</td></tr>").join("") +
+    '</tbody></table></div><p class="info" style="margin-top:8px">Mois en tête : nombre de fins de mois où la personne menait le classement de l\'année en cours.</p></div>';
 }
 
 /* ---------- Vue Fiche ---------- */
@@ -926,18 +1035,18 @@ function rendreFiche() {
 
     v.innerHTML = chips + filtres(true) +
       '<div class="periode">' + esc(textePeriode(deb, finP, s.n)) + (s.debutK && deb && s.debutK > cleMoins(deb, -1) ? " · l'enveloppe a démarré après le début demandé" : "") + "</div>" +
-      '<div class="hero"><span class="eyebrow">' + esc(ENVELOPPES[env]) + " · " + esc(p.nom) + '</span><span class="big">' + eur(s.valeur) + '</span><div class="sous"><span class="badge ' + sens(s.pvLatente) + '">' + eur(s.pvLatente, 0, true) + " · " + pct(s.pvLatentePct) + "</span><span>de plus-value pour " + eur(s.verse) + " versés</span></div></div>" +
+      '<div class="hero"><span class="eyebrow">' + esc(ENVELOPPES[env]) + " · " + esc(p.nom) + '</span><span class="big" data-cv="' + s.valeur + '" data-cf="eur">' + eur(s.valeur) + '</span><div class="sous"><span class="badge ' + sens(s.pvLatente) + '">' + eur(s.pvLatente, 0, true) + " · " + pct(s.pvLatentePct) + "</span><span>de plus-value pour " + eur(s.verse) + " versés</span></div></div>" +
       (s.n ? '<div class="tuiles">' +
         tuile("Performance (TWR)", pct(s.twr), sens(s.twr), "MWR <b>" + pct(s.mwr) + "</b>") +
         tuile(esc(D.marche.indices[i1]) + " même période", pct(s.i1.twr), "", "Écart <b class=\"" + sens(s.twr - s.i1.twr) + "\">" + pts(s.twr - s.i1.twr) + "</b>") +
         tuile("Pire baisse depuis un plus haut", pct(s.baisseMax), sens(s.baisseMax), "Actuelle <b>" + pct(s.baisseActuelle) + "</b>") +
-        tuile("Volatilité annualisée", pct(s.vol, 1, false), "", "Sharpe <b>" + (ok(s.sharpe) ? F2.format(s.sharpe) : "—") + "</b>") +
+        tuile("Volatilité annualisée", volTxt(s), "", s.n < RECUL ? "moins de " + RECUL + " mois de données" : "Sharpe <b>" + sharpeTxt(s) + "</b>") +
         tuile("Meilleur mois (" + moisCourt(s.meilleur.k) + ")", pct(s.meilleur.r), sens(s.meilleur.r), "Pire (" + moisCourt(s.pire.k) + ") <b>" + pct(s.pire.r) + "</b>") +
         tuile("Plus-value sur la période", eur(s.pvPeriode, 0, true), sens(s.pvPeriode), "Versé <b>" + eur(s.versePeriode) + "</b>") +
         "</div>" : '<div class="vide">Pas de rendement sur cette période.</div>') +
       (vx.length > 1 ? '<div><h2 class="sec">Valeur et versements <small>fin de mois</small></h2></div>' + boiteGraphe("g-fiche", [{ nom: "Valeur", c: couleur(p.nom) }, { nom: "Versé cumulé", c: "var(--idx)", dash: true }]) : "") +
       (env === 0 && envs.length > 1 ? '<div><h2 class="sec">Toutes enveloppes <small>même période</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Enveloppe</th><th>TWR</th><th>Volatilité</th><th>Valeur</th><th>Plus-value</th><th>Poids</th></tr></thead><tbody>' +
-        envs.map(x => "<tr><td>" + esc(x.nom) + '</td><td class="' + sens(x.s.twr) + '">' + pct(x.s.twr) + "</td><td>" + pct(x.s.vol, 1, false) + "</td><td>" + eur(x.s.valeur) + '</td><td class="' + sens(x.s.pvLatente) + '">' + eur(x.s.pvLatente, 0, true) + "<br><small>" + pct(x.s.pvLatentePct) + "</small></td><td>" + pct(totalV ? x.s.valeur / totalV.valeur : null, 0, false) + "</td></tr>").join("") +
+        envs.map(x => "<tr><td>" + esc(x.nom) + '</td><td class="' + sens(x.s.twr) + '">' + pct(x.s.twr) + "</td><td>" + (x.s.n ? volTxt(x.s) : "—") + "</td><td>" + eur(x.s.valeur) + '</td><td class="' + sens(x.s.pvLatente) + '">' + eur(x.s.pvLatente, 0, true) + "<br><small>" + pct(x.s.pvLatentePct) + "</small></td><td>" + pct(totalV ? x.s.valeur / totalV.valeur : null, 0, false) + "</td></tr>").join("") +
         "</tbody></table></div>" +
         '<div class="stack" style="margin-top:12px" role="img" aria-label="Répartition">' + envs.filter(x => x.nom !== "Portefeuille").map((x, j) => '<i title="' + esc(x.nom) + '" style="flex:' + x.s.valeur + ";background:color-mix(in srgb, " + couleur(p.nom) + " " + (100 - j * 22) + '%, var(--panel))"></i>').join("") + "</div></div>" : "") +
       '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + '</small></h2><div class="scroll-x"><table class="grille"><thead><tr><th></th>' + MOIS.map(m => "<th>" + m + "</th>").join("") + "<th>Année</th></tr></thead><tbody>" +
@@ -946,6 +1055,7 @@ function rendreFiche() {
       (obj && env === 0 ? '<div><h2 class="sec">Objectif <small>' + eur(obj.objectif) + " au " + esc(isoFr(obj.dateCible)) + '</small></h2></div><button class="lien" type="button" id="vers-obj">Voir la projection →</button>' : "");
     if (vx.length > 1) tracer($("#g-fiche"), { x: vx, zeroMin: true, series: [{ nom: "Valeur", v: pts2.map(x => x.val), c: couleur(p.nom), aire: true, w: 2.2 }, { nom: "Versé cumulé", v: pts2.map(x => x.cum), c: "var(--idx)", marche: true, dash: true, w: 1.6 }], fmt: x => eur(x), fmtAxe: axeEur, titreX: k => "Fin " + moisCourt(k) });
     const vo = $("#vers-obj"); if (vo) vo.addEventListener("click", () => allerA("objectifs"));
+    compterChiffres(v.querySelector(".hero"));
   }
   brancherFiltres("fiche");
   v.querySelectorAll("[data-fiche]").forEach(b => b.addEventListener("click", () => { ETAT.fiche = b.dataset.fiche; garder(); rendreFiche(); }));
@@ -1098,20 +1208,20 @@ function rendreSaisie() {
   const st = etatReleve(p.nom, R.k);
   const fige = st.etat === "fige";
   const maintenant = new Date(), cleAuj = maintenant.getFullYear() * 100 + maintenant.getMonth() + 1;
-  const dernierJour = new Date(maintenant.getFullYear(), maintenant.getMonth() + 1, 0).getDate() === maintenant.getDate();
+  const dernierJour = jourReleve(maintenant.getFullYear(), maintenant.getMonth() + 1).getDate() === maintenant.getDate();
   const avantCloture = R.k === cleAuj && dernierJour && maintenant.getHours() < 18;
   const bandeauEtat = fige ? '<div class="alerte">Relevé figé : ' + (st.j ? "saisi il y a plus de " + JOURS_MODIF() + " jours" : "saisi dans le Sheet") + ". Il ne se modifie plus que dans l'onglet Data " + esc(p.nom) + " du Sheet.</div>"
     : st.etat === "modif" ? '<div class="alerte warn">Déjà saisi ' + (st.j.action === "Import auto" ? "par l'import automatique" : "le " + dateHeure(new Date(st.j.t))) + " : modifiable jusqu'au " + dateHeure(st.lim) + ".</div>" : "";
   $("#corps-saisie").innerHTML = '<form class="form" id="form-releve" novalidate style="display:grid;gap:14px">' +
     '<div class="chips" role="group" aria-label="Personne">' + D.personnes.filter(x => estAdmin() || x.nom === SESSION.nom).map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
     '<label class="sel"><span>Mois (valeurs au ' + finMois(R.k) + ')</span><select id="r-mois">' + opts + "</select></label>" + bandeauEtat +
-    (avantCloture ? '<div class="alerte warn">Dernier jour du mois : attends la clôture (18 h) pour saisir les valeurs de fin de mois.</div>' : "") +
+    (avantCloture ? '<div class="alerte warn">Jour du relevé : attends la clôture (18 h) pour saisir les valeurs de fin de mois.</div>' : "") +
     NOMS_ENV.map((nom, e) => !montrer[e] ? "" :
       '<div class="env-saisie"><div class="h"><b>' + nom + '</b><span id="r-info-' + e + '"></span></div><div class="rang">' +
       '<div class="champ"><label for="r-v' + e + '">Versé ce mois (€)</label><input id="r-v' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(R.v[2 * e]) + '"' + (fige ? " disabled" : "") + "></div>" +
       '<div class="champ"><label for="r-c' + e + '">Valeur fin de mois (€)</label><input id="r-c' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="—" value="' + esc(R.v[2 * e + 1]) + '"' + (fige ? " disabled" : "") + "></div></div></div>").join("") +
     (montrer.every(Boolean) ? "" : '<button class="lien" type="button" id="r-tout">Afficher les autres enveloppes</button>') +
-    '<p class="info">Versé : 0 si rien, négatif si retrait. Valeur : le total affiché par la banque en fin de mois.</p>' +
+    '<p class="info">Versé : 0 si rien, négatif si retrait. Valeur : le total affiché par la banque en fin de mois, 0 si l\'enveloppe est vidée. Le rendement affiché compte le versement à moitié (arrivé en moyenne en milieu de mois).</p>' +
     '<div class="recap" id="r-recap"></div><div id="r-alertes" style="display:grid;gap:6px"></div>' +
     (fige ? "" : '<button class="btn acc plein" type="submit" id="r-envoyer">' + (st.etat === "modif" ? "Enregistrer la modification" : "Enregistrer le relevé") + "</button>") + "</form>";
   document.querySelectorAll("[data-rp]").forEach(b => b.addEventListener("click", () => { R.nom = b.dataset.rp; R.tout = false; choisirMoisParDefaut(); rendreSaisie(); }));
@@ -1123,24 +1233,28 @@ function rendreSaisie() {
 }
 function majSaisie(prev) {
   let total = 0, aTotal = false, bloque = false, gain = 0, base = 0;
-  const err = [];
+  const err = [], avert = [];
   NOMS_ENV.forEach((nom, e) => {
     const vers = lireNb(R.v[2 * e]), val = lireNb(R.v[2 * e + 1]);
     const info = $("#r-info-" + e);
     if (Number.isNaN(vers) || Number.isNaN(val)) { bloque = true; err.push(nom + " : montant illisible."); }
     if (ok(val) && val < 0) { bloque = true; err.push(nom + " : la valeur ne peut pas être négative."); }
     const pv = prev && ok(prev[2][2 * e + 1]) ? prev[2][2 * e + 1] : 0;
+    if (!ok(val) && !Number.isNaN(val) && pv > 0) { bloque = true; err.push(nom + " valait " + eur(pv) + " le mois dernier : saisis sa valeur (0 si l'enveloppe est vidée)."); }
+    else if (!ok(val) && ok(vers) && vers !== 0) { bloque = true; err.push(nom + " : un versement est saisi mais pas la valeur de fin de mois."); }
+    if (ok(val) && pv > 0 && !vers && Math.round(val * 100) === Math.round(pv * 100)) avert.push(nom + " : valeur identique au centime au mois dernier, copier-coller ?");
     if (ok(val)) { total += val; aTotal = true; }
     if (info) {
-      if (ok(val) && pv + (vers || 0) >= 1) {
-        const r = (val - pv - (vers || 0)) / (pv + (vers || 0));
-        gain += val - pv - (vers || 0); base += pv + (vers || 0);
+      if (ok(val) && pv > 0 && pv + (vers || 0) / 2 > 0) {
+        const r = (val - pv - (vers || 0)) / (pv + (vers || 0) / 2);
+        if (Math.abs(r) > .25) avert.push(nom + " : " + pct(r, 0) + " sur le mois, vérifie le versement et la valeur.");
+        gain += val - pv - (vers || 0); base += pv + (vers || 0) / 2;
         info.innerHTML = 'mois <b class="' + sens(r) + '">' + pct(r) + "</b> · avant " + eur(pv);
       } else info.textContent = pv ? "avant " + eur(pv) : "";
     }
   });
   $("#r-recap").innerHTML = "<span>Valeur totale</span><b>" + (aTotal ? eur(total, 2) : "—") + (base ? ' · <span class="' + sens(gain) + '">' + pct(gain / base) + "</span>" : "") + "</b>";
-  let al = err.map(t => '<div class="alerte err">' + esc(t) + "</div>").join("");
+  let al = err.map(t => '<div class="alerte err">' + esc(t) + "</div>").join("") + avert.map(t => '<div class="alerte warn">' + esc(t) + "</div>").join("");
   if (R.erreur) al += '<div class="alerte err">' + esc(R.erreur) + "</div>";
   if (R.forcer) al += '<div class="alerte warn">' + esc(R.forcer) + '<br><button class="btn" type="button" id="r-forcer">Enregistrer quand même</button></div>';
   $("#r-alertes").innerHTML = al;
@@ -1230,8 +1344,8 @@ $("#p-enregistrer").addEventListener("click", async () => {
 });
 function majLiaison() {
   const l = D.liaison || {};
-  $("#liaison-etat").textContent = l.active ? "Activée : le dernier jour de chaque mois, entre " + l.heure + " h et " + (l.heure + 1) + " h, ton relevé (" + (l.personne || "Théo") + ") est rempli depuis ton fichier de patrimoine. Une saisie faite à la main n'est jamais écrasée."
-    : "Désactivée. Une fois activée, ton relevé se remplit seul le dernier jour du mois après la clôture, depuis ton fichier « Portefeuille & Épargne ».";
+  $("#liaison-etat").textContent = l.active ? "Activée : le dernier jour ouvré de chaque mois, entre " + l.heure + " h et " + (l.heure + 1) + " h, ton relevé (" + (l.personne || "Théo") + ") est rempli depuis ton fichier de patrimoine. Une saisie faite à la main n'est jamais écrasée."
+    : "Désactivée. Une fois activée, ton relevé se remplit seul le dernier jour ouvré du mois après la clôture, depuis ton fichier « Portefeuille & Épargne ».";
   $("#liaison-bascule").textContent = l.active ? "Désactiver" : "Activer";
 }
 async function actionLiaison(action, corps) {
