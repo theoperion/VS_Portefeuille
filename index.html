@@ -343,7 +343,12 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     </div>
     <div class="btn-row">
       <button class="btn" type="button" id="enregistrer-api">Enregistrer l'adresse</button>
-      <button class="btn ghost" type="button" id="oublier-cle">Changer de clé</button>
+      <button class="btn ghost" type="button" id="oublier-cle">Saisir une autre clé</button>
+    </div>
+    <div class="champ" id="bloc-nouvelle-cle">
+      <label for="champ-nouvelle-cle">Changer la clé d'accès (pour tous les appareils)</label>
+      <input id="champ-nouvelle-cle" type="password" autocomplete="new-password" placeholder="Nouvelle clé, 6 caractères minimum">
+      <button class="btn ghost" type="button" id="changer-cle">Changer la clé</button>
     </div>
     <p class="info" id="etat-source"></p>
   </div>
@@ -352,9 +357,10 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 <div class="lock" id="ecran-cle" hidden>
   <form id="form-cle" autocomplete="off">
     <span class="logo" aria-hidden="true"><i style="background:var(--p0)"></i><i style="background:var(--p1)"></i><i style="background:var(--p2)"></i><i style="background:var(--p3)"></i><b>Versus</b></span>
-    <p>Entre la clé d'accès pour ouvrir le classement. Elle reste enregistrée sur cet appareil.</p>
+    <p id="texte-cle">Entre la clé d'accès pour ouvrir le classement. Elle reste enregistrée sur cet appareil.</p>
     <input id="champ-cle" type="password" autocomplete="current-password" placeholder="Clé d'accès" aria-label="Clé d'accès">
-    <button class="btn acc" type="submit">Ouvrir</button>
+    <input id="champ-cle2" type="password" autocomplete="new-password" placeholder="Retape la clé" aria-label="Confirmation de la clé" hidden>
+    <button class="btn acc" type="submit" id="valider-cle">Ouvrir</button>
     <p class="err-txt" id="err-cle" role="alert"></p>
   </form>
 </div>
@@ -368,7 +374,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbygdnpSNojftRZeDSy0AAJUVG6PP71f5aBYNO9nA1thRS0MOZ6GXjt5Qv3ldb4Igmk76g/exec";
+const API_URL = "";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -429,13 +435,14 @@ async function charger(frais) {
   const url = apiUrl();
   if (!url) { D = window.DEMO_DATA; SOURCE = "demo"; afficherTout(); return; }
   const cle = stock.get(CLES.cle);
-  if (!cle) { ouvrirCle(""); return; }
+  if (!cle) { await verifierConfiguration(url); return; }
   const btn = $("#btn-maj"); btn.classList.add("spin");
   try {
     const rep = await fetch(url + (url.includes("?") ? "&" : "?") + "action=data&cle=" + encodeURIComponent(cle) + (frais ? "&frais=1" : ""), { cache: "no-store" });
     const json = await rep.json();
     if (!json.ok) {
       if (json.erreur === "cle" || json.erreur === "bloque") { stock.del(CLES.cle); ouvrirCle(json.message); return; }
+      if (json.erreur === "config") { stock.del(CLES.cle); ouvrirCle("", true); return; }
       throw new Error(json.message || "Réponse inattendue");
     }
     D = json; SOURCE = "api"; stock.set(CLES.cache, JSON.stringify(json)); afficherTout();
@@ -446,12 +453,40 @@ async function charger(frais) {
     $("#reessayer").addEventListener("click", () => charger(true));
   } finally { btn.classList.remove("spin"); }
 }
-function ouvrirCle(msg) { $("#ecran-cle").hidden = false; $("#err-cle").textContent = msg || ""; setTimeout(() => $("#champ-cle").focus(), 50); }
-$("#form-cle").addEventListener("submit", e => {
+let CREATION = false;
+async function verifierConfiguration(url) {
+  try {
+    const j = await (await fetch(url + (url.includes("?") ? "&" : "?") + "action=etat", { cache: "no-store" })).json();
+    ouvrirCle("", j.ok && !j.configure);
+  } catch (e) { ouvrirCle("Impossible de joindre l'API : vérifie l'adresse dans Réglages et que le déploiement est en accès « Tout le monde »."); }
+}
+function ouvrirCle(msg, creation) {
+  CREATION = !!creation;
+  $("#ecran-cle").hidden = false;
+  $("#texte-cle").textContent = CREATION ? "Première ouverture : choisis la clé d'accès de l'application (6 caractères minimum). Elle sera demandée sur chaque nouvel appareil et reste enregistrée sur celui-ci."
+    : "Entre la clé d'accès pour ouvrir le classement. Elle reste enregistrée sur cet appareil.";
+  $("#champ-cle2").hidden = !CREATION;
+  $("#valider-cle").textContent = CREATION ? "Créer la clé" : "Ouvrir";
+  $("#champ-cle").setAttribute("autocomplete", CREATION ? "new-password" : "current-password");
+  $("#err-cle").textContent = msg || "";
+  setTimeout(() => $("#champ-cle").focus(), 50);
+}
+$("#form-cle").addEventListener("submit", async e => {
   e.preventDefault();
   const v = $("#champ-cle").value.trim();
   if (!v) { $("#err-cle").textContent = "Saisis la clé d'accès."; return; }
-  stock.set(CLES.cle, v); $("#champ-cle").value = ""; $("#ecran-cle").hidden = true; charger(true);
+  if (CREATION) {
+    if (v.length < 6) { $("#err-cle").textContent = "La clé doit faire au moins 6 caractères."; return; }
+    if (v !== $("#champ-cle2").value.trim()) { $("#err-cle").textContent = "Les deux saisies ne correspondent pas."; return; }
+    $("#valider-cle").disabled = true;
+    let rep;
+    try { rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ action: "initialiser", nouvelleCle: v }) })).json(); }
+    catch (er) { rep = { ok: false, message: "Impossible de joindre l'API : vérifie ta connexion." }; }
+    $("#valider-cle").disabled = false;
+    if (!rep.ok && rep.erreur === "deja") { ouvrirCle(rep.message, false); return; }
+    if (!rep.ok) { $("#err-cle").textContent = rep.message || "Création impossible."; return; }
+  }
+  stock.set(CLES.cle, v); $("#champ-cle").value = ""; $("#champ-cle2").value = ""; $("#ecran-cle").hidden = true; charger(true);
 });
 
 function afficherTout() {
@@ -915,6 +950,16 @@ $("#enregistrer-api").addEventListener("click", () => {
   $("#reglages").hidden = true; charger(true);
 });
 $("#oublier-cle").addEventListener("click", () => { stock.del(CLES.cle); $("#reglages").hidden = true; if (apiUrl()) ouvrirCle(""); });
+$("#changer-cle").addEventListener("click", async () => {
+  const n = $("#champ-nouvelle-cle").value.trim();
+  if (SOURCE !== "api") { $("#etat-source").textContent = "Configure d'abord l'adresse de l'API."; return; }
+  if (n.length < 6) { $("#etat-source").textContent = "La nouvelle clé doit faire au moins 6 caractères."; return; }
+  let rep;
+  try { rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ cle: stock.get(CLES.cle), action: "changerCle", nouvelleCle: n }) })).json(); }
+  catch (e) { rep = { ok: false, message: "Impossible de joindre l'API." }; }
+  if (rep.ok) { stock.set(CLES.cle, n); $("#champ-nouvelle-cle").value = ""; }
+  $("#etat-source").textContent = rep.message || (rep.ok ? "Clé changée." : "Changement impossible.");
+});
 $("#btn-maj").addEventListener("click", () => charger(true));
 document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie").hidden = true; $("#reglages").hidden = true; } });
 let attente, largeur = window.innerWidth;
