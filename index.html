@@ -256,6 +256,14 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .btn.plein { width: 100%; padding: 14px 16px; font-size: 15px; }
 .btn[disabled] { opacity: .5; cursor: not-allowed; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.codes { display: grid; }
+.code-l { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); }
+.code-l .n { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.code-l .n i { width: 8px; height: 8px; border-radius: 2px; transform: skewX(-12deg); }
+.code-l .c { font: 600 15px/1.2 var(--f-num); letter-spacing: .06em; user-select: all; text-align: right; }
+.code-l .c.aucun { font: 400 12.5px/1.2 var(--f-text); letter-spacing: 0; color: var(--ink-3); }
+.code-l .a { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.lien.danger { color: var(--down); }
 .lien { border: 0; background: none; padding: 2px 0; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent-ink); justify-self: start; }
 .alerte { font-size: 13px; padding: 9px 12px; border-radius: 10px; border-left: 3px solid var(--ink-3); background: var(--panel); }
 .alerte.err { border-color: var(--down); background: var(--down-bg); }
@@ -269,6 +277,32 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .lock p { margin: 0; color: var(--ink-2); font-size: 14px; }
 .lock input { font: 500 16px/1.2 var(--f-num); padding: 13px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); width: 100%; }
 .err-txt { color: var(--down); font-size: 13px; margin: 0; min-height: 1em; }
+/* Bandeau figé / masqué */
+.ticker.fige .ticker-track { animation: none; }
+.ticker.fige { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.ticker.fige::-webkit-scrollbar { display: none; }
+/* Segments, réglages, journal */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.seg button { border: 0; background: none; padding: 10px 8px; cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.regl { display: grid; gap: 12px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.regl h4 { margin: 0; font: italic 800 15px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.liaison-res { display: grid; gap: 0; font-size: 13px; }
+.liaison-res div { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid var(--rule-2); }
+.liaison-res b { font-family: var(--f-num); font-weight: 600; }
+.jl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; padding: 11px 0; border-top: 1px solid var(--rule); }
+.jl .m { font: italic 700 15px/1.2 var(--f-display); letter-spacing: .04em; text-transform: uppercase; }
+.jl .v { font: 600 14px/1.2 var(--f-num); text-align: right; }
+.jl .s { font-size: 12px; color: var(--ink-3); min-width: 0; }
+.jl .st { justify-self: end; }
+.jl .a { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.statut { display: inline-block; padding: 2px 8px; border-radius: 999px; font: 700 10.5px/1.5 var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+.statut.fige { background: var(--rule-2); color: var(--ink-3); }
+.statut.modif { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
+.statut.vide { background: var(--down-bg); color: var(--down); }
+.statut.annule { background: var(--rule-2); color: var(--ink-3); text-decoration: line-through; }
+.obj-form { display: grid; gap: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.champ input[disabled] { opacity: .6; }
 .vide { padding: 30px 0; text-align: center; color: var(--ink-3); font-size: 14px; }
 
 @media (max-width: 420px) {
@@ -320,36 +354,92 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 
 <div class="voile" id="saisie" hidden>
   <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="titre-saisie">
-    <h3 id="titre-saisie">Relevé du mois <button class="icon-btn" type="button" id="fermer-saisie" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
+    <h3 id="titre-saisie">Relevés <button class="icon-btn" type="button" id="fermer-saisie" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
+    <div class="seg" role="group" aria-label="Relevés">
+      <button type="button" data-ong="nouveau" aria-pressed="true">Saisir un relevé</button>
+      <button type="button" data-ong="journal" aria-pressed="false">Journal</button>
+    </div>
     <div id="corps-saisie"></div>
+    <div id="corps-journal" hidden></div>
   </div>
 </div>
 
 <div class="voile" id="reglages" hidden>
   <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="titre-reglages">
     <h3 id="titre-reglages">Réglages <button class="icon-btn" type="button" id="fermer-reglages" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
-    <div class="champ"><label>Je suis</label><div class="chips" id="choix-moi"></div></div>
-    <div class="champ"><label>Thème</label>
-      <div class="chips" id="choix-theme">
-        <button class="chip" type="button" data-theme-choix="auto">Système</button>
-        <button class="chip" type="button" data-theme-choix="dark">Sombre</button>
-        <button class="chip" type="button" data-theme-choix="light">Clair</button>
+    <p class="info" id="ligne-session"></p>
+    <section class="regl">
+      <h4>Affichage (cet appareil)</h4>
+      <div class="champ" id="bloc-moi"><label>Je suis</label><div class="chips" id="choix-moi"></div></div>
+      <div class="champ"><label>Thème</label>
+        <div class="chips" id="choix-theme">
+          <button class="chip" type="button" data-theme-choix="auto">Système</button>
+          <button class="chip" type="button" data-theme-choix="dark">Sombre</button>
+          <button class="chip" type="button" data-theme-choix="light">Clair</button>
+        </div>
       </div>
-    </div>
-    <div class="champ">
-      <label for="champ-api">Adresse de l'API (web app Apps Script)</label>
-      <input id="champ-api" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec">
-      <p class="info">Vide = aperçu avec les chiffres de démonstration.</p>
-    </div>
-    <div class="btn-row">
-      <button class="btn" type="button" id="enregistrer-api">Enregistrer l'adresse</button>
-      <button class="btn ghost" type="button" id="oublier-cle">Saisir une autre clé</button>
-    </div>
-    <div class="champ" id="bloc-nouvelle-cle">
-      <label for="champ-nouvelle-cle">Changer la clé d'accès (pour tous les appareils)</label>
-      <input id="champ-nouvelle-cle" type="password" autocomplete="new-password" placeholder="Nouvelle clé, 6 caractères minimum">
-      <button class="btn ghost" type="button" id="changer-cle">Changer la clé</button>
-    </div>
+      <div class="champ"><label>Bandeau des marchés</label>
+        <div class="chips">
+          <button class="chip" type="button" data-bandeau="fige">Figé</button>
+          <button class="chip" type="button" data-bandeau="defile">Défilant</button>
+          <button class="chip" type="button" data-bandeau="masque">Masqué</button>
+        </div>
+      </div>
+      <div class="champ"><label>Montants en euros</label>
+        <div class="chips">
+          <button class="chip" type="button" data-discret="non">Affichés</button>
+          <button class="chip" type="button" data-discret="oui">Mode discret</button>
+        </div>
+        <p class="info">Le mode discret masque les montants et garde les pourcentages : pratique pour montrer l'écran.</p>
+      </div>
+      <div class="champ"><label>Écran à l'ouverture</label>
+        <div class="chips">
+          <button class="chip" type="button" data-ouverture="classement">Classement</button>
+          <button class="chip" type="button" data-ouverture="fiche">Ma fiche</button>
+          <button class="chip" type="button" data-ouverture="dernier">Dernier écran vu</button>
+        </div>
+      </div>
+    </section>
+    <section class="regl" id="regl-params" hidden>
+      <h4>Calculs du classement (pour tous)</h4>
+      <div class="rang">
+        <div class="champ"><label for="p-taux">Taux sans risque (%/an)</label><input id="p-taux" type="text" inputmode="decimal" autocomplete="off"></div>
+        <div class="champ"><label for="p-comp">Date de comparaison</label><input id="p-comp" type="month"></div>
+      </div>
+      <p class="info">Le taux sert au ratio de Sharpe. La date de comparaison sert à la période « Depuis la date de comparaison » (fin du mois choisi).</p>
+      <button class="btn ghost" type="button" id="p-enregistrer">Enregistrer dans le Sheet</button>
+    </section>
+    <section class="regl" id="regl-liaison" hidden>
+      <h4>Liaison Portefeuille &amp; Épargne</h4>
+      <p class="info" id="liaison-etat"></p>
+      <div class="btn-row">
+        <button class="btn ghost" type="button" id="liaison-bascule">Activer</button>
+        <button class="btn ghost" type="button" id="liaison-test">Tester</button>
+        <button class="btn ghost" type="button" id="liaison-import">Importer maintenant</button>
+      </div>
+      <div class="liaison-res" id="liaison-res"></div>
+    </section>
+    <section class="regl" id="bloc-codes" hidden>
+      <h4>Codes personnels</h4>
+      <p class="info">Chaque code ouvre tout le classement, mais ne permet de modifier que le relevé et l'objectif de sa personne. « Nouveau code » remplace l'ancien, qui cesse aussitôt de fonctionner.</p>
+      <div id="liste-codes" class="codes"></div>
+    </section>
+    <section class="regl">
+      <h4>Accès</h4>
+      <div class="champ">
+        <label for="champ-api">Adresse de l'API (web app Apps Script)</label>
+        <input id="champ-api" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <div class="btn-row">
+        <button class="btn ghost" type="button" id="enregistrer-api">Enregistrer l'adresse</button>
+        <button class="btn ghost" type="button" id="oublier-cle">Saisir une autre clé</button>
+      </div>
+      <div class="champ" id="bloc-nouvelle-cle">
+        <label for="champ-nouvelle-cle">Changer ta clé d'administration (les codes personnels ne changent pas)</label>
+        <input id="champ-nouvelle-cle" type="password" autocomplete="new-password" placeholder="Nouvelle clé, 6 caractères minimum">
+        <button class="btn ghost" type="button" id="changer-cle">Changer la clé</button>
+      </div>
+    </section>
     <p class="info" id="etat-source"></p>
   </div>
 </div>
@@ -374,7 +464,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbwNMu_NGkkDhjP7m1xt9XKif1H9yUQeZ7VkJ5Vd08qbzIEyu6dtkh3ooLs6s80sC-9FGQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzRnBOjVh1PizKhUZi8wfE8ADXiOyajPgwOvF9AfwDu62XXJpF0iQMhLJDOf3Mcg50-Ig/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -385,7 +475,7 @@ const stock = {
 const $ = s => document.querySelector(s);
 const reduit = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 let D = null, SOURCE = "demo";
-const ETAT = Object.assign({ env: 0, per: "ytd", i1: 0, i2: 1, moi: "Théo", fiche: null }, (() => { try { return JSON.parse(stock.get(CLES.etat) || "{}"); } catch (e) { return {}; } })());
+const ETAT = Object.assign({ env: 0, per: "ytd", i1: 0, i2: 1, moi: "Théo", fiche: null, bandeau: "fige", discret: "non", ouverture: "dernier" }, (() => { try { return JSON.parse(stock.get(CLES.etat) || "{}"); } catch (e) { return {}; } })());
 function garder() { stock.set(CLES.etat, JSON.stringify(ETAT)); }
 
 /* ---------- Format ---------- */
@@ -396,6 +486,7 @@ const ok = v => v !== null && v !== undefined && isFinite(v);
 function sg(v) { return v > 0 ? "+" : v < 0 ? MOINS : ""; }
 function eur(v, dec = 0, signe = false) {
   if (!ok(v)) return "—";
+  if (ETAT.discret === "oui") return (signe ? sg(v) : "") + "•••" + NB + "€";
   const r = Math.round(v * 10 ** dec);
   return (signe ? sg(r) : (r < 0 ? MOINS : "")) + nf(dec, dec).format(Math.abs(v)) + NB + "€";
 }
@@ -421,6 +512,8 @@ function css(n) { return getComputedStyle(document.documentElement).getPropertyV
 function couleurReelle(c) { const m = /var\((--[\w-]+)\)/.exec(c); return m ? css(m[1]) : c; }
 
 const PERIODES = [["mois", "Mois en cours (dernier relevé)"], ["3m", "3 derniers mois"], ["6m", "6 derniers mois"], ["ytd", "Année en cours"], ["12m", "12 derniers mois"], ["comp", "Depuis la date de comparaison"], ["tout", "Depuis le début"]];
+
+function axeEur(t) { return ETAT.discret === "oui" ? "" : t >= 1000 ? F0.format(t / 1000) + "k" : F0.format(t); }
 
 /* ---------- Thème ---------- */
 function appliquerTheme(c) {
@@ -489,7 +582,11 @@ $("#form-cle").addEventListener("submit", async e => {
   stock.set(CLES.cle, v); $("#champ-cle").value = ""; $("#champ-cle2").value = ""; $("#ecran-cle").hidden = true; charger(true);
 });
 
+let SESSION = { role: "admin" };
+function estAdmin() { return SESSION.role === "admin"; }
 function afficherTout() {
+  SESSION = D.session || { role: "admin" };
+  if (!estAdmin() && D.personnes.find(p => p.nom === SESSION.nom)) { if (ETAT.moi !== SESSION.nom) { ETAT.moi = SESSION.nom; ETAT.fiche = SESSION.nom; garder(); } }
   if (!D.personnes.find(p => p.nom === ETAT.moi)) ETAT.moi = D.personnes[0].nom;
   if (!ETAT.fiche || !D.personnes.find(p => p.nom === ETAT.fiche)) ETAT.fiche = ETAT.moi;
   const b = $("#bandeau");
@@ -502,11 +599,72 @@ function afficherTout() {
   $("#etat-source").textContent = SOURCE === "demo" ? "Source : démonstration (aucune adresse d'API)." : SOURCE === "cache" ? "Source : copie locale, l'API n'a pas répondu." : "Source : le fichier « Versus Portefeuille ».";
   $("#choix-moi").innerHTML = D.personnes.map(p => '<button class="chip" type="button" data-moi="' + esc(p.nom) + '" aria-pressed="' + (p.nom === ETAT.moi) + '"><i style="background:' + couleur(p.nom) + '"></i>' + esc(p.nom) + "</button>").join("");
   document.querySelectorAll("[data-moi]").forEach(x => x.addEventListener("click", () => { ETAT.moi = x.dataset.moi; ETAT.fiche = x.dataset.moi; garder(); afficherTout(); }));
+  $("#bloc-moi").hidden = !estAdmin();
+  const admin = estAdmin() && SOURCE === "api";
+  $("#regl-params").hidden = !admin;
+  $("#regl-liaison").hidden = !admin;
+  majChipsAffichage();
+  if (admin) {
+    $("#p-taux").value = ok(D.marche.tauxSansRisque) ? String(+(D.marche.tauxSansRisque * 100).toFixed(2)).replace(".", ",") : "";
+    $("#p-comp").value = (D.marche.dateComparaison || "").slice(0, 7);
+    majLiaison();
+  }
+  $("#bloc-nouvelle-cle").hidden = !estAdmin();
+  $("#bloc-codes").hidden = !estAdmin() || SOURCE !== "api";
+  $("#ligne-session").textContent = estAdmin() ? (SOURCE === "api" ? "Connecté avec la clé d'administration : tu vois et modifies tout, et tu gères les réglages communs." : "")
+    : "Connecté en tant que " + SESSION.nom + " : tu vois tout le classement, et tu modifies ton relevé et ton objectif.";
+}
+
+/* ---------- Codes personnels (administrateur) ---------- */
+let CODES = [], aRevoquer = null;
+async function posterAdmin(corps) {
+  try { return await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify(Object.assign({ cle: stock.get(CLES.cle) }, corps)) })).json(); }
+  catch (e) { return { ok: false, message: "Impossible de joindre l'API." }; }
+}
+async function chargerCodes() {
+  if (!estAdmin() || SOURCE !== "api") return;
+  $("#liste-codes").innerHTML = '<p class="info">Chargement des codes…</p>';
+  const rep = await posterAdmin({ action: "codes" });
+  if (!rep.ok) { $("#liste-codes").innerHTML = '<p class="info">' + esc(rep.message || "Lecture impossible.") + "</p>"; return; }
+  CODES = rep.codes; rendreCodes();
+}
+function adresseApp() { return location.origin + location.pathname.replace(/index\.html$/, ""); }
+function messageCode(c) { return "Voici l'app Versus pour suivre le classement : " + adresseApp() + "\nTon code d'accès : " + c.code + "\nPour l'installer : menu du navigateur › Ajouter à l'écran d'accueil."; }
+async function copier(texte, btn) {
+  const lib = btn.textContent;
+  try { await navigator.clipboard.writeText(texte); btn.textContent = "Copié"; }
+  catch (e) { btn.textContent = "Sélectionne le code pour le copier"; }
+  setTimeout(() => { btn.textContent = lib; }, 1800);
+}
+function rendreCodes() {
+  const autres = CODES.filter(c => c.personne !== ETAT.moi);
+  $("#liste-codes").innerHTML = autres.map((c, i) => '<div class="code-l"><span class="n"><i style="background:' + couleur(c.personne) + '"></i>' + esc(c.personne) + "</span>" +
+    '<span class="c' + (c.code ? "" : " aucun") + '">' + (c.code ? esc(c.code) : "pas de code") + "</span>" +
+    '<div class="a">' + (c.code ? '<button class="lien" type="button" data-cc="' + i + '">Copier le message à envoyer</button>' : "") +
+    '<button class="lien" type="button" data-cg="' + i + '">' + (c.code ? "Nouveau code" : "Créer un code") + "</button>" +
+    (c.code ? '<button class="lien danger" type="button" data-cr="' + i + '">' + (aRevoquer === c.personne ? "Confirmer la révocation" : "Révoquer") + "</button>" : "") + "</div></div>").join("");
+  document.querySelectorAll("[data-cc]").forEach(b => b.addEventListener("click", () => copier(messageCode(autres[+b.dataset.cc]), b)));
+  document.querySelectorAll("[data-cg]").forEach(b => b.addEventListener("click", async () => {
+    b.disabled = true; b.textContent = "Création…";
+    const rep = await posterAdmin({ action: "genererCode", personne: autres[+b.dataset.cg].personne });
+    if (rep.ok) { CODES.find(x => x.personne === rep.personne).code = rep.code; toast(rep.message); } else toast(rep.message || "Création impossible.");
+    aRevoquer = null; rendreCodes();
+  }));
+  document.querySelectorAll("[data-cr]").forEach(b => b.addEventListener("click", async () => {
+    const c = autres[+b.dataset.cr];
+    if (aRevoquer !== c.personne) { aRevoquer = c.personne; rendreCodes(); return; }
+    const rep = await posterAdmin({ action: "revoquerCode", personne: c.personne });
+    if (rep.ok) c.code = null;
+    aRevoquer = null; toast(rep.message || "Révocation impossible."); rendreCodes();
+  }));
 }
 
 function rendreTicker() {
+  const t = document.querySelector(".ticker");
+  t.hidden = ETAT.bandeau === "masque";
+  t.classList.toggle("fige", ETAT.bandeau !== "defile");
   const r = (D.marche.resume || []).map(i => '<div class="tk"><span class="n">' + esc(i.nom) + '</span><span class="l">mois</span><span class="' + sens(i.mois) + '">' + pct(i.mois) + '</span><span class="l">depuis janv.</span><span class="' + sens(i.ytd) + '">' + pct(i.ytd) + "</span></div>").join("");
-  $("#ticker").innerHTML = r + (reduit ? "" : r);
+  $("#ticker").innerHTML = r + (reduit || ETAT.bandeau !== "defile" ? "" : r);
 }
 
 /* ---------- Filtres partagés ---------- */
@@ -786,7 +944,7 @@ function rendreFiche() {
         annees.map(y => { const st = stats(D, p, env, (y - 1) * 100 + 12, y * 100 + 12, null, null); return '<tr><td class="nom">' + y + "</td>" + MOIS.map((m, j) => { const x = sAll.find(z => z.k === y * 100 + j + 1); return x && typeof x.r === "number" ? '<td style="' + teinte(x.r, max) + '">' + pct(x.r) + "</td>" : '<td class="vide">·</td>'; }).join("") + '<td style="' + teinte(st.twr, max * 3) + '"><b>' + pct(st.twr) + "</b></td></tr>"; }).join("") +
       "</tbody></table></div></div>" +
       (obj && env === 0 ? '<div><h2 class="sec">Objectif <small>' + eur(obj.objectif) + " au " + esc(isoFr(obj.dateCible)) + '</small></h2></div><button class="lien" type="button" id="vers-obj">Voir la projection →</button>' : "");
-    if (vx.length > 1) tracer($("#g-fiche"), { x: vx, zeroMin: true, series: [{ nom: "Valeur", v: pts2.map(x => x.val), c: couleur(p.nom), aire: true, w: 2.2 }, { nom: "Versé cumulé", v: pts2.map(x => x.cum), c: "var(--idx)", marche: true, dash: true, w: 1.6 }], fmt: x => eur(x), fmtAxe: t => t >= 1000 ? F0.format(t / 1000) + "k" : F0.format(t), titreX: k => "Fin " + moisCourt(k) });
+    if (vx.length > 1) tracer($("#g-fiche"), { x: vx, zeroMin: true, series: [{ nom: "Valeur", v: pts2.map(x => x.val), c: couleur(p.nom), aire: true, w: 2.2 }, { nom: "Versé cumulé", v: pts2.map(x => x.cum), c: "var(--idx)", marche: true, dash: true, w: 1.6 }], fmt: x => eur(x), fmtAxe: axeEur, titreX: k => "Fin " + moisCourt(k) });
     const vo = $("#vers-obj"); if (vo) vo.addEventListener("click", () => allerA("objectifs"));
   }
   brancherFiltres("fiche");
@@ -808,20 +966,46 @@ function rendreObjectifs() {
   const pr = ks.map(k => { const x = proj.find(h => h.k === k); return x ? x.v : null; });
   const atteint = o => /^\d{4}-/.test(String(o.atteint)) ? isoMois(o.atteint) : (o.atteint || "—");
 
-  v.innerHTML = '<div><h2 class="sec">Objectifs <small>à modifier dans l\'onglet Objectifs du Sheet</small></h2></div>' +
+  v.innerHTML = '<div><h2 class="sec">Objectifs <small>' + (SOURCE === "api" ? "touche « Modifier » sur ta carte" : "modifiables une fois connecté") + "</small></h2></div>" +
     objs.map(o => {
       const pc = Math.max(0, Math.min(1, o.progression || 0));
       return '<div class="obj"><div class="obj-h"><b><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</b><span>" + eur(o.valeur) + ' <span class="muted">/ ' + eur(o.objectif) + "</span></span></div>" +
         '<div class="piste" role="img" aria-label="Progression ' + pct(pc, 0, false) + '"><i style="width:' + (pc * 100).toFixed(1) + "%;background:" + couleur(o.personne) + '"></i></div>' +
         '<div class="obj-l"><div><span>Progression</span><b>' + pct(o.progression, 0, false) + "</b></div><div><span>Atteint vers</span><b>" + esc(atteint(o)) + "</b></div><div><span>Projection au " + esc(isoFr(o.dateCible)) + '</span><b class="' + sens(o.ecart) + '">' + eur(o.projection) + "</b></div>" +
-        "<div><span>Versement retenu</span><b>" + eur(o.versementRetenu) + " /mois</b></div><div><span>Rendement supposé</span><b>" + pct(o.rendement, 1, false) + "</b></div><div><span>Écart à l'objectif</span><b class=\"" + sens(o.ecart) + '">' + eur(o.ecart, 0, true) + "</b></div></div></div>";
+        "<div><span>Versement retenu</span><b>" + eur(o.versementRetenu) + " /mois" + (ok(o.versementPrevu) ? "" : ' <small class="muted">(rythme réel)</small>') + "</b></div><div><span>Rendement supposé</span><b>" + pct(o.rendement, 1, false) + "</b></div><div><span>Écart à l'objectif</span><b class=\"" + sens(o.ecart) + '">' + eur(o.ecart, 0, true) + "</b></div></div>" +
+        (SOURCE === "api" && (estAdmin() || o.personne === SESSION.nom) ? (OBJ_EDIT === o.personne ? formObjectif(o) : '<button class="lien" type="button" data-objedit="' + esc(o.personne) + '">Modifier l\'objectif</button>') : "") + "</div>";
     }).join("") +
     (ks.length > 1 ? '<div><h2 class="sec">Projection <small>' + esc(choisi.personne) + "</small></h2></div>" +
       '<div class="chips" role="group" aria-label="Personne">' + objs.map(o => '<button class="chip" type="button" data-proj="' + esc(o.personne) + '" aria-pressed="' + (o === choisi) + '"><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</button>").join("") + "</div>" +
       boiteGraphe("g-proj", [{ nom: "Valeur réelle", c: couleur(choisi.personne) }, { nom: "Projection", c: couleur(choisi.personne), dash: true }, { nom: "Objectif", c: "var(--gold)", dash: true }]) +
       '<p class="info">Projection : valeur du dernier relevé, + ' + eur(choisi.versementRetenu) + " versés chaque fin de mois, à " + pct(choisi.rendement, 1, false) + " par an. Ce n'est qu'un scénario régulier, les marchés ne le sont pas.</p>" : "");
-  if (ks.length > 1) tracer($("#g-proj"), { x: ks, zeroMin: true, ligneH: choisi.objectif, series: [{ nom: "Valeur réelle", v: reel, c: couleur(choisi.personne), aire: true, w: 2.2 }, { nom: "Projection", v: pr, c: couleur(choisi.personne), dash: true, w: 1.8 }], fmt: x => eur(x), fmtAxe: t => t >= 1000 ? F0.format(t / 1000) + "k" : F0.format(t), titreX: k => "Fin " + moisCourt(k) });
+  if (ks.length > 1) tracer($("#g-proj"), { x: ks, zeroMin: true, ligneH: choisi.objectif, series: [{ nom: "Valeur réelle", v: reel, c: couleur(choisi.personne), aire: true, w: 2.2 }, { nom: "Projection", v: pr, c: couleur(choisi.personne), dash: true, w: 1.8 }], fmt: x => eur(x), fmtAxe: axeEur, titreX: k => "Fin " + moisCourt(k) });
   v.querySelectorAll("[data-proj]").forEach(b => b.addEventListener("click", () => { ETAT.fiche = b.dataset.proj; garder(); rendreObjectifs(); }));
+  v.querySelectorAll("[data-objedit]").forEach(b => b.addEventListener("click", () => { OBJ_EDIT = b.dataset.objedit; rendreObjectifs(); }));
+  const f = $("#form-obj");
+  if (f) {
+    $("#o-annuler").addEventListener("click", () => { OBJ_EDIT = null; rendreObjectifs(); });
+    f.addEventListener("submit", async e => {
+      e.preventDefault();
+      const obj = lireNb($("#o-objectif").value), ver = lireNb($("#o-versement").value), rd = lireNb($("#o-rendement").value), dt = $("#o-date").value;
+      const err = !(obj > 0) ? "L'objectif doit être un montant positif." : !dt ? "Choisis une date cible." : Number.isNaN(ver) || (ok(ver) && ver < 0) ? "Versement illisible." : !ok(rd) || rd < -50 || rd > 50 ? "Rendement entre −50 et 50 %." : "";
+      if (err) { $("#o-err").textContent = err; return; }
+      $("#o-ok").disabled = true;
+      const rep = await posterAdmin({ action: "objectif", personne: OBJ_EDIT, objectif: obj, dateCible: dt, versementPrevu: ok(ver) ? ver : null, rendement: rd / 100 });
+      if (!rep.ok) { $("#o-err").textContent = rep.message || "Enregistrement impossible."; $("#o-ok").disabled = false; return; }
+      OBJ_EDIT = null; toast(rep.message); charger(true);
+    });
+  }
+}
+let OBJ_EDIT = null;
+function formObjectif(o) {
+  return '<form class="obj-form" id="form-obj" novalidate><div class="rang">' +
+    '<div class="champ"><label for="o-objectif">Objectif (€)</label><input id="o-objectif" type="text" inputmode="decimal" value="' + esc(enSaisie(o.objectif)) + '"></div>' +
+    '<div class="champ"><label for="o-date">Date cible</label><input id="o-date" type="date" value="' + esc(o.dateCible || "") + '"></div>' +
+    '<div class="champ"><label for="o-versement">Versement prévu (€/mois)</label><input id="o-versement" type="text" inputmode="decimal" placeholder="vide = rythme réel" value="' + esc(enSaisie(o.versementPrevu)) + '"></div>' +
+    '<div class="champ"><label for="o-rendement">Rendement supposé (%/an)</label><input id="o-rendement" type="text" inputmode="decimal" value="' + esc(enSaisie(ok(o.rendement) ? +(o.rendement * 100).toFixed(2) : null)) + '"></div>' +
+    '</div><p class="info">Versement vide : la projection prend ta médiane des 12 derniers mois.</p><p class="err-txt" id="o-err"></p>' +
+    '<div class="btn-row"><button class="btn acc" type="submit" id="o-ok">Enregistrer</button><button class="btn ghost" type="button" id="o-annuler">Annuler</button></div></form>';
 }
 
 /* ---------- Saisie du relevé ---------- */
@@ -831,16 +1015,53 @@ function lireNb(t) { if (t === null || t === undefined) return null; const x = S
 function enSaisie(n) { return ok(n) ? String(n).replace(".", ",") : ""; }
 function ouvrirSaisie() {
   if (!D) return;
-  const p = D.personnes.find(x => x.nom === ETAT.moi) || D.personnes[0];
+  const p = D.personnes.find(x => x.nom === (estAdmin() ? ETAT.moi : SESSION.nom)) || D.personnes[0];
   R = { nom: p.nom, k: null, forcer: null, erreur: "", envoi: false, tout: false };
   choisirMoisParDefaut();
   $("#saisie").hidden = false;
-  rendreSaisie();
+  JNOM = p.nom;
+  ongletReleves("nouveau");
+}
+function ongletReleves(o) {
+  document.querySelectorAll("[data-ong]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ong === o)));
+  $("#corps-saisie").hidden = o !== "nouveau"; $("#corps-journal").hidden = o !== "journal";
+  if (o === "nouveau") rendreSaisie(); else rendreJournal();
+}
+document.querySelectorAll("[data-ong]").forEach(b => b.addEventListener("click", () => { aAnnuler = null; ongletReleves(b.dataset.ong); }));
+
+/* Journal : tous les relevés d'une personne, avec leur statut */
+let JNOM = null, aAnnuler = null;
+function rendreJournal() {
+  const p = D.personnes.find(x => x.nom === JNOM) || D.personnes[0];
+  const total = r => [1, 3, 5, 7].reduce((a, i) => a + (ok(r[2][i]) ? r[2][i] : 0), 0);
+  const verse = r => [0, 2, 4, 6].reduce((a, i) => a + (ok(r[2][i]) ? r[2][i] : 0), 0);
+  const lignes = p.rows.slice().reverse().filter((r, i, arr) => aUnReleve(r[2]) || i === 0 || arr.slice(i).some(x => aUnReleve(x[2])));
+  $("#corps-journal").innerHTML =
+    '<div class="chips" role="group" aria-label="Personne">' + D.personnes.map(x => '<button class="chip" type="button" data-jp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === p.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
+    '<p class="info" style="margin-top:10px">Un relevé saisi dans l\'app reste modifiable et annulable ' + JOURS_MODIF() + " jours, puis il est figé. Les relevés tapés directement dans le Sheet sont figés dans l'app.</p>" +
+    '<div style="margin-top:6px">' + lignes.map(r => {
+      const st = etatReleve(p.nom, r[0]);
+      const badge = st.etat === "vide" ? '<span class="statut vide">à saisir</span>' : st.etat === "modif" ? '<span class="statut modif">modifiable</span>' : '<span class="statut fige">figé</span>';
+      const src = st.etat === "vide" ? "Pas encore de relevé" : st.j ? (st.j.action === "Import auto" ? "Import automatique le " : "Saisi dans l'app le ") + dateHeure(new Date(st.j.t)) + (st.j.action === "Saisie" ? " par " + esc(st.j.par) : "") + (st.etat === "modif" ? " · jusqu'au " + dateHeure(st.lim) : "") : "Saisi dans le Sheet";
+      const actions = !peutModifier(p.nom) || SOURCE !== "api" ? "" : st.etat === "vide" ? '<button class="lien" type="button" data-jsaisir="' + r[0] + '">Saisir</button>'
+        : st.etat === "modif" ? '<button class="lien" type="button" data-jsaisir="' + r[0] + '">Modifier</button><button class="lien danger" type="button" data-jannuler="' + st.j.ligne + '">' + (aAnnuler === st.j.ligne ? "Confirmer l'annulation" : "Annuler la saisie") + "</button>" : "";
+      return '<div class="jl"><span class="m">' + esc(moisLong(r[0])) + '</span><span class="st">' + badge + '</span><span class="s">' + src + '</span><span class="v">' + (st.etat === "vide" ? "" : eur(total(r)) + '<br><small class="muted" style="font-weight:400">versé ' + eur(verse(r), 0, true) + "</small>") + "</span>" + (actions ? '<div class="a">' + actions + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
+  document.querySelectorAll("[data-jp]").forEach(b => b.addEventListener("click", () => { JNOM = b.dataset.jp; aAnnuler = null; rendreJournal(); }));
+  document.querySelectorAll("[data-jsaisir]").forEach(b => b.addEventListener("click", () => { R = { nom: p.nom, k: +b.dataset.jsaisir, forcer: null, erreur: "", envoi: false, tout: false }; chargerValeurs(); ongletReleves("nouveau"); }));
+  document.querySelectorAll("[data-jannuler]").forEach(b => b.addEventListener("click", async () => {
+    const l = +b.dataset.jannuler;
+    if (aAnnuler !== l) { aAnnuler = l; rendreJournal(); return; }
+    b.disabled = true; b.textContent = "Annulation…";
+    const rep = await posterAdmin({ action: "annuler", ligne: l });
+    aAnnuler = null; toast(rep.message || (rep.ok ? "Saisie annulée." : "Annulation impossible."));
+    if (rep.ok) { await charger(true); if (!$("#saisie").hidden) rendreJournal(); } else rendreJournal();
+  }));
 }
 function choisirMoisParDefaut() {
   const p = D.personnes.find(x => x.nom === R.nom);
   const rows = p.rows;
-  const vide = rows.find((r, i) => i > 0 && !(r[3][1] > 0) && rows.slice(0, i).some(x => x[3][1] > 0));
+  const vide = rows.find((r, i) => i > 0 && !aUnReleve(r[2]) && rows.slice(0, i).some(x => aUnReleve(x[2])));
   R.k = vide ? vide[0] : rows[rows.length - 1][0];
   chargerValeurs();
 }
@@ -850,6 +1071,22 @@ function chargerValeurs() {
   R.v = (r ? r[2] : Array(8).fill(null)).map(enSaisie);
   R.forcer = null; R.erreur = "";
 }
+const JOURS_MODIF = () => (D && D.joursModif) || 7;
+function aUnReleve(brut) { return [1, 3, 5, 7].some(i => ok(brut[i])); }
+function derniereSaisie(nom, k) {
+  return (D.journal || []).filter(j => j.personne === nom && j.cle === k && j.statut !== "Annulé" && (j.action === "Saisie" || j.action === "Import auto"))
+    .sort((a, b) => a.t < b.t ? -1 : 1).pop() || null;
+}
+function limiteModif(j) { return j ? new Date(new Date(j.t).getTime() + JOURS_MODIF() * 864e5) : null; }
+function etatReleve(nom, k) {
+  const p = D.personnes.find(x => x.nom === nom), r = p && p.rows.find(x => x[0] === k);
+  const j = derniereSaisie(nom, k), lim = limiteModif(j);
+  if (!r || !aUnReleve(r[2])) return { etat: "vide", j };
+  if (lim && lim > new Date()) return { etat: "modif", j, lim };
+  return { etat: "fige", j };
+}
+function dateHeure(d) { return String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + " à " + String(d.getHours()).padStart(2, "0") + " h " + String(d.getMinutes()).padStart(2, "0"); }
+function peutModifier(nom) { return estAdmin() || nom === SESSION.nom; }
 function utilisees(p) { return NOMS_ENV.map((_, e) => p.rows.some(r => ok(r[2][2 * e + 1]) || (r[2][2 * e] || 0) !== 0)); }
 function rendreSaisie() {
   const p = D.personnes.find(x => x.nom === R.nom);
@@ -857,23 +1094,31 @@ function rendreSaisie() {
   const prev = idx > 0 ? p.rows[idx - 1] : null;
   const util = utilisees(p);
   const montrer = NOMS_ENV.map((_, e) => R.tout || util[e] || !util.some(Boolean));
-  const opts = p.rows.slice().reverse().map(r => '<option value="' + r[0] + '"' + (r[0] === R.k ? " selected" : "") + ">" + esc(moisLong(r[0])) + (r[3][1] > 0 ? "" : " · à saisir") + "</option>").join("");
+  const opts = p.rows.slice().reverse().map(r => { const e = etatReleve(p.nom, r[0]).etat; return '<option value="' + r[0] + '"' + (r[0] === R.k ? " selected" : "") + ">" + esc(moisLong(r[0])) + (e === "vide" ? " · à saisir" : e === "modif" ? " · modifiable" : " · figé") + "</option>"; }).join("");
+  const st = etatReleve(p.nom, R.k);
+  const fige = st.etat === "fige";
+  const maintenant = new Date(), cleAuj = maintenant.getFullYear() * 100 + maintenant.getMonth() + 1;
+  const dernierJour = new Date(maintenant.getFullYear(), maintenant.getMonth() + 1, 0).getDate() === maintenant.getDate();
+  const avantCloture = R.k === cleAuj && dernierJour && maintenant.getHours() < 18;
+  const bandeauEtat = fige ? '<div class="alerte">Relevé figé : ' + (st.j ? "saisi il y a plus de " + JOURS_MODIF() + " jours" : "saisi dans le Sheet") + ". Il ne se modifie plus que dans l'onglet Data " + esc(p.nom) + " du Sheet.</div>"
+    : st.etat === "modif" ? '<div class="alerte warn">Déjà saisi ' + (st.j.action === "Import auto" ? "par l'import automatique" : "le " + dateHeure(new Date(st.j.t))) + " : modifiable jusqu'au " + dateHeure(st.lim) + ".</div>" : "";
   $("#corps-saisie").innerHTML = '<form class="form" id="form-releve" novalidate style="display:grid;gap:14px">' +
-    '<div class="chips" role="group" aria-label="Personne">' + D.personnes.map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
-    '<label class="sel"><span>Mois (valeurs au ' + finMois(R.k) + ')</span><select id="r-mois">' + opts + "</select></label>" +
+    '<div class="chips" role="group" aria-label="Personne">' + D.personnes.filter(x => estAdmin() || x.nom === SESSION.nom).map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
+    '<label class="sel"><span>Mois (valeurs au ' + finMois(R.k) + ')</span><select id="r-mois">' + opts + "</select></label>" + bandeauEtat +
+    (avantCloture ? '<div class="alerte warn">Dernier jour du mois : attends la clôture (18 h) pour saisir les valeurs de fin de mois.</div>' : "") +
     NOMS_ENV.map((nom, e) => !montrer[e] ? "" :
       '<div class="env-saisie"><div class="h"><b>' + nom + '</b><span id="r-info-' + e + '"></span></div><div class="rang">' +
-      '<div class="champ"><label for="r-v' + e + '">Versé ce mois (€)</label><input id="r-v' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(R.v[2 * e]) + '"></div>' +
-      '<div class="champ"><label for="r-c' + e + '">Valeur fin de mois (€)</label><input id="r-c' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="—" value="' + esc(R.v[2 * e + 1]) + '"></div></div></div>').join("") +
+      '<div class="champ"><label for="r-v' + e + '">Versé ce mois (€)</label><input id="r-v' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(R.v[2 * e]) + '"' + (fige ? " disabled" : "") + "></div>" +
+      '<div class="champ"><label for="r-c' + e + '">Valeur fin de mois (€)</label><input id="r-c' + e + '" type="text" inputmode="decimal" autocomplete="off" placeholder="—" value="' + esc(R.v[2 * e + 1]) + '"' + (fige ? " disabled" : "") + "></div></div></div>").join("") +
     (montrer.every(Boolean) ? "" : '<button class="lien" type="button" id="r-tout">Afficher les autres enveloppes</button>') +
     '<p class="info">Versé : 0 si rien, négatif si retrait. Valeur : le total affiché par la banque en fin de mois.</p>' +
     '<div class="recap" id="r-recap"></div><div id="r-alertes" style="display:grid;gap:6px"></div>' +
-    '<button class="btn acc plein" type="submit" id="r-envoyer">Enregistrer le relevé</button></form>';
+    (fige ? "" : '<button class="btn acc plein" type="submit" id="r-envoyer">' + (st.etat === "modif" ? "Enregistrer la modification" : "Enregistrer le relevé") + "</button>") + "</form>";
   document.querySelectorAll("[data-rp]").forEach(b => b.addEventListener("click", () => { R.nom = b.dataset.rp; R.tout = false; choisirMoisParDefaut(); rendreSaisie(); }));
   $("#r-mois").addEventListener("change", e => { R.k = +e.target.value; chargerValeurs(); rendreSaisie(); });
   if ($("#r-tout")) $("#r-tout").addEventListener("click", () => { R.tout = true; rendreSaisie(); });
   NOMS_ENV.forEach((_, e) => ["v", "c"].forEach((t, j) => { const el = $("#r-" + t + e); if (el) el.addEventListener("input", () => { R.v[2 * e + j] = el.value; R.forcer = null; R.erreur = ""; majSaisie(prev); }); }));
-  $("#form-releve").addEventListener("submit", ev => { ev.preventDefault(); envoyerReleve(false); });
+  $("#form-releve").addEventListener("submit", ev => { ev.preventDefault(); if (!fige) envoyerReleve(false); });
   majSaisie(prev);
 }
 function majSaisie(prev) {
@@ -900,7 +1145,7 @@ function majSaisie(prev) {
   if (R.forcer) al += '<div class="alerte warn">' + esc(R.forcer) + '<br><button class="btn" type="button" id="r-forcer">Enregistrer quand même</button></div>';
   $("#r-alertes").innerHTML = al;
   if ($("#r-forcer")) $("#r-forcer").addEventListener("click", () => envoyerReleve(true));
-  const b = $("#r-envoyer"); b.disabled = bloque || R.envoi; b.textContent = R.envoi ? "Enregistrement…" : "Enregistrer le relevé";
+  const b = $("#r-envoyer"); if (b) { b.disabled = bloque || R.envoi; if (R.envoi) b.textContent = "Enregistrement…"; }
 }
 async function envoyerReleve(forcer) {
   const valeurs = R.v.map(t => { const n = lireNb(t); return ok(n) ? n : null; });
@@ -910,9 +1155,10 @@ async function envoyerReleve(forcer) {
   try { rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ cle: stock.get(CLES.cle), action: "releve", personne: R.nom, cle: R.k, valeurs, forcer: !!forcer }) })).json(); }
   catch (e) { rep = { ok: false, message: "Impossible de joindre le fichier : vérifie la connexion puis réessaie." }; }
   R.envoi = false;
-  if (rep.ok) { $("#saisie").hidden = true; toast(rep.message || "Relevé enregistré."); charger(true); return; }
+  if (rep.ok) { toast(rep.message || "Relevé enregistré."); await charger(true); JNOM = R.nom; ongletReleves("journal"); return; }
   if (rep.erreur === "cle" || rep.erreur === "bloque") { stock.del(CLES.cle); $("#saisie").hidden = true; ouvrirCle(rep.message); return; }
   if (rep.erreur === "avertissement") R.forcer = rep.message; else R.erreur = rep.message || "Erreur inattendue.";
+  if (rep.erreur === "fige") { charger(true); }
   const p = D.personnes.find(x => x.nom === R.nom), i = p.rows.findIndex(x => x[0] === R.k);
   majSaisie(i > 0 ? p.rows[i - 1] : null);
 }
@@ -921,7 +1167,13 @@ function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = fals
 
 /* ---------- Navigation ---------- */
 const VUES = ["classement", "mois", "fiche", "objectifs"];
-function vueActive() { const h = location.hash.replace("#", ""); return VUES.includes(h) ? h : (stock.get(CLES.vue) || "classement"); }
+function vueActive() {
+  const h = location.hash.replace("#", "");
+  if (VUES.includes(h)) return h;
+  if (ETAT.ouverture === "classement") return "classement";
+  if (ETAT.ouverture === "fiche") return "fiche";
+  return stock.get(CLES.vue) || "classement";
+}
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs })[v](); }
 function montrerVue(v) {
   if (!VUES.includes(v)) v = "classement";
@@ -936,7 +1188,7 @@ document.querySelectorAll(".onglet").forEach(t => t.addEventListener("click", ()
 window.addEventListener("hashchange", () => montrerVue(vueActive()));
 
 /* ---------- Réglages ---------- */
-$("#btn-reglages").addEventListener("click", () => { $("#champ-api").value = stock.get(CLES.api) || API_URL; $("#reglages").hidden = false; });
+$("#btn-reglages").addEventListener("click", () => { $("#champ-api").value = stock.get(CLES.api) || API_URL; aRevoquer = null; $("#reglages").hidden = false; chargerCodes(); });
 $("#fermer-reglages").addEventListener("click", () => { $("#reglages").hidden = true; });
 $("#reglages").addEventListener("click", e => { if (e.target.id === "reglages") $("#reglages").hidden = true; });
 $("#saisie").addEventListener("click", e => { if (e.target.id === "saisie") $("#saisie").hidden = true; });
@@ -961,6 +1213,37 @@ $("#changer-cle").addEventListener("click", async () => {
   $("#etat-source").textContent = rep.message || (rep.ok ? "Clé changée." : "Changement impossible.");
 });
 $("#btn-maj").addEventListener("click", () => charger(true));
+function majChipsAffichage() {
+  [["bandeau", "data-bandeau"], ["discret", "data-discret"], ["ouverture", "data-ouverture"]].forEach(([k, a]) =>
+    document.querySelectorAll("[" + a + "]").forEach(b => b.setAttribute("aria-pressed", String(b.getAttribute(a) === ETAT[k]))));
+}
+[["bandeau", "data-bandeau"], ["discret", "data-discret"], ["ouverture", "data-ouverture"]].forEach(([k, a]) =>
+  document.querySelectorAll("[" + a + "]").forEach(b => b.addEventListener("click", () => {
+    ETAT[k] = b.getAttribute(a); garder(); majChipsAffichage();
+    if (D && k !== "ouverture") { rendreTicker(); rendreVue(vueActive()); }
+  })));
+$("#p-enregistrer").addEventListener("click", async () => {
+  const t = lireNb($("#p-taux").value), m = $("#p-comp").value;
+  if (!ok(t) || t < 0 || t > 20) { toast("Taux sans risque entre 0 et 20 %."); return; }
+  const rep = await posterAdmin({ action: "parametres", tauxSansRisque: t / 100, dateComparaison: m ? m + "-01" : null });
+  toast(rep.message || (rep.ok ? "Enregistré." : "Enregistrement impossible.")); if (rep.ok) charger(true);
+});
+function majLiaison() {
+  const l = D.liaison || {};
+  $("#liaison-etat").textContent = l.active ? "Activée : le dernier jour de chaque mois, entre " + l.heure + " h et " + (l.heure + 1) + " h, ton relevé (" + (l.personne || "Théo") + ") est rempli depuis ton fichier de patrimoine. Une saisie faite à la main n'est jamais écrasée."
+    : "Désactivée. Une fois activée, ton relevé se remplit seul le dernier jour du mois après la clôture, depuis ton fichier « Portefeuille & Épargne ».";
+  $("#liaison-bascule").textContent = l.active ? "Désactiver" : "Activer";
+}
+async function actionLiaison(action, corps) {
+  $("#liaison-res").innerHTML = '<p class="info">En cours…</p>';
+  const rep = await posterAdmin(Object.assign({ action }, corps || {}));
+  $("#liaison-res").innerHTML = '<p class="info">' + esc(rep.message || (rep.ok ? "OK" : "Échec")) + "</p>" +
+    (rep.detail ? rep.detail.map(d => "<div><span>" + esc(d.enveloppe) + "</span><b>" + eur(d.valeur, 2) + " · versé " + eur(d.verse, 2, true) + "</b></div>").join("") : "");
+  return rep;
+}
+$("#liaison-bascule").addEventListener("click", async () => { const rep = await actionLiaison("liaison", { actif: !(D.liaison && D.liaison.active) }); if (rep.ok) { D.liaison = Object.assign({}, D.liaison, { active: !(D.liaison && D.liaison.active) }); majLiaison(); } });
+$("#liaison-test").addEventListener("click", () => actionLiaison("testerLiaison"));
+$("#liaison-import").addEventListener("click", async () => { const rep = await actionLiaison("importer"); if (rep.ok) charger(true); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie").hidden = true; $("#reglages").hidden = true; } });
 let attente, largeur = window.innerWidth;
 window.addEventListener("resize", () => { if (window.innerWidth === largeur) return; largeur = window.innerWidth; clearTimeout(attente); attente = setTimeout(() => { if (D) rendreVue(vueActive()); }, 150); });
@@ -969,6 +1252,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && SO
 
 /* ---------- Démarrage ---------- */
 appliquerTheme(stock.get(CLES.theme) || "auto");
+if (ETAT.ouverture === "fiche") ETAT.fiche = ETAT.moi;
 montrerVue(vueActive());
 charger(false);
 </script>
