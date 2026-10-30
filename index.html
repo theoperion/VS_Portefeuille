@@ -544,7 +544,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbx9XgNaQCRHrGixWTrmxizdOBH_r0Z5PKvcPC7tls8Iu8nWbvvTL8HZlO2d2bAmVlf5/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyRtupOsEd0KBg22OajnXtWIk2v61umVtZcFQTeiw1uf-SivMHaRmx3kKuV2vQVd6Purg/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -1110,7 +1110,7 @@ function carteVerdict(v) {
     (moisVerdict(v.env).some(k => k < v.k) ? ' <button class="lien" type="button" data-vk="' + moisVerdict(v.env).filter(k => k < v.k).pop() + '">Voir le verdict précédent</button>' : "") + "</div>";
   const an = Math.floor(v.k / 100);
   const c = (titre, nom, ligne) => '<div class="v-c"><span>' + titre + "</span><b" + (nom && D.personnes.some(p => p.nom === nom) ? ' style="color:' + couleur(nom) + '"' : "") + ">" + esc(nom || "—") + "</b><em>" + ligne + "</em></div>";
-  return '<div class="verdict"><div class="v-h"><span>' + navVerdict(v) + "Verdict · " + esc(moisLong(v.k)) + (v.env ? " · " + esc(ENVELOPPES[v.env]) : "") + '</span><button class="lien" type="button" id="b-verdict">Copier pour le groupe</button></div><div class="v-g">' +
+  return '<div class="verdict"><div class="v-h"><span>' + navVerdict(v) + "Verdict · " + esc(moisLong(v.k)) + (v.env ? " · " + esc(ENVELOPPES[v.env]) : "") + '</span></div><div class="v-g">' +
     c("🏆 Champion du mois", v.champion.nom, pct(v.champion.r)) +
     (v.remontee ? c(v.remontee.a === 1 ? "🚀 Prend la tête" : "🚀 Plus belle remontée", v.remontee.nom, rangTxt(v.remontee.de) + " → " + rangTxt(v.remontee.a) + " sur " + an)
       : c("🥇 En tête de " + an, v.leader && v.leader.nom, v.leader ? pct(v.leader.t) + " · aucun changement de place" : "")) +
@@ -1120,27 +1120,12 @@ function carteVerdict(v) {
 }
 function brancherVerdict(v) {
   const boite = $("#boite-verdict"); if (!boite) return;
-  const bv = $("#b-verdict");
-  if (bv) bv.addEventListener("click", () => copier(texteVerdict(v), bv));
   boite.querySelectorAll("[data-vk]").forEach(b => b.addEventListener("click", () => {
     const k = +b.dataset.vk, l = moisVerdict(ETAT.env);
     VK = k === l[l.length - 1] ? null : k;
     const nv = verdictMois(ETAT.env, k);
     boite.innerHTML = carteVerdict(nv); brancherVerdict(nv);
   }));
-}
-function texteVerdict(v) {
-  const an = Math.floor(v.k / 100), m = moisLong(v.k);
-  const l = ["📊 Versus · " + m.charAt(0).toUpperCase() + m.slice(1) + (v.env ? " · " + ENVELOPPES[v.env] : ""),
-    "🏆 Champion du mois : " + v.champion.nom + " (" + pct(v.champion.r) + ")"];
-  if (v.remontee) l.push("🚀 " + (v.remontee.a === 1 ? "Prend la tête" : "Remontée") + " : " + v.remontee.nom + ", " + rangTxt(v.remontee.de) + " → " + rangTxt(v.remontee.a) + " sur " + an);
-  l.push("🐢 Lanterne rouge : " + v.lanterne.nom + " (" + pct(v.lanterne.r) + ")");
-  if (v.iR !== null) l.push("🎯 " + D.marche.indices[ETAT.i1] + " (" + pct(v.iR) + ") battu par : " + (v.battent.length ? v.battent.join(", ") : "personne"));
-  if (v.leader) l.push("🥇 En tête de " + an + " : " + v.leader.nom + " (" + pct(v.leader.t) + ")");
-  const t = titresMois(v.env, v.k).liste.filter(x => x.qui.length);
-  if (t.length) l.push("🎖️ Titres : " + t.map(x => x.e + " " + x.nom + " " + x.qui.join("/")).join(" · "));
-  l.push("👉 " + adresseApp());
-  return l.join("\n");
 }
 
 /* ---------- Titres : moitié performance, moitié régularité et maîtrise du risque ---------- */
@@ -1402,21 +1387,10 @@ function diapos(b) {
   }
   // 9. fin
   L.push({ c: "#9B87FF", h: '<div class="wr-k">Fin du bilan ' + b.y + ' · rendez-vous en</div><div class="wr-big">' + (b.y + 1) + '</div><p class="wr-p">Une année, c\'est encore court : la chance y pèse lourd. C\'est sur plusieurs années que les classements deviennent parlants.</p>' +
-    '<button class="wr-btn" type="button" data-wr-copier>Copier le bilan pour le groupe</button><button class="wr-btn sec" type="button" data-wr-fermer>Fermer</button>' });
+    '<button class="wr-btn" type="button" data-wr-fermer>Fermer</button>' });
   return L;
 }
 
-function texteBilan(b) {
-  const l = ["🎁 Versus · Bilan " + b.y, "🥇 Vainqueur : " + b.st[0].nom + " (" + pct(b.st[0].twr) + ")"];
-  l.push("📊 Classement : " + b.st.map((s, i) => (i + 1) + ". " + s.nom + " " + pct(s.twr)).join(" · "));
-  if (b.idx) l.push("📈 " + b.i1nom + " : " + pct(b.idx.twr));
-  const ch = b.st.map(s => s.nom).sort((a, x) => b.champ[x] - b.champ[a])[0];
-  if (ch) l.push("🏆 Le plus de mois gagnés : " + ch + " (" + b.champ[ch] + ")");
-  if (b.meilleur) l.push("🚀 Plus gros mois : " + b.meilleur.nom + " " + pct(b.meilleur.r) + " en " + moisLong(b.meilleur.k));
-  if (b.pire) l.push("🥶 Pire chute : " + b.pire.nom + " " + pct(b.pire.r) + " en " + moisLong(b.pire.k));
-  l.push("👉 " + adresseApp());
-  return l.join("\n");
-}
 
 function ouvrirBilan(y) {
   const b = bilanAnnee(y);
@@ -1436,7 +1410,6 @@ function ouvrirBilan(y) {
     barres.forEach((x, j) => x.classList.toggle("fait", j <= i));
     if (ANIM) { scene.classList.remove("entre"); void scene.offsetWidth; scene.classList.add("entre"); }
     compterChiffresWr(scene);
-    const cp = scene.querySelector("[data-wr-copier]"); if (cp) cp.addEventListener("click", e => { e.stopPropagation(); copier(texteBilan(b), cp); });
     const fm = scene.querySelector("[data-wr-fermer]"); if (fm) fm.addEventListener("click", e => { e.stopPropagation(); fermer(); });
     if (i === L.length - 1 && ANIM) confettis();
   };
