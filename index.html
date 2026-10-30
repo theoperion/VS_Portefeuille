@@ -545,7 +545,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbwNW8BGSk0jXJMFMvVQAdjEiujyorG2PGxu9nUc0i5vHg8VAopPz5Nhfy_AM7aGwRcBUA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx9XgNaQCRHrGixWTrmxizdOBH_r0Z5PKvcPC7tls8Iu8nWbvvTL8HZlO2d2bAmVlf5/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -783,7 +783,7 @@ const adoucir = t => 1 - Math.pow(1 - t, 3);
 function devoiler(rect, de, a) {
   if (!rect) return;
   const t0 = performance.now(), duree = 950;
-  const pas = t => { const x = Math.min(1, (t - t0) / duree); rect.setAttribute("width", de + (a - de) * adoucir(x)); if (x < 1) requestAnimationFrame(pas); };
+  const pas = t => { const x = Math.min(1, Math.max(0, t - t0) / duree); rect.setAttribute("width", de + (a - de) * adoucir(x)); if (x < 1) requestAnimationFrame(pas); };
   requestAnimationFrame(pas);
 }
 /* Chiffres qui défilent : éléments marqués data-cv (valeur) et data-cf (« pct » ou « eur ») */
@@ -793,7 +793,7 @@ function compterChiffres(racine) {
     const fin = Number(el.dataset.cv), f = el.dataset.cf === "eur" ? (v => eur(v)) : (v => pct(v));
     if (!isFinite(fin) || (el.dataset.cf === "eur" && ETAT.discret === "oui")) return;
     const t0 = performance.now(), duree = 750;
-    const pas = t => { const x = Math.min(1, (t - t0) / duree); el.textContent = f(fin * adoucir(x)); if (x < 1) requestAnimationFrame(pas); else el.textContent = f(fin); };
+    const pas = t => { const x = Math.min(1, Math.max(0, t - t0) / duree); el.textContent = f(fin * adoucir(x)); if (x < 1) requestAnimationFrame(pas); else el.textContent = f(fin); };
     requestAnimationFrame(pas);
   });
 }
@@ -1040,7 +1040,8 @@ function victoires(env, jusqua) {
   ks.forEach(k => {
     const du = series.map(x => { const y = x.s.find(z => z.k === k); return { nom: x.nom, r: y && typeof y.r === "number" ? y.r : null }; }).filter(x => x.r !== null);
     du.forEach(x => { res[x.nom].mois++; if (ok(iMois[k]) && x.r > iMois[k]) res[x.nom].battu++; });
-    const best = du.length > 1 ? du.reduce((a, b) => b.r > a.r ? b : a) : null;
+    const tri = du.slice().sort((a, b) => b.r - a.r);
+    const best = tri.length > 1 && tri[0].r - tri[1].r > 1e-9 ? tri[0] : null;   // égalité : pas de vainqueur
     D.personnes.forEach(p => {
       if (best && best.nom === p.nom) { res[p.nom].victoires++; courant[p.nom] = (courant[p.nom] || 0) + 1; res[p.nom].record = Math.max(res[p.nom].record, courant[p.nom]); }
       else if (du.some(x => x.nom === p.nom)) courant[p.nom] = 0;
@@ -1088,7 +1089,8 @@ function verdictMois(env, k) {
   const tete = Object.entries(rangs(env, debAnnee(fin), fin)).find(([, r]) => r === 1);
   const leader = tete ? { nom: tete[0], t: stats(D, D.personnes.find(p => p.nom === tete[0]), env, debAnnee(fin), fin, null, null).twr } : null;
   const iR = (D.marche.mois.find(l => l[0] === fin) || [])[ETAT.i1 + 1];
-  return { k: fin, env, du, champion: du[0], lanterne: du[du.length - 1], remontee, leader, iR: ok(iR) ? iR : null,
+  const exaequo = (r) => du.filter(x => Math.abs(x.r - r) < 1e-9).map(x => x.nom).join(" et ");
+  return { k: fin, env, du, champion: { nom: exaequo(du[0].r), r: du[0].r, seul: du[0].r - du[1].r > 1e-9 }, lanterne: { nom: exaequo(du[du.length - 1].r), r: du[du.length - 1].r }, remontee, leader, iR: ok(iR) ? iR : null,
     battent: ok(iR) ? du.filter(x => x.r > iR).map(x => x.nom) : null, manquent, complet: !manquent.length };
 }
 /** Mois qui ont un verdict possible (au moins deux relevés) */
@@ -1108,7 +1110,7 @@ function carteVerdict(v) {
   if (!v.complet) return '<div class="bref">⏳ Verdict de <b>' + esc(moisLong(v.k)) + "</b> dès que tout le monde a saisi son relevé : il manque " + v.manquent.map(n => "<b>" + esc(n) + "</b>").join(" et ") + "." +
     (moisVerdict(v.env).some(k => k < v.k) ? ' <button class="lien" type="button" data-vk="' + moisVerdict(v.env).filter(k => k < v.k).pop() + '">Voir le verdict précédent</button>' : "") + "</div>";
   const an = Math.floor(v.k / 100);
-  const c = (titre, nom, ligne) => '<div class="v-c"><span>' + titre + "</span><b" + (nom ? ' style="color:' + couleur(nom) + '"' : "") + ">" + esc(nom || "—") + "</b><em>" + ligne + "</em></div>";
+  const c = (titre, nom, ligne) => '<div class="v-c"><span>' + titre + "</span><b" + (nom && D.personnes.some(p => p.nom === nom) ? ' style="color:' + couleur(nom) + '"' : "") + ">" + esc(nom || "—") + "</b><em>" + ligne + "</em></div>";
   return '<div class="verdict"><div class="v-h"><span>' + navVerdict(v) + "Verdict · " + esc(moisLong(v.k)) + (v.env ? " · " + esc(ENVELOPPES[v.env]) : "") + '</span><button class="lien" type="button" id="b-verdict">Copier pour le groupe</button></div><div class="v-g">' +
     c("🏆 Champion du mois", v.champion.nom, pct(v.champion.r)) +
     (v.remontee ? c(v.remontee.a === 1 ? "🚀 Prend la tête" : "🚀 Plus belle remontée", v.remontee.nom, rangTxt(v.remontee.de) + " → " + rangTxt(v.remontee.a) + " sur " + an)
@@ -1267,7 +1269,7 @@ function blocDuel(env) {
 
 /* ---------- Confettis : une seule fois quand tu es champion du mois ---------- */
 function feterChampion(v) {
-  if (!v || !v.complet || v.env !== 0 || v.champion.nom !== ETAT.moi) return;
+  if (!v || !v.complet || v.env !== 0 || !v.champion.seul || v.champion.nom !== ETAT.moi) return;
   const cle = "versus.confettis", deja = stock.get(cle);
   if (deja === String(v.k)) return;
   stock.set(cle, String(v.k));
@@ -1459,7 +1461,7 @@ function compterChiffresWr(scene) {
   const fin = parseFloat(el.textContent.replace(MOINS, "-").replace(/[^\d,.-]/g, "").replace(",", "."));
   if (!isFinite(fin)) return;
   const t0 = performance.now();
-  const pas = t => { const x = Math.min(1, (t - t0) / 900); el.textContent = pct(fin / 100 * adoucir(x)); if (x < 1) requestAnimationFrame(pas); };
+  const pas = t => { const x = Math.min(1, Math.max(0, t - t0) / 900); el.textContent = pct(fin / 100 * adoucir(x)); if (x < 1) requestAnimationFrame(pas); };
   requestAnimationFrame(pas);
 }
 
@@ -1478,7 +1480,8 @@ function rendreMois() {
   const lignes = D.personnes.map(p => { const s = serie(p, env); return { nom: p.nom, r: ks.map(k => { const x = s.find(y => y.k === k); return x && typeof x.r === "number" ? x.r : null; }) }; });
   const ri = n => { const m = {}; D.marche.mois.forEach(l => m[l[0]] = l[n + 1]); return ks.map(k => ok(m[k]) ? m[k] : null); };
   const max = Math.max(.04, ...lignes.flatMap(l => l.r).filter(ok).map(Math.abs));
-  const meilleurs = ks.map((k, j) => { let b = null; lignes.forEach(l => { if (ok(l.r[j]) && (b === null || l.r[j] > b.r)) b = { nom: l.nom, r: l.r[j] }; }); return b && lignes.filter(l => ok(l.r[j])).length > 1 ? b.nom : null; });
+  const meilleurs = ks.map((k, j) => { let b = null; lignes.forEach(l => { if (ok(l.r[j]) && (b === null || l.r[j] > b.r)) b = { nom: l.nom, r: l.r[j] }; }); const ex = b && lignes.filter(l => ok(l.r[j]) && Math.abs(l.r[j] - b.r) < 1e-9).length > 1;
+    return b && !ex && lignes.filter(l => ok(l.r[j])).length > 1 ? b.nom : null; });
   const cell = (r, star) => ok(r) ? '<td class="' + (star ? "star" : "") + '" style="' + teinte(r, max) + '">' + pct(r) + "</td>" : '<td class="vide">·</td>';
   const pal = palmares(D, env, i1, i2);
   const gagnees = {}; D.personnes.forEach(p => gagnees[p.nom] = 0); pal.forEach(l => { if (l.vainqueur) gagnees[l.vainqueur]++; });
@@ -1697,9 +1700,14 @@ function derniereSaisie(nom, k) {
     .sort((a, b) => a.t < b.t ? -1 : 1).pop() || null;
 }
 function limiteModif(j) { return j ? new Date(new Date(j.t).getTime() + JOURS_MODIF() * 864e5) : null; }
+/** Le délai de 7 jours part de la PREMIÈRE saisie non annulée du mois (comme côté serveur) */
+function premiereSaisie(nom, k) {
+  return (D.journal || []).filter(j => j.personne === nom && j.cle === k && j.statut !== "Annulé" && (j.action === "Saisie" || j.action === "Import auto"))
+    .sort((a, b) => a.t < b.t ? -1 : 1)[0] || null;
+}
 function etatReleve(nom, k) {
   const p = D.personnes.find(x => x.nom === nom), r = p && p.rows.find(x => x[0] === k);
-  const j = derniereSaisie(nom, k), lim = limiteModif(j);
+  const j = derniereSaisie(nom, k), lim = limiteModif(premiereSaisie(nom, k));
   if (!r || !aUnReleve(r[2])) return { etat: "vide", j };
   if (lim && lim > new Date()) return { etat: "modif", j, lim };
   return { etat: "fige", j };
