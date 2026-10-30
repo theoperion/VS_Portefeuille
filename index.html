@@ -537,7 +537,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 
-<script src="demo-data.js"></script>
 <script src="moteur.js"></script>
 <script>
 "use strict";
@@ -613,7 +612,7 @@ function appliquerTheme(c) {
 function apiUrl() { return (stock.get(CLES.api) || API_URL || "").trim(); }
 async function charger(frais) {
   const url = apiUrl();
-  if (!url) { D = window.DEMO_DATA; SOURCE = "demo"; afficherTout(); return; }
+  if (!url) { if (!window.DEMO_DATA) { toast("Ajoute l'adresse de l'API dans Réglages."); return; } D = window.DEMO_DATA; SOURCE = "demo"; afficherTout(); return; }
   const cle = stock.get(CLES.cle);
   if (!cle) { await verifierConfiguration(url); return; }
   const btn = $("#btn-maj"); btn.classList.add("spin");
