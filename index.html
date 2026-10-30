@@ -35,7 +35,7 @@
   --up-bg: rgba(74, 222, 128, .12);
   --down-bg: rgba(255, 107, 107, .12);
   --gold: #F5C542;
-  --p0: #FF8A3D; --p1: #4C9AFF; --p2: #F25C9A; --p3: #2FD1C0;
+  --p0: #4C9AFF; --p1: #2FD1C0; --p2: #F25C9A; --p3: #FF8A3D;
   --idx: #8C95A3;
   --shade: rgba(0, 0, 0, .35);
   --f-display: "Saira Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
@@ -48,7 +48,7 @@
     --bg: #EEF0F3; --panel: #FFFFFF; --panel-2: #F5F6F8; --ink: #11151B; --ink-2: #4A5361; --ink-3: #697281;
     --rule: #D4D8DF; --rule-2: #E4E7EC; --accent: #5B3FE0; --accent-ink: #4B30C9;
     --up: #15803D; --down: #C62828; --up-bg: rgba(21, 128, 61, .10); --down-bg: rgba(198, 40, 40, .09);
-    --gold: #B7791F; --p0: #C25A0E; --p1: #1F64D1; --p2: #C2185B; --p3: #0B8A7E; --idx: #6B7380;
+    --gold: #B7791F; --p0: #1F64D1; --p1: #0B8A7E; --p2: #C2185B; --p3: #C25A0E; --idx: #6B7380;
     --shade: rgba(17, 21, 27, .10); color-scheme: light;
   }
 }
@@ -56,7 +56,7 @@
   --bg: #EEF0F3; --panel: #FFFFFF; --panel-2: #F5F6F8; --ink: #11151B; --ink-2: #4A5361; --ink-3: #697281;
   --rule: #D4D8DF; --rule-2: #E4E7EC; --accent: #5B3FE0; --accent-ink: #4B30C9;
   --up: #15803D; --down: #C62828; --up-bg: rgba(21, 128, 61, .10); --down-bg: rgba(198, 40, 40, .09);
-  --gold: #B7791F; --p0: #C25A0E; --p1: #1F64D1; --p2: #C2185B; --p3: #0B8A7E; --idx: #6B7380;
+  --gold: #B7791F; --p0: #1F64D1; --p1: #0B8A7E; --p2: #C2185B; --p3: #C25A0E; --idx: #6B7380;
   --shade: rgba(17, 21, 27, .10); color-scheme: light;
 }
 
@@ -174,7 +174,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .tab.trophees th, .tab.trophees td { text-align: center; }
 .tab.trophees th:first-child, .tab.trophees td:first-child { text-align: left; }
 /* Bilan de l'année (Wrapped) */
-.wr { --p0: #FF8A3D; --p1: #4C9AFF; --p2: #F25C9A; --p3: #2FD1C0; --gold: #F5C542; --up: #3DDC84; --down: #FF5C6C; --c: #9B87FF;
+.wr { --p0: #4C9AFF; --p1: #2FD1C0; --p2: #F25C9A; --p3: #FF8A3D; --gold: #F5C542; --up: #3DDC84; --down: #FF5C6C; --c: #9B87FF;
   position: fixed; inset: 0; z-index: 90; color: #F4F5F8; background: #0B0D12; display: grid; grid-template-rows: auto 1fr; overflow: hidden; user-select: none; -webkit-user-select: none; }
 .wr::before { content: ""; position: absolute; inset: -20%; background: radial-gradient(circle at 25% 20%, color-mix(in srgb, var(--c) 42%, transparent), transparent 55%), radial-gradient(circle at 85% 90%, color-mix(in srgb, var(--c) 22%, transparent), transparent 50%); transition: background .5s; pointer-events: none; }
 .wr-top { position: relative; display: grid; gap: 10px; padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 0; }
