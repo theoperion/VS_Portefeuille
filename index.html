@@ -142,6 +142,20 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .tag.manque { background: var(--down-bg); color: var(--down); }
 .tag.moi { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
 .titres { font-style: normal; font-size: 12px; letter-spacing: 1px; }
+.fet-tag { font-weight: 600; color: var(--ink-2); }
+.succes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.suc { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); opacity: .75; }
+.suc .e { font-size: 20px; filter: grayscale(1); opacity: .55; }
+.suc b { display: block; font-size: 13.5px; font-weight: 600; }
+.suc small { display: block; font-size: 11.5px; color: var(--ink-3); line-height: 1.3; }
+.suc em { display: block; font-style: normal; font-size: 11.5px; color: var(--ink-2); margin-top: 4px; }
+.suc .jauge { display: block; height: 5px; border-radius: 3px; background: var(--panel-2); overflow: hidden; margin-top: 6px; }
+.suc .jauge i { display: block; height: 100%; background: var(--accent); }
+.suc.ok { opacity: 1; border-color: color-mix(in srgb, var(--gold) 60%, var(--rule)); background: color-mix(in srgb, var(--gold) 9%, var(--panel)); }
+.suc.ok .e { filter: none; opacity: 1; }
+.suc.ok em { color: var(--gold); font-weight: 600; }
+@media (max-width: 360px) { .succes { grid-template-columns: 1fr; } }
+.tab.trophees td.fet { box-shadow: inset 0 0 0 2px var(--accent); border-radius: 6px; }
 
 /* Verdict du mois */
 .verdict { border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); padding: 12px 14px; display: grid; gap: 10px; }
@@ -547,7 +561,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbxh2XUkI4Sh0eazrgExQnKyadwK5-l7KaaiNviDncmS1xuQ7wsRzeAOTmeeXFlw4GErWQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxxnGSoG8GLw1UBSqCo7qkRAbatVNLr-UYsSalhoODRxGaSpqB3nTyD39r2LEOjg0dZ3g/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -941,7 +955,7 @@ function rendreClassement() {
     const ecart = s.i1 ? s.twr - s.i1.twr : null;
     return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who"><i style="background:' + couleur(s.nom) + '"></i><div><b>' + esc(s.nom) +
       (s.nom === ETAT.moi ? '<span class="tag moi">moi</span>' : "") + (manque.has(s.nom) ? '<span class="tag manque">relevé à saisir</span>' : "") +
-      "</b><small>" + (titres[s.nom] && titres[s.nom].length ? '<span class="titres">' + titres[s.nom].map(t => '<span title="' + esc(t.nom + " : " + t.def) + '">' + t.e + "</span>").join("") + "</span> " : "") + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
+      "</b><small>" + (fetiche(s.nom) ? '<span class="fet-tag">' + fetiche(s.nom).e + " " + esc(fetiche(s.nom).nom) + "</span> " : "") + (titres[s.nom] && titres[s.nom].length ? '<span class="titres">' + titres[s.nom].slice(0, 3).map(t => '<span title="' + esc(t.nom + " : " + t.def) + '">' + t.e + "</span>").join("") + (titres[s.nom].length > 3 ? "+" + (titres[s.nom].length - 3) : "") + "</span> " : "") + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
       (s === leader ? '<span class="g lead">LEADER</span>' : '<span class="g">' + pts(s.twr - leader.twr) + "</span>") + "</div>";
   }).join("");
 
@@ -989,6 +1003,7 @@ function rendreClassement() {
   brancherVerdict(verdict);
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
   feterChampion(dernierVerdict);
+  annoncerSucces();
   glisserTour(v, avantTour);
   if (!Object.keys(avantTour).length) compterChiffres(v.querySelector(".tour"));
   v.querySelectorAll(".pos[data-nom]").forEach(el => {
@@ -1139,8 +1154,18 @@ const TITRES = [
   { id: "efficace", e: "💎", nom: "Efficace", type: "Risque maîtrisé", def: "meilleur ratio de Sharpe sur 12 mois : le plus de rendement pour le risque pris" },
   { id: "froid", e: "🧊", nom: "Sang-froid", type: "Risque maîtrisé", def: "le portefeuille le moins agité (volatilité la plus faible sur 12 mois)" },
   { id: "metronome", e: "📏", nom: "Métronome", type: "Régularité", def: "le plus de mois positifs sur 12 mois" },
-  { id: "fourmi", e: "🐜", nom: "Fourmi", type: "Régularité", def: "a versé quelque chose chaque mois depuis 6 mois" }
+  { id: "fourmi", e: "🐜", nom: "Fourmi", type: "Régularité", def: "a versé quelque chose chaque mois depuis 6 mois" },
+  { id: "sommet", e: "🏔️", nom: "Sommet", type: "Performance", def: "sa performance cumulée atteint un nouveau record ce mois-ci" },
+  { id: "rebond", e: "🧗", nom: "Rebond", type: "Performance", def: "revenu à son plus haut ce mois-ci, après une baisse d'au moins 5 %" },
+  { id: "bouclier", e: "🛡️", nom: "Bouclier", type: "Risque maîtrisé", def: "a moins perdu que l'indice les mois où l'indice a baissé (12 mois)" },
+  { id: "patient", e: "🐢", nom: "Patient", type: "Régularité", def: "aucun retrait depuis 12 mois" }
 ];
+/** Titre épinglé par la personne (choisi parmi ceux qu'elle a déjà gagnés) */
+function fetiche(nom) {
+  const id = D && D.fetiches && D.fetiches[nom];
+  if (!id) return null;
+  return id === "champion" ? { id, e: "🏆", nom: "Champion du mois" } : TITRES.find(t => t.id === id) || null;
+}
 function titresMois(env, k) {
   const fin = k || finGlobale(D, env);
   const qui = {}; TITRES.forEach(t => qui[t.id] = []);
@@ -1165,6 +1190,24 @@ function titresMois(env, k) {
     actifs.forEach(p => {
       const s = serie(p, env).filter(z => z.k > cleMoins(fin, 6) && z.k <= fin);
       if (s.length === 6 && s.every(z => (z.verse || 0) > 0)) qui.fourmi.push(p.nom);
+      // Sommet / Rebond : la courbe de performance depuis le début bat son record ce mois-ci
+      const tout = stats(D, p, env, 0, fin, null, null);
+      if (tout.n >= 2) {
+        const v = tout.chemin.map(c => c.v), der = v[v.length - 1], avant = v.slice(0, -1), haut = Math.max(...avant);
+        if (der > haut + 1e-9) {
+          const iH = avant.lastIndexOf(haut), creux = Math.min(...avant.slice(iH));
+          (creux <= haut * 0.95 ? qui.rebond : qui.sommet).push(p.nom);
+        }
+      }
+      // Patient : 12 mois de relevés sans aucun retrait
+      const a12 = serie(p, env).filter(z => z.k > cleMoins(fin, 12) && z.k <= fin && typeof z.r === "number");
+      if (a12.length >= 12 && serie(p, env).filter(z => z.k > cleMoins(fin, 12) && z.k <= fin).every(z => (z.verse || 0) >= 0)) qui.patient.push(p.nom);
+    });
+    // Bouclier : sur 12 mois, a moins perdu que l'indice pendant ses mois de baisse (au moins 2)
+    const mi = rendementsIndice(D, ETAT.i1);
+    st.forEach(s => {
+      const bas = s.mois.filter(x => typeof mi[x.k] === "number" && mi[x.k] < 0);
+      if (bas.length >= 2 && bas.reduce((a, x) => a + x.r - mi[x.k], 0) > 0) qui.bouclier.push(s.nom);
     });
   }
   const liste = TITRES.map(t => Object.assign({}, t, { qui: qui[t.id], def: t.id === "marche" ? "devant " + D.marche.indices[ETAT.i1] + " sur 12 mois, à mois égaux" : t.def }));
@@ -1198,8 +1241,26 @@ function blocTrophees(env) {
   return '<div><h2 class="sec">Salle des trophées <small>nombre de mois · depuis le début</small></h2><div class="scroll-x"><table class="tab trophees"><thead><tr><th>Personne</th>' +
     cols.map(c => '<th title="' + esc(c.nom) + '">' + c.e + "</th>").join("") + "<th>Total</th></tr></thead><tbody>" +
     noms.map(n => '<tr><td><span class="pastille" style="background:' + couleur(n) + '"></span>' + esc(n) + "</td>" +
-      cols.map(c => { const x = t.res[n][c.id]; return '<td class="' + (x && x === max[c.id] ? "record" : x ? "" : "muted") + '">' + (x || "·") + "</td>"; }).join("") + "<td><b>" + total(n) + "</b></td></tr>").join("") +
-    '</tbody></table></div><p class="info" style="margin-top:8px">Chaque case compte les mois où la personne a tenu le titre (recalculé mois par mois, ' + t.mois + " mois). En doré : le record de la colonne. Mêmes définitions que les titres du mois.</p></div>";
+      cols.map(c => { const x = t.res[n][c.id], f = fetiche(n); return '<td class="' + (x && x === max[c.id] ? "record" : x ? "" : "muted") + (f && f.id === c.id ? " fet" : "") + '">' + (x || "·") + "</td>"; }).join("") + "<td><b>" + total(n) + "</b></td></tr>").join("") +
+    '</tbody></table></div><p class="info" style="margin-top:8px">Chaque case compte les mois où la personne a tenu le titre (recalculé mois par mois, ' + t.mois + " mois). En doré : le record de la colonne. Entouré : le titre fétiche épinglé.</p>" + choixFetiche() + "</div>";
+}
+/** Choix du titre fétiche : parmi les titres déjà gagnés au moins une fois (portefeuille total) */
+function choixFetiche() {
+  const qui = estAdmin() ? ETAT.moi : SESSION.nom;
+  if (!D.personnes.some(p => p.nom === qui)) return "";
+  const t = trophees(0), res = t.res[qui] || {};
+  const cols = [{ id: "champion", e: "🏆", nom: "Champion du mois" }].concat(TITRES).filter(c => res[c.id] > 0);
+  const f = fetiche(qui);
+  if (!cols.length) return '<p class="info" style="margin-top:6px">Ton titre fétiche se choisira ici dès que tu auras gagné un premier titre.</p>';
+  return '<div class="filtres" style="grid-template-columns:1fr;margin-top:10px"><label class="sel"><span>Titre fétiche de ' + esc(qui) + " (affiché à côté de ton nom)</span><select id=\"f-fetiche\"><option value=\"\">Aucun</option>" +
+    cols.map(c => '<option value="' + c.id + '"' + (f && f.id === c.id ? " selected" : "") + ">" + c.e + " " + esc(c.nom) + " · " + res[c.id] + " mois</option>").join("") + "</select></label></div>";
+}
+async function changerFetiche(titre) {
+  const qui = estAdmin() ? ETAT.moi : SESSION.nom;
+  if (SOURCE !== "api") { D.fetiches = Object.assign({}, D.fetiches, { [qui]: titre }); toast("Aperçu : titre épinglé sur cet appareil seulement."); rendreMois(); return; }
+  const rep = await posterAdmin({ action: "fetiche", personne: qui, titre });
+  toast(rep.message || (rep.ok ? "Titre fétiche mis à jour." : "Modification impossible."));
+  if (rep.ok) await charger(true);
 }
 function blocTitres(env) {
   const t = titresMois(env);
@@ -1207,7 +1268,7 @@ function blocTitres(env) {
   return '<div><h2 class="sec">Titres du mois <small>recalculés à chaque relevé · ' + esc(moisLong(t.k)) + '</small></h2><div class="titres-l">' +
     t.liste.map(x => '<div class="titre-l"><span class="e">' + x.e + '</span><div class="d"><span class="k">' + esc(x.type) + "</span><b>" + esc(x.nom) + "</b><small>" + esc(x.def) + "</small></div>" +
       (x.qui.length ? '<span class="h">' + x.qui.map(n => '<span style="color:' + couleur(n) + '">' + esc(n) + "</span>").join("<br>") + "</span>" : '<span class="h aucun">personne</span>') + "</div>").join("") +
-    '</div><p class="info" style="margin-top:8px">Trois titres récompensent la performance, quatre la régularité et la maîtrise du risque : tout miser sur un levier ne suffit pas à tout rafler. Les titres sur 12 mois demandent ' + RECUL + " mois de relevés.</p></div>";
+    '</div><p class="info" style="margin-top:8px">Cinq titres récompensent la performance, six la régularité et la maîtrise du risque : tout miser sur un levier ne suffit pas à tout rafler. Les titres sur 12 mois demandent ' + RECUL + " mois de relevés.</p></div>";
 }
 
 /* ---------- Duel ---------- */
@@ -1440,6 +1501,93 @@ function compterChiffresWr(scene) {
   requestAnimationFrame(pas);
 }
 
+
+/* ============================================================
+   SUCCÈS : objectifs à long terme, débloqués une fois pour toutes
+   (recalculés à partir des relevés, rien n'est stocké ; date = premier mois où la condition est remplie)
+   ============================================================ */
+const SUCCES = [
+  { id: "an", e: "🎂", nom: "Un an de Versus", def: "12 relevés saisis", type: "Régularité" },
+  { id: "fourmi", e: "🐜", nom: "Fourmi d'or", def: "versé chaque mois pendant 12 mois d'affilée", type: "Régularité" },
+  { id: "diamant", e: "💎", nom: "Mains de diamant", def: "24 mois d'affilée sans aucun retrait", type: "Régularité" },
+  { id: "diversifie", e: "🌍", nom: "Diversifié", def: "3 enveloppes actives en même temps", type: "Risque maîtrisé" },
+  { id: "grandrebond", e: "🧗", nom: "Grand rebond", def: "revenir à son plus haut après une baisse d'au moins 10 %", type: "Risque maîtrisé" },
+  { id: "plus25", e: "📈", nom: "+25 %", def: "performance cumulée de +25 % depuis le premier relevé", type: "Performance" },
+  { id: "argent", e: "💶", nom: "L'argent travaille", def: "plus-value de +10 % sur l'argent versé", type: "Performance" },
+  { id: "marche", e: "🎯", nom: "Plus fort que le marché", def: "battre l'indice sur 12 mois glissants complets", type: "Performance" },
+  { id: "triple", e: "🔥", nom: "Triplé", def: "3 victoires mensuelles d'affilée", type: "Performance" },
+  { id: "roi", e: "👑", nom: "Roi de l'année", def: "gagner une année civile complète du Versus", type: "Performance" }
+];
+let MEMO_SUCCES = { d: null, i1: null, val: null };
+function succesTous() {
+  if (MEMO_SUCCES.d === D && MEMO_SUCCES.i1 === ETAT.i1) return MEMO_SUCCES.val;
+  const env = 0, val = {};
+  const pal = palmares(D, env, null, null).filter(l => !l.enCours && !l.debutPartiel && l.vainqueur);
+  const ks = moisVerdict(env);
+  const vic = {}; ks.forEach(k => vic[k] = victoires(env, k));
+  D.personnes.forEach(p => {
+    const s = serie(p, env), res = {};
+    SUCCES.forEach(x => res[x.id] = { k: null, prog: 0, txt: "" });
+    const fait = (id, k) => { if (!res[id].k) res[id].k = k; };
+    let n = 0, sFourmi = 0, sDiamant = 0, hautAvant = 100, idx = 100, creux = 100;
+    s.forEach(z => {
+      if (typeof z.r !== "number") return;
+      const k = z.k; n++;
+      if (n >= 12) fait("an", k);
+      sFourmi = (z.verse || 0) > 0 ? sFourmi + 1 : 0; if (sFourmi >= 12) fait("fourmi", k);
+      sDiamant = (z.verse || 0) >= 0 ? sDiamant + 1 : 0; if (sDiamant >= 24) fait("diamant", k);
+      if ([1, 3, 5, 7].filter(i => (z.brut || [])[i] > 0).length >= 3) fait("diversifie", k);
+      idx *= 1 + z.r;
+      if (idx >= hautAvant) { if (creux <= hautAvant * 0.9 && idx > hautAvant) fait("grandrebond", k); hautAvant = idx; creux = idx; } else creux = Math.min(creux, idx);
+      const tout = stats(D, p, env, 0, k, null, null);
+      if (tout.twr >= 0.25) fait("plus25", k);
+      if (ok(tout.pvLatentePct) && tout.pvLatentePct >= 0.10) fait("argent", k);
+      const a12 = stats(D, p, env, cleMoins(k, 12), k, ETAT.i1, null);
+      if (a12.n >= 12 && a12.i1 && a12.i1.n >= 12 && a12.twr > a12.i1.twr) fait("marche", k);
+      if (vic[k] && vic[k][p.nom] && vic[k][p.nom].record >= 3) fait("triple", k);
+    });
+    pal.forEach(l => { if (l.vainqueur === p.nom) fait("roi", l.annee * 100 + 12); });
+    // progression des succès pas encore débloqués (état au dernier relevé)
+    const fin = finGlobale(D, env), tout = stats(D, p, env, 0, fin, null, null), a12 = stats(D, p, env, cleMoins(fin, 12), fin, ETAT.i1, null);
+    const v = vic[ks[ks.length - 1]] || {};
+    const pr = (id, a, b, txt) => { res[id].prog = Math.max(0, Math.min(1, a / b)); res[id].txt = txt; };
+    pr("an", n, 12, Math.min(n, 12) + " / 12 relevés");
+    pr("fourmi", sFourmi, 12, Math.min(sFourmi, 12) + " / 12 mois");
+    pr("diamant", sDiamant, 24, Math.min(sDiamant, 24) + " / 24 mois");
+    const nbEnv = (() => { const d = s.filter(z => typeof z.r === "number").pop(); return d ? [1, 3, 5, 7].filter(i => (d.brut || [])[i] > 0).length : 0; })();
+    pr("diversifie", nbEnv, 3, nbEnv + " / 3 enveloppes");
+    const enRemontee = creux <= hautAvant * 0.9;
+    pr("grandrebond", enRemontee ? idx / hautAvant : 0, 1, enRemontee ? "en cours : encore " + pct(hautAvant / idx - 1, 1, false) + " pour revenir au plus haut" : "pas de baisse de 10 % à remonter");
+    pr("plus25", ok(tout.twr) ? tout.twr : 0, 0.25, "actuellement " + pct(tout.twr));
+    pr("argent", ok(tout.pvLatentePct) ? tout.pvLatentePct : 0, 0.10, "actuellement " + pct(tout.pvLatentePct));
+    pr("marche", Math.min(a12.n / 12, 0.9), 1, a12.n < 12 ? a12.n + " / 12 mois de recul" : "écart actuel " + pts(a12.i1 ? a12.twr - a12.i1.twr : null));
+    pr("triple", v[p.nom] ? v[p.nom].record : 0, 3, "meilleure série : " + (v[p.nom] ? v[p.nom].record : 0));
+    pr("roi", 0, 1, "une année complète à gagner");
+    val[p.nom] = res;
+  });
+  MEMO_SUCCES = { d: D, i1: ETAT.i1, val };
+  return val;
+}
+function blocSucces(nom) {
+  const r = succesTous()[nom]; if (!r) return "";
+  const nb = SUCCES.filter(x => r[x.id].k).length;
+  return '<div><h2 class="sec">Succès <small>' + nb + " / " + SUCCES.length + ' débloqués · objectifs à long terme</small></h2><div class="succes">' +
+    SUCCES.map(x => { const o = r[x.id];
+      return '<div class="suc' + (o.k ? " ok" : "") + '"><span class="e">' + x.e + '</span><div><b>' + esc(x.nom) + "</b><small>" + esc(x.def) + "</small>" +
+        (o.k ? '<em>Débloqué en ' + esc(moisLong(o.k)) + "</em>" : '<span class="jauge"><i style="width:' + (o.prog * 100).toFixed(0) + '%"></i></span><em>' + esc(o.txt) + "</em>") + "</div></div>"; }).join("") +
+    '</div><p class="info" style="margin-top:8px">Un succès débloqué le reste pour toujours. Calculés sur le portefeuille total.</p></div>';
+}
+/* Petit message (une seule fois) quand tu débloques un nouveau succès */
+function annoncerSucces() {
+  const r = succesTous()[ETAT.moi]; if (!r) return;
+  const cle = "versus.succes." + ETAT.moi, vus = (() => { try { return JSON.parse(stock.get(cle) || "null"); } catch (e) { return null; } })();
+  const ok_ = SUCCES.filter(x => r[x.id].k).map(x => x.id);
+  stock.set(cle, JSON.stringify(ok_));
+  if (!vus) return;                                   // première ouverture : on mémorise sans fêter
+  const neufs = SUCCES.filter(x => ok_.includes(x.id) && !vus.includes(x.id));
+  if (neufs.length) { toast("Succès débloqué : " + neufs.map(x => x.e + " " + x.nom).join(", ")); confettis(); }
+}
+
 /* ---------- Vue Mois ---------- */
 function teinte(r, max) {
   if (!ok(r)) return "";
@@ -1484,6 +1632,7 @@ function rendreMois() {
   brancherFiltres("mois");
   $("#f-i2").addEventListener("change", e => { ETAT.i2 = +e.target.value; garder(); rendreMois(); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
+  if ($("#f-fetiche")) $("#f-fetiche").addEventListener("change", e => changerFetiche(e.target.value));
   ["d1", "d2"].forEach(c => { const el = $("#f-" + c); if (el) el.addEventListener("change", e => { ETAT[c] = e.target.value; garder(); rendreMois(); }); });
 }
 
@@ -1536,6 +1685,7 @@ function rendreFiche() {
         envs.map(x => "<tr><td>" + esc(x.nom) + '</td><td class="' + sens(x.s.twr) + '">' + pct(x.s.twr) + "</td><td>" + (x.s.n ? volTxt(x.s) : "—") + "</td><td>" + eur(x.s.valeur) + '</td><td class="' + sens(x.s.pvLatente) + '">' + eur(x.s.pvLatente, 0, true) + "<br><small>" + pct(x.s.pvLatentePct) + "</small></td><td>" + pct(totalV ? x.s.valeur / totalV.valeur : null, 0, false) + "</td></tr>").join("") +
         "</tbody></table></div>" +
         '<div class="stack" style="margin-top:12px" role="img" aria-label="Répartition">' + envs.filter(x => x.nom !== "Portefeuille").map((x, j) => '<i title="' + esc(x.nom) + '" style="flex:' + x.s.valeur + ";background:color-mix(in srgb, " + couleur(p.nom) + " " + (100 - j * 22) + '%, var(--panel))"></i>').join("") + "</div></div>" : "") +
+      blocSucces(p.nom) +
       '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + '</small></h2><div class="scroll-x"><table class="grille"><thead><tr><th></th>' + MOIS.map(m => "<th>" + m + "</th>").join("") + "<th>Année</th></tr></thead><tbody>" +
         annees.map(y => { const st = stats(D, p, env, (y - 1) * 100 + 12, y * 100 + 12, null, null); return '<tr><td class="nom">' + y + "</td>" + MOIS.map((m, j) => { const x = sAll.find(z => z.k === y * 100 + j + 1); return x && typeof x.r === "number" ? '<td style="' + teinte(x.r, max) + '">' + pct(x.r) + "</td>" : '<td class="vide">·</td>'; }).join("") + '<td style="' + teinte(st.twr, max * 3) + '"><b>' + pct(st.twr) + "</b></td></tr>"; }).join("") +
       "</tbody></table></div></div>" +
