@@ -334,6 +334,9 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .btn { border: 0; border-radius: 10px; padding: 12px 16px; cursor: pointer; font-weight: 600; background: var(--ink); color: var(--bg); }
 .btn.acc { background: var(--accent); color: #fff; }
 .btn.ghost { background: var(--panel); color: var(--ink); border: 1px solid var(--rule); }
+.btn:disabled { opacity: .45; cursor: default; }
+.import-l { display: grid; gap: 6px; padding: 12px; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--rule)); background: color-mix(in srgb, var(--accent) 8%, var(--panel)); }
+.import-l small { font-size: 12px; color: var(--ink-3); }
 .btn.plein { width: 100%; padding: 14px 16px; font-size: 15px; }
 .btn[disabled] { opacity: .5; cursor: not-allowed; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -544,7 +547,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbyRtupOsEd0KBg22OajnXtWIk2v61umVtZcFQTeiw1uf-SivMHaRmx3kKuV2vQVd6Purg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxh2XUkI4Sh0eazrgExQnKyadwK5-l7KaaiNviDncmS1xuQ7wsRzeAOTmeeXFlw4GErWQ/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -908,7 +911,7 @@ function rendreClassement() {
   const tri = st.slice().sort((a, b) => b.twr - a.twr);
   const leader = tri[0];
   const lignes = tri.slice();
-  if (idx) lignes.push(Object.assign({ fantome: true }, idx));
+  if (idx && leader) lignes.push(Object.assign({ fantome: true }, idx));
   lignes.sort((a, b) => b.twr - a.twr);
   let rang = 0;
   const nMois = Math.max(...st.map(s => s.n), idx ? idx.n : 0);
@@ -1079,7 +1082,7 @@ function verdictMois(env, k) {
   const prev = cleMoins(fin, 1);
   const attendus = D.personnes.filter(p => aRendement(p, env, prev) || aRendement(p, env, fin)).map(p => p.nom);
   const manquent = attendus.filter(n => !du.some(x => x.nom === n));
-  if (du.length < 2) return null;
+  if (du.length < 2) return manquent.length && du.length ? { k: fin, env, du, manquent, complet: false } : null;
   let remontee = null;
   if (fin % 100 > 1) {
     const avant = rangs(env, debAnnee(fin), prev), apres = rangs(env, debAnnee(fin), fin);
@@ -1347,7 +1350,7 @@ function diapos(b) {
     L.push({ c: C(moi.nom), h: '<div class="wr-k">Ton année, ' + esc(moi.nom) + '</div><div class="wr-big ' + cls(moi.twr) + '">' + pct(moi.twr) + '</div><p class="wr-p">' + (rang === 1 ? "<b>Tu termines premier.</b> Rien à ajouter." : "Tu termines <b>" + rangTxt(rang) + "</b> sur " + nb + ", à " + pts(moi.twr - b.st[0].twr).replace(/^[−-]/, "") + " de " + esc(b.st[0].nom) + ".") + '</p><div class="wr-g">' +
       '<div class="wr-c"><span>Meilleur mois</span><b class="' + cls(moi.meilleur.r) + '">' + pct(moi.meilleur.r) + "</b><em>" + esc(moisLong(moi.meilleur.k)) + "</em></div>" +
       '<div class="wr-c"><span>Pire mois</span><b class="' + cls(moi.pire.r) + '">' + pct(moi.pire.r) + "</b><em>" + esc(moisLong(moi.pire.k)) + "</em></div>" +
-      '<div class="wr-c"><span>Mois positifs</span><b>' + Math.round(moi.positifs * moi.n) + " / " + moi.n + "</b><em>" + (moi.i1 ? esc(b.i1nom) + " battu " + Math.round(moi.i1.battus * moi.n) + " fois" : "") + "</em></div>" +
+      '<div class="wr-c"><span>Mois positifs</span><b>' + Math.round(moi.positifs * moi.n) + " / " + moi.n + "</b><em>" + (moi.i1 ? esc(b.i1nom) + " battu " + Math.round(moi.i1.battus * moi.i1.n) + " fois" : "") + "</em></div>" +
       '<div class="wr-c"><span>Plus-value de l\'année</span><b class="' + cls(moi.pvPeriode) + '">' + eur(moi.pvPeriode, 0, true) + "</b><em>" + eur(moi.versePeriode) + " versés</em></div>" +
       "</div>" });
   }
@@ -1522,7 +1525,7 @@ function rendreFiche() {
       '<div class="hero"><span class="eyebrow">' + esc(ENVELOPPES[env]) + " · " + esc(p.nom) + '</span><span class="big" data-cv="' + s.valeur + '" data-cf="eur">' + eur(s.valeur) + '</span><div class="sous"><span class="badge ' + sens(s.pvLatente) + '">' + eur(s.pvLatente, 0, true) + " · " + pct(s.pvLatentePct) + "</span><span>de plus-value pour " + eur(s.verse) + " versés</span></div></div>" +
       (s.n ? '<div class="tuiles">' +
         tuile("Performance (TWR)", pct(s.twr), sens(s.twr), "MWR <b>" + pct(s.mwr) + "</b>") +
-        tuile(esc(D.marche.indices[i1]) + " même période", pct(s.i1.twr), "", "Écart <b class=\"" + sens(s.twr - s.i1.twr) + "\">" + pts(s.twr - s.i1.twr) + "</b>") +
+        tuile(esc(D.marche.indices[i1]) + " même période", pct(s.i1 && s.i1.twr), "", s.i1 ? "Écart <b class=\"" + sens(s.twr - s.i1.twr) + "\">" + pts(s.twr - s.i1.twr) + "</b>" : "indice indisponible") +
         tuile("Pire baisse depuis un plus haut", pct(s.baisseMax), sens(s.baisseMax), "Actuelle <b>" + pct(s.baisseActuelle) + "</b>") +
         tuile("Volatilité annualisée", volTxt(s), "", s.n < RECUL ? "moins de " + RECUL + " mois de données" : "Sharpe <b>" + sharpeTxt(s) + "</b>") +
         tuile("Meilleur mois (" + moisCourt(s.meilleur.k) + ")", pct(s.meilleur.r), sens(s.meilleur.r), "Pire (" + moisCourt(s.pire.k) + ") <b>" + pct(s.pire.r) + "</b>") +
@@ -1655,8 +1658,11 @@ function rendreJournal() {
 function choisirMoisParDefaut() {
   const p = D.personnes.find(x => x.nom === R.nom);
   const rows = p.rows;
+  if (!rows.length) { R.k = null; return; }
+  // par défaut : le mois en cours s'il reste à saisir ou modifiable, sinon le plus ancien mois vide
+  const dernier = rows[rows.length - 1][0];
   const vide = rows.find((r, i) => i > 0 && !aUnReleve(r[2]) && rows.slice(0, i).some(x => aUnReleve(x[2])));
-  R.k = vide ? vide[0] : rows[rows.length - 1][0];
+  R.k = etatReleve(p.nom, dernier).etat !== "fige" || !vide ? dernier : vide[0];
   chargerValeurs();
 }
 function chargerValeurs() {
@@ -1672,10 +1678,10 @@ function derniereSaisie(nom, k) {
     .sort((a, b) => a.t < b.t ? -1 : 1).pop() || null;
 }
 function limiteModif(j) { return j ? new Date(new Date(j.t).getTime() + JOURS_MODIF() * 864e5) : null; }
-/** Le délai de 7 jours part de la PREMIÈRE saisie non annulée du mois (comme côté serveur) */
+/** Le délai de 7 jours part de la toute PREMIÈRE saisie du mois, même annulée (comme côté serveur) */
 function premiereSaisie(nom, k) {
-  return (D.journal || []).filter(j => j.personne === nom && j.cle === k && j.statut !== "Annulé" && (j.action === "Saisie" || j.action === "Import auto"))
-    .sort((a, b) => a.t < b.t ? -1 : 1)[0] || null;
+  return (D.journal || []).filter(j => j.personne === nom && j.cle === k && (j.action === "Saisie" || j.action === "Import auto"))
+    .sort((a, b) => new Date(a.t) - new Date(b.t))[0] || null;
 }
 function etatReleve(nom, k) {
   const p = D.personnes.find(x => x.nom === nom), r = p && p.rows.find(x => x[0] === k);
@@ -1689,6 +1695,12 @@ function peutModifier(nom) { return estAdmin() || nom === SESSION.nom; }
 function utilisees(p) { return NOMS_ENV.map((_, e) => p.rows.some(r => ok(r[2][2 * e + 1]) || (r[2][2 * e] || 0) !== 0)); }
 function rendreSaisie() {
   const p = D.personnes.find(x => x.nom === R.nom);
+  if (!p.rows.length || R.k === null) {
+    $("#corps-saisie").innerHTML = '<div class="chips" role="group" aria-label="Personne">' + D.personnes.filter(x => estAdmin() || x.nom === SESSION.nom).map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
+      '<p class="info" style="margin-top:12px">Pas encore de mois daté dans l\'onglet Data ' + esc(p.nom) + " : la première ligne apparaît au prochain jour de relevé.</p>";
+    document.querySelectorAll("[data-rp]").forEach(b => b.addEventListener("click", () => { R.nom = b.dataset.rp; choisirMoisParDefaut(); rendreSaisie(); }));
+    return;
+  }
   const idx = p.rows.findIndex(x => x[0] === R.k);
   const prev = idx > 0 ? p.rows[idx - 1] : null;
   const util = utilisees(p);
@@ -1699,11 +1711,13 @@ function rendreSaisie() {
   const maintenant = new Date(), cleAuj = maintenant.getFullYear() * 100 + maintenant.getMonth() + 1;
   const dernierJour = jourReleve(maintenant.getFullYear(), maintenant.getMonth() + 1).getDate() === maintenant.getDate();
   const avantCloture = R.k === cleAuj && dernierJour && maintenant.getHours() < 18;
+  const imp = etatImport();
   const bandeauEtat = fige ? '<div class="alerte">Relevé figé : ' + (st.j ? "saisi il y a plus de " + JOURS_MODIF() + " jours" : "saisi dans le Sheet") + ". Il ne se modifie plus que dans l'onglet Data " + esc(p.nom) + " du Sheet.</div>"
     : st.etat === "modif" ? '<div class="alerte warn">Déjà saisi ' + (st.j.action === "Import auto" ? "par l'import automatique" : "le " + dateHeure(new Date(st.j.t))) + " : modifiable jusqu'au " + dateHeure(st.lim) + ".</div>" : "";
   $("#corps-saisie").innerHTML = '<form class="form" id="form-releve" novalidate style="display:grid;gap:14px">' +
     '<div class="chips" role="group" aria-label="Personne">' + D.personnes.filter(x => estAdmin() || x.nom === SESSION.nom).map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
     '<label class="sel"><span>Mois (valeurs au ' + finMois(R.k) + ')</span><select id="r-mois">' + opts + "</select></label>" + bandeauEtat +
+    (imp.visible && R.nom === imp.nom && R.k === imp.k ? '<div class="import-l"><button class="btn acc" type="button" id="r-importer"' + (imp.actif ? "" : " disabled") + '>Importer depuis Portefeuille & Épargne</button><small>' + esc(imp.texte) + "</small></div>" : "") +
     (avantCloture ? '<div class="alerte warn">Jour du relevé : attends la clôture (18 h) pour saisir les valeurs de fin de mois.</div>' : "") +
     NOMS_ENV.map((nom, e) => !montrer[e] ? "" :
       '<div class="env-saisie"><div class="h"><b>' + nom + '</b><span id="r-info-' + e + '"></span></div><div class="rang">' +
@@ -1715,6 +1729,7 @@ function rendreSaisie() {
     (fige ? "" : '<button class="btn acc plein" type="submit" id="r-envoyer">' + (st.etat === "modif" ? "Enregistrer la modification" : "Enregistrer le relevé") + "</button>") + "</form>";
   document.querySelectorAll("[data-rp]").forEach(b => b.addEventListener("click", () => { R.nom = b.dataset.rp; R.tout = false; choisirMoisParDefaut(); rendreSaisie(); }));
   $("#r-mois").addEventListener("change", e => { R.k = +e.target.value; chargerValeurs(); rendreSaisie(); });
+  if ($("#r-importer")) $("#r-importer").addEventListener("click", async e => { if (await lancerImport(e.currentTarget)) { JNOM = R.nom; ongletReleves("journal"); } });
   if ($("#r-tout")) $("#r-tout").addEventListener("click", () => { R.tout = true; rendreSaisie(); });
   NOMS_ENV.forEach((_, e) => ["v", "c"].forEach((t, j) => { const el = $("#r-" + t + e); if (el) el.addEventListener("input", () => { R.v[2 * e + j] = el.value; R.forcer = null; R.erreur = ""; majSaisie(prev); }); }));
   $("#form-releve").addEventListener("submit", ev => { ev.preventDefault(); if (!fige) envoyerReleve(false); });
@@ -1755,7 +1770,7 @@ async function envoyerReleve(forcer) {
   if (SOURCE !== "api") { toast(SOURCE === "demo" ? "Aperçu : le relevé est contrôlé mais rien n'est écrit sans adresse d'API." : "Hors connexion : le relevé n'a pas été envoyé."); if (SOURCE === "demo") $("#saisie").hidden = true; return; }
   R.envoi = true; R.erreur = ""; majSaisie(null);
   let rep;
-  try { rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ cle: stock.get(CLES.cle), action: "releve", personne: R.nom, cle: R.k, valeurs, forcer: !!forcer }) })).json(); }
+  try { rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ cle: stock.get(CLES.cle), action: "releve", personne: R.nom, mois: R.k, valeurs, forcer: !!forcer }) })).json(); }
   catch (e) { rep = { ok: false, message: "Impossible de joindre le fichier : vérifie la connexion puis réessaie." }; }
   R.envoi = false;
   if (rep.ok) { toast(rep.message || "Relevé enregistré."); await charger(true); JNOM = R.nom; ongletReleves("journal"); return; }
@@ -1831,7 +1846,31 @@ $("#p-enregistrer").addEventListener("click", async () => {
   const rep = await posterAdmin({ action: "parametres", tauxSansRisque: t / 100, dateComparaison: m ? m + "-01" : null });
   toast(rep.message || (rep.ok ? "Enregistré." : "Enregistrement impossible.")); if (rep.ok) charger(true);
 });
+/** Import depuis Portefeuille & Épargne pour le mois en cours :
+ *  caché si le relevé du mois est déjà rempli, grisé avant le jour du relevé à l'heure prévue */
+function etatImport() {
+  const l = D && D.liaison;
+  if (!l || !estAdmin() || SOURCE !== "api") return { visible: false };
+  const now = new Date(), k = now.getFullYear() * 100 + now.getMonth() + 1, h = l.heure || 19;
+  const p = D.personnes.find(x => x.nom === (l.personne || "Théo")); if (!p) return { visible: false };
+  const r = p.rows.find(x => x[0] === k);
+  if (r && aUnReleve(r[2])) return { visible: false, k, nom: p.nom };
+  const jour = jourReleve(now.getFullYear(), now.getMonth() + 1); jour.setHours(h, 0, 0, 0);
+  const pret = now >= jour && !!r;
+  return { visible: true, k, nom: p.nom, actif: pret,
+    texte: pret ? "C'est l'heure : importe tes valeurs de fin de mois en un clic." : "Disponible le " + String(jour.getDate()).padStart(2, "0") + "/" + String(jour.getMonth() + 1).padStart(2, "0") + " à partir de " + h + " h (après la clôture)." };
+}
+async function lancerImport(btn) {
+  btn.disabled = true; const lib = btn.textContent; btn.textContent = "Import en cours…";
+  const rep = await posterAdmin({ action: "importer" });
+  toast(rep.message || (rep.ok ? "Relevé importé." : "Import impossible."));
+  if (rep.ok && !rep.ignore) { await charger(true); return true; }
+  btn.disabled = false; btn.textContent = lib; return false;
+}
 function majLiaison() {
+  const im = etatImport(), bi = $("#liaison-import");
+  bi.hidden = !im.visible; bi.disabled = !im.actif;
+  bi.title = im.texte || "";
   const l = D.liaison || {};
   $("#liaison-etat").textContent = l.active ? "Activée : le dernier jour ouvré de chaque mois, entre " + l.heure + " h et " + (l.heure + 1) + " h, ton relevé (" + (l.personne || "Théo") + ") est rempli depuis ton fichier de patrimoine. Une saisie faite à la main n'est jamais écrasée."
     : "Désactivée. Une fois activée, ton relevé se remplit seul le dernier jour ouvré du mois après la clôture, depuis ton fichier « Portefeuille & Épargne ».";
@@ -1846,7 +1885,7 @@ async function actionLiaison(action, corps) {
 }
 $("#liaison-bascule").addEventListener("click", async () => { const rep = await actionLiaison("liaison", { actif: !(D.liaison && D.liaison.active) }); if (rep.ok) { D.liaison = Object.assign({}, D.liaison, { active: !(D.liaison && D.liaison.active) }); majLiaison(); } });
 $("#liaison-test").addEventListener("click", () => actionLiaison("testerLiaison"));
-$("#liaison-import").addEventListener("click", async () => { const rep = await actionLiaison("importer"); if (rep.ok) charger(true); });
+$("#liaison-import").addEventListener("click", async () => { const rep = await actionLiaison("importer"); if (rep.ok) { await charger(true); majLiaison(); } });
 document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie").hidden = true; $("#reglages").hidden = true; } });
 let attente, largeur = window.innerWidth;
 window.addEventListener("resize", () => { if (window.innerWidth === largeur) return; largeur = window.innerWidth; clearTimeout(attente); attente = setTimeout(() => { if (D) rendreVue(vueActive()); }, 150); });
