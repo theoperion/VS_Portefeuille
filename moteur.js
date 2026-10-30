@@ -22,7 +22,10 @@ function serie(p, e) {
     const c = r[3], o = e * 5;
     let val = c[o + 1];
     if (e === 0 && !(val > 0)) val = null;          // portefeuille vide = pas de relevé
-    return { k: r[0], d: r[1], verse: c[o] || 0, val: val, gain: c[o + 2], r: c[o + 3], cum: c[o + 4] || 0, brut: r[2] };
+    // garde-fou : pas de rendement de portefeuille tant qu'aucune valeur de fin de mois n'est saisie
+    const saisi = [1, 3, 5, 7].some(i => typeof (r[2] || [])[i] === "number");
+    const rend = e === 0 && !saisi ? null : c[o + 3];
+    return { k: r[0], d: r[1], verse: c[o] || 0, val: val, gain: e === 0 && !saisi ? null : c[o + 2], r: rend, cum: c[o + 4] || 0, brut: r[2] };
   });
 }
 
@@ -118,9 +121,10 @@ function stats(D, p, e, deb, fin, idx1, idx2) {
   [[idx1, "i1"], [idx2, "i2"]].forEach(([n, cle]) => {
     if (n === null || n === undefined || n < 0) return;
     const m = rendementsIndice(D, n);
-    let v = 1, bat = 0;
-    mois.forEach((x, i) => { const ri = m[x.k] || 0; v *= 1 + ri; if (rs[i] > ri) bat++; });
-    res[cle] = { twr: v - 1, battus: bat / mois.length };
+    // seulement les mois où l'indice a un rendement connu (un mois manquant ne compte pas pour 0 %)
+    let v = 1, bat = 0, nb = 0;
+    mois.forEach((x, i) => { const ri = m[x.k]; if (typeof ri !== "number") return; v *= 1 + ri; nb++; if (rs[i] > ri) bat++; });
+    if (nb) res[cle] = { twr: v - 1, battus: bat / nb, n: nb };
   });
 
   // MWR : départ = ligne précédant le premier mois retenu (valeur à cette date, 0 si vide)
