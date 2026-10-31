@@ -15,6 +15,7 @@ const PREF = Object.assign({ onglet: "jour", patri: "net", million: "financier",
 function garderPref() { stock.set(K.pref, JSON.stringify(PREF)); }
 
 let M = null;            // dernières données reçues de ton fichier
+let RAW = null;          // profil simple : réponse brute de l'API (comptes, soldes, réglages)
 let SRC = "";            // "api" | "cache"
 let enCours = false, dernierAppel = 0, dernierFlap = "", erreur = "";
 
@@ -67,6 +68,23 @@ function injecterStyle() {
 .moi .m-note.warn { border-color: var(--down); color: var(--ink); } .moi .m-note.warn .ic { background: var(--down-bg); color: var(--down); }
 .moi .m-note.rappel .ic { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold); }
 .moi .badge.big-b { font-size: 15px; padding: 5px 11px; }
+.moi .badge.warn { background: color-mix(in srgb, #F0A030 20%, transparent); color: #C77A10; }
+.moi .ms-r { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid var(--rule-2); }
+.moi .ms-r:last-child { border-bottom: 0; }
+.moi .ms-r b { font: italic 700 16px/1.1 var(--f-display); letter-spacing: .04em; text-transform: uppercase; }
+.moi .ms-r .v { font: 700 16px/1.1 var(--f-num); text-align: right; }
+.moi .ms-r small { font-size: 11.5px; color: var(--ink-3); }
+.moi .ms-r .s { text-align: right; font-family: var(--f-num); }
+.moi .ms-r .s i { font-style: normal; }
+.moi .ms-r .s .badge { font-size: 11px; }
+.moi .ms-liste { display: grid; gap: 8px; }
+.moi .ms-l { display: grid; grid-template-columns: minmax(0, 1fr) 118px; gap: 4px 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); }
+.moi .ms-n b { display: block; font: italic 700 15px/1.15 var(--f-display); letter-spacing: .04em; text-transform: uppercase; }
+.moi .ms-n small { display: block; font-size: 11.5px; color: var(--ink-3); }
+.moi .ms-l input[type="text"] { font: 600 16px/1.2 var(--f-num); padding: 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); width: 100%; min-width: 0; text-align: right; }
+.moi .ms-int { grid-column: 2; justify-self: end; display: flex; gap: 5px; align-items: center; font-size: 11.5px; color: var(--ink-3); }
+.moi .ms-int input { accent-color: var(--accent); margin: 0; }
+.moi .rang2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .moi .m-carte { display: flex; flex-wrap: wrap; gap: 3px; }
 .moi .m-tuile { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 64px; min-width: 64px; min-height: 54px; padding: 7px 8px; border-radius: 8px; background: var(--panel); border: 1px solid var(--rule); display: grid; align-content: space-between; gap: 2px; }
 .moi .m-tuile:focus-visible { outline: 2px solid var(--accent); }
@@ -389,7 +407,7 @@ function injecterStyle() {
 function adresse() { return (stock.get(K.api) || "").trim(); }
 function cle() { return stock.get(K.cle) || ""; }
 function configure() { return !!(adresse() && cle()); }
-function lireCache() { if (M) return; const c = stock.get(K.cache); if (c) { try { M = JSON.parse(c); SRC = "cache"; } catch (e) { stock.del(K.cache); } } }
+function lireCache() { if (M) { assurerSimple(); return; } const c = stock.get(K.cache); if (c) { try { recevoir(JSON.parse(c)); SRC = "cache"; } catch (e) { stock.del(K.cache); } } }
 
 async function charger(frais) {
   if (!configure() || enCours) return;
@@ -404,7 +422,7 @@ async function charger(frais) {
       if (json.erreur === "cle") { stock.del(K.cle); erreur = json.message || "Clé refusée par ton fichier."; return; }
       throw new Error(json.message || "Réponse inattendue de ton fichier");
     }
-    M = json; SRC = "api"; dernierAppel = Date.now();
+    recevoir(json); SRC = "api"; dernierAppel = Date.now();
     stock.set(K.cache, JSON.stringify(json));
     setTimeout(() => { verifierPaliers(); partagerLignes(); revendiquerMillion(); }, 0);
   } catch (e) {
@@ -440,10 +458,10 @@ function rendre() {
   v.innerHTML =
     '<div class="seg m-onglets" role="tablist" aria-label="Moi">' + ONGLETS.map(([k, l]) => '<button type="button" role="tab" data-m-ong="' + k + '" aria-pressed="' + (o === k) + '" aria-selected="' + (o === k) + '">' + l + "</button>").join("") + "</div>" +
     bandeau +
-    ({ jour: htmlJour, patrimoine: htmlPatrimoine, stats: htmlStats, missions: htmlMissions })[o]();
+    ({ jour: M.simple ? htmlJourSimple : htmlJour, patrimoine: htmlPatrimoine, stats: htmlStats, missions: htmlMissions })[o]();
   v.querySelectorAll("[data-m-ong]").forEach(b => b.addEventListener("click", () => { PREF.onglet = b.dataset.mOng; garderPref(); rendre(); window.scrollTo(0, 0); }));
   v.querySelectorAll("details.acc[data-acc]").forEach(d => d.addEventListener("toggle", () => { PREF.acc[d.dataset.acc] = d.open; garderPref(); if (d.open && d.dataset.acc === "m-courbe") dessinerCourbe(); }));
-  ({ jour: brancherJour, patrimoine: brancherPatrimoine, stats: brancherStats, missions: brancherMissions })[o](v);
+  ({ jour: M.simple ? brancherJourSimple : brancherJour, patrimoine: brancherPatrimoine, stats: brancherStats, missions: brancherMissions })[o](v);
 }
 
 function acc(id, titre, sous, contenu, defaut) {
@@ -655,8 +673,9 @@ function htmlPatrimoine() {
     '<span class="c">Résultat ' + pct(e.gainPct) + " · TWR " + pct(e.twr) + '</span><span class="d ' + sens(e.gain) + '">' + eur(e.gain, 0, true) + "</span></div>";
   const rEp = r => { const t = /^Total/.test(r.nom);
     return '<div class="r' + (t ? " total" : "") + '"><span class="a">' + esc(r.nom) + '</span><span class="b">' + eur(r.solde) + "</span>" +
-      '<span class="c">' + (t ? "Intérêts acquis " + eur(r.acquis) : "Taux moyen " + pct(r.taux, 2, false) + (r.fiscal && r.fiscal !== "—" ? " · fiscalité allégée le " + esc(r.fiscal) : "")) + "</span>" +
-      '<span class="d">fin d\'année ≈ ' + eur(r.fin31) + "</span></div>"; };
+      (M.simple ? '<span class="c">' + (t ? "tous tes comptes" : esc(r.type || "") + " · saisi le " + frDate(r.date)) + '</span><span class="d"></span></div>'
+      : '<span class="c">' + (t ? "Intérêts acquis " + eur(r.acquis) : "Taux moyen " + pct(r.taux, 2, false) + (r.fiscal && r.fiscal !== "—" ? " · fiscalité allégée le " + esc(r.fiscal) : "")) + "</span>" +
+      '<span class="d">fin d\'année ≈ ' + eur(r.fin31) + "</span></div>"); };
   const rSup = r => { const t = /^Total/.test(r.nom);
     return '<div class="r' + (t ? " total" : "") + '"><span class="a">' + esc(r.nom) + '</span><span class="b">' + eur(r.valeur) + "</span>" +
       '<span class="c">' + (r.note ? esc(r.note) : "Investi " + eur(r.investi)) + '</span><span class="d ' + sens(r.pv) + '">' + eur(r.pv, 2, true) + " · " + pct(r.pvPct, 2) + "</span></div>"; };
@@ -754,8 +773,7 @@ function htmlStats() {
     '<details class="acc m-compact" data-acc="m-perf"' + (PREF.acc["m-perf"] ? " open" : "") + '><summary><span class="t">Performances</span><span class="m-cp-r">' + resume + "</span></summary>" +
       '<div><div class="scroll-x"><table class="tab m-perf-t"><thead><tr><th>Enveloppe</th><th>1 sem.</th><th>1 mois</th><th>6 mois</th><th>Janv.</th><th>1 an</th><th>Début</th><th>MWR</th><th>Vol.</th></tr></thead><tbody>' + envs.map(perfLigne).join("") + "</tbody></table></div></div></details>" +
     blocPatrimoineTemps() + blocEpargneTemps() + blocPret() +
-    blocRisque() + blocMois() + blocRepartition() +
-    blocFrais();
+    (M.simple ? blocMois() : blocRisque() + blocMois() + blocRepartition() + blocFrais());
 }
 function dessinerCourbe() {
   const zone = document.getElementById("m-courbe-box"); if (!zone) return;
@@ -1894,7 +1912,7 @@ function paliers() {
   if (p.premier) {
     const depuis = p.derniereVente || p.premier;
     const jours = Math.floor((Date.now() - new Date(depuis + "T00:00:00")) / 864e5);
-    [[6, "6M", "6 mois sans vendre"], [12, "1AN", "1 an sans vendre"], [24, "2ANS", "2 ans sans vendre"], [36, "3ANS", "3 ans sans vendre"]].forEach(([mo, court, titre]) => {
+    (M.simple ? [] : [[6, "6M", "6 mois sans vendre"], [12, "1AN", "1 an sans vendre"], [24, "2ANS", "2 ans sans vendre"], [36, "3ANS", "3 ans sans vendre"]]).forEach(([mo, court, titre]) => {
       const d0 = new Date(depuis + "T00:00:00"), d = new Date(d0.getFullYear(), d0.getMonth() + mo, 1);
       d.setDate(Math.min(d0.getDate(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));   // 31/08 + 6 mois = 28/02
       const date = isoJour(d), tot = Math.round((d - new Date(depuis + "T00:00:00")) / 864e5), atteint = date <= auj;
@@ -2112,12 +2130,296 @@ function htmlNotifications() {
     (rap.length ? '<h4 class="m-h4">Rappels de ton fichier</h4><div class="m-liste">' + rap.map(r => '<div class="r"><span class="a">' + esc(r.nom) + '</span><span class="b">' + esc(String(r.statut || "").replace(/^[^\wÀ-ÿ]+/u, "")) + '</span><span class="c">dernière : ' + esc(/^\d{4}-/.test(r.derniere || "") ? frDate(r.derniere.slice(0, 10)) : r.derniere || "—") + '</span><span class="d">prochaine : ' + esc(/^\d{4}-/.test(r.prochaine || "") ? frDate(r.prochaine.slice(0, 10)) : r.prochaine || "—") + "</span></div>").join("") + "</div>" : "") + "</div>";
 }
 
+/* ================= Profil simple (Kévin) : épargne saisie à la main, bourse lue dans le Versus =================
+   Son fichier (API « Moi simple ») ne donne que ses comptes, ses soldes datés et ses réglages
+   (appartement, prêt). Le reste est reconstruit ici, au format des autres fichiers, pour que
+   les onglets Patrimoine, Stats et Missions marchent à l'identique. Pas de lignes de bourse. */
+function recevoir(json) {
+  if (json && json.profil === "simple") { RAW = json; M = adapterSimple(json); }
+  else { RAW = null; M = json; }
+}
+function dVersus() { return typeof D !== "undefined" && D ? D : null; }
+function assurerSimple() { if (RAW && M && M._d !== dVersus()) M = adapterSimple(RAW); }
+function finMoisIso(an, mo) { return isoJour(new Date(an, mo, 0)); }
+function moisPlus(an, mo, n) { const d = new Date(an, mo - 1 + n, 1); return [d.getFullYear(), d.getMonth() + 1]; }
+/** Échéancier d'un prêt à mensualités constantes, ramené à « ma part » */
+function echeancier(pr) {
+  if (!pr || !(pr.capital > 0) || !(pr.duree > 0) || !pr.debut) return null;
+  const part = (ok(pr.part) && pr.part > 0 ? pr.part : 100) / 100, n = Math.round(pr.duree * 12), i = (pr.taux || 0) / 100 / 12;
+  const C = pr.capital, mens = i ? C * i / (1 - Math.pow(1 + i, -n)) : C / n;
+  const d0 = new Date(pr.debut + "T12:00:00"), jour = d0.getDate();
+  let restant = C;
+  const L = [];
+  for (let k = 0; k < n; k++) {
+    const an = d0.getFullYear(), mo = d0.getMonth() + k, d = new Date(an, mo, Math.min(jour, new Date(an, mo + 1, 0).getDate()));
+    const interet = restant * i, capital = Math.min(restant, mens - interet);
+    restant = Math.max(0, restant - capital);
+    L.push({ date: isoJour(d), restant: restant * part, echeance: mens * part, interet: interet * part });
+  }
+  const avant = new Date(d0.getFullYear(), d0.getMonth() - 1, Math.min(jour, 28));
+  const auj = isoJour(new Date()), an = String(new Date().getFullYear());
+  const passees = L.filter(x => x.date <= auj), futures = L.filter(x => x.date > auj);
+  const a = passees[passees.length - 1], p = futures[0];
+  return {
+    actuel: a ? { date: a.date, restant: a.restant, echeance: a.echeance } : null,
+    prochaine: p ? { date: p.date, restant: p.restant, echeance: p.echeance } : null,
+    interetsAnnee: passees.filter(x => x.date.slice(0, 4) === an).reduce((s, x) => s + x.interet, 0),
+    interetsRestants: futures.reduce((s, x) => s + x.interet, 0),
+    fin: L[L.length - 1].date, mensuel: [[isoJour(avant), C * part]].concat(L.map(x => [x.date, x.restant])),
+    restantAuj: a ? a.restant : C * part, part, mensualite: mens * part
+  };
+}
+function adapterSimple(raw) {
+  const Dv = dVersus(), qui = Dv ? (estAdmin() ? ETAT.moi : SESSION.nom) : null;
+  const p = Dv ? Dv.personnes.find(x => x.nom === qui) : null;
+  const noms = (Dv && Dv.enveloppes) || ["Portefeuille", "PEA", "Assurance vie", "CTO", "Crypto"];
+  const fin = Dv ? finGlobale(Dv, 0) : 0;
+  const iR = Dv ? Math.max(0, Dv.marche.indices.findIndex(n => /S&P\s*500/i.test(n))) : 0;
+  const st = (e, deb) => p ? stats(Dv, p, e, deb || 0, fin, iR, null) : {};
+  const tot = st(0);
+  const sTot = p ? serie(p, 0).filter(z => z.k <= fin && z.val > 0) : [];
+  const dernierR = e => { const s = p ? serie(p, e).filter(z => z.k <= fin && typeof z.r === "number") : []; return s.length ? s[s.length - 1].r : null; };
+  const debAn = fin ? (Math.floor(fin / 100) - 1) * 100 + 12 : 0;
+  // bourse : une enveloppe par colonne du Versus
+  const envs = [1, 2, 3, 4].map(e => {
+    const s = st(e); if (!(s.valeur > 0) && !(s.verse > 0)) return null;
+    const premier = p ? serie(p, e).find(z => z.val > 0) : null;
+    return { nom: noms[e], type: "env", regime: e === 1 ? "PEA" : e === 2 ? "AV" : e === 3 ? "CTO" : "Crypto", valeur: s.valeur, gain: s.pvLatente, gainPct: s.pvLatentePct, latente: s.pvLatente,
+      twr: s.twr, mwr: s.mwr, vol: s.vol, m1: dernierR(e), ytd: st(e, debAn).twr, s1: null, m6: null, a1: null, ouverture: premier ? premier.d : null };
+  }).filter(Boolean);
+  // épargne : dernier solde de chaque compte
+  const comptes = raw.comptes || [], soldes = raw.soldes || [];
+  const dernier = {}; soldes.forEach(s => { dernier[s[1]] = { solde: s[2], date: s[0] }; });
+  const vus = comptes.filter(c => dernier[c.nom] && (c.statut !== "Fermé" || dernier[c.nom].solde > 0.5));
+  const totalEp = vus.reduce((a, c) => a + dernier[c.nom].solde, 0);
+  const epargne = vus.map(c => ({ nom: c.nom, type: c.type, solde: dernier[c.nom].solde, date: dernier[c.nom].date, taux: null, acquis: null, fin31: null, fiscal: null }));
+  if (epargne.length) epargne.push({ nom: "Total épargne", solde: totalEp, acquis: null, fin31: null });
+  // mois couverts : du premier relevé (bourse) ou du premier solde jusqu'au mois en cours
+  const now = new Date(), kAuj = now.getFullYear() * 100 + now.getMonth() + 1;
+  const kPrem = Math.min(sTot.length ? sTot[0].k : kAuj, soldes.length ? +soldes[0][0].slice(0, 4) * 100 + +soldes[0][0].slice(5, 7) : kAuj);
+  const ks = []; for (let [a, m] = [Math.floor(kPrem / 100), kPrem % 100]; a * 100 + m <= kAuj; [a, m] = moisPlus(a, m, 1)) ks.push(a * 100 + m);
+  const nomsEp = comptes.filter(c => soldes.some(s => s[1] === c.nom)).map(c => c.nom);
+  const soldeA = (nom, iso) => { let v = null; soldes.forEach(s => { if (s[1] === nom && s[0] <= iso) v = s[2]; }); return v; };
+  const premierSolde = soldes.length ? soldes[0][0] : null;
+  const bourseA = k => { let v = null; sTot.forEach(z => { if (z.k <= k) v = z.val; }); return v; };
+  const moisParMois = ks.map(k => {
+    const iso = finMoisIso(Math.floor(k / 100), k % 100);
+    const ep = premierSolde && iso >= premierSolde.slice(0, 7) + "-01" ? nomsEp.reduce((a, n) => a + (soldeA(n, iso) || 0), 0) : null;
+    const b = bourseA(k);
+    return { mois: iso, bourse: b || 0, epargne: ep, uc: 0, patrimoine: (b || 0) + (ep || 0) };
+  });
+  const epargneMois = nomsEp.length ? { comptes: nomsEp, rows: moisParMois.filter(r => r.epargne !== null).map(r => [r.mois].concat(nomsEp.map(n => soldeA(n, r.mois) || 0))) } : null;
+  // historique de la bourse : un point par relevé mensuel du Versus (indice de performance et S&P 500 rebasés)
+  const mi = Dv ? rendementsIndice(Dv, iR) : {};
+  let ip = 100, isp = 100;
+  const rows = sTot.map((z, j) => {
+    if (j > 0 && typeof z.r === "number") ip *= 1 + z.r;
+    if (j > 0 && typeof mi[z.k] === "number") isp *= 1 + mi[z.k];
+    return [+String(z.d).replace(/-/g, ""), z.val, z.cum, ip, isp];
+  });
+  const prets = echeancier((raw.reglages || {}).pret);
+  const ap = (raw.reglages || {}).appart || {}, partA = (ok(ap.part) && ap.part > 0 ? ap.part : 100) / 100;
+  const financier = (tot.valeur || 0) + totalEp;
+  let immo = [], appart = null;
+  if (ap.prix > 0) {
+    const prix = ap.prix * partA, dette = prets ? prets.restantAuj : 0;
+    appart = { prix, date: ap.date || (prets ? prets.mensuel[0][0] : null) };
+    immo = [{ nom: "Appartement (ma part)", montant: prix, note: partA < 1 ? F0.format(partA * 100) + " % de " + eur(ap.prix) : null },
+      { nom: "Crédit immobilier : restant dû (ma part)", montant: dette, note: prets ? "fin du crédit : " + frDate(prets.fin) + " · mensualité (ma part) " + eur(prets.mensualite, 2) : "prêt pas encore saisi (➕ › Comptes et prêt)" },
+      { nom: "Valeur nette immobilière", montant: prix - dette, note: null },
+      { nom: "Patrimoine net (avec immobilier)", montant: financier + prix - dette, note: "L'immobilier pèse " + pct((prix - dette) / Math.max(1, financier + prix - dette), 0, false) + " du total" }];
+  }
+  // mois avec un versement : bourse (relevés du Versus) ou hausse d'un compte saisie comme « mise à jour »
+  const vers = {};
+  if (p) serie(p, 0).forEach(z => { if (z.k <= fin && (z.verse || 0) > 0) { const m = String(z.k).slice(0, 4) + "-" + String(z.k).slice(4, 6); vers[m] = (vers[m] || 0) + z.verse; } });
+  const prec = {};
+  soldes.forEach(s => { const av = prec[s[1]]; prec[s[1]] = s[2]; if (av !== undefined && s[3] !== "Intérêts" && s[2] - av > 0.5) { const m = s[0].slice(0, 7); vers[m] = (vers[m] || 0) + s[2] - av; } });
+  const premier = [sTot.length ? sTot[0].d : null, premierSolde].filter(Boolean).sort()[0] || null;
+  const derSaisie = soldes.length ? soldes.map(s => s[0]).sort().pop() : null;
+  const vieux = derSaisie && (Date.now() - new Date(derSaisie + "T12:00:00")) / 864e5 > 31;
+  const total = { nom: "Portefeuille", type: "total", valeur: tot.valeur, gain: tot.pvLatente, gainPct: tot.pvLatentePct, twr: tot.twr, mwr: tot.mwr, vol: tot.vol, sharpe: tot.sharpe, m1: dernierR(0), ytd: st(0, debAn).twr, s1: null, m6: null, a1: null };
+  return {
+    simple: true, profil: "simple", _d: Dv, ok: true, genere: raw.genere,
+    majTexte: (fin ? "Bourse : relevé de " + MOIS_L[fin % 100 - 1] + " " + Math.floor(fin / 100) : "Bourse : pas encore de relevé") + (derSaisie ? " · épargne saisie le " + frDate(derSaisie) : ""),
+    anomalies: "", marches: "",
+    rappel: !comptes.length ? "🔔 À mettre à jour : ajoute tes comptes d'épargne et leurs soldes (➕ › Comptes et prêt)" : vieux ? "🔔 À mettre à jour : tes soldes d'épargne (dernière saisie il y a plus d'un mois)" : derSaisie ? "✓ Soldes à jour (saisis le " + frDate(derSaisie) + ")." : "🔔 À mettre à jour : saisis le solde de tes comptes (➕ › Mes soldes)",
+    synthese: { valeur: tot.valeur || 0, apports: tot.verse || 0, gain: tot.pvLatente, gainPct: tot.pvLatentePct, latente: tot.pvLatente, latentePct: tot.pvLatentePct, mwr: tot.mwr, twr: tot.twr,
+      sp500: tot.i1 ? tot.i1.twr : null, epargne: totalEp, financier, jour: null, jourPct: null, timing: "—", releve: fin },
+    indices: [], enveloppes: envs.concat([total]), groupes: [], fiscalite: [], supports: [], frais: [], cibles: [], alertes: [], perfLignes: {}, signal: null,
+    epargne, epargneMois, moisParMois, immo, prets,
+    parametres: { rappels: [], appart },
+    historique: { cols: ["d", "v", "a", "ip", "isp"], rows },
+    ref: { enveloppes: envs.map(e => ({ nom: e.nom, regime: e.regime, ouverture: e.ouverture, statut: "Ouvert", perimetre: "Portefeuille" })), types: [], actifs: [], cours: {}, detenu: [], journal: [], raccourcis: [],
+      parcours: { premier, derniereVente: null, mois: Object.keys(vers).map(m => ({ m, apports: vers[m] })) } },
+    comptes, soldes, reglages: raw.reglages || {}
+  };
+}
+
+/* ---- Aujourd'hui (profil simple) ---- */
+function ilYa(iso) { const j = Math.floor((Date.now() - new Date(iso + "T12:00:00")) / 864e5); return j <= 0 ? "aujourd'hui" : j === 1 ? "hier" : "il y a " + j + " j"; }
+function htmlJourSimple() {
+  const s = M.synthese || {};
+  const texteFlap = ETAT.discret === "oui" ? "•••" + NB + "€" : eur(s.financier);
+  const animer = !reduit && texteFlap !== dernierFlap; dernierFlap = texteFlap;
+  const envs = (M.enveloppes || []).filter(e => e.type === "env"), ep = (M.epargne || []).filter(x => !/^Total/.test(x.nom));
+  const c = (k, lab, val, cls, sub) => '<button type="button" data-def="' + k + '"><span class="lab">' + lab + '</span><b class="' + cls + '">' + val + "</b><small>" + sub + "</small></button>";
+  const rel = s.releve ? MOIS_L[s.releve % 100 - 1] + " " + Math.floor(s.releve / 100) : null;
+  const ligne = (nom, val, a, aCls, b, bCls) => '<div class="m-env-h"><b>' + esc(nom) + '</b><span class="v">' + eur(val) + '</span><span class="pv ' + (aCls || "") + '">' + a + '</span><span class="j ' + (bCls || "") + '">' + b + "</span></div>";
+  return '<div class="m-hero"><span class="eyebrow">Patrimoine financier</span>' +
+      '<div class="m-flaps" role="img" aria-label="' + esc(texteFlap) + '">' + flaps(texteFlap, animer) + "</div>" +
+      '<div class="m-jour"><span class="badge big-b flat">Bourse ' + eur(s.valeur) + " · épargne " + eur(s.epargne) + "</span><span>" + (rel ? "relevé de " + esc(rel) : "pas encore de relevé") + "</span></div></div>" +
+    (envs.length ? '<div class="m-debut-w"><span class="eyebrow">Bourse depuis le début</span><div class="m-debut">' +
+      c("gain", "Résultat", eur(s.gain, 0, true), sens(s.gain), pct(s.gainPct)) + c("verse", "Versé", eur(s.apports), "", "au total") +
+      c("twr", "TWR", pct(s.twr), sens(s.twr), "S&amp;P " + pct(s.sp500)) + c("mwr", "MWR", pct(s.mwr), sens(s.mwr), "ton argent") +
+      '</div><p class="m-def-l" hidden></p></div>' : "") +
+    "<div>" + '<div class="m-tri"><h2 class="sec">Mes comptes</h2></div>' +
+      (envs.length ? '<div class="m-env" style="--ce:var(--e1)"><div class="m-env-h"><b>Bourse</b><span class="v">' + eur(s.valeur) + '</span><span class="pv">relevé Versus de ' + esc(rel || "—") + '</span><span class="j"></span></div>' +
+        envs.map(e => '<div class="ms-r"><b>' + esc(e.nom) + '</b><span class="v">' + eur(e.valeur) + "</span><small>" + (e.ouverture ? "depuis " + frDate(e.ouverture).slice(3) : "") + '</small><small class="s">mois <i class="' + sens(e.m1) + '">' + pct(e.m1) + '</i> · total <i class="' + sens(e.gain) + '">' + eur(e.gain, 0, true) + " · " + pct(e.gainPct) + "</i></small></div>").join("") + "</div>" : "") +
+      '<div class="m-env" style="--ce:var(--e2)">' + ligne("Épargne", s.epargne, ep.length ? ep.length + " compte" + (ep.length > 1 ? "s" : "") : "aucun compte", "", "", "") +
+        ep.map(x => { const vieux = (Date.now() - new Date(x.date + "T12:00:00")) / 864e5 > 31;
+          return '<div class="ms-r"><b>' + esc(x.nom) + '</b><span class="v">' + eur(x.solde) + "</span><small>" + esc(x.type || "") + '</small><small class="s"><span class="badge ' + (vieux ? "warn" : "flat") + '">mis à jour ' + ilYa(x.date) + "</span></small></div>"; }).join("") + "</div>" +
+    "</div>" +
+    '<button class="btn acc plein" type="button" id="ms-ouvrir">✏️ Mettre à jour mes soldes</button>' +
+    '<p class="info">Ton épargne, c\'est toi qui la saisis, quand tu veux : seul le dernier solde compte, les anciens servent aux courbes. Ta bourse vient de tes relevés du Versus (➕ › Relevé Versus).</p>';
+}
+function brancherJourSimple(v) {
+  const def = v.querySelector(".m-def-l");
+  const TXT = Object.assign({}, DEFS, { verse: "Versé : total de ce que tu as mis en bourse (PEA, assurance-vie), d'après tes relevés du Versus." });
+  v.querySelectorAll("[data-def]").forEach(b => b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    v.querySelectorAll("[data-def]").forEach(x => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", String(on)); def.hidden = !on; def.textContent = on ? TXT[b.dataset.def] : "";
+  }));
+  const b = v.querySelector("#ms-ouvrir"); if (b) b.addEventListener("click", () => ouvrirSoldes("soldes"));
+}
+
+/* ---- Saisie (profil simple) : soldes, historique, comptes et prêt ---- */
+let paneS = "soldes", confirmeS = null;
+function assurerFeuilleSimple() {
+  if ($f("ms-saisie")) return;
+  const d = document.createElement("div");
+  d.className = "voile"; d.id = "ms-saisie"; d.hidden = true;
+  d.innerHTML = '<div class="feuille moi m-feuille" role="dialog" aria-modal="true" aria-labelledby="ms-titre">' +
+    '<h3 id="ms-titre">Mes chiffres <button class="icon-btn" type="button" id="ms-fermer" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>' +
+    '<div class="seg m-seg4" role="group" aria-label="Saisie"><button type="button" data-ms-pane="soldes">Mes soldes</button><button type="button" data-ms-pane="historique">Historique</button>' +
+      '<button type="button" data-ms-pane="comptes">Comptes et prêt</button><button type="button" data-ms-pane="versus">Relevé Versus</button></div>' +
+    '<div id="ms-corps"></div></div>';
+  document.body.appendChild(d);
+  const fermer = () => { d.hidden = true; confirmeS = null; };
+  d.addEventListener("click", e => { if (e.target === d) fermer(); });
+  $f("ms-fermer").addEventListener("click", fermer);
+  d.querySelectorAll("[data-ms-pane]").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.msPane === "versus") { fermer(); if (typeof ouvrirSaisie === "function") ouvrirSaisie(); return; }
+    paneS = b.dataset.msPane; confirmeS = null; rendreSimple();
+  }));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") fermer(); });
+}
+function ouvrirSoldes(o) {
+  injecterStyle(); assurerFeuilleSimple(); lireCache();
+  if (!M) { toast("Lecture de ton fichier en cours, réessaie dans un instant."); charger(false); return; }
+  paneS = o || (M.comptes && M.comptes.length ? "soldes" : "comptes");
+  $f("ms-saisie").hidden = false; rendreSimple();
+}
+async function envoyerSimple(corps, btn) {
+  if (btn) { btn.disabled = true; btn.dataset.lib = btn.textContent; btn.textContent = "Envoi…"; }
+  const rep = await posterFichier(corps);
+  if (btn) { btn.disabled = false; btn.textContent = btn.dataset.lib; }
+  if (!rep.ok) { toast(rep.message || "Enregistrement impossible."); return false; }
+  recevoir(Object.assign({ profil: "simple" }, rep)); SRC = "api"; dernierAppel = Date.now();
+  stock.set(K.cache, JSON.stringify(RAW));
+  toast(rep.message || "Enregistré.");
+  signalerCloche(); if (vueMoi()) rendre();
+  return true;
+}
+function rendreSimple() {
+  const z = $f("ms-corps"); if (!z) return;
+  document.querySelectorAll("[data-ms-pane]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.msPane === paneS)));
+  const comptes = (M.comptes || []), ouverts = comptes.filter(c => c.statut !== "Fermé"), soldes = M.soldes || [];
+  const der = {}; soldes.forEach(s => { der[s[1]] = s; });
+  if (paneS === "soldes") {
+    z.innerHTML = !ouverts.length ? '<p class="info">Aucun compte pour l\'instant. Ajoute d\'abord tes livrets et assurances-vie dans « Comptes et prêt ».</p><button class="btn acc" type="button" id="ms-aller-comptes">Ajouter un compte</button>'
+      : '<form class="form" id="ms-form" novalidate><div class="champ"><label for="ms-date">Date des soldes</label><input id="ms-date" type="date" value="' + aujourdhuiISO() + '" max="' + aujourdhuiISO() + '"></div>' +
+        '<div class="ms-liste">' + ouverts.map((c, i) => { const d = der[c.nom];
+          return '<div class="ms-l"><div class="ms-n"><b>' + esc(c.nom) + "</b><small>" + (d ? "dernier : " + eur(d[2], 2) + " le " + frDate(d[0]) : "pas encore de solde") + "</small></div>" +
+            '<input type="text" inputmode="decimal" autocomplete="off" data-ms-compte="' + i + '" placeholder="' + (d ? saisieNombre(d[2], 2) : "Solde") + '" aria-label="Nouveau solde de ' + esc(c.nom) + '">' +
+            '<label class="ms-int"><input type="checkbox" data-ms-int="' + i + '"> intérêts</label></div>'; }).join("") + "</div>" +
+        '<button class="btn acc plein" type="submit" id="ms-envoyer">Enregistrer</button>' +
+        '<p class="info">Remplis seulement les comptes qui ont changé : les autres gardent leur dernier solde. Coche « intérêts » quand la hausse vient des intérêts (en janvier en général) : elle ne comptera pas comme un versement dans tes séries.</p></form>';
+    const a = z.querySelector("#ms-aller-comptes"); if (a) a.addEventListener("click", () => { paneS = "comptes"; rendreSimple(); });
+    const f = z.querySelector("#ms-form");
+    if (f) f.addEventListener("submit", async e => {
+      e.preventDefault();
+      const date = z.querySelector("#ms-date").value, entrees = [];
+      let faux = null;
+      z.querySelectorAll("[data-ms-compte]").forEach(inp => {
+        if (!inp.value.trim()) return;
+        const v = lireNombre(inp.value), c = ouverts[+inp.dataset.msCompte];
+        if (!(v >= 0)) { faux = c.nom; return; }
+        entrees.push({ date, compte: c.nom, solde: v, nature: z.querySelector('[data-ms-int="' + inp.dataset.msCompte + '"]').checked ? "Intérêts" : "Mise à jour" });
+      });
+      if (faux) { toast("Montant illisible pour " + faux + "."); return; }
+      if (!entrees.length) { toast("Rien à enregistrer : remplis au moins un solde."); return; }
+      if (await envoyerSimple({ action: "soldes", entrees }, z.querySelector("#ms-envoyer"))) $f("ms-saisie").hidden = true;
+    });
+  } else if (paneS === "historique") {
+    const l = soldes.slice().reverse().slice(0, 60);
+    z.innerHTML = !l.length ? '<p class="info">Pas encore de saisie.</p>' : '<div class="m-liste">' + l.map(s => '<div class="r"><span class="a">' + esc(s[1]) + '</span><span class="b">' + eur(s[2], 2) + '</span><span class="c">' + frDate(s[0]) + (s[3] === "Intérêts" ? " · intérêts" : "") + '</span><span class="d"><button class="lien danger" type="button" data-ms-suppr="' + s[5] + '">' + (confirmeS === s[5] ? "Confirmer" : "Supprimer") + "</button></span></div>").join("") + "</div>" +
+      '<p class="info">Une erreur ? Supprime la ligne puis ressaisis le bon solde. Les 60 dernières saisies sont listées.</p>';
+    z.querySelectorAll("[data-ms-suppr]").forEach(b => b.addEventListener("click", async () => {
+      const n = +b.dataset.msSuppr;
+      if (confirmeS !== n) { confirmeS = n; rendreSimple(); return; }
+      const s = soldes.find(x => x[5] === n); confirmeS = null;
+      if (s && await envoyerSimple({ action: "supprimerSolde", solde: { ligne: n, date: s[0], compte: s[1] } }, b)) rendreSimple();
+    }));
+  } else {
+    const r = M.reglages || {}, ap = r.appart || {}, pr = r.pret || {};
+    const val = (v, dec) => ok(v) ? saisieNombre(v, dec === undefined ? 2 : dec) : "";
+    z.innerHTML = '<h4 class="m-h4">Mes comptes d\'épargne</h4><div class="m-liste">' + (comptes.length ? comptes.map((c, i) => '<div class="r"><span class="a">' + esc(c.nom) + '</span><span class="b">' + (der[c.nom] ? eur(der[c.nom][2]) : "—") + '</span><span class="c">' + esc(c.type) + (c.statut === "Fermé" ? " · fermé" : "") + '</span><span class="d"><button class="lien' + (c.statut === "Fermé" ? "" : " danger") + '" type="button" data-ms-ferme="' + i + '">' + (c.statut === "Fermé" ? "Rouvrir" : confirmeS === "f" + i ? "Confirmer" : "Fermer") + "</button></span></div>").join("") : '<div class="r"><span class="a">Aucun compte</span></div>') + "</div>" +
+      '<form class="form" id="ms-ajout" novalidate><div class="rang2"><div class="champ"><label for="ms-nom">Nouveau compte</label><input id="ms-nom" type="text" maxlength="40" placeholder="Livret A, LDDS, AV…"></div>' +
+        '<div class="champ"><label for="ms-type">Type</label><select id="ms-type"><option>Livret</option><option>Assurance-vie</option><option>Autre épargne</option></select></div></div>' +
+        '<button class="btn ghost" type="submit">Ajouter ce compte</button><p class="info">Seulement l\'épargne : ton PEA et ton assurance-vie en bourse sont déjà suivis par tes relevés du Versus.</p></form>' +
+      '<h4 class="m-h4">Appartement</h4><form class="form" id="ms-reg" novalidate>' +
+        '<div class="rang2"><div class="champ"><label for="mr-prix">Prix d\'achat total (€)</label><input id="mr-prix" type="text" inputmode="decimal" value="' + val(ap.prix, 0) + '"></div>' +
+        '<div class="champ"><label for="mr-apart">Ma part (%)</label><input id="mr-apart" type="text" inputmode="decimal" value="' + (ok(ap.part) ? val(ap.part) : "33,33") + '"></div></div>' +
+        '<div class="champ"><label for="mr-adate">Date d\'achat</label><input id="mr-adate" type="date" value="' + (ap.date || "") + '"></div>' +
+        '<h4 class="m-h4">Prêt immobilier</h4>' +
+        '<div class="rang2"><div class="champ"><label for="mr-cap">Capital emprunté total (€)</label><input id="mr-cap" type="text" inputmode="decimal" value="' + val(pr.capital, 0) + '"></div>' +
+        '<div class="champ"><label for="mr-ppart">Ma part (%)</label><input id="mr-ppart" type="text" inputmode="decimal" value="' + (ok(pr.part) ? val(pr.part) : "33,33") + '"></div></div>' +
+        '<div class="rang2"><div class="champ"><label for="mr-taux">Taux nominal (% / an)</label><input id="mr-taux" type="text" inputmode="decimal" value="' + val(pr.taux, 3) + '"></div>' +
+        '<div class="champ"><label for="mr-duree">Durée (années)</label><input id="mr-duree" type="text" inputmode="decimal" value="' + val(pr.duree, 0) + '"></div></div>' +
+        '<div class="rang2"><div class="champ"><label for="mr-debut">1re échéance</label><input id="mr-debut" type="date" value="' + (pr.debut || "") + '"></div>' +
+        '<div class="champ"><label for="mr-ass">Assurance / mois, ma part (€)</label><input id="mr-ass" type="text" inputmode="decimal" value="' + val(pr.assurance) + '"></div></div>' +
+        '<button class="btn acc plein" type="submit" id="mr-envoyer">Enregistrer l\'appartement et le prêt</button>' +
+        '<p class="info">Prêt à plusieurs : saisis le capital et le prix totaux, et ta part (1/3 = 33,33 %). L\'app calcule l\'échéancier et ne compte que ta part dans ton patrimoine net. Tout est dans l\'offre de prêt.</p></form>';
+    z.querySelectorAll("[data-ms-ferme]").forEach(b => b.addEventListener("click", async () => {
+      const i = +b.dataset.msFerme, c = comptes[i];
+      if (c.statut !== "Fermé" && confirmeS !== "f" + i) { confirmeS = "f" + i; rendreSimple(); return; }
+      confirmeS = null;
+      if (await envoyerSimple({ action: "compte", op: c.statut === "Fermé" ? "rouvrir" : "fermer", nom: c.nom }, b)) rendreSimple();
+    }));
+    z.querySelector("#ms-ajout").addEventListener("submit", async e => {
+      e.preventDefault();
+      const nom = z.querySelector("#ms-nom").value.trim(); if (!nom) { toast("Donne un nom au compte."); return; }
+      if (await envoyerSimple({ action: "compte", op: "ajouter", nom, type: z.querySelector("#ms-type").value }, e.submitter)) rendreSimple();
+    });
+    z.querySelector("#ms-reg").addEventListener("submit", async e => {
+      e.preventDefault();
+      const n = id => { const t = z.querySelector(id).value.trim(); return t === "" ? null : lireNombre(t); };
+      const reglages = { "appart.prix": n("#mr-prix"), "appart.part": n("#mr-apart"), "appart.date": z.querySelector("#mr-adate").value || null,
+        "pret.capital": n("#mr-cap"), "pret.part": n("#mr-ppart"), "pret.taux": n("#mr-taux"), "pret.duree": n("#mr-duree"), "pret.debut": z.querySelector("#mr-debut").value || null, "pret.assurance": n("#mr-ass") };
+      if (Object.values(reglages).some(x => typeof x === "number" && !(x >= 0))) { toast("Un montant est illisible."); return; }
+      if ((reglages["appart.part"] || 0) > 100 || (reglages["pret.part"] || 0) > 100) { toast("Une part ne peut pas dépasser 100 %."); return; }
+      await envoyerSimple({ action: "reglages", reglages }, z.querySelector("#mr-envoyer"));
+    });
+  }
+}
+
 /* ---------- Interface publique ---------- */
 window.Moi = {
   rendre,
   prechauffer() { injecterStyle(); if (!configure()) { signalerCloche(); return; } lireCache(); signalerCloche(); if (Date.now() - dernierAppel > 5 * 60e3) charger(false); },
   notifications: htmlNotifications,
-  saisir(partiel, onglet) { ouvrirSaisieM(partiel, onglet); },
+  saisir(partiel, onglet) { lireCache(); if (M && M.simple) ouvrirSoldes(); else ouvrirSaisieM(partiel, onglet); },
   anneesPrivees() { lireCache(); return configure() ? anneesPrivees() : []; },
   bilanPrive(an) { lireCache(); if (M) ouvrirDiapos("Mon patrimoine · " + an, diaposPrivees(an)); },
   million(el) { afficherMillion(el); },
