@@ -227,6 +227,106 @@ body.vue-moi .ticker { display: none; }
 .itd-l > small { font: 600 11.5px/1 var(--f-num); color: var(--ink-3); }
 .s-h3 small { font: 500 12px/1 var(--f-text); color: var(--ink-3); letter-spacing: 0; text-transform: none; margin-left: 6px; }
 .ex-liste { display: grid; gap: 6px; margin-bottom: 14px; }
+.s-droite { display: flex; align-items: center; gap: 8px; }
+/* Circuit en 3D : plan incliné, ciel selon la météo, étiquettes HTML au-dessus des voitures */
+.gp-piste.en3d { background: linear-gradient(180deg, #6FB7F2 0%, #A9D6F7 34%, #2E7D46 36%); }
+.gp-piste.en3d.meteo-nuages { background: linear-gradient(180deg, #8C9BAA 0%, #C3CCD5 34%, #2E7D46 36%); }
+.gp-piste.en3d.meteo-pluie { background: linear-gradient(180deg, #4A5868 0%, #7D8A99 34%, #2E7D46 36%); }
+.gp-piste.en3d.meteo-orage { background: linear-gradient(180deg, #1B2230 0%, #3A4456 34%, #2E7D46 36%); }
+.gp-piste.en3d.hab-monaco, .gp-piste.en3d.hab-neon { background: linear-gradient(180deg, #05060E 0%, #1A1640 34%, #0D1B33 36%); }
+.gp-piste.en3d.hab-desert { background: linear-gradient(180deg, #F2B36B 0%, #FBD9A6 34%, #D9A35B 36%); }
+.gp-piste.en3d.hab-neige { background: linear-gradient(180deg, #B7C8DA 0%, #E6EEF5 34%, #E6EEF5 36%); }
+.gp-scene { position: relative; }
+.gp-piste.en3d .gp-scene { perspective: 640px; perspective-origin: 50% 20%; padding: 34px 0 0; }
+.gp-piste.en3d .gp-svg { transform: rotateX(50deg) scale(1.02); transform-origin: 50% 62%; border-radius: 8px; box-shadow: 0 26px 30px rgba(0,0,0,.4); }
+.gp-piste.en3d .gp-svg #gp-tags { display: none; }
+.gp-tags3 { position: absolute; inset: 0; pointer-events: none; }
+.gp-t3 { position: absolute; left: 0; top: 0; padding: 2px 6px; border-radius: 999px; background: var(--c); color: #fff; font: 800 10px/1.2 var(--f-num); box-shadow: 0 2px 6px rgba(0,0,0,.4); will-change: transform; }
+.gp-t3::after { content: ""; position: absolute; left: 50%; bottom: -4px; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--c); border-bottom: 0; }
+.gp-vue { position: absolute; right: 8px; top: 8px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: rgba(8,10,14,.72); color: #fff; font: 600 11.5px/1.2 var(--f-text); cursor: pointer; }
+/* voiture 3D du showroom */
+.sr-3d { position: relative; margin-top: -4px; }
+.sr-3d canvas.v3d { display: block; cursor: grab; touch-action: pan-y; }
+.sr-3d canvas.v3d:active { cursor: grabbing; }
+.sr-aide { display: block; padding: 4px 14px 14px; min-height: 30px; font: 600 11px/1 var(--f-text); color: rgba(238,240,243,.55); }
+
+/* ---------- Grand Prix ---------- */
+.pod-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px; }
+.pod-tabs::-webkit-scrollbar { display: none; }
+.pod-tabs button { flex: 1 0 auto; border: 1px solid var(--rule); background: var(--panel); color: var(--ink-2); border-radius: 999px; padding: 9px 14px; font: italic 800 13.5px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+.pod-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tuto-b { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--rule); background: var(--panel); color: var(--ink-2); font: 700 14px/1 var(--f-text); cursor: pointer; }
+.gp-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.gp-h .s-k { display: block; }
+.gp-met { margin: 3px 0 0; font-size: 12.5px; line-height: 1.35; color: var(--ink-2); }
+.gp-rejouer { flex: none; padding: 9px 12px; font-size: 13px; }
+.gp-piste { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); box-shadow: 0 8px 22px var(--shade); background: #1b2a1f; }
+.gp-svg { display: block; width: 100%; height: auto; }
+.gp-svg .gp-tag text { font: 800 6.4px/1 var(--f-num); fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: .6; }
+.gp-svg .gp-v.tete .gp-rot { filter: drop-shadow(0 0 2.5px #FFD84A) drop-shadow(0 0 4px rgba(255,200,40,.7)); }
+.gp-svg .gp-fl { animation: gpFl .16s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: right center; }
+@keyframes gpFl { to { transform: scaleX(.75); } }
+.gp-svg .gp-et { animation: gpEt .5s linear infinite; }
+@keyframes gpEt { 50% { opacity: .3; } }
+.gp-hud { position: absolute; left: 8px; top: 8px; display: flex; gap: 6px; }
+.gp-hud span { padding: 4px 9px; border-radius: 999px; background: rgba(8,10,14,.72); color: #fff; font: 600 11.5px/1.2 var(--f-text); backdrop-filter: blur(4px); }
+.gp-hud b { font: 800 13px/1 var(--f-num); }
+.gp-meteo { position: absolute; inset: 0; pointer-events: none; }
+.meteo-soleil .gp-meteo { background: radial-gradient(60% 50% at 88% 6%, rgba(255,236,170,.55), transparent 70%); animation: gpSoleil 5s ease-in-out infinite; }
+@keyframes gpSoleil { 50% { opacity: .65; } }
+.meteo-nuages .gp-meteo { background: radial-gradient(30% 22% at 20% 30%, rgba(0,0,0,.28), transparent 70%), radial-gradient(34% 24% at 70% 60%, rgba(0,0,0,.24), transparent 70%); background-size: 200% 100%; animation: gpNuages 14s linear infinite; }
+@keyframes gpNuages { to { background-position: -200% 0; } }
+.meteo-pluie .gp-meteo, .meteo-orage .gp-meteo { background: repeating-linear-gradient(105deg, transparent 0 9px, rgba(190,215,255,.45) 9px 10px, transparent 10px 22px), linear-gradient(rgba(20,30,50,.28), rgba(20,30,50,.28)); background-size: 60px 60px, auto; animation: gpPluie .45s linear infinite; }
+.meteo-orage .gp-meteo { background: repeating-linear-gradient(105deg, transparent 0 7px, rgba(190,215,255,.55) 7px 8px, transparent 8px 16px), linear-gradient(rgba(10,14,30,.45), rgba(10,14,30,.45)); background-size: 50px 50px, auto; }
+.meteo-orage .gp-meteo::after { content: ""; position: absolute; inset: 0; background: #fff; opacity: 0; animation: gpEclair 6s infinite; }
+@keyframes gpPluie { to { background-position: -14px 60px, 0 0; } }
+@keyframes gpEclair { 0%, 91%, 95%, 100% { opacity: 0; } 92% { opacity: .55; } 93% { opacity: .1; } 94% { opacity: .4; } }
+.gp-mois { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.gp-mois::-webkit-scrollbar { display: none; }
+.gp-mois button { flex: none; border: 1px solid var(--rule); background: var(--panel); color: var(--ink-2); border-radius: 999px; padding: 6px 11px; font: 600 12px/1 var(--f-text); cursor: pointer; }
+.gp-mois button[aria-pressed="true"] { background: var(--accent); color: #0B0D12; border-color: var(--accent); }
+.gp-liste { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
+.gp-l { display: grid; grid-template-columns: 22px 38px minmax(0, 1fr) auto 48px; gap: 8px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule-2); }
+.gp-l:first-child { border-top: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 14%, var(--panel)), var(--panel) 70%); }
+.gp-l .rk { font: italic 800 19px/1 var(--f-display); text-align: center; color: var(--ink-3); }
+.gp-l:first-child .rk { color: var(--gold); }
+.gp-l.moi .rk { color: var(--accent-ink); }
+.gp-l .nm { min-width: 0; overflow: hidden; }
+.gp-l .nm b { display: block; font: italic 700 16px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gp-l .nm small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gp-l .drs { color: #3DDC97; font-weight: 700; }
+.gp-l .pt { text-align: right; } .gp-l .pt b { display: block; font: 700 19px/1 var(--f-num); } .gp-l .pt small { font: 600 10.5px/1 var(--f-num); color: var(--ink-3); }
+.gp-c { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 4px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--rule); font-size: 15px; line-height: 1; cursor: help; }
+.gp-c small { font: 800 10px/1 var(--f-num); color: var(--ink-2); }
+.gp-c.cache { background: linear-gradient(135deg, #2a1f5c, #4b2a8a); border-color: #7a5cff; color: #fff; }
+.main-cartes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.carte { position: relative; display: grid; justify-items: center; gap: 3px; padding: 10px 4px 9px; border-radius: 12px; cursor: pointer; text-align: center; color: #F4F5F8;
+  border: 1px solid rgba(255,255,255,.14); background: linear-gradient(160deg, #2a1f5c, #15102e 70%); box-shadow: inset 0 0 0 3px rgba(255,255,255,.04), 0 4px 10px var(--shade); transition: transform .15s; }
+.carte .c-ico { font-size: 24px; line-height: 1.1; }
+.carte b { font: italic 800 12.5px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
+.carte small { font-size: 10.5px; line-height: 1.25; opacity: .75; }
+.carte em { font-style: normal; font: 700 9.5px/1 var(--f-num); letter-spacing: .06em; text-transform: uppercase; color: #F7CF55; }
+.carte.choix { transform: translateY(-4px); border-color: #F7CF55; box-shadow: 0 0 0 2px #F7CF55, 0 8px 18px var(--shade); }
+.carte.posee { border-color: #3DDC97; box-shadow: 0 0 0 2px #3DDC97; }
+.carte.jouee, .carte:disabled { filter: grayscale(1) brightness(.6); cursor: default; }
+.c-action { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--rule-2); }
+.c-action p { margin: 0; font-size: 13px; line-height: 1.4; color: var(--ink-2); }
+/* tuto */
+.tuto { position: fixed; inset: 0; z-index: 96; display: grid; place-items: center; padding: 20px; background: rgba(5,7,12,.78); backdrop-filter: blur(6px); }
+.tuto-c { width: min(380px, 100%); display: grid; gap: 12px; justify-items: center; text-align: center; padding: 22px 18px 18px; border-radius: 20px; color: #F4F5F8; border: 1px solid #2A303C;
+  background: radial-gradient(70% 55% at 50% 0%, rgba(155,135,255,.22), transparent 70%), linear-gradient(180deg, #151a26, #0a0c12); }
+.tuto-k { font: 700 10.5px/1 var(--f-num); letter-spacing: .14em; text-transform: uppercase; color: #C9BEFF; }
+.tuto-i { font-size: 44px; line-height: 1; }
+.tuto-c h3 { margin: 0; font: italic 800 24px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
+.tuto-c p { margin: 0; font-size: 14px; line-height: 1.5; color: rgba(244,245,248,.82); }
+.tuto-pts { display: flex; gap: 6px; } .tuto-pts i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.2); } .tuto-pts i.on { background: #F7CF55; }
+.tuto .btn-row { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tuto .btn.ghost { background: transparent; color: #F4F5F8; border-color: rgba(255,255,255,.2); }
+/* vignette d'habillage de piste */
+.vg-piste { width: 100%; height: 56px; border-radius: 8px; }
+@media (max-width: 360px) { .gp-l { grid-template-columns: 18px 34px minmax(0, 1fr) auto 42px; gap: 6px; padding: 8px; } .main-cartes { gap: 4px; } .carte small { display: none; } }
+@media (prefers-reduced-motion: reduce) { .gp-meteo, .gp-meteo::after, .gp-svg .gp-fl, .gp-svg .gp-et { animation: none !important; } }
+
 /* Avatar : pastille animée derrière le casque */
 .av { position: relative; flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--c) 22%, var(--panel-2)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 70%, transparent); overflow: visible; }
 .av .casque { width: 27px !important; height: 27px !important; margin: 0 !important; position: relative; z-index: 1; }
@@ -923,7 +1023,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbzCBmhR2k4wQcJqOPntsylmKPRohlRFAY-egtEXigSwfXOHDVlOs9EaQrmEMBJJbWNIMg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwPRnpi8KDETtCgPaDMhBCa0VzzpDgx_6Io8zazWBLwc-t9EKE9sDu-uqmhKdiyqQ94dQ/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -1591,6 +1691,9 @@ function championnat(y) {
       const rg = du.findIndex(z => Math.abs(z.r - x.r) < 1e-9) + 1, bonus = iR !== null && x.r > iR ? 1 : 0;
       return { nom: x.nom, r: x.r, rg, p: ptsRang(rg) + bonus, bonus, dernier: n >= 3 && rg > 1 && Math.abs(x.r - du[n - 1].r) < 1e-9, ecart: rg === 1 && n > 1 ? x.r - du[1].r : null };
     });
+    // cartes de course révélées : leur effet s'ajoute aux points du mois
+    const avant = mois.length ? mois[mois.length - 1].places : null;
+    l.forEach(x => { const c = carteDe(y, x.nom, k); if (!c || !c.c) return; const g = effetCarte(Object.assign({}, c, { revele: true }), x, l, avant, iR); x.carte = { id: c.c, gain: g, cible: c.cible || null }; x.p += g; });
     l.forEach(x => { const t = tot[x.nom]; t.pts += x.p; t.n++; t.cum *= 1 + x.r; t.bonus += x.bonus; if (x.rg === 1) t.v++; if (x.rg <= 3) t.pod++; });
     const presents = Object.keys(tot).filter(nm => tot[nm].n).sort(ordre), places = {}, cumul = {};
     presents.forEach((nm, i) => { places[nm] = i + 1; cumul[nm] = tot[nm].pts; });
@@ -1607,17 +1710,17 @@ const NIVEAUX = ["", "Bronze", "Argent", "Or", "Légendaire"], MEDAILLES = ["", 
 const DEFIS = [
   { id: "perf1", fam: "Performance", niv: 1, nom: "Chasseur d'indice", def: "battre le S&P 500 sur 3 mois de la saison", gain: [["trainee", "halo"]] },
   { id: "perf2", fam: "Performance", niv: 2, nom: "Six de rang", def: "devant le S&P 500 sur 6 mois consécutifs, cumulés", gain: [["casque", "eclair"], ["fond", "aurore"]] },
-  { id: "perf3", fam: "Performance", niv: 3, nom: "Grand cru", def: "atteindre +20 % cumulés dans la saison", gain: [["livree", "chrome"], ["finition", "or"]], unite: " %" },
+  { id: "perf3", fam: "Performance", niv: 3, nom: "Grand cru", def: "atteindre +20 % cumulés dans la saison", gain: [["livree", "chrome"], ["finition", "or"], ["circuit", "desert"]], unite: " %" },
   { id: "perf4", fam: "Performance", niv: 4, nom: "Dynastie", def: "finir 3 saisons devant le S&P 500", gain: [["livree", "arcenciel"], ["fond", "galaxie"]] },
   { id: "comp1", fam: "Compétition", niv: 1, nom: "Triplé", def: "3 victoires mensuelles dans la saison", gain: [["klaxon", "damier"], ["finition", "argent"]] },
   { id: "comp2", fam: "Compétition", niv: 2, nom: "Série noire", def: "3 victoires mensuelles d'affilée", gain: [["trainee", "flammes"], ["fond", "flammes"]] },
-  { id: "comp3", fam: "Compétition", niv: 3, nom: "Champion", def: "remporter le championnat de la saison", gain: [["livree", "or"], ["casque", "etoile"], ["fond", "or"]] },
+  { id: "comp3", fam: "Compétition", niv: 3, nom: "Champion", def: "remporter le championnat de la saison", gain: [["livree", "or"], ["casque", "etoile"], ["fond", "or"], ["circuit", "monaco"]] },
   { id: "comp4", fam: "Compétition", niv: 4, nom: "Légende", def: "remporter 2 championnats", gain: [["casque", "holo"]] },
   { id: "reg1", fam: "Régularité", niv: 1, nom: "Métronome", def: "verser 6 mois d'affilée", gain: [["plaque", "metronome"]] },
   { id: "reg2", fam: "Régularité", niv: 2, nom: "Fourmi", def: "verser 9 mois d'affilée", gain: [["klaxon", "feu"], ["fond", "neon"]] },
-  { id: "reg3", fam: "Régularité", niv: 3, nom: "Douze sur douze", def: "verser chaque mois de la saison", gain: [["livree", "neon"], ["finition", "neon"]] },
+  { id: "reg3", fam: "Régularité", niv: 3, nom: "Douze sur douze", def: "verser chaque mois de la saison", gain: [["livree", "neon"], ["finition", "neon"], ["circuit", "neon"]] },
   { id: "reg4", fam: "Régularité", niv: 4, nom: "Marathon", def: "verser 36 mois d'affilée", gain: [["klaxon", "parade"]] },
-  { id: "mai1", fam: "Maîtrise", niv: 1, nom: "Sang-froid", def: "6 mois d'affilée sans mois sous −3 %", gain: [["casque", "carbone"], ["fond", "carbone"]] },
+  { id: "mai1", fam: "Maîtrise", niv: 1, nom: "Sang-froid", def: "6 mois d'affilée sans mois sous −3 %", gain: [["casque", "carbone"], ["fond", "carbone"], ["circuit", "neige"]] },
   { id: "mai2", fam: "Maîtrise", niv: 2, nom: "Bouclier", def: "perdre moins que le S&P 500 sur 3 de ses mois de baisse", gain: [["plaque", "bouclier"]] },
   { id: "mai3", fam: "Maîtrise", niv: 3, nom: "Main de fer", def: "une saison complète sans mois sous −3 %", gain: [["casque", "chrome"]] },
   { id: "mai4", fam: "Maîtrise", niv: 4, nom: "Roc", def: "3 saisons complètes sans mois sous −3 %", gain: [["trainee", "comete"]] }
@@ -1694,6 +1797,7 @@ function etatDefis(nom) {
 /* ---------- Écurie : ce qui se débloque, ce qui est équipé ---------- */
 const ITEMS = {
   casque: { uni: "Uni", carbone: "Carbone", eclair: "Éclair", damier: "Damier", tortue: "Tortue", chrome: "Chrome", etoile: "Étoile", holo: "Holo", couronne: "Couronne", foudre: "Foudre", phenix: "Phénix", glace: "Glace", galaxie: "Galaxie", empereur: "Empereur" },
+  circuit: { classique: "Classique", monaco: "Monaco de nuit", desert: "Désert", neige: "Neige", neon: "Néon rétro" },
   fond: { couleur: "Couleur", carbone: "Carbone", aurore: "Aurore", flammes: "Flammes", neon: "Néon", damier: "Damier", or: "Or", galaxie: "Galaxie" },
   finition: { aucune: "Aucune", argent: "Liseré argent", or: "Liseré or", neon: "Liseré néon", diamant: "Diamant", lauriers: "Lauriers", etoilee: "Étoilée", soleil: "Soleil" },
   livree: { couleur: "Couleur", chrome: "Chrome", or: "Or", neon: "Néon", arcenciel: "Prisme", oranime: "Or vivant", platine: "Platine", rubis: "Rubis", galaxie: "Galaxie", orrose: "Or rose" },
@@ -1701,8 +1805,8 @@ const ITEMS = {
   klaxon: { confettis: "Confettis", damier: "Damier", feu: "Feu d'artifice", parade: "Parade", billets: "Pluie de billets", fanfare: "Fanfare royale", cibles: "Dans le mille", fusees: "Décollage", trophees: "Pluie de trophées" },
   plaque: { aucune: "Aucune", metronome: "Le Métronome", bouclier: "Bouclier", contre: "Contre-attaque", remontada: "Roi de la remontée", premiersang: "Premier sang", fidele: "Fidèle au poste", vingt: "Pointeur" }
 };
-const BASE_ECURIE = { casque: "uni", fond: "couleur", finition: "aucune", livree: "couleur", trainee: "simple", klaxon: "confettis", plaque: "aucune" };
-const SLOTS = [["casque", "Casque"], ["finition", "Finition"], ["fond", "Avatar"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"]];
+const BASE_ECURIE = { casque: "uni", circuit: "classique", fond: "couleur", finition: "aucune", livree: "couleur", trainee: "simple", klaxon: "confettis", plaque: "aucune" };
+const SLOTS = [["casque", "Casque"], ["finition", "Finition"], ["fond", "Avatar"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"], ["circuit", "Piste"]];
 const GAINS_MILLION = [["casque", "couronne"], ["livree", "oranime"], ["klaxon", "billets"]];
 function debloques(nom) {
   const o = new Set(Object.entries(BASE_ECURIE).map(([s, v]) => s + "." + v));
@@ -1783,8 +1887,10 @@ function premiersExclusifs() {
   if (MEMO_EXCL.d === D && MEMO_EXCL.cle === cle) return MEMO_EXCL.v;
   const cand = {}; EXCLUSIFS.forEach(x => cand[x.id] = {});
   const note = (id, nom, k, score) => { if (!cand[id][nom]) cand[id][nom] = { nom, k, score }; };
+  const rMois = {}, cumMois = {};   // départages : performance du mois, puis cumul de la saison à ce mois
   if (ys.length) {
     const st = {}, titres = {};
+    ys.forEach(y => { const cu = {}; championnat(y).mois.forEach(m => m.l.forEach(x => { cu[x.nom] = (cu[x.nom] || 1) * (1 + x.r); (rMois[x.nom] = rMois[x.nom] || {})[m.k] = x.r; (cumMois[x.nom] = cumMois[x.nom] || {})[m.k] = cu[x.nom]; })); });
     ys.forEach(y => {
       const c = championnat(y), wins = {};
       let precPlaces = null;
@@ -1827,7 +1933,8 @@ function premiersExclusifs() {
   }
   const v = {};
   EXCLUSIFS.forEach(x => {
-    const l = Object.values(cand[x.id]).sort((a, b) => a.k - b.k || b.score - a.score || a.nom.localeCompare(b.nom));
+    const val = (o, m) => { const v = (m[o.nom] || {})[o.k]; return v === undefined ? -Infinity : v; };
+    const l = Object.values(cand[x.id]).sort((a, b) => a.k - b.k || b.score - a.score || val(b, rMois) - val(a, rMois) || val(b, cumMois) - val(a, cumMois) || a.nom.localeCompare(b.nom));
     v[x.id] = l[0] || null;
   });
   MEMO_EXCL = { d: D, cle, v };
@@ -1898,7 +2005,7 @@ function htmlCourseExclusifs() {
   const parNom = {}; EXCLUSIFS.forEach(x => { const d = detenteur(x.id); if (d) parNom[d.nom] = (parNom[d.nom] || 0) + 1; }); if (pm) parNom[pm.nom] = (parNom[pm.nom] || 0) + 1;
   const tab = D.personnes.map(p => p.nom).sort((a, b) => (parNom[b] || 0) - (parNom[a] || 0)).map(n => '<span style="--c:' + couleur(n) + '"><b>' + (parNom[n] || 0) + "</b>" + esc(n) + "</span>").join("");
   return '<div><h3 class="s-h3">La course aux exclusifs <small>' + (EXCLUSIFS.length + 1) + " objets, un seul exemplaire chacun</small></h3></div>" +
-    '<p class="info">Le premier qui y arrive décroche l\'objet et son badge, et personne d\'autre ne pourra jamais les avoir. Calculé sur les relevés publics, avec les mêmes règles pour tous ; à égalité dans le même mois, la meilleure valeur l\'emporte.' + (apercuSaison() ? " En aperçu, rien n'est figé." : "") + "</p>" +
+    '<p class="info">Le premier qui y arrive décroche l\'objet et son badge, et personne d\'autre ne pourra jamais les avoir. Calculé sur les relevés publics, avec les mêmes règles pour tous. Si deux pilotes y arrivent le même mois : la meilleure valeur du critère l\'emporte, puis la meilleure performance du mois, puis le meilleur cumul de la saison.' + (apercuSaison() ? " En aperçu, rien n'est figé." : "") + "</p>" +
     '<div class="ex-tab">' + tab + '</div><div class="ex-liste">' + niveaux + "</div>";
 }
 /** Le « ? » d'un objet de l'écurie : d'où il vient, qui l'a, ce qu'il reste à faire */
@@ -2130,7 +2237,8 @@ function teaser() {
     '<div class="t-txt"><div class="t-saison">Saison 1</div><div class="t-date">Départ le 1<sup>er</sup> janvier 2027</div>' +
     '<p class="t-phrase">Tout le monde sur la ligne de départ.<br>Même point de départ, mêmes chances.</p>' +
     (noel ? '<div class="t-concept"><div><b>🏁 Championnat</b><span>Des points chaque mois : 10, 6, 4, 2, et +1 si tu bats le S&P 500.</span></div>' +
-      '<div><b>🏎️ Mon écurie</b><span>Casque, livrée, traînée, klaxon, plaque : tout se débloque en course.</span></div>' +
+      '<div><b>🏎️ Grand Prix</b><span>Vos voitures sur un vrai circuit, la météo du marché, et 4 cartes de stratégie par saison.</span></div>' +
+      '<div><b>🔧 Mon écurie</b><span>Casque, avatar, livrée, traînée, klaxon, piste : tout se débloque en course.</span></div>' +
       '<div><b>🎯 Défis</b><span>Bronze, argent, or, légendaire. Et quelques secrets.</span></div></div>' +
       '<p class="t-note">Tout repart de zéro le 1<sup>er</sup> janvier : ce qui s\'est passé avant ne compte pas.</p>'
       : '<p class="t-note">On en dit plus le 1<sup>er</sup> décembre.</p>') + "</div>" +
@@ -2156,12 +2264,13 @@ function rubanApercu() {
 }
 function blocSaison() {
   const ys = anneesSaison(), y = ys.includes(ETAT.saisonY) ? ETAT.saisonY : ys[ys.length - 1];
-  const o = ["championnat", "ecurie", "defis"].includes(ETAT.podium) ? ETAT.podium : "championnat";
+  const o = ["gp", "championnat", "ecurie", "defis"].includes(ETAT.podium) ? ETAT.podium : "gp";
   const b = (id, lib) => '<button type="button" data-pod="' + id + '" aria-pressed="' + (o === id) + '">' + lib + "</button>";
-  return '<section class="saison"><div class="saison-h"><div><span class="s-k">Saison ' + numeroSaison(y) + " · " + y + (apercuSaison() ? " (répétition)" : "") + '</span><h2>Le championnat</h2></div>' +
-    (ys.length > 1 ? '<div class="s-ys">' + ys.map(a => '<button type="button" class="chip-s' + (a === y ? " on" : "") + '" data-saison="' + a + '">S' + numeroSaison(a) + "</button>").join("") + "</div>" : "") + "</div>" +
-    '<div class="seg" role="group" aria-label="Saison">' + b("championnat", "Championnat") + b("ecurie", "Mon écurie") + b("defis", "Défis") + "</div>" +
-    '<div class="s-corps">' + (o === "ecurie" ? htmlEcurie() : o === "defis" ? htmlDefis() : htmlChampionnat(y)) + "</div></section>";
+  return '<section class="saison"><div class="saison-h"><div><span class="s-k">Saison ' + numeroSaison(y) + " · " + y + (apercuSaison() ? " (répétition)" : "") + '</span><h2>Le championnat</h2></div><div class="s-droite">' +
+    (ys.length > 1 ? '<div class="s-ys">' + ys.map(a => '<button type="button" class="chip-s' + (a === y ? " on" : "") + '" data-saison="' + a + '">S' + numeroSaison(a) + "</button>").join("") + "</div>" : "") +
+    '<button class="tuto-b" type="button" id="tuto-ouvrir" aria-label="Comment ça marche">?</button></div></div>' +
+    '<div class="pod-tabs" role="group" aria-label="Saison">' + b("gp", "🏁 Grand Prix") + b("championnat", "Championnat") + b("ecurie", "Écurie") + b("defis", "Défis") + "</div>" +
+    '<div class="s-corps">' + (o === "ecurie" ? htmlEcurie() : o === "defis" ? htmlDefis() : o === "gp" ? htmlGrandPrix(y) : htmlChampionnat(y)) + "</div></section>";
 }
 function htmlChampionnat(y) {
   const c = championnat(y);
@@ -2207,6 +2316,7 @@ function vignetteItem(slot, id, nom, e) {
   if (slot === "casque") return svgCasque(nom, { casque: id, finition: e.finition, vignette: true });
   if (slot === "finition") return svgCasque(nom, { casque: e.casque, finition: id, vignette: true });
   if (slot === "fond") return avatar(nom, Object.assign({}, e, { fond: id, vignette: true }));
+  if (slot === "circuit") { const h = HABILLAGES[id] || HABILLAGES.classique; return '<svg class="vg-piste" viewBox="0 0 360 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="360" height="240" fill="' + h.herbe + '"/>' + decoGP(h) + '<path d="' + traceGP() + '" fill="none" stroke="' + h.bord + '" stroke-width="30"/><path d="' + traceGP() + '" fill="none" stroke="' + h.piste + '" stroke-width="25"/></svg>'; }
   if (slot === "livree") return svgVoiture({ nom, e: Object.assign({}, e, { livree: id, trainee: "" }) });
   if (slot === "trainee") return '<svg class="vg-trainee" viewBox="0 0 200 80" aria-hidden="true"><path class="fx fx-' + id + '" d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-linecap="round"/>' +
     '<path d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-width="3.5" stroke-linecap="round"/><circle cx="192" cy="12" r="5" style="fill:' + couleur(nom) + '"/></svg>';
@@ -2231,8 +2341,8 @@ function htmlEcurie() {
   const showroom = '<div class="showroom"><div class="sr-num" aria-hidden="true">' + e.numero + '</div>' +
     '<div class="sr-h"><span class="sr-k">Mon écurie · Saison 1</span><span class="sr-id">' + avatar(qui, Object.assign({}, e, { vignette: true })) + "<b" + attrLivree(qui, e) + ">" + esc(qui) + "</b></span>" +
     '<span class="sr-p"><span class="sr-barre"><i style="width:' + (total ? nb / total * 100 : 0).toFixed(0) + '%"></i></span>' + nb + " / " + total + " objets</span></div>" +
-    svgVoiture({ nom: qui, e, reflet: true, idle: true }) +
-    '<button class="sr-klaxon" type="button" id="ecu-klaxon">📯 Klaxonner</button></div>';
+    '<div class="sr-3d" id="sr-3d">' + svgVoiture({ nom: qui, e, reflet: true, idle: true }) + "</div>" +
+    '<span class="sr-aide">↔ tourne-la du doigt</span><button class="sr-klaxon" type="button" id="ecu-klaxon">📯 Klaxonner</button></div>';
   const onglets = '<div class="slot-tabs">' + SLOTS.concat([["numero", "Numéro"]]).map(([s, lib]) => '<button type="button" data-ecu-slot="' + s + '" aria-pressed="' + (s === slot) + '">' + lib +
     "<small>" + (s === "numero" ? "#" + e.numero : esc(ITEMS[s][e[s]])) + "</small></button>").join("") + "</div>";
   let corps;
@@ -2285,6 +2395,7 @@ function htmlDefis() {
 }
 /* Animations du showroom : la voiture démarre au klaxon, rebondit quand on change un objet */
 function demarrer(v) {
+  if (V3D.inst && (v || document).querySelector(".showroom canvas.v3d")) { V3D.inst.boost(); return; }
   const car = (v || document).querySelector(".showroom .voiture"); if (!car || !ANIM) return;
   car.classList.remove("boost"); void car.getBoundingClientRect(); car.classList.add("boost", "roule");
   setTimeout(() => car.classList.remove("boost", "roule"), 1500);
@@ -2304,7 +2415,10 @@ function brancherSaison(v) {
   v.querySelectorAll("[data-pod]").forEach(b => b.addEventListener("click", () => { ETAT.podium = b.dataset.pod; garder(); rendreTrophees(); }));
   v.querySelectorAll("[data-saison]").forEach(b => b.addEventListener("click", () => { ETAT.saisonY = +b.dataset.saison; garder(); rendreTrophees(); }));
   const ys = anneesSaison(), y = ys.includes(ETAT.saisonY) ? ETAT.saisonY : ys[ys.length - 1];
-  if (ETAT.podium !== "ecurie" && ETAT.podium !== "defis") dessinerChampionnat(y);
+  if (ETAT.podium === "championnat") dessinerChampionnat(y);
+  if (!["championnat", "ecurie", "defis"].includes(ETAT.podium)) brancherGP(v, y);
+  const tb = v.querySelector("#tuto-ouvrir"); if (tb) tb.addEventListener("click", ouvrirTuto);
+  if (!stock.get("versus.tuto1")) { stock.set("versus.tuto1", "1"); setTimeout(ouvrirTuto, 400); }
   bandesDefilantes(v); expliquerBadges(v);
   v.querySelectorAll("details.ex-bloc").forEach(d => d.addEventListener("toggle", () => { const n = +d.dataset.exn; if (d.open) EX_OUVERTS.add(n); else EX_OUVERTS.delete(n); }));
   v.querySelectorAll("[data-ecu-slot]").forEach(b => b.addEventListener("click", () => { ECU_SLOT = b.dataset.ecuSlot; ECU_Q = null; rendreTrophees(); }));
@@ -2322,8 +2436,441 @@ function brancherSaison(v) {
   v.querySelectorAll("[data-voir]").forEach(b => b.addEventListener("click", () => { ECU_VOIR = ECU_VOIR === b.dataset.voir ? null : b.dataset.voir; rendreTrophees(); const g = document.getElementById("garage"); if (g) g.scrollIntoView({ behavior: "smooth", block: "start" }); }));
   const gf = v.querySelector("#garage-fermer"); if (gf) gf.addEventListener("click", () => { ECU_VOIR = null; rendreTrophees(); });
   const gk = v.querySelector("#garage-klaxon"); if (gk) gk.addEventListener("click", () => { const g = v.querySelector("#garage"); confettis(equipDe(ECU_VOIR).klaxon); demarrer(g); });
+  const s3 = v.querySelector("#sr-3d"); if (s3 && ECU) { try { monter3D(s3, ECU.nom, ECU.e); } catch (e) { /* le dessin 2D reste affiché */ } }
   const kl = v.querySelector("#ecu-klaxon"); if (kl) kl.addEventListener("click", () => { confettis(ECU.e.klaxon); demarrer(v); });
   const g = v.querySelector("#ecu-garder"); if (g) g.addEventListener("click", garderEcurie);
+}
+
+/* ============================================================
+   GRAND PRIX · le championnat en vraie course
+   Les voitures de chacun (livrée, casque, traînée) tournent sur un circuit : 25 points = un tour.
+   Chaque mois se rejoue en animation, sous la météo du marché (l'indice du mois).
+   Les cartes de course (une main identique pour tous, chaque saison) ajoutent de la stratégie :
+   posées face cachée avant le 2 du mois, révélées ensuite, elles donnent ou retirent quelques points.
+   ============================================================ */
+const TOUR_GP = 25;
+const CARTES = [
+  { id: "aspiration", ico: "🌀", nom: "Aspiration", def: "Si tu bats ce mois-ci le pilote juste devant toi au championnat : +2 pts.", court: "+2 si tu bats celui de devant" },
+  { id: "turbo", ico: "🚀", nom: "Turbo", def: "Si tu bats l'indice ce mois-ci, ton bonus 🎯 vaut +3 au lieu de +1.", court: "bonus 🎯 à +3" },
+  { id: "pluie", ico: "🌧️", nom: "Pneus pluie", def: "Si l'indice finit le mois en baisse : +2 pts, quoi qu'il arrive.", court: "+2 si l'indice baisse" },
+  { id: "pari", ico: "🎲", nom: "Pari", def: "Désigne un rival : si tu finis devant lui ce mois-ci, +3 pts ; sinon −1.", court: "+3 / −1 contre un rival", cible: true }
+];
+/* Cartes : celles du Versus (révélées après la date limite), les tiennes gardées sur l'appareil, ou celles de l'aperçu admin */
+function cartesApercu() { try { return JSON.parse(stock.get("versus.cartesApercu") || "{}"); } catch (e) { return {}; } }
+function mesCartes() {
+  let loc = {}; try { loc = JSON.parse(stock.get("versus.mesCartes") || "{}"); } catch (e) { loc = {}; }
+  const srv = (typeof D !== "undefined" && D && D.mesCartes) || {};   // envoyées par l'API à leur seul propriétaire
+  Object.keys(srv).forEach(y => { loc[y] = Object.assign({}, loc[y] || {}, srv[y]); });
+  return loc;
+}
+function carteDe(y, nom, k) {
+  if (apercuSaison()) { const c = (((cartesApercu()[y] || {})[nom]) || {})[k]; return c && c.c ? c : null; }
+  const c = ((((D.cartes || {})[y] || {})[nom]) || {})[k];
+  if (c && c.c) return c;
+  if (c && c.cache) { const m = nom === moiPilote() ? ((mesCartes()[y] || {})[k]) : null; return m && m.c ? Object.assign({ cache: true }, m) : { cache: true }; }
+  return null;
+}
+function moiPilote() { return estAdmin() ? ETAT.moi : SESSION && SESSION.nom; }
+/** Effet d'une carte sur un mois : x = ligne du pilote, l = tout le mois, avant = places au championnat avant ce mois */
+function effetCarte(c, x, l, avant, iR) {
+  if (!c || !c.c || c.cache && !c.revele) return 0;
+  if (c.c === "aspiration" && avant) { const pl = avant[x.nom], dev = pl > 1 ? Object.keys(avant).find(n => avant[n] === pl - 1) : null, xd = dev && l.find(z => z.nom === dev); return xd && x.r > xd.r + 1e-12 ? 2 : 0; }
+  if (c.c === "turbo") return x.bonus ? 2 : 0;
+  if (c.c === "pluie") return iR !== null && iR < 0 ? 2 : 0;
+  if (c.c === "pari" && c.cible) { const xc = l.find(z => z.nom === c.cible); return xc ? (x.r > xc.r + 1e-12 ? 3 : -1) : 0; }
+  return 0;
+}
+/** Mois où l'on peut encore poser une carte : le mois en cours jusqu'au 1er inclus, sinon le suivant */
+function moisCarteOuvert() {
+  const d = new Date(), k = d.getFullYear() * 100 + d.getMonth() + 1;
+  return d.getDate() <= 1 ? k : (d.getMonth() === 11 ? (d.getFullYear() + 1) * 100 + 1 : k + 1);
+}
+async function poserCarte(y, k, carte, cible) {
+  const qui = moiPilote();
+  if (apercuSaison()) {
+    const a = cartesApercu(); a[y] = a[y] || {}; a[y][qui] = a[y][qui] || {};
+    if (carte) a[y][qui][k] = { c: carte, cible: cible || null }; else delete a[y][qui][k];
+    stock.set("versus.cartesApercu", JSON.stringify(a)); MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null };
+    toast(carte ? "Aperçu : carte posée sur " + moisLong(k) + " (sur cet appareil seulement)." : "Carte reprise."); rendreTrophees(); return;
+  }
+  if (SOURCE !== "api") { toast("Cartes indisponibles hors connexion."); return; }
+  const rep = await posterAdmin({ action: "carte", personne: qui, mois: k, carte: carte || null, cible: cible || null });
+  toast(rep.message || (rep.ok ? "Carte posée." : "Impossible de poser la carte."));
+  if (rep.ok) {
+    const m = mesCartes(); m[y] = rep.mesCartes || m[y] || {}; stock.set("versus.mesCartes", JSON.stringify(m));
+    if (rep.cartes) D.cartes = rep.cartes;
+    MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null }; rendreTrophees();
+  }
+}
+
+/* ---------- Météo : tirée de l'indice du mois ---------- */
+function meteoMois(k) {
+  const r = k ? indiceMois(k) : null;
+  if (r === null) return { id: "beau", ico: "🌤️", nom: "Beau temps", txt: "Départ sous un ciel dégagé." };
+  const idx = D.marche.indices[iRef()], t = idx + " " + pct(r);
+  if (r >= 0.03) return { id: "soleil", ico: "☀️", nom: "Grand soleil", txt: t + " : piste sèche, ça roule fort." };
+  if (r >= 0) return { id: "nuages", ico: "⛅", nom: "Nuageux", txt: t + " : temps couvert, course tactique." };
+  if (r > -0.03) return { id: "pluie", ico: "🌧️", nom: "Pluie", txt: t + " : piste glissante, les pneus pluie paient." };
+  return { id: "orage", ico: "⛈️", nom: "Orage", txt: t + " : déluge sur le circuit, accrochez-vous." };
+}
+
+/* ---------- Circuit : tracé lissé (Catmull-Rom) ---------- */
+const PTS_GP = [[70, 200], [180, 206], [280, 198], [326, 160], [318, 112], [282, 92], [240, 100], [212, 78], [226, 46], [262, 28], [200, 22], [120, 26], [60, 40], [32, 80], [44, 126], [80, 150], [60, 178]];
+function traceGP() {
+  const P = PTS_GP, n = P.length; let d = "M" + P[0][0] + " " + P[0][1];
+  for (let i = 0; i < n; i++) {
+    const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += "C" + c1.map(v => v.toFixed(1)).join(" ") + " " + c2.map(v => v.toFixed(1)).join(" ") + " " + p2.join(" ");
+  }
+  return d + "Z";
+}
+const HABILLAGES = {
+  classique: { herbe: "#2E7D46", herbe2: "#3A9156", piste: "#3B3F47", bord: "#E9ECEF", deco: "arbres" },
+  monaco: { herbe: "#0D1B33", herbe2: "#14284A", piste: "#2A2E36", bord: "#F7CF55", deco: "ville" },
+  desert: { herbe: "#D9A35B", herbe2: "#E8BA77", piste: "#5A4A3A", bord: "#FFF1D6", deco: "dunes" },
+  neige: { herbe: "#E6EEF5", herbe2: "#F6FAFD", piste: "#4A5462", bord: "#C62828", deco: "sapins" },
+  neon: { herbe: "#0B0620", herbe2: "#160A3A", piste: "#120B2A", bord: "#FF4FD8", deco: "grille" }
+};
+function decoGP(h) {
+  const r = (a, b) => { let x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const spots = [[20, 20], [340, 20], [345, 215], [20, 222], [120, 120], [150, 160], [250, 150], [100, 85], [300, 70], [180, 60], [345, 110], [12, 140], [230, 225], [140, 228], [290, 130]];
+  if (h.deco === "arbres") return spots.map(([x, y], i) => '<circle cx="' + x + '" cy="' + y + '" r="' + (5 + r(i, 1) * 4).toFixed(1) + '" fill="#1E5E33"/><circle cx="' + (x - 1.5) + '" cy="' + (y - 1.5) + '" r="' + (3 + r(i, 2) * 2).toFixed(1) + '" fill="#4CAF6A" opacity=".7"/>').join("");
+  if (h.deco === "sapins") return spots.map(([x, y], i) => { const s = 6 + r(i, 3) * 4; return '<path d="M' + x + " " + (y - s) + "L" + (x + s * .6) + " " + (y + s * .5) + "L" + (x - s * .6) + " " + (y + s * .5) + 'Z" fill="#2F6B4F"/><path d="M' + x + " " + (y - s) + "L" + (x + s * .25) + " " + (y - s * .4) + "L" + (x - s * .25) + " " + (y - s * .4) + 'Z" fill="#fff"/>'; }).join("");
+  if (h.deco === "dunes") return spots.map(([x, y], i) => '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (12 + r(i, 4) * 10).toFixed(1) + '" ry="4" fill="#C98D45" opacity=".55"/>').join("") + '<g fill="#3E7D3A">' + [[120, 120], [300, 70]].map(([x, y]) => '<rect x="' + (x - 1) + '" y="' + (y - 8) + '" width="2" height="10"/><rect x="' + (x - 4) + '" y="' + (y - 4) + '" width="2" height="5" rx="1"/><rect x="' + (x + 2) + '" y="' + (y - 6) + '" width="2" height="5" rx="1"/>').join("") + "</g>";
+  if (h.deco === "ville") return spots.map(([x, y], i) => { const w = 6 + r(i, 5) * 6, hh = 8 + r(i, 6) * 14; return '<rect x="' + (x - w / 2).toFixed(1) + '" y="' + (y - hh).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + hh.toFixed(1) + '" fill="#1E3460"/>' + [0, 1, 2].map(j => '<rect x="' + (x - w / 2 + 1.5).toFixed(1) + '" y="' + (y - hh + 2 + j * 4).toFixed(1) + '" width="1.5" height="1.5" fill="#FFD84A" opacity="' + (r(i, j) > .4 ? .9 : .2) + '"/>').join(""); }).join("") + '<path d="M150 160C170 175 230 175 250 160" stroke="#3A7BD5" stroke-width="10" fill="none" opacity=".5"/>';
+  if (h.deco === "grille") return '<g stroke="#5B2A9E" stroke-width=".5" opacity=".6">' + Array.from({ length: 19 }, (_, i) => '<path d="M' + (i * 20) + ' 0V240"/>').join("") + Array.from({ length: 13 }, (_, i) => '<path d="M0 ' + (i * 20) + 'H360"/>').join("") + "</g>";
+  return "";
+}
+/** Petite voiture vue de dessus : livrée, casque, traînée (pointe vers +x) */
+function voitureDessus(nom, e, u) {
+  const c = couleur(nom), lv = e.livree, neon = lv === "neon", plein = MOTIFS_PLEINS.includes(lv);
+  const peint = neon ? "#0a0c11" : plein ? "url(#" + u + "m)" : c;
+  const cq = { uni: c, carbone: "#2d333d", eclair: c, damier: "#f5f5f2", tortue: "#2F8A45", chrome: "#d4dae1", etoile: "#F7CF55", holo: "#B98CFF", couronne: "#F7CF55", foudre: "#0B1020", phenix: "#FF8A1F", glace: "#BFEFFC", galaxie: "#5B2A9E", empereur: "#6B2FB3" }[e.casque] || c;
+  const tr = { halo: '<ellipse cx="-16" cy="0" rx="9" ry="4.5" fill="' + c + '" opacity=".35" style="filter:blur(2px)"/>',
+    flammes: '<path class="gp-fl" d="M-10-2.4-22 0-10 2.4Z" fill="#FF6A1A"/><path class="gp-fl" d="M-10-1.2-16 0-10 1.2Z" fill="#FFD23F"/>',
+    etincelles: '<g fill="#FFD84A" class="gp-et"><circle cx="-14" cy="-2" r=".9"/><circle cx="-18" cy="1.5" r=".7"/><circle cx="-21" cy="-.5" r=".6"/></g>',
+    comete: '<path d="M-10-3-30 0-10 3Z" fill="' + c + '" opacity=".45"/>',
+    supernova: '<path d="M-10-3-28 0-10 3Z" fill="#9D86FF" opacity=".45"/><path d="M-18-3-17.2-.8-15 0-17.2.8-18 3-18.8.8-21 0-18.8-.8Z" fill="#fff"/>',
+    turbo: '<g stroke="#5AB8FF" stroke-width="1" stroke-linecap="round"><path d="M-12-3H-24M-13 0H-28M-12 3H-24"/></g>',
+    arcenciel: ["#FF5A5F", "#FFB547", "#3DDC97", "#4C9AFF", "#B57BFF"].map((col, i) => '<path d="M-10 ' + (-2 + i) + 'H-26" stroke="' + col + '" stroke-width="1"/>').join("") }[e.trainee] || "";
+  return '<defs>' + (plein ? defsMotif(u, lv, c) : "") + "</defs>" + tr +
+    '<rect x="-11" y="-5" width="3.4" height="10" rx="1" fill="#15181d"/>' +
+    '<rect x="-8" y="-6.2" width="4.4" height="2.4" rx=".8" fill="#0b0d11"/><rect x="-8" y="3.8" width="4.4" height="2.4" rx=".8" fill="#0b0d11"/>' +
+    '<rect x="4" y="-5.8" width="3.8" height="2.2" rx=".8" fill="#0b0d11"/><rect x="4" y="3.6" width="3.8" height="2.2" rx=".8" fill="#0b0d11"/>' +
+    '<path d="M-9-2.8 2-3.2C6-3.2 8.5-1.6 11-.7V.7C8.5 1.6 6 3.2 2 3.2L-9 2.8Z" fill="' + peint + '"' + (neon ? ' stroke="' + c + '" stroke-width=".8"' : "") + "/>" +
+    '<path d="M-6-4.4 2-4C3-4 3.4-3.4 3.4-3L3.4 3C3.4 3.4 3 4 2 4L-6 4.4Z" fill="' + peint + '" opacity=".92"/>' +
+    '<rect x="9.4" y="-4.8" width="1.8" height="9.6" rx=".6" fill="' + (neon ? c : "#15181d") + '"/>' +
+    '<circle cx="-.6" cy="0" r="1.9" fill="' + cq + '" stroke="#0b0d11" stroke-width=".5"/>' +
+    '<path d="M-9-2.8 2-3.2C6-3.2 8.5-1.6 11-.7" stroke="#fff" stroke-width=".5" fill="none" opacity=".45"/>';
+}
+/** Position au championnat : cumul de points de chacun, mois par mois (avec le départ) */
+function etapesGP(y) {
+  const c = championnat(y), noms = D.personnes.map(p => p.nom);
+  const etapes = [{ k: null, pts: Object.fromEntries(noms.map(n => [n, 0])) }];
+  c.mois.forEach(m => { const prec = etapes[etapes.length - 1].pts, pts = {}; noms.forEach(n => pts[n] = m.cumul[n] !== undefined ? m.cumul[n] : prec[n]); etapes.push({ k: m.k, pts, m }); });
+  return etapes;
+}
+let GP_ETAPE = null, GP_ANIM = null;
+function htmlGrandPrix(y) {
+  const etapes = etapesGP(y), c = championnat(y);
+  const i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1, et = etapes[i];
+  const qui = quiEcurie(), hab = HABILLAGES[(equipDe(qui) || {}).circuit] || HABILLAGES.classique;
+  const met = meteoMois(et.k), d = traceGP();
+  const ordre = Object.keys(et.pts).sort((a, b) => et.pts[b] - et.pts[a] || (c.tot[b] ? c.tot[b].v : 0) - (c.tot[a] ? c.tot[a].v : 0));
+  const tete = ordre[0], tourTete = Math.floor((et.pts[tete] || 0) / TOUR_GP) + 1;
+  const v3 = ETAT.gp2d !== "1";
+  const piste = '<div class="gp-piste meteo-' + met.id + " hab-" + ((equipDe(qui) || {}).circuit || "classique") + (v3 ? " en3d" : "") + '"><div class="gp-scene">' +
+    '<svg class="gp-svg" viewBox="0 -30 360 270" role="img" aria-label="Circuit du Grand Prix, ' + esc(et.k ? moisLong(et.k) : "départ") + '">' +
+    '<rect y="-30" width="360" height="270" fill="' + hab.herbe + '"/><path d="M0 -30H360V240H0Z" fill="url(#gp-tex)" opacity=".5"/>' +
+    '<defs><pattern id="gp-tex" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="' + hab.herbe + '"/><rect width="8" height="16" fill="' + hab.herbe2 + '"/></pattern>' +
+    '<pattern id="gp-damier" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="#111"/><rect x="2" y="2" width="2" height="2" fill="#111"/></pattern></defs>' +
+    decoGP(hab) +
+    '<path d="' + d + '" fill="none" stroke="' + hab.bord + '" stroke-width="30" stroke-linejoin="round"/>' +
+    '<path d="' + d + '" fill="none" stroke="#C62828" stroke-width="30" stroke-dasharray="6 6" stroke-linejoin="round" opacity="' + (hab.deco === "grille" ? 0 : .9) + '"/>' +
+    '<path id="gp-trace" d="' + d + '" fill="none" stroke="' + hab.piste + '" stroke-width="25" stroke-linejoin="round"/>' +
+    (hab.deco === "grille" ? '<path d="' + d + '" fill="none" stroke="#FF4FD8" stroke-width="26" stroke-linejoin="round" opacity=".35" style="filter:blur(3px)"/><path d="' + d + '" fill="none" stroke="#22D3EE" stroke-width="1" opacity=".8"/>' : '<path d="' + d + '" fill="none" stroke="#fff" stroke-width=".8" stroke-dasharray="7 9" opacity=".45"/>') +
+    '<rect x="66" y="188" width="6" height="25" fill="url(#gp-damier)"/>' +
+    '<g id="gp-voitures">' + ordre.slice().reverse().map(n => { const e = equipDe(n), u = "gp" + (++NSVG); return '<g class="gp-v' + (n === tete && et.k ? " tete" : "") + '" data-gp="' + esc(n) + '"><g class="gp-rot">' + voitureDessus(n, e, u) + "</g></g>"; }).join("") + "</g>" +
+    '<g id="gp-tags">' + ordre.map(n => '<g class="gp-tag" data-gpt="' + esc(n) + '"><rect x="-9" y="-6" width="18" height="10" rx="5" fill="' + couleur(n) + '"/><text y="1.6" text-anchor="middle">' + esc(n.slice(0, 2).toUpperCase()) + "</text></g>").join("") + "</g>" +
+    "</svg></div>" + '<div class="gp-meteo" aria-hidden="true"></div>' +
+    (v3 ? '<div class="gp-tags3">' + ordre.map(n => '<span class="gp-t3" data-gpt3="' + esc(n) + '" style="--c:' + couleur(n) + '">' + esc(n.slice(0, 2).toUpperCase()) + "</span>").join("") + "</div>" : "") +
+    '<div class="gp-hud"><span class="gp-tour">Tour <b id="gp-tour">' + tourTete + "</b></span><span>" + met.ico + " " + esc(met.nom) + '</span></div><button class="gp-vue" type="button" id="gp-vue">' + (v3 ? "Vue 2D" : "Vue 3D") + "</button></div>";
+  const chips = '<div class="gp-mois">' + etapes.map((x, j) => '<button type="button" data-gpe="' + j + '" aria-pressed="' + (j === i) + '">' + (x.k ? esc(moisCourt(x.k)) : "Départ") + "</button>").join("") + "</div>";
+  const lignes = ordre.map((n, r) => {
+    const devant = r ? ordre[r - 1] : null, ecart = devant ? et.pts[devant] - et.pts[n] : 0, x = et.m ? et.m.l.find(z => z.nom === n) : null;
+    const ca = et.k ? carteDe(y, n, et.k) : null, cdef = ca && ca.c ? CARTES.find(z => z.id === ca.c) : null;
+    const carte = ca ? (ca.cache && !cdef ? '<span class="gp-c cache" data-bdg="Carte posée face cachée : révélée le 2 du mois.">🂠</span>' : cdef ? '<span class="gp-c" data-bdg="' + esc(cdef.ico + " " + cdef.nom + " : " + cdef.def + (x && x.carte ? " Résultat : " + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + " pt" + (Math.abs(x.carte.gain) > 1 ? "s" : "") + "." : "")) + '">' + cdef.ico + (x && x.carte ? "<small>" + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + "</small>" : "") + "</span>" : "") : "";
+    return '<div class="gp-l' + (n === qui ? " moi" : "") + '"><span class="rk">' + (r + 1) + "</span>" + avatar(n) + '<div class="nm"><b' + attrLivree(n) + ">" + esc(n) + "</b><small>" +
+      (r === 0 ? (et.k ? "en tête · tour " + (Math.floor(et.pts[n] / TOUR_GP) + 1) : "sur la grille") : "à " + ecart + " pt" + (ecart > 1 ? "s" : "") + " de " + esc(devant) + (ecart <= 3 && et.k ? ' · <span class="drs">💨 DRS</span>' : "")) +
+      (x ? " · " + (x.p >= 0 ? "+" : "") + x.p + " ce mois" : "") + "</small></div>" + carte + '<span class="pt"><b>' + et.pts[n] + "</b><small>pts</small></span></div>";
+  }).join("");
+  return '<div class="gp-h"><div><span class="s-k">Grand Prix · ' + (et.k ? esc(moisLong(et.k)) : "départ") + '</span><p class="gp-met">' + met.ico + " " + esc(met.txt) + '</p></div><button class="btn ghost gp-rejouer" type="button" id="gp-rejouer">▶ Rejouer</button></div>' +
+    piste + chips + '<div class="gp-liste">' + lignes + "</div>" +
+    '<p class="info">' + TOUR_GP + " points = un tour de circuit. 💨 DRS : à 3 points ou moins de celui de devant. La météo vient de l'indice du mois. Ton habillage de piste se choisit dans l'écurie.</p>" +
+    htmlCartes(y);
+}
+/* ---------- Mes cartes ---------- */
+let CARTE_CHOIX = null;
+function htmlCartes(y) {
+  const qui = moiPilote(); if (!qui || !D.personnes.some(p => p.nom === qui)) return "";
+  const ap = apercuSaison(), src = ap ? ((cartesApercu()[y] || {})[qui] || {}) : Object.assign({}, (((D.cartes || {})[y] || {})[qui]) || {}, (mesCartes()[y] || {}));
+  const utilisees = {}; Object.entries(src).forEach(([k, c]) => { if (c && c.c) utilisees[c.c] = +k; });
+  const kOuvert = ap ? (GP_CIBLE || (etapesGP(y).slice(-1)[0].k ? cleMoins(etapesGP(y).slice(-1)[0].k, -1) : y * 100 + 1)) : moisCarteOuvert();
+  const dejaMois = src[kOuvert] && src[kOuvert].c ? src[kOuvert].c : null;
+  const saisonOk = Math.floor(kOuvert / 100) === y || ap;
+  const main = CARTES.map(cd => {
+    const k = utilisees[cd.id], jouee = k !== undefined, ici = jouee && k === kOuvert;
+    return '<button type="button" class="carte' + (jouee && !ici ? " jouee" : "") + (ici ? " posee" : "") + (CARTE_CHOIX === cd.id ? " choix" : "") + '" data-carte="' + cd.id + '"' + (jouee && !ici ? " disabled" : "") + '>' +
+      '<span class="c-ico">' + cd.ico + '</span><b>' + esc(cd.nom) + "</b><small>" + esc(cd.court) + "</small>" +
+      (jouee ? '<em>' + (ici ? "posée" : "jouée · " + esc(moisCourt(k))) + "</em>" : "") + "</button>";
+  }).join("");
+  let action = "";
+  const cd = CARTE_CHOIX ? CARTES.find(z => z.id === CARTE_CHOIX) : null;
+  if (cd) {
+    const rivaux = D.personnes.map(p => p.nom).filter(n => n !== qui);
+    action = '<div class="c-action"><p><b>' + cd.ico + " " + esc(cd.nom) + "</b> · " + esc(cd.def.replace("l'indice", "le " + D.marche.indices[iRef()])) + "</p>" +
+      (cd.cible ? '<div class="chips" role="group" aria-label="Rival">' + rivaux.map(n => '<button class="chip" type="button" data-rival="' + esc(n) + '" aria-pressed="' + (GP_RIVAL === n) + '">' + esc(n) + "</button>").join("") + "</div>" : "") +
+      '<div class="btn-row"><button class="btn acc" type="button" id="c-poser"' + (cd.cible && !GP_RIVAL ? " disabled" : "") + ">Poser face cachée sur " + esc(moisLong(kOuvert)) + '</button><button class="lien" type="button" id="c-annuler">Annuler</button></div></div>';
+  } else if (dejaMois) {
+    const dc = CARTES.find(z => z.id === dejaMois);
+    action = '<div class="c-action"><p>' + dc.ico + " <b>" + esc(dc.nom) + "</b> posée face cachée sur " + esc(moisLong(kOuvert)) + (src[kOuvert].cible ? " contre " + esc(src[kOuvert].cible) : "") + ". Révélée le 2.</p>" +
+      '<button class="lien" type="button" id="c-reprendre">Reprendre ma carte</button></div>';
+  }
+  return '<div><h3 class="s-h3">Mes cartes <small>' + (4 - Object.keys(utilisees).length) + " / 4 en main · saison " + numeroSaison(y) + "</small></h3></div>" +
+    '<p class="info">Une main identique pour tous, chaque saison. Une carte par mois au plus, posée <b>face cachée avant le 2</b> du mois visé : personne ne la voit avant. Elle est révélée ensuite, et son effet compte dans le championnat.' + (ap ? " Aperçu : choisis le mois avec les puces ci-dessous ; rien n'est envoyé." : "") + "</p>" +
+    (ap ? '<div class="gp-mois">' + etapesGP(y).slice(1).map(x => '<button type="button" data-gpcible="' + x.k + '" aria-pressed="' + (x.k === kOuvert) + '">' + esc(moisCourt(x.k)) + "</button>").join("") + "</div>" : "") +
+    (saisonOk ? '<div class="main-cartes">' + main + "</div>" + action : '<p class="info">Les cartes de la saison ' + numeroSaison(y) + " se poseront à partir de décembre.</p>");
+}
+let GP_RIVAL = null, GP_CIBLE = null;
+/* Place les voitures sur le circuit (et anime le passage d'une étape à l'autre) */
+function placerGP(v, pts, tags) {
+  const tr = v.querySelector("#gp-trace"); if (!tr) return;
+  const L = tr.getTotalLength(), noms = Object.keys(pts), voies = [-7, -2.5, 2.5, 7];
+  noms.sort((a, b) => pts[b] - pts[a]).forEach((n, j) => {
+    const s = ((pts[n] / TOUR_GP) % 1) * L, p = tr.getPointAtLength(s), q = tr.getPointAtLength((s + 1.5) % L);
+    const a = Math.atan2(q.y - p.y, q.x - p.x), off = voies[j % 4], x = p.x - Math.sin(a) * off, y = p.y + Math.cos(a) * off;
+    const g = v.querySelector('[data-gp="' + CSS.escape(n) + '"]'); if (g) g.setAttribute("transform", "translate(" + x.toFixed(1) + " " + y.toFixed(1) + ") rotate(" + (a * 180 / Math.PI).toFixed(1) + ") scale(1.15)");
+    const t = v.querySelector('[data-gpt="' + CSS.escape(n) + '"]'); if (t) t.setAttribute("transform", "translate(" + x.toFixed(1) + " " + (y - 13).toFixed(1) + ")");
+  });
+  // en 3D, les étiquettes sont posées au-dessus de chaque voiture projetée (restent droites et lisibles)
+  const pi = v.querySelector(".gp-piste.en3d"); if (!pi) return;
+  const R = pi.getBoundingClientRect();
+  noms.forEach(n => { const g = v.querySelector('[data-gp="' + CSS.escape(n) + '"]'), t = v.querySelector('[data-gpt3="' + CSS.escape(n) + '"]'); if (!g || !t) return;
+    const b = g.getBoundingClientRect(); t.style.transform = "translate(" + (b.left + b.width / 2 - R.left).toFixed(1) + "px," + (b.top - R.top - 4).toFixed(1) + "px) translate(-50%,-100%)"; });
+}
+function animerGP(v, de, a, duree) {
+  cancelAnimationFrame(GP_ANIM);
+  if (!ANIM || !de) { placerGP(v, a); return; }
+  const t0 = performance.now(), ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const pas = t => {
+    const e = Math.min(1, (t - t0) / duree), k = ease(e), cur = {};
+    Object.keys(a).forEach(n => cur[n] = (de[n] || 0) + ((a[n] || 0) - (de[n] || 0)) * k);
+    placerGP(v, cur);
+    const tt = v.querySelector("#gp-tour"); if (tt) tt.textContent = Math.floor(Math.max(...Object.values(cur)) / TOUR_GP) + 1;
+    if (e < 1) GP_ANIM = requestAnimationFrame(pas);
+  };
+  GP_ANIM = requestAnimationFrame(pas);
+}
+function brancherGP(v, y) {
+  const etapes = etapesGP(y), i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1;
+  const jouer = () => animerGP(v, i > 0 ? etapes[i - 1].pts : null, etapes[i].pts, 2600);
+  const cle = "versus.gpVu." + y, vu = +(stock.get(cle) || 0), dernier = etapes[etapes.length - 1].k || 0;
+  if (i === etapes.length - 1 && dernier > vu) { stock.set(cle, String(dernier)); placerGP(v, i > 0 ? etapes[i - 1].pts : etapes[i].pts); setTimeout(jouer, 350); }
+  else placerGP(v, etapes[i].pts);
+  const vu3 = v.querySelector("#gp-vue"); if (vu3) vu3.addEventListener("click", () => { ETAT.gp2d = ETAT.gp2d === "1" ? "0" : "1"; garder(); rendreTrophees(); });
+  const rj = v.querySelector("#gp-rejouer"); if (rj) rj.addEventListener("click", () => { placerGP(v, i > 0 ? etapes[i - 1].pts : etapes[i].pts); setTimeout(jouer, 120); });
+  v.querySelectorAll("[data-gpe]").forEach(b => b.addEventListener("click", () => { GP_ETAPE = +b.dataset.gpe; rendreTrophees(); const nv = $("#v-trophees"); const j = GP_ETAPE; const ets = etapesGP(y); placerGP(nv, j > 0 ? ets[j - 1].pts : ets[j].pts); setTimeout(() => animerGP(nv, j > 0 ? ets[j - 1].pts : null, ets[j].pts, 2600), 120); }));
+  v.querySelectorAll("[data-carte]").forEach(b => b.addEventListener("click", () => { CARTE_CHOIX = CARTE_CHOIX === b.dataset.carte ? null : b.dataset.carte; GP_RIVAL = null; rendreTrophees(); }));
+  v.querySelectorAll("[data-rival]").forEach(b => b.addEventListener("click", () => { GP_RIVAL = b.dataset.rival; rendreTrophees(); }));
+  v.querySelectorAll("[data-gpcible]").forEach(b => b.addEventListener("click", () => { GP_CIBLE = +b.dataset.gpcible; rendreTrophees(); }));
+  const kOuvert = () => apercuSaison() ? (GP_CIBLE || cleMoins(etapes[etapes.length - 1].k || y * 100 + 1, -1)) : moisCarteOuvert();
+  const po = v.querySelector("#c-poser"); if (po) po.addEventListener("click", () => { const c = CARTE_CHOIX, r = GP_RIVAL; CARTE_CHOIX = null; GP_RIVAL = null; poserCarte(y, kOuvert(), c, r); });
+  const an = v.querySelector("#c-annuler"); if (an) an.addEventListener("click", () => { CARTE_CHOIX = null; GP_RIVAL = null; rendreTrophees(); });
+  const re = v.querySelector("#c-reprendre"); if (re) re.addEventListener("click", () => poserCarte(y, kOuvert(), null, null));
+}
+
+/* ---------- Tuto : à la première ouverture du championnat, et sur « ? » ---------- */
+const TUTO = [
+  { ico: "🏁", t: "Le championnat", p: "Chaque mois, le portefeuille qui fait la meilleure performance prend 10 points, puis 6, 4, 2 et 1. Bats l'indice et tu gagnes +1 🎯. Tout repart de zéro chaque 1er janvier." },
+  { ico: "🏎️", t: "Le Grand Prix", p: "Les points te font avancer sur le circuit : 25 points = un tour. Chaque fin de mois, la course se rejoue en animation, sous la météo du marché (soleil, nuages, pluie ou orage selon l'indice)." },
+  { ico: "🃏", t: "Les cartes", p: "Chaque saison, tout le monde a la même main de 4 cartes : Aspiration, Turbo, Pneus pluie et Pari. Une par mois au plus, posée face cachée avant le 2. Bien jouée, elle rapporte jusqu'à 3 points ; le Pari peut en coûter un." },
+  { ico: "🔧", t: "Ton écurie", p: "Casque, finition, avatar, livrée, traînée, klaxon, plaque et habillage de piste : tout se débloque avec les défis. Le « ? » de chaque objet dit d'où il vient. Le leader porte le liseré or 🟡." },
+  { ico: "💎", t: "Les exclusifs", p: "24 objets n'existent qu'en un exemplaire : le premier qui remplit la condition les garde pour toujours. Du facile (gagner un mois) au légendaire (deux titres, le million)." }
+];
+function ouvrirTuto() {
+  const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); let i = 0;
+  const peindre = () => {
+    const s = TUTO[i];
+    o.innerHTML = '<div class="tuto-c"><span class="tuto-k">Comment ça marche · ' + (i + 1) + " / " + TUTO.length + '</span><div class="tuto-i">' + s.ico + "</div><h3>" + esc(s.t) + "</h3><p>" + esc(s.p) + "</p>" +
+      '<div class="tuto-pts">' + TUTO.map((x, j) => "<i" + (j === i ? ' class="on"' : "") + "></i>").join("") + "</div>" +
+      '<div class="btn-row"><button class="btn ghost" type="button" data-t="-1"' + (i ? "" : " disabled") + '>Précédent</button><button class="btn acc" type="button" data-t="1">' + (i === TUTO.length - 1 ? "C'est parti 🏁" : "Suivant") + "</button></div></div>";
+    o.querySelectorAll("[data-t]").forEach(b => b.addEventListener("click", () => { const n = i + +b.dataset.t; if (n >= TUTO.length) { o.remove(); return; } i = Math.max(0, n); peindre(); }));
+  };
+  peindre(); document.body.appendChild(o);
+  o.addEventListener("click", e => { if (e.target === o) o.remove(); });
+}
+
+/* ============================================================
+   VOITURE 3D (sans bibliothèque) : petit moteur maison sur <canvas>
+   Modèle « low poly » construit en code (monocoque, pontons, ailerons, roues, halo, casque),
+   ombrage plat avec reflet pour les livrées métal, rotation automatique et au doigt,
+   démarrage au klaxon. Retombe sur le dessin 2D si le canvas n'est pas disponible.
+   ============================================================ */
+const V3D = { inst: null };
+function rgb3(h) { const x = String(h).replace("#", ""); const n = parseInt(x.length === 3 ? x.split("").map(c => c + c).join("") : x, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function couleurCss(c) { if (!/^var\(/.test(c)) return c; const v = getComputedStyle(document.documentElement).getPropertyValue(c.slice(4, -1)).trim(); return v || "#4C9AFF"; }
+/** Matière de la livrée : couleur de base, métal (0..1), émissif (néon) */
+function matiereLivree(lv, c) {
+  return ({ chrome: { c: "#DCE3EA", m: 1 }, or: { c: "#E9B949", m: .95 }, oranime: { c: "#F2C452", m: 1, anim: "or" }, platine: { c: "#EEF3FA", m: .85 },
+    rubis: { c: "#B0002E", m: .7 }, orrose: { c: "#E3A792", m: .9 }, neon: { c: "#0D1017", m: .2, neon: c }, arcenciel: { c: c, m: .5, anim: "arc" },
+    galaxie: { c: "#2A1458", m: .5, etoiles: true } })[lv] || { c: c, m: .45 };
+}
+function modeleF1(nom, e) {
+  const c = couleurCss(couleur(nom)), lv = matiereLivree(e.livree, c);
+  const casq = { uni: c, carbone: "#2d333d", eclair: c, damier: "#f0f0ec", tortue: "#2F8A45", chrome: "#d4dae1", etoile: "#F7CF55", holo: "#B98CFF", couronne: "#F7CF55", foudre: "#141c33", phenix: "#FF8A1F", glace: "#BFEFFC", galaxie: "#5B2A9E", empereur: "#6B2FB3" }[e.casque] || c;
+  const F = [], CARB = { c: "#1C2027", m: .35 }, NOIR = { c: "#101216", m: .1 }, JANTE = { c: "#AEB6C0", m: 1 }, PEINT = lv;
+  const quad = (a, b, cc, d, mat, tag) => F.push({ v: [a, b, cc, d], mat, tag });
+  const tri = (a, b, cc, mat, tag) => F.push({ v: [a, b, cc], mat, tag });
+  /* hexaèdre : 8 sommets [x,y,z], faces orientées vers l'extérieur */
+  const hexa = (P, mat, tag) => { const [a, b, cc, d, e2, f, g, h] = P; quad(a, b, cc, d, mat, tag); quad(h, g, f, e2, mat, tag); quad(a, e2, f, b, mat, tag); quad(b, f, g, cc, mat, tag); quad(cc, g, h, d, mat, tag); quad(d, h, e2, a, mat, tag); };
+  /* boîte effilée : section arrière (x0) et avant (x1), chacune [ybas, yhaut, demi-largeur] */
+  const fuseau = (x0, s0, x1, s1, mat, tag, dz = 0) => hexa([[x0, s0[0], -s0[2] + dz], [x1, s1[0], -s1[2] + dz], [x1, s1[0], s1[2] + dz], [x0, s0[0], s0[2] + dz], [x0, s0[1], -s0[2] + dz], [x1, s1[1], -s1[2] + dz], [x1, s1[1], s1[2] + dz], [x0, s0[1], s0[2] + dz]], mat, tag);
+  const boite = (cx, cy, cz, sx, sy, sz, mat, tag) => fuseau(cx - sx / 2, [cy - sy / 2, cy + sy / 2, sz / 2], cx + sx / 2, [cy - sy / 2, cy + sy / 2, sz / 2], mat, tag, cz);
+  /* roue : cylindre d'axe z, avec rayons sur la face extérieure */
+  const roue = (cx, cy, cz, r, w, n) => {
+    const s = cz > 0 ? 1 : -1, z0 = cz - w / 2 * s, z1 = cz + w / 2 * s, P = a => [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    for (let i = 0; i < n; i++) { const a0 = i / n * 6.2832, a1 = (i + 1) / n * 6.2832, p0 = P(a0), p1 = P(a1);
+      const q = [[p0[0], p0[1], z0], [p1[0], p1[1], z0], [p1[0], p1[1], z1], [p0[0], p0[1], z1]]; F.push({ v: s > 0 ? q : q.reverse(), mat: NOIR, tag: "pneu" }); }
+    // flancs : extérieur tourné vers ±z selon le côté, intérieur à l'opposé
+    const disque = (z, mat, rr, tag, vers) => { const pts = []; for (let i = 0; i < n; i++) { const a = i / n * 6.2832; pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, z]); } F.push({ v: vers > 0 ? pts : pts.reverse(), mat, tag }); };
+    disque(z1, NOIR, r, "pneu", s); disque(z1 + .002 * s, JANTE, r * .62, "jante", s); disque(z0, NOIR, r, "pneu", -s);
+    F.push({ v: [], mat: { c: "#F7CF55", m: 0 }, tag: "lisere", cercle: [cx, cy, z1 + .004 * s, r * .8], s });
+    for (let k = 0; k < 5; k++) F.push({ v: [], mat: { c: "#3a4049", m: .6 }, tag: "rayon", rayon: [cx, cy, z1 + .006 * s, r * .58, k / 5 * 6.2832], s });
+  };
+  // plancher et fond plat
+  boite(0, .2, 0, 4.2, .06, 1.25, CARB);
+  // nez et monocoque
+  fuseau(.55, [.32, .62, .34], 2.45, [.26, .38, .1], PEINT, "nez");
+  fuseau(-.55, [.28, .7, .4], .55, [.3, .66, .36], PEINT, "coque");
+  // capot moteur jusqu'à l'aileron arrière, avec aileron de requin
+  fuseau(-2.1, [.3, .58, .14], -.55, [.3, .98, .34], PEINT, "capot");
+  fuseau(-1.9, [.95, 1.12, .02], -.7, [.95, 1.0, .02], PEINT, "aileron");
+  // prise d'air au-dessus du pilote
+  fuseau(-.62, [.95, 1.08, .12], -.42, [.95, 1.1, .14], CARB);
+  // pontons
+  [-1, 1].forEach(s => { fuseau(-1.25, [.26, .5, .2], .45, [.28, .66, .26], PEINT, "ponton", s * .52); boite(.47, .5, s * .52, .04, .28, .4, NOIR); });
+  // aileron avant (deux plans) et dérives
+  boite(2.42, .2, 0, .5, .035, 1.9, PEINT, "aileronAv"); boite(2.32, .28, 0, .34, .03, 1.8, CARB);
+  [-1, 1].forEach(s => boite(2.4, .3, s * .96, .55, .22, .03, CARB));
+  // aileron arrière, mâts et dérives
+  boite(-2.18, 1.02, 0, .46, .05, 1.5, PEINT, "aileronAr"); boite(-2.12, 1.15, 0, .3, .04, 1.48, CARB);
+  [-1, 1].forEach(s => boite(-2.15, .86, s * .76, .56, .5, .03, CARB));
+  boite(-2.0, .7, 0, .08, .4, .06, CARB);
+  // suspensions
+  [[1.45, .34], [-1.45, .36]].forEach(([x]) => [-1, 1].forEach(s => { boite(x, .44, s * .5, .06, .03, .72, CARB); boite(x, .3, s * .5, .06, .03, .72, CARB); }));
+  // roues
+  roue(1.45, .34, .86, .34, .34, 18); roue(1.45, .34, -.86, .34, .34, 18);
+  roue(-1.45, .37, .9, .37, .42, 18); roue(-1.45, .37, -.9, .37, .42, 18);
+  // casque et visière, halo
+  F.push({ v: [], mat: { c: casq, m: .5 }, tag: "casque", sphere: [.2, .82, 0, .19] });
+  F.push({ v: [], mat: { c: "#0b0d11", m: .9 }, tag: "visiere", sphere: [.33, .84, 0, .13] });
+  F.push({ v: [], mat: { c: "#2b3038", m: .8 }, tag: "halo", arc: [.15, .78, 0, .42] });
+  return { F, lv, c };
+}
+/** Projette et dessine le modèle : yaw autour de y, caméra légèrement plongeante */
+function dessiner3D(ctx, W, H, mod, yaw, t, opts) {
+  const pitch = .36, cp = Math.cos(pitch), sp = Math.sin(pitch), cy0 = Math.cos(yaw), sy0 = Math.sin(yaw);
+  const dist = 7.6, f = Math.min(W, H * 1.75) * .9, ox = W / 2, oy = H * .56, roll = opts.roll || 0, depl = opts.depl || 0;
+  const tr = p => { let x = p[0] + depl, y = p[1], z = p[2];
+    const x1 = x * cy0 + z * sy0, z1 = -x * sy0 + z * cy0; const y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp; return [x1, y2, z2]; };
+  const pr = q => { const k = f / (dist - q[2]); return [ox + q[0] * k, oy - (q[1] - .45) * k, k]; };
+  const L = norm3([.45, .85, .55]), V = [0, 0, 1];
+  // sol : disque dégradé et ombre douce
+  const g0 = pr(tr([0, 0, 0]));
+  ctx.save(); ctx.translate(g0[0], g0[1]); ctx.scale(1, .26);
+  let gr = ctx.createRadialGradient(0, 0, 0, 0, 0, f * .55); gr.addColorStop(0, "rgba(255,255,255,.10)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, f * .55, 0, 6.2832); ctx.fill();
+  gr = ctx.createRadialGradient(0, 0, 0, 0, 0, f * .3); gr.addColorStop(0, "rgba(0,0,0,.6)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(0, 0, f * .32, f * .26, 0, 0, 6.2832); ctx.fill(); ctx.restore();
+  // faces → polygones projetés, triés de loin à près
+  const polys = [];
+  mod.F.forEach(fc => {
+    if (fc.sphere) { const [x, y, z, r] = fc.sphere, q = tr([x, y, z]), p = pr(q); polys.push({ z: q[2], sphere: true, p, r: r * p[2], mat: fc.mat, tag: fc.tag }); return; }
+    if (fc.arc) { const [x, y, z, r] = fc.arc, pts = []; for (let i = 0; i <= 12; i++) { const a = Math.PI * i / 12; pts.push(pr(tr([x + Math.cos(a) * r * .9, y + Math.sin(a) * r * .55, z]))); } polys.push({ z: tr([x, y + .2, z])[2] + .01, arc: pts, mat: fc.mat }); return; }
+    if (fc.cercle || fc.rayon) {
+      const [cx, cy, cz, r, a0] = fc.cercle || fc.rayon, rot = -(opts.roues || 0), pts = [];
+      if (fc.cercle) for (let i = 0; i < 20; i++) { const a = i / 20 * 6.2832; pts.push(tr([cx + Math.cos(a) * r, cy + Math.sin(a) * r, cz])); }
+      else { const a = a0 + rot; pts.push(tr([cx + Math.cos(a - .14) * r * .2, cy + Math.sin(a - .14) * r * .2, cz]), tr([cx + Math.cos(a - .1) * r, cy + Math.sin(a - .1) * r, cz]), tr([cx + Math.cos(a + .1) * r, cy + Math.sin(a + .1) * r, cz]), tr([cx + Math.cos(a + .14) * r * .2, cy + Math.sin(a + .14) * r * .2, cz])); }
+      if (fc.s < 0) pts.reverse();
+      const n = normale(pts); if (n[2] <= 0) return;
+      polys.push({ z: pts.reduce((a, q) => a + q[2], 0) / pts.length + .003, pts: pts.map(pr), mat: fc.mat, n, ligne: !!fc.cercle }); return;
+    }
+    const q = fc.v.map(tr), n = normale(q); if (n[2] <= 0.0005) return;
+    polys.push({ z: q.reduce((a, v) => a + v[2], 0) / q.length, pts: q.map(pr), mat: fc.mat, n, tag: fc.tag, mx: fc.v.reduce((a, v) => a + v[0], 0) / fc.v.length });
+  });
+  polys.sort((a, b) => a.z - b.z);
+  polys.forEach(P => {
+    const m = P.mat;
+    if (P.sphere) {
+      const g = ctx.createRadialGradient(P.p[0] - P.r * .35, P.p[1] - P.r * .4, P.r * .1, P.p[0], P.p[1], P.r);
+      const b = rgb3(m.c); g.addColorStop(0, "rgb(" + b.map(v => Math.min(255, v + 90)).join(",") + ")"); g.addColorStop(.55, m.c); g.addColorStop(1, "rgb(" + b.map(v => v * .35 | 0).join(",") + ")");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(P.p[0], P.p[1], P.r, 0, 6.2832); ctx.fill(); return;
+    }
+    if (P.arc) { ctx.strokeStyle = "#5b636e"; ctx.lineWidth = Math.max(2, P.arc[0][2] * .07); ctx.lineCap = "round"; ctx.beginPath(); P.arc.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); return; }
+    let base = rgb3(m.c);
+    if (m.anim === "arc") { const h = ((P.mx || 0) * 40 + t * 60) % 360; base = rgb3(hsl2hex(h, 85, 58)); }
+    if (m.anim === "or") { const k = .85 + .15 * Math.sin(t * 2 + (P.mx || 0) * 1.5); base = base.map(v => Math.min(255, v * k + 20 * (1 - k))); }
+    const d = Math.max(0, dot3(P.n, L)), h = norm3([L[0] + V[0], L[1] + V[1], L[2] + V[2]]), s = Math.pow(Math.max(0, dot3(P.n, h)), 18 + 40 * m.m);
+    const amb = .32 + .12 * P.n[1], kd = (1 - m.m * .55) * d, ks = (m.m > .6 ? 1.1 : .55) * s, env = m.m * (.25 + .35 * Math.max(0, P.n[1]));
+    const col = base.map(v => Math.min(255, Math.round(v * (amb + kd + env) + 255 * ks)));
+    ctx.fillStyle = "rgb(" + col.join(",") + ")";
+    ctx.beginPath(); P.pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    if (P.ligne) { ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.4; ctx.stroke(); return; }
+    ctx.fill(); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = .7; ctx.stroke();
+    if (m.etoiles) { ctx.fillStyle = "rgba(255,255,255,.75)"; const c0 = P.pts[0]; for (let i = 0; i < 2; i++) { const p = P.pts[(i + 1) % P.pts.length]; ctx.fillRect((c0[0] + p[0]) / 2, (c0[1] + p[1]) / 2, 1.2, 1.2); } }
+    if (m.neon && (P.tag === "ponton" || P.tag === "nez" || P.tag === "aileronAv" || P.tag === "aileronAr" || P.tag === "capot")) {
+      ctx.save(); ctx.shadowColor = m.neon; ctx.shadowBlur = 8; ctx.strokeStyle = m.neon; ctx.lineWidth = 1.3; ctx.stroke(); ctx.restore();
+    }
+  });
+  // numéro sur le capot, côté visible
+  const zt = tr([0, 0, 1])[2] - tr([0, 0, 0])[2], side = zt > 0 ? 1 : -1, pn = pr(tr([-.35, .5, side * .74])), nv = [0, 0, Math.abs(zt)];
+  if (nv[2] > .15) { ctx.save(); ctx.font = "italic 800 " + Math.round(pn[2] * .26) + "px " + getComputedStyle(document.body).getPropertyValue("--f-display"); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = ["chrome", "or", "oranime", "platine", "orrose"].includes(opts.livree) ? "#11151B" : "#fff"; ctx.globalAlpha = Math.min(1, nv[2] * 1.6); ctx.fillText(String(opts.numero || ""), pn[0], pn[1]); ctx.restore(); }
+}
+function normale(q) { const a = [q[1][0] - q[0][0], q[1][1] - q[0][1], q[1][2] - q[0][2]], b = [q[2][0] - q[0][0], q[2][1] - q[0][1], q[2][2] - q[0][2]]; return norm3([a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]); }
+function norm3(v) { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; }
+function dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+function hsl2hex(h, s, l) { s /= 100; l /= 100; const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); return "#" + [f(0), f(8), f(4)].map(x => Math.round(x * 255).toString(16).padStart(2, "0")).join(""); }
+/** Monte la voiture 3D dans un conteneur (remplace le dessin 2D) ; une seule animation à la fois */
+function monter3D(box, nom, e) {
+  if (!box) return;
+  const cv = document.createElement("canvas"); if (!cv.getContext) return;
+  const ctx = cv.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = Math.max(260, box.clientWidth || 340), H = Math.round(W * .58);
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = "100%"; cv.style.height = H + "px"; cv.className = "v3d"; cv.setAttribute("role", "img"); cv.setAttribute("aria-label", "Voiture de " + nom + " en 3D : fais-la tourner du doigt");
+  box.innerHTML = ""; box.appendChild(cv); ctx.scale(dpr, dpr);
+  if (V3D.inst) V3D.inst.stop();
+  const st = { mod: modeleF1(nom, e), yaw: V3D.yaw !== undefined ? V3D.yaw : 2.4, vit: .35, drag: null, pause: 0, boost: 0, roues: 0, stop: false, e };
+  const frame = t => {
+    if (st.stop || !cv.isConnected) { st.stop = true; return; }
+    const dt = Math.min(.05, (t - (st.t || t)) / 1000); st.t = t;
+    if (!st.drag && t > st.pause && ANIM) st.yaw += st.vit * dt;
+    let depl = 0; if (st.boost) { const k = (t - st.boost) / 1400; if (k >= 1) st.boost = 0; else { depl = Math.sin(k * Math.PI) * (k < .15 ? -.4 * k / .15 : 1.4); st.roues += dt * 30; } }
+    st.roues += dt * (ANIM ? 1.2 : 0);
+    V3D.yaw = st.yaw;
+    ctx.clearRect(0, 0, W, H);
+    dessiner3D(ctx, W, H, st.mod, st.yaw, t / 1000, { roues: st.roues, depl, numero: e.numero, livree: e.livree });
+    requestAnimationFrame(frame);
+  };
+  cv.addEventListener("pointerdown", ev => { st.drag = { x: ev.clientX, yaw: st.yaw }; cv.setPointerCapture(ev.pointerId); });
+  cv.addEventListener("pointermove", ev => { if (st.drag) st.yaw = st.drag.yaw + (ev.clientX - st.drag.x) * .012; });
+  const fin = () => { st.drag = null; st.pause = performance.now() + 2500; };
+  cv.addEventListener("pointerup", fin); cv.addEventListener("pointercancel", fin);
+  cv.style.touchAction = "pan-y";
+  V3D.inst = { stop: () => { st.stop = true; }, boost: () => { st.boost = performance.now(); } };
+  requestAnimationFrame(frame);
+  if (!ANIM) { ctx.clearRect(0, 0, W, H); dessiner3D(ctx, W, H, st.mod, st.yaw, 0, { numero: e.numero, livree: e.livree }); }
 }
 
 /* ---------- Vue Podium ---------- */
@@ -2331,8 +2878,7 @@ function rendreTrophees() {
   const v = $("#v-trophees");
   clearInterval(MINUTEUR_TEASER);
   const vis = saisonVisible();
-  v.innerHTML = (apercuSaison() ? rubanApercu() : "") + bandeauMillion() + blocBilans() + (vis ? blocSaison() : teaser());
-  brancherBilans(v);
+  v.innerHTML = (apercuSaison() ? rubanApercu() : "") + bandeauMillion() + (vis ? blocSaison() : teaser());
   $("#info-million-t").addEventListener("click", () => toast(texteMillion()));
   if (vis) brancherSaison(v);
   else {
@@ -2483,14 +3029,15 @@ function blocBilans() {
   }
   return '<section class="bilans-bloc"><div class="bilans-h"><h2 class="sec">Bilans</h2><div class="seg" role="group" aria-label="Bilans"><button type="button" data-bil="mensuel" aria-pressed="' + (onglet === "mensuel") + '">Mensuel</button><button type="button" data-bil="annuel" aria-pressed="' + (onglet === "annuel") + '">Annuel</button></div></div>' + corps + "</section>";
 }
-function brancherBilans(v) {
-  v.querySelectorAll("[data-bil]").forEach(b => b.addEventListener("click", () => { ETAT.bilans = b.dataset.bil; garder(); rendreTrophees(); }));
+function brancherBilans(v0) {
+  const v = v0.querySelector(".bilans-bloc") || v0, re = () => rendreVue(vueActive());
+  v.querySelectorAll("[data-bil]").forEach(b => b.addEventListener("click", () => { ETAT.bilans = b.dataset.bil; garder(); re(); }));
   v.querySelectorAll("[data-recap]").forEach(b => b.addEventListener("click", () => ouvrirRecap(+b.dataset.recap)));
-  const rt = v.querySelector("#recaps-tous"); if (rt) rt.addEventListener("click", () => { ETAT.recapsTous = !ETAT.recapsTous; garder(); rendreTrophees(); });
-  const bt = v.querySelector("#bilans-tous"); if (bt) bt.addEventListener("click", () => { ETAT.bilansTous = !ETAT.bilansTous; garder(); rendreTrophees(); });
+  const rt = v.querySelector("#recaps-tous"); if (rt) rt.addEventListener("click", () => { ETAT.recapsTous = !ETAT.recapsTous; garder(); re(); });
+  const bt = v.querySelector("#bilans-tous"); if (bt) bt.addEventListener("click", () => { ETAT.bilansTous = !ETAT.bilansTous; garder(); re(); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
   v.querySelectorAll("[data-bilan-prive]").forEach(b => b.addEventListener("click", () => window.Moi.bilanPrive(+b.dataset.bilanPrive)));
-  if (moiConnecte() && !window.Moi) chargerModuleMoi(() => { if (vueActive() === "trophees") { window.Moi.prechauffer(); rendreTrophees(); } });
+  if (moiConnecte() && !window.Moi) chargerModuleMoi(() => { if (vueActive() === "mois") { window.Moi.prechauffer(); re(); } });
 }
 /* Performance du mois d'une ligne partagée : cours de fin de mois contre celui du mois précédent, sinon la variation sur 1 mois envoyée avec */
 function lignesDe(nom, k) {
@@ -2706,7 +3253,7 @@ function rendreMois() {
   const pal = palmares(D, env, i1, i2);
   const gagnees = {}; D.personnes.forEach(p => gagnees[p.nom] = 0); pal.forEach(l => { if (l.vainqueur) gagnees[l.vainqueur]++; });
 
-  v.innerHTML = filtres(true) +
+  v.innerHTML = blocBilans() + filtres(true) +
     '<div class="periode">' + esc(textePeriode(deb || null, fin, ks.length)) + "</div>" +
     palmaresMois(env, deb, fin, ks) +
     blocDuel(env, deb, fin) +
@@ -2724,7 +3271,8 @@ function rendreMois() {
     "<tr><td>Années gagnées</td>" + D.personnes.map(p => "<td>" + gagnees[p.nom] + "</td>").join("") + "<td></td>" + (i2s >= 0 ? "<td></td>" : "") + "<td></td></tr>" +
     "</tbody></table></div></div>";
   brancherFiltres("mois");
-  v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
+  brancherBilans(v);
+  v.querySelectorAll("[data-bilan]").forEach(b => { if (!b.closest(".bilans-bloc")) b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)); });
   ["d1", "d2"].forEach(c => { const el = $("#f-" + c); if (el) el.addEventListener("change", e => { ETAT[c] = e.target.value; garder(); rendreMois(); }); });
 }
 
