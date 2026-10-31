@@ -135,7 +135,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .pos .who b { display: block; font: italic 700 18px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; padding-right: 18px; }
 .pos .who small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; padding-right: 18px; }
 .pos .rk, .pos .who { grid-row: 1 / span 2; }
-.pos .t { grid-column: 3; grid-row: 1; align-self: end; font: 700 17px/1 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.pos .t { grid-column: 3; grid-row: 1; min-width: 0; align-self: end; font: 700 17px/1 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .pos .g { grid-column: 3; grid-row: 2; align-self: start; font: 500 11.5px/1.2 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-2); white-space: nowrap; }
 .pos .g.lead { font: 800 11px/1 var(--f-display); letter-spacing: .12em; color: var(--accent-ink); }
 .pos.ghost { cursor: default; }
@@ -208,6 +208,9 @@ body.vue-moi .ticker { display: none; }
 .bdg { display: inline-flex; align-items: center; gap: 2px; margin-left: 6px; padding: 2px 6px; border-radius: 999px; font: 700 10.5px/1.2 var(--f-text); letter-spacing: 0; text-transform: none; font-style: normal; vertical-align: 3px; background: var(--panel-2); border: 1px solid var(--rule); color: var(--ink-2); }
 .bdg.jaune { background: rgba(255,216,74,.16); border-color: rgba(255,216,74,.55); color: var(--ink); }
 .bdg.ex { padding: 2px 5px; }
+.leg-bdg { margin: 6px 2px 0; font-size: 11.5px; line-height: 1.45; color: var(--ink-3); }
+.leg-bdg b { font: 700 10.5px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-right: 4px; }
+.leg-bdg span { display: block; font-style: italic; }
 .pos .who > div { scroll-snap-type: x proximity; touch-action: pan-x pan-y; }
 .it-w { position: relative; display: grid; }
 .it-q { position: absolute; top: 5px; left: 5px; z-index: 2; width: 20px; height: 20px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--rule); background: var(--panel-2); color: var(--ink-3); font: 700 11px/1 var(--f-text); cursor: pointer; }
@@ -224,6 +227,73 @@ body.vue-moi .ticker { display: none; }
 .itd-l > small { font: 600 11.5px/1 var(--f-num); color: var(--ink-3); }
 .s-h3 small { font: 500 12px/1 var(--f-text); color: var(--ink-3); letter-spacing: 0; text-transform: none; margin-left: 6px; }
 .ex-liste { display: grid; gap: 6px; margin-bottom: 14px; }
+/* Avatar : pastille animée derrière le casque */
+.av { position: relative; flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--c) 22%, var(--panel-2)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 70%, transparent); overflow: visible; }
+.av .casque { width: 27px !important; height: 27px !important; margin: 0 !important; position: relative; z-index: 1; }
+.av::before { content: ""; position: absolute; inset: 0; border-radius: 50%; }
+.av-carbone { background: repeating-linear-gradient(45deg, #1b1f26 0 3px, #2d333d 3px 6px); box-shadow: inset 0 0 0 1.5px #555d69; }
+.av-aurore { background: linear-gradient(135deg, #3DDC97, #4C9AFF, #B57BFF, #FF6B9A); background-size: 300% 300%; animation: avAurore 6s ease-in-out infinite; box-shadow: none; }
+@keyframes avAurore { 50% { background-position: 100% 100%; } }
+.av-flammes { background: radial-gradient(circle at 50% 80%, #FFD23F, #FF6A1A 45%, #8A1A05 80%); box-shadow: 0 0 8px rgba(255,106,26,.55); }
+.av-flammes::before { background: radial-gradient(circle at 50% 100%, rgba(255,210,63,.9), transparent 60%); animation: avFlamme .5s ease-in-out infinite alternate; }
+@keyframes avFlamme { to { transform: scale(1.12, .92); opacity: .6; } }
+.av-neon { background: #0a0c11; box-shadow: inset 0 0 0 1.5px var(--c), 0 0 6px var(--c), 0 0 12px color-mix(in srgb, var(--c) 50%, transparent); animation: avNeon 2.4s ease-in-out infinite; }
+@keyframes avNeon { 50% { box-shadow: inset 0 0 0 1.5px var(--c), 0 0 2px var(--c), 0 0 5px color-mix(in srgb, var(--c) 40%, transparent); } }
+.av-damier { background: conic-gradient(#f5f5f2 25%, #101215 0 50%, #f5f5f2 0 75%, #101215 0) 0 0 / 10px 10px; box-shadow: inset 0 0 0 1.5px #101215; }
+.av-or { background: linear-gradient(135deg, #FFF6CC, #F7CF55 30%, #9A6716 55%, #FFE596 75%, #C98E22); box-shadow: 0 0 6px rgba(247,207,85,.45); }
+.av-or::before { background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.75) 50%, transparent 65%) -60px 0 / 200% 100% no-repeat; animation: avBrille 3.5s ease-in-out infinite; }
+@keyframes avBrille { 0%, 40% { background-position: -60px 0; } 100% { background-position: 60px 0; } }
+.av-galaxie { background: radial-gradient(circle at 30% 30%, #5B2A9E, #170A36 70%); box-shadow: 0 0 7px rgba(185,140,255,.5); }
+.av-galaxie::before { background: radial-gradient(circle at 22% 30%, #fff 0 1px, transparent 1.5px), radial-gradient(circle at 75% 25%, #FFC6F2 0 .8px, transparent 1.3px), radial-gradient(circle at 65% 75%, #fff 0 1px, transparent 1.5px), radial-gradient(circle at 30% 78%, #B9E6FF 0 .8px, transparent 1.3px); animation: avScint 2s ease-in-out infinite alternate; }
+@keyframes avScint { to { opacity: .35; } }
+.pos .who .av { margin-right: -2px; }
+.ch-l .av, .gr-l .av { width: 38px; height: 38px; } .ch-l .av .casque, .gr-l .av .casque { width: 30px !important; height: 30px !important; }
+.it-v .av { width: 62px; height: 62px; } .it-v .av .casque { width: 50px !important; height: 50px !important; }
+.sr-id { display: flex; align-items: center; gap: 10px; }
+.sr-id .av { width: 44px; height: 44px; } .sr-id .av .casque { width: 35px !important; height: 35px !important; }
+/* Voiture du showroom : moteur au ralenti, démarrage au klaxon, rebond quand on change un objet */
+.voiture.idle .vt-caisse { animation: vtRalenti .14s ease-in-out infinite alternate; }
+@keyframes vtRalenti { to { transform: translateY(-.6px); } }
+.voiture.idle .vt-trainee { animation: vtSouffle 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: right center; }
+@keyframes vtSouffle { 50% { transform: scaleX(1.08); opacity: .85; } }
+.voiture.boost [id$="car"] { animation: vtBoost 1.4s cubic-bezier(.3, .1, .3, 1) both; }
+.voiture.boost .vt-trainee { animation: vtTraineeBoost 1.4s ease-out both; transform-box: fill-box; transform-origin: right center; }
+@keyframes vtBoost { 0% { transform: translateX(0); } 12% { transform: translateX(-6px); } 45% { transform: translateX(26px); } 100% { transform: translateX(0); } }
+@keyframes vtTraineeBoost { 0% { transform: scaleX(1); } 45% { transform: scaleX(1.9); opacity: 1; } 100% { transform: scaleX(1); } }
+.voiture.pop { animation: vtPop .45s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 80%; }
+@keyframes vtPop { 0% { transform: scale(.97); } 100% { transform: scale(1); } }
+/* reflet qui traverse les casques brillants */
+.casque .cq-brille { animation: cqBrille 5s ease-in-out infinite; }
+@keyframes cqBrille { 0%, 65% { transform: translateX(0); } 100% { transform: translateX(78px); } }
+@media (prefers-reduced-motion: reduce) { .av, .av::before, .voiture.idle .vt-caisse, .voiture.idle .vt-trainee, .voiture.boost [id$="car"], .voiture.boost .vt-trainee, .voiture.pop, .casque .cq-brille { animation: none !important; } }
+
+.lv-rubis, .lv-galaxie, .lv-orrose { -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.lv-rubis { background-image: linear-gradient(90deg, #8A0024, #FF4D6D 40%, #B00035 70%, #FF8FA3); }
+.lv-galaxie { background-image: linear-gradient(90deg, #7A4BFF, #FFB8F0 35%, #5AB8FF 65%, #B98CFF); background-size: 200% 100%; animation: lvBrille 6s linear infinite; }
+.lv-orrose { background-image: linear-gradient(90deg, #9C5562, #F9D1C7 40%, #B76E79 70%, #E8A598); }
+.casque.c-glace { filter: drop-shadow(0 0 3px rgba(150,230,255,.6)); } .casque.c-galaxie { filter: drop-shadow(0 0 3px rgba(185,140,255,.6)); } .casque.c-empereur { filter: drop-shadow(0 0 3px rgba(247,207,85,.5)); }
+.casque .fin-soleil { animation: soleil 3s ease-in-out infinite; transform-origin: 2.5px -2px; }
+@keyframes soleil { 50% { opacity: .5; } }
+.voiture .vt-arc { animation: nova 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: right center; }
+.fx-turbo { stroke: #5AB8FF !important; stroke-width: 5; opacity: .6; stroke-dasharray: 10 6; animation: fxDefile .5s linear infinite; }
+.fx-arcenciel { stroke: #FF6B9A !important; stroke-width: 7; opacity: .5; animation: arcHue 3s linear infinite; }
+@keyframes arcHue { to { filter: hue-rotate(360deg); } }
+details.ex-bloc { display: grid; gap: 6px; padding: 0 8px 8px; border-radius: 14px; border: 1px solid var(--rule); background: var(--panel-2); }
+details.ex-bloc > summary { list-style: none; cursor: pointer; display: grid; gap: 7px; padding: 11px 4px 3px; }
+details.ex-bloc > summary::-webkit-details-marker { display: none; }
+details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-bloc[open] > summary .ex-niv small::after { content: " ▴"; }
+.ex-ics { display: flex; flex-wrap: wrap; gap: 4px; }
+.ex-ics i { font-style: normal; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; font-size: 15px; background: var(--panel); border: 1px solid var(--rule); filter: grayscale(1); opacity: .45; }
+.ex-ics i.pris { filter: none; opacity: 1; border-color: var(--c); box-shadow: inset 0 -2px 0 var(--c); }
+.ex-niv { display: flex; justify-content: space-between; align-items: baseline; margin: 0; font: italic 800 13px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; }
+.ex-niv small { font: 600 11.5px/1 var(--f-num); letter-spacing: 0; text-transform: none; font-style: normal; color: var(--ink-3); }
+.ex-niv.n1 span { color: #D08A4E; } .ex-niv.n2 span { color: #9AA7B5; } .ex-niv.n3 span { color: #E2A92A; } .ex-niv.n4 span { color: #B98CFF; }
+.ex-tab { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.ex-tab span { display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--rule); font-size: 12.5px; font-weight: 600; }
+.ex-tab b { font: 800 14px/1 var(--f-num); color: var(--c); }
+.bdg.ex.n4 { border-color: rgba(185,140,255,.6); background: rgba(185,140,255,.12); } .bdg.ex.n3 { border-color: rgba(226,169,42,.55); }
+@media (prefers-reduced-motion: reduce) { .casque .fin-soleil, .voiture .vt-arc, .fx-turbo, .fx-arcenciel, .lv-galaxie { animation: none !important; } }
+
 .ex-l { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--rule); background: var(--panel); }
 .ex-l.pris { border-color: color-mix(in srgb, #5CE1FF 35%, var(--rule)); }
 .ex-i { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--panel-2); font-size: 18px; }
@@ -326,16 +396,19 @@ body.vue-moi .ticker { display: none; }
 .s-corps { display: grid; gap: 12px; }
 .s-h3 { margin: 4px 0 0; font: italic 800 15px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
 .ch { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
-.ch-l { display: grid; grid-template-columns: 22px 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--rule-2); }
+.ch-l { display: grid; grid-template-columns: 22px 38px minmax(0, 1fr) 54px; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--rule-2); }
 .ch-l:first-child { border-top: 0; }
 .ch-l.tete { background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 14%, var(--panel)), var(--panel) 70%); }
 .ch-l.moi .rk { color: var(--accent-ink); }
 .ch-l .rk { font: italic 800 20px/1 var(--f-display); text-align: center; color: var(--ink-3); }
 .ch-l.tete .rk { color: var(--gold); }
 .ch-l .casque { width: 30px; height: 30px; }
-.ch-l .nm { min-width: 0; }
+.ch-l .nm { min-width: 0; overflow: hidden; }
 .ch-l .nm b { display: block; font: italic 700 17px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ch-l .nm small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-l .nm small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+.ch-l .nm small::-webkit-scrollbar { display: none; }
+.ch-l .nm small.deborde:not(.fin) { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent); }
+.ch-l .pt { min-width: 0; overflow: hidden; }
 .ch-l .pt { text-align: right; }
 .ch-l .pt b { display: block; font: 700 22px/1 var(--f-num); }
 .ch-l .pt small { font: 600 11px/1 var(--f-num); color: var(--ink-3); }
@@ -347,7 +420,14 @@ body.vue-moi .ticker { display: none; }
 .ch-t sup { font-size: 8px; margin-left: 1px; }
 .champ-num { width: 64px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: 700 16px/1 var(--f-num); text-align: center; }
 .grille-dep { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
-.gr-l { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--rule-2); min-width: 0; }
+.gr-l { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 0; border-top: 1px solid var(--rule-2); min-width: 0; width: 100%; background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.gr-l.on { background: var(--panel-2); }
+.garage { display: grid; gap: 10px; margin-top: 12px; scroll-margin-top: 80px; }
+.gar-eq { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.gar-eq span { display: grid; gap: 2px; padding: 7px 9px; border-radius: 10px; background: var(--panel); border: 1px solid var(--rule); font: italic 700 13px/1.15 var(--f-display); letter-spacing: .04em; text-transform: uppercase; }
+.gar-eq small { font: 500 10.5px/1 var(--f-text); letter-spacing: 0; text-transform: none; font-style: normal; color: var(--ink-3); }
+.gar-ex { display: flex; flex-wrap: wrap; gap: 6px; }
+.gar-ex span { padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(185,140,255,.12); border: 1px solid rgba(185,140,255,.45); }
 .gr-l:first-child { border-top: 0; }
 .gr-l b { font: italic 700 15px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
 .gr-l .num { font: 700 12px/1 var(--f-num); color: var(--ink-3); margin-left: auto; }
@@ -843,7 +923,7 @@ body.vue-moi .ticker { display: none; }
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbyX-_cY0UMGWrQx24zDSMa2uAp0p4ZUlfcq-jVm-ZaVCa8HriRlUSDCP1WMF0Rlz2ozPA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzCBmhR2k4wQcJqOPntsylmKPRohlRFAY-egtEXigSwfXOHDVlOs9EaQrmEMBJJbWNIMg/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -1210,10 +1290,14 @@ function boiteGraphe(id, legende) {
 /* ---------- Vue Classement ---------- */
 /* Bande du nom (titres, badges) : défile au pouce quand elle déborde, les chiffres restent fixes à droite */
 function bandesDefilantes(root) {
-  root.querySelectorAll(".pos .who > div").forEach(d => {
+  root.querySelectorAll(".pos .who > div, .ch-l .nm small").forEach(d => {
     const maj = () => { const deb = d.scrollWidth > d.clientWidth + 2; d.classList.toggle("deborde", deb); d.classList.toggle("fin", deb && d.scrollLeft + d.clientWidth >= d.scrollWidth - 2); };
     maj(); d.addEventListener("scroll", maj, { passive: true });
   });
+}
+/* Toucher un badge ou une plaque : ce qu'il veut dire (sans ouvrir la ligne) */
+function expliquerBadges(root) {
+  root.querySelectorAll("[data-bdg]").forEach(b => { b.style.cursor = "help"; b.addEventListener("click", ev => { ev.stopPropagation(); toast(b.dataset.bdg); }); });
 }
 function rendreClassement() {
   const { fin, deb } = cadre();
@@ -1255,7 +1339,7 @@ function rendreClassement() {
     }
     rang++;
     const ecart = s.i1 ? s.twr - s.i1.twr : null;
-    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who">' + (saisonVisible() ? svgCasque(s.nom) : '<i style="background:' + couleur(s.nom) + '"></i>') + '<div><b' + attrLivree(s.nom) + '>' + esc(s.nom) + couronne(s.nom) +
+    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who">' + (saisonVisible() ? avatar(s.nom) : '<i style="background:' + couleur(s.nom) + '"></i>') + '<div><b' + attrLivree(s.nom) + '>' + esc(s.nom) + couronne(s.nom) +
       (s.nom === ETAT.moi ? '<span class="tag moi">moi</span>' : "") + badgesNom(s.nom) + (manque.has(s.nom) ? '<span class="tag manque">relevé à saisir</span>' : "") +
       "</b><small>" + plaqueDe(s.nom) + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
       (s === leader ? '<span class="g lead">LEADER</span>' : '<span class="g">' + pts(s.twr - leader.twr) + "</span>") + "</div>";
@@ -1288,6 +1372,7 @@ function rendreClassement() {
     filtres(true) +
     '<div class="periode">' + esc(textePeriode(deb, fin, nMois)) + (deb && st.some(s => s.n < nMois) ? " · chaque courbe démarre au premier relevé de la personne" : "") + " · performance (TWR), versements neutralisés</div>" +
     '<div class="tour"><div class="tour-h"><span>Pos.</span><span>Portefeuille</span><span>TWR · écart</span></div>' + tour + "</div>" +
+    (saisonVisible() ? '<p class="leg-bdg"><b>Badges</b> 🟡 en tête du championnat · 🏆 champion de saison · ⚡💥… exclusifs gagnés (un seul exemplaire) · plaque gagnée en défi. <span>Touche un badge pour savoir ce qu\'il veut dire.</span></p>' : "") +
     "<div>" + '<h2 class="sec">La course <small>performance cumulée</small></h2></div>' +
     boiteGraphe("g-course", series.map(s => ({ nom: s.nom, c: s.c, dash: s.dash }))) +
     (ks.length > 2 && st.length > 1 ? '<div><h2 class="sec">Les positions <small>place au classement à chaque fin de mois</small></h2></div>' + boiteGraphe("g-places", st.map(s => ({ nom: s.nom, c: couleur(s.nom) }))) : "") +
@@ -1313,6 +1398,7 @@ function rendreClassement() {
   feterChampion(dernierVerdict);
   glisserTour(v, avantTour);
   bandesDefilantes(v);
+  expliquerBadges(v);
   if (!Object.keys(avantTour).length) compterChiffres(v.querySelector(".tour"));
   v.querySelectorAll(".pos[data-nom]").forEach(el => {
     const ouvrir = () => {
@@ -1520,24 +1606,24 @@ function championnat(y) {
 const NIVEAUX = ["", "Bronze", "Argent", "Or", "Légendaire"], MEDAILLES = ["", "🥉", "🥈", "🥇", "💎"];
 const DEFIS = [
   { id: "perf1", fam: "Performance", niv: 1, nom: "Chasseur d'indice", def: "battre le S&P 500 sur 3 mois de la saison", gain: [["trainee", "halo"]] },
-  { id: "perf2", fam: "Performance", niv: 2, nom: "Six de rang", def: "devant le S&P 500 sur 6 mois consécutifs, cumulés", gain: [["casque", "eclair"]] },
+  { id: "perf2", fam: "Performance", niv: 2, nom: "Six de rang", def: "devant le S&P 500 sur 6 mois consécutifs, cumulés", gain: [["casque", "eclair"], ["fond", "aurore"]] },
   { id: "perf3", fam: "Performance", niv: 3, nom: "Grand cru", def: "atteindre +20 % cumulés dans la saison", gain: [["livree", "chrome"], ["finition", "or"]], unite: " %" },
-  { id: "perf4", fam: "Performance", niv: 4, nom: "Dynastie", def: "finir 3 saisons devant le S&P 500", gain: [["livree", "arcenciel"]] },
+  { id: "perf4", fam: "Performance", niv: 4, nom: "Dynastie", def: "finir 3 saisons devant le S&P 500", gain: [["livree", "arcenciel"], ["fond", "galaxie"]] },
   { id: "comp1", fam: "Compétition", niv: 1, nom: "Triplé", def: "3 victoires mensuelles dans la saison", gain: [["klaxon", "damier"], ["finition", "argent"]] },
-  { id: "comp2", fam: "Compétition", niv: 2, nom: "Série noire", def: "3 victoires mensuelles d'affilée", gain: [["trainee", "flammes"]] },
-  { id: "comp3", fam: "Compétition", niv: 3, nom: "Champion", def: "remporter le championnat de la saison", gain: [["livree", "or"], ["casque", "etoile"]] },
+  { id: "comp2", fam: "Compétition", niv: 2, nom: "Série noire", def: "3 victoires mensuelles d'affilée", gain: [["trainee", "flammes"], ["fond", "flammes"]] },
+  { id: "comp3", fam: "Compétition", niv: 3, nom: "Champion", def: "remporter le championnat de la saison", gain: [["livree", "or"], ["casque", "etoile"], ["fond", "or"]] },
   { id: "comp4", fam: "Compétition", niv: 4, nom: "Légende", def: "remporter 2 championnats", gain: [["casque", "holo"]] },
   { id: "reg1", fam: "Régularité", niv: 1, nom: "Métronome", def: "verser 6 mois d'affilée", gain: [["plaque", "metronome"]] },
-  { id: "reg2", fam: "Régularité", niv: 2, nom: "Fourmi", def: "verser 9 mois d'affilée", gain: [["klaxon", "feu"]] },
+  { id: "reg2", fam: "Régularité", niv: 2, nom: "Fourmi", def: "verser 9 mois d'affilée", gain: [["klaxon", "feu"], ["fond", "neon"]] },
   { id: "reg3", fam: "Régularité", niv: 3, nom: "Douze sur douze", def: "verser chaque mois de la saison", gain: [["livree", "neon"], ["finition", "neon"]] },
   { id: "reg4", fam: "Régularité", niv: 4, nom: "Marathon", def: "verser 36 mois d'affilée", gain: [["klaxon", "parade"]] },
-  { id: "mai1", fam: "Maîtrise", niv: 1, nom: "Sang-froid", def: "6 mois d'affilée sans mois sous −3 %", gain: [["casque", "carbone"]] },
+  { id: "mai1", fam: "Maîtrise", niv: 1, nom: "Sang-froid", def: "6 mois d'affilée sans mois sous −3 %", gain: [["casque", "carbone"], ["fond", "carbone"]] },
   { id: "mai2", fam: "Maîtrise", niv: 2, nom: "Bouclier", def: "perdre moins que le S&P 500 sur 3 de ses mois de baisse", gain: [["plaque", "bouclier"]] },
   { id: "mai3", fam: "Maîtrise", niv: 3, nom: "Main de fer", def: "une saison complète sans mois sous −3 %", gain: [["casque", "chrome"]] },
   { id: "mai4", fam: "Maîtrise", niv: 4, nom: "Roc", def: "3 saisons complètes sans mois sous −3 %", gain: [["trainee", "comete"]] }
 ];
 const SECRETS = [
-  { id: "photo", nom: "Photo finish", def: "gagner un mois avec moins de 0,1 point d'avance", gain: [["casque", "damier"]] },
+  { id: "photo", nom: "Photo finish", def: "gagner un mois avec moins de 0,1 point d'avance", gain: [["casque", "damier"], ["fond", "damier"]] },
   { id: "contre", nom: "Contre-attaque", def: "gagner le mois juste après avoir été dernier", gain: [["plaque", "contre"]] },
   { id: "casse", nom: "Le casse", def: "+10 % en un seul mois", gain: [["trainee", "etincelles"]] },
   { id: "tortue", nom: "Tortue", def: "3 lanternes rouges dans la même saison", gain: [["casque", "tortue"]] },
@@ -1607,15 +1693,16 @@ function etatDefis(nom) {
 
 /* ---------- Écurie : ce qui se débloque, ce qui est équipé ---------- */
 const ITEMS = {
-  casque: { uni: "Uni", carbone: "Carbone", eclair: "Éclair", damier: "Damier", tortue: "Tortue", chrome: "Chrome", etoile: "Étoile", holo: "Holo", couronne: "Couronne", foudre: "Foudre", phenix: "Phénix" },
-  finition: { aucune: "Aucune", argent: "Liseré argent", or: "Liseré or", neon: "Liseré néon", diamant: "Diamant", lauriers: "Lauriers" },
-  livree: { couleur: "Couleur", chrome: "Chrome", or: "Or", neon: "Néon", arcenciel: "Prisme", oranime: "Or vivant", platine: "Platine" },
-  trainee: { simple: "Simple", halo: "Halo", flammes: "Flammes", etincelles: "Étincelles", comete: "Comète", supernova: "Supernova" },
-  klaxon: { confettis: "Confettis", damier: "Damier", feu: "Feu d'artifice", parade: "Parade", billets: "Pluie de billets", fanfare: "Fanfare royale" },
-  plaque: { aucune: "Aucune", metronome: "Le Métronome", bouclier: "Bouclier", contre: "Contre-attaque", remontada: "Roi de la remontée", premiersang: "Premier sang" }
+  casque: { uni: "Uni", carbone: "Carbone", eclair: "Éclair", damier: "Damier", tortue: "Tortue", chrome: "Chrome", etoile: "Étoile", holo: "Holo", couronne: "Couronne", foudre: "Foudre", phenix: "Phénix", glace: "Glace", galaxie: "Galaxie", empereur: "Empereur" },
+  fond: { couleur: "Couleur", carbone: "Carbone", aurore: "Aurore", flammes: "Flammes", neon: "Néon", damier: "Damier", or: "Or", galaxie: "Galaxie" },
+  finition: { aucune: "Aucune", argent: "Liseré argent", or: "Liseré or", neon: "Liseré néon", diamant: "Diamant", lauriers: "Lauriers", etoilee: "Étoilée", soleil: "Soleil" },
+  livree: { couleur: "Couleur", chrome: "Chrome", or: "Or", neon: "Néon", arcenciel: "Prisme", oranime: "Or vivant", platine: "Platine", rubis: "Rubis", galaxie: "Galaxie", orrose: "Or rose" },
+  trainee: { simple: "Simple", halo: "Halo", flammes: "Flammes", etincelles: "Étincelles", comete: "Comète", supernova: "Supernova", turbo: "Turbo", arcenciel: "Arc-en-ciel" },
+  klaxon: { confettis: "Confettis", damier: "Damier", feu: "Feu d'artifice", parade: "Parade", billets: "Pluie de billets", fanfare: "Fanfare royale", cibles: "Dans le mille", fusees: "Décollage", trophees: "Pluie de trophées" },
+  plaque: { aucune: "Aucune", metronome: "Le Métronome", bouclier: "Bouclier", contre: "Contre-attaque", remontada: "Roi de la remontée", premiersang: "Premier sang", fidele: "Fidèle au poste", vingt: "Pointeur" }
 };
-const BASE_ECURIE = { casque: "uni", finition: "aucune", livree: "couleur", trainee: "simple", klaxon: "confettis", plaque: "aucune" };
-const SLOTS = [["casque", "Casque"], ["finition", "Finition"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"]];
+const BASE_ECURIE = { casque: "uni", fond: "couleur", finition: "aucune", livree: "couleur", trainee: "simple", klaxon: "confettis", plaque: "aucune" };
+const SLOTS = [["casque", "Casque"], ["finition", "Finition"], ["fond", "Avatar"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"]];
 const GAINS_MILLION = [["casque", "couronne"], ["livree", "oranime"], ["klaxon", "billets"]];
 function debloques(nom) {
   const o = new Set(Object.entries(BASE_ECURIE).map(([s, v]) => s + "." + v));
@@ -1650,22 +1737,44 @@ function attrLivree(nom, e) {
 function plaqueDe(nom) {
   if (!saisonVisible()) return "";
   const p = equipDe(nom).plaque;
-  return p === "aucune" ? "" : '<span class="plaque">' + esc(ITEMS.plaque[p]) + "</span> ";
+  if (p === "aucune") return "";
+  const o = origineItem("plaque", p), quoi = o.exclusif ? "exclusif « " + o.exclusif.nom + " »" : o.secret ? "défi secret « " + o.secret.nom + " » : " + o.secret.def : o.defi ? "défi « " + o.defi.nom + " » : " + o.defi.def : "";
+  return '<span class="plaque" data-bdg="' + esc("Plaque « " + ITEMS.plaque[p] + " » de " + nom + (quoi ? ", gagnée avec le " + quoi : "") + ".") + '">' + esc(ITEMS.plaque[p]) + "</span> ";
 }
 
 /* ---------- Course aux exclusifs : un seul exemplaire, pour le premier qui y arrive ----------
    Calculé à partir des relevés publics (mêmes règles pour tous), puis figé dans le Versus (propriété EXCLUSIFS)
    dès qu'il est décroché : même si un relevé change ensuite, l'objet reste à son premier propriétaire.
    À égalité dans le même mois : la meilleure valeur du critère l'emporte. */
+const NIV_EX = ["", "Facile", "Intermédiaire", "Difficile", "Légendaire"], MED_EX = ["", "🥉", "🥈", "🥇", "💎"];
 const EXCLUSIFS = [
-  { id: "premiersang", ico: "⚔️", nom: "Premier sang", def: "gagner un mois de championnat", gain: ["plaque", "premiersang"] },
-  { id: "hattrick", ico: "⚡", nom: "Hat-trick", def: "gagner 3 mois d'affilée", gain: ["casque", "foudre"] },
-  { id: "mur10", ico: "💠", nom: "Le mur des 10 %", def: "atteindre +10 % cumulés depuis le départ de la saison 1", gain: ["livree", "platine"] },
-  { id: "massue", ico: "💥", nom: "Coup de massue", def: "battre l'indice de 5 points ou plus sur un seul mois", gain: ["trainee", "supernova"] },
-  { id: "inarretable", ico: "💎", nom: "Inarrêtable", def: "verser 12 mois d'affilée (relevés du Versus)", gain: ["finition", "diamant"] },
-  { id: "phenix", ico: "🔥", nom: "Phénix", def: "battre son record de cumul après une chute de 10 %", gain: ["casque", "phenix"] },
-  { id: "centurion", ico: "🎺", nom: "Centurion", def: "atteindre 100 points de championnat, toutes saisons confondues", gain: ["klaxon", "fanfare"] },
-  { id: "champion", ico: "🌿", nom: "Premier champion", def: "remporter une saison complète", gain: ["finition", "lauriers"] }
+  // Facile : de quoi lancer la course dès les premiers mois
+  { id: "premiersang", niv: 1, ico: "⚔️", nom: "Premier sang", def: "gagner un mois de championnat", gain: ["plaque", "premiersang"] },
+  { id: "cible", niv: 1, ico: "🎯", nom: "Dans le mille", def: "battre l'indice sur un mois (premier bonus 🎯)", gain: ["klaxon", "cibles"] },
+  { id: "decollage", niv: 1, ico: "🚀", nom: "Décollage", def: "faire +5 % sur un seul mois", gain: ["klaxon", "fusees"] },
+  { id: "fidele", niv: 1, ico: "🤝", nom: "Fidèle au poste", def: "verser 3 mois d'affilée", gain: ["plaque", "fidele"] },
+  { id: "vingt", niv: 1, ico: "🔢", nom: "Pointeur", def: "atteindre 20 points de championnat", gain: ["plaque", "vingt"] },
+  { id: "remontee", niv: 1, ico: "⏩", nom: "Coup de turbo", def: "gagner 2 places au championnat d'un mois à l'autre", gain: ["trainee", "turbo"] },
+  // Intermédiaire
+  { id: "hattrick", niv: 2, ico: "⚡", nom: "Hat-trick", def: "gagner 3 mois d'affilée", gain: ["casque", "foudre"] },
+  { id: "massue", niv: 2, ico: "💥", nom: "Coup de massue", def: "battre l'indice de 5 points ou plus sur un seul mois", gain: ["trainee", "supernova"] },
+  { id: "cinqetoiles", niv: 2, ico: "🌟", nom: "Cinq étoiles", def: "cumuler 5 bonus 🎯", gain: ["finition", "etoilee"] },
+  { id: "mur10", niv: 2, ico: "💠", nom: "Le mur des 10 %", def: "atteindre +10 % cumulés depuis le départ de la saison 1", gain: ["livree", "platine"] },
+  { id: "cinquante", niv: 2, ico: "🏆", nom: "Demi-siècle", def: "atteindre 50 points de championnat, toutes saisons confondues", gain: ["klaxon", "trophees"] },
+  { id: "inarretable", niv: 2, ico: "💎", nom: "Inarrêtable", def: "verser 12 mois d'affilée (relevés du Versus)", gain: ["finition", "diamant"] },
+  // Difficile
+  { id: "fusee", niv: 3, ico: "❤️‍🔥", nom: "Mois de feu", def: "faire +10 % sur un seul mois", gain: ["livree", "rubis"] },
+  { id: "semestre", niv: 3, ico: "🧊", nom: "Sang-glacé", def: "battre l'indice 6 mois d'affilée", gain: ["casque", "glace"] },
+  { id: "phenix", niv: 3, ico: "🔥", nom: "Phénix", def: "battre son record de cumul après une chute de 10 %", gain: ["casque", "phenix"] },
+  { id: "grandchelem", niv: 3, ico: "🌌", nom: "Grand chelem", def: "gagner 5 mois dans une même saison", gain: ["casque", "galaxie"] },
+  { id: "maillot", niv: 3, ico: "☀️", nom: "Maillot jaune", def: "passer 6 mois en tête du championnat, au total", gain: ["finition", "soleil"] },
+  { id: "centurion", niv: 3, ico: "🎺", nom: "Centurion", def: "atteindre 100 points de championnat, toutes saisons confondues", gain: ["klaxon", "fanfare"] },
+  // Légendaire
+  { id: "champion", niv: 4, ico: "🌿", nom: "Premier champion", def: "remporter une saison complète", gain: ["finition", "lauriers"] },
+  { id: "mur25", niv: 4, ico: "🪐", nom: "Le mur des 25 %", def: "atteindre +25 % cumulés depuis le départ de la saison 1", gain: ["livree", "galaxie"] },
+  { id: "marathon", niv: 4, ico: "🌈", nom: "Marathonien", def: "verser 24 mois d'affilée", gain: ["trainee", "arcenciel"] },
+  { id: "mur50", niv: 4, ico: "🌹", nom: "Le mur des 50 %", def: "atteindre +50 % cumulés depuis le départ de la saison 1", gain: ["livree", "orrose"] },
+  { id: "doublechampion", niv: 4, ico: "🦅", nom: "Empereur", def: "remporter 2 saisons", gain: ["casque", "empereur"] }
 ];
 let MEMO_EXCL = { d: null, cle: "", v: null };
 /** Pour chaque exclusif : { nom, k, score } du premier (calcul), ou null */
@@ -1675,26 +1784,46 @@ function premiersExclusifs() {
   const cand = {}; EXCLUSIFS.forEach(x => cand[x.id] = {});
   const note = (id, nom, k, score) => { if (!cand[id][nom]) cand[id][nom] = { nom, k, score }; };
   if (ys.length) {
-    const st = {};
-    ys.forEach(y => championnat(y).mois.forEach(m => m.l.forEach(x => {
-      const s = st[x.nom] = st[x.nom] || { run: 0, prod: 1, pic: 1, creux: false, pts: 0 };
-      if (x.rg === 1) note("premiersang", x.nom, m.k, x.r);
-      s.run = x.rg === 1 ? s.run + 1 : 0; if (s.run >= 3) note("hattrick", x.nom, m.k, x.r);
-      s.prod *= 1 + x.r; if (s.prod - 1 >= 0.10) note("mur10", x.nom, m.k, s.prod);
-      if (m.iR !== null && x.r - m.iR >= 0.05) note("massue", x.nom, m.k, x.r - m.iR);
-      s.pts += x.p; if (s.pts >= 100) note("centurion", x.nom, m.k, s.pts);
-      if (s.prod > s.pic + 1e-12) { if (s.creux) note("phenix", x.nom, m.k, s.prod); s.pic = s.prod; s.creux = false; } else if (s.prod <= s.pic * 0.9) s.creux = true;
-    })));
+    const st = {}, titres = {};
+    ys.forEach(y => {
+      const c = championnat(y), wins = {};
+      let precPlaces = null;
+      c.mois.forEach(m => {
+        m.l.forEach(x => {
+          const s = st[x.nom] = st[x.nom] || { run: 0, prod: 1, pic: 1, creux: false, pts: 0, bonus: 0, bat: 0, tete: 0 };
+          if (x.rg === 1) note("premiersang", x.nom, m.k, x.r);
+          if (x.bonus) { note("cible", x.nom, m.k, x.r - m.iR); s.bonus++; if (s.bonus >= 5) note("cinqetoiles", x.nom, m.k, s.bonus); }
+          if (x.r >= 0.05) note("decollage", x.nom, m.k, x.r);
+          if (x.r >= 0.10) note("fusee", x.nom, m.k, x.r);
+          s.run = x.rg === 1 ? s.run + 1 : 0; if (s.run >= 3) note("hattrick", x.nom, m.k, x.r);
+          if (x.rg === 1) { wins[x.nom] = (wins[x.nom] || 0) + 1; if (wins[x.nom] >= 5) note("grandchelem", x.nom, m.k, x.r); }
+          s.bat = m.iR !== null && x.r > m.iR ? s.bat + 1 : 0; if (s.bat >= 6) note("semestre", x.nom, m.k, x.r - m.iR);
+          s.prod *= 1 + x.r;
+          [["mur10", .10], ["mur25", .25], ["mur50", .50]].forEach(([id, seuil]) => { if (s.prod - 1 >= seuil) note(id, x.nom, m.k, s.prod); });
+          if (m.iR !== null && x.r - m.iR >= 0.05) note("massue", x.nom, m.k, x.r - m.iR);
+          s.pts += x.p;
+          [["vingt", 20], ["cinquante", 50], ["centurion", 100]].forEach(([id, seuil]) => { if (s.pts >= seuil) note(id, x.nom, m.k, s.pts); });
+          if (s.prod > s.pic + 1e-12) { if (s.creux) note("phenix", x.nom, m.k, s.prod); s.pic = s.prod; s.creux = false; } else if (s.prod <= s.pic * 0.9) s.creux = true;
+          if (m.places[x.nom] === 1) { s.tete++; if (s.tete >= 6) note("maillot", x.nom, m.k, s.pts); }
+          if (precPlaces && precPlaces[x.nom] && precPlaces[x.nom] - m.places[x.nom] >= 2) note("remontee", x.nom, m.k, precPlaces[x.nom] - m.places[x.nom]);
+        });
+        precPlaces = m.places;
+      });
+      if (c.complete && c.classement[0]) {
+        const n = c.classement[0]; titres[n] = (titres[n] || 0) + 1;
+        note("champion", n, c.f, c.tot[n].pts);
+        if (titres[n] >= 2) note("doublechampion", n, c.f, c.tot[n].pts);
+      }
+    });
     const debut = (ys[0] - 1) * 100 + 12, finPf = finGlobale(D, 0);
     D.personnes.forEach(p => {
       let run = 0, prec = null;
       serie(p, 0).filter(z => z.k > debut && z.k <= finPf).forEach(z => {
         const v = z.val && (z.verse || 0) > 0;
         run = v ? (prec !== null && cleMoins(z.k, 1) === prec ? run + 1 : 1) : 0; prec = z.k;
-        if (run >= 12) note("inarretable", p.nom, z.k, run);
+        [["fidele", 3], ["inarretable", 12], ["marathon", 24]].forEach(([id, seuil]) => { if (run >= seuil) note(id, p.nom, z.k, run); });
       });
     });
-    ys.forEach(y => { const c = championnat(y); if (c.complete && c.classement[0]) note("champion", c.classement[0], c.f, c.tot[c.classement[0]].pts); });
   }
   const v = {};
   EXCLUSIFS.forEach(x => {
@@ -1744,24 +1873,33 @@ function moisEnTete(nom, y) { return championnat(y).mois.filter(m => m.places[no
 function badgesNom(nom) {
   if (!saisonVisible()) return "";
   let h = "";
-  if (leaderSaison() === nom) h += '<span class="bdg jaune" title="En tête du championnat : porte le liseré or">🟡 Championnat</span>';
+  if (leaderSaison() === nom) h += '<span class="bdg jaune" data-bdg="🟡 ' + esc(nom) + ' est en tête du championnat de la saison : il porte le liseré or sur son casque, jusqu\'à ce qu\'un autre le dépasse.">🟡 Championnat</span>';
   const titres = anneesSaison().filter(y => { const c = championnat(y); return c.complete && c.classement[0] === nom; }).length;
-  if (titres) h += '<span class="bdg" title="Champion de saison">🏆' + (titres > 1 ? "×" + titres : "") + "</span>";
-  exclusifsDe(nom).forEach(x => { h += '<span class="bdg ex" title="Exclusif : ' + esc(x.nom) + '">' + x.ico + "</span>"; });
+  if (titres) h += '<span class="bdg" data-bdg="🏆 ' + esc(nom) + " a remporté " + titres + (titres > 1 ? " saisons" : " saison") + ' du championnat.">🏆' + (titres > 1 ? "×" + titres : "") + "</span>";
+  exclusifsDe(nom).sort((a, b) => b.niv - a.niv).forEach(x => { h += '<span class="bdg ex n' + x.niv + '" data-bdg="' + esc(x.ico + " " + x.nom + " · exclusif " + NIV_EX[x.niv].toLowerCase() + " : " + nom + " a été le premier à " + x.def.replace("l'indice", "le " + D.marche.indices[iRef()]) + ". Il garde " + ITEMS[x.gain[0]][x.gain[1]] + " (" + SLOTS.find(z => z[0] === x.gain[0])[1].toLowerCase() + "), en un seul exemplaire.") + '">' + x.ico + "</span>"; });
   return h;
 }
+const EX_OUVERTS = new Set();
 function htmlCourseExclusifs() {
-  const pm = D.premierMillion;
-  const lignes = EXCLUSIFS.map(x => {
-    const d = detenteur(x.id), item = ITEMS[x.gain[0]][x.gain[1]], slot = SLOTS.find(s => s[0] === x.gain[0])[1].toLowerCase();
-    return '<div class="ex-l' + (d ? " pris" : "") + '"><span class="ex-i">' + x.ico + "</span><div><b>" + esc(x.nom) + "</b><small>Le premier à " + esc(x.def.replace("l'indice", "le " + D.marche.indices[iRef()])) + " · " + esc(item) + " (" + slot + ")</small></div>" +
+  const pm = D.premierMillion, idx = D.marche.indices[iRef()];
+  const ligne = x => {
+    const d = detenteur(x.id), item = ITEMS[x.gain[0]][x.gain[1]], slot = SLOTS.find(z => z[0] === x.gain[0])[1].toLowerCase();
+    return '<div class="ex-l' + (d ? " pris" : "") + '"><span class="ex-i">' + x.ico + "</span><div><b>" + esc(x.nom) + "</b><small>Le premier à " + esc(x.def.replace("l'indice", "le " + idx)) + " · " + esc(item) + " (" + slot + ")</small></div>" +
       (d ? '<span class="ex-q" style="--c:' + couleur(d.nom) + '"><b>' + esc(d.nom) + "</b><small>" + esc(moisCourt(d.k)) + "</small></span>" : '<span class="ex-q libre"><b>Libre</b><small>à prendre</small></span>') + "</div>";
+  };
+  const niveaux = [1, 2, 3, 4].map(n => {
+    const l = EXCLUSIFS.filter(x => x.niv === n), pris = l.filter(x => detenteur(x.id)).length + (n === 4 && pm ? 1 : 0), tot = l.length + (n === 4 ? 1 : 0);
+    const mil = n === 4 ? '<div class="ex-l' + (pm ? " pris" : "") + '"><span class="ex-i">👑</span><div><b>Premier millionnaire</b><small>Le premier à 1 000 000 € · casque Couronne, livrée Or vivant, klaxon Pluie de billets</small></div>' +
+      (pm ? '<span class="ex-q" style="--c:' + couleur(pm.nom) + '"><b>' + esc(pm.nom) + "</b><small>pour toujours</small></span>" : '<span class="ex-q libre"><b>Libre</b><small>à prendre</small></span>') + "</div>" : "";
+    const icones = l.map(x => { const d = detenteur(x.id); return '<i' + (d ? ' style="--c:' + couleur(d.nom) + '" class="pris"' : "") + ">" + x.ico + "</i>"; }).join("") + (n === 4 ? "<i" + (pm ? ' style="--c:' + couleur(pm.nom) + '" class="pris"' : "") + ">👑</i>" : "");
+    return '<details class="ex-bloc n' + n + '" data-exn="' + n + '"' + (EX_OUVERTS.has(n) ? " open" : "") + '><summary><span class="ex-niv"><span>' + MED_EX[n] + " " + NIV_EX[n] + "</span><small>" + pris + " / " + tot + "</small></span>" +
+      '<span class="ex-ics">' + icones + "</span></summary>" + l.map(ligne).join("") + mil + "</details>";
   }).join("");
-  const mil = '<div class="ex-l' + (pm ? " pris" : "") + '"><span class="ex-i">👑</span><div><b>Premier millionnaire</b><small>Le premier à 1 000 000 € · casque Couronne, livrée Or vivant, klaxon Pluie de billets</small></div>' +
-    (pm ? '<span class="ex-q" style="--c:' + couleur(pm.nom) + '"><b>' + esc(pm.nom) + "</b><small>pour toujours</small></span>" : '<span class="ex-q libre"><b>Libre</b><small>à prendre</small></span>') + "</div>";
-  return '<div><h3 class="s-h3">La course aux exclusifs <small>un seul exemplaire chacun</small></h3></div>' +
-    '<p class="info">Le premier qui y arrive décroche l\'objet, et personne d\'autre ne pourra jamais l\'avoir. Calculé sur les relevés publics, avec les mêmes règles pour tous ; à égalité dans le même mois, la meilleure valeur l\'emporte.' + (apercuSaison() ? " En aperçu, rien n'est figé." : "") + "</p>" +
-    '<div class="ex-liste">' + lignes + mil + "</div>";
+  const parNom = {}; EXCLUSIFS.forEach(x => { const d = detenteur(x.id); if (d) parNom[d.nom] = (parNom[d.nom] || 0) + 1; }); if (pm) parNom[pm.nom] = (parNom[pm.nom] || 0) + 1;
+  const tab = D.personnes.map(p => p.nom).sort((a, b) => (parNom[b] || 0) - (parNom[a] || 0)).map(n => '<span style="--c:' + couleur(n) + '"><b>' + (parNom[n] || 0) + "</b>" + esc(n) + "</span>").join("");
+  return '<div><h3 class="s-h3">La course aux exclusifs <small>' + (EXCLUSIFS.length + 1) + " objets, un seul exemplaire chacun</small></h3></div>" +
+    '<p class="info">Le premier qui y arrive décroche l\'objet et son badge, et personne d\'autre ne pourra jamais les avoir. Calculé sur les relevés publics, avec les mêmes règles pour tous ; à égalité dans le même mois, la meilleure valeur l\'emporte.' + (apercuSaison() ? " En aperçu, rien n'est figé." : "") + "</p>" +
+    '<div class="ex-tab">' + tab + '</div><div class="ex-liste">' + niveaux + "</div>";
 }
 /** Le « ? » d'un objet de l'écurie : d'où il vient, qui l'a, ce qu'il reste à faire */
 function texteOrigineItem(qui, slot, id) {
@@ -1769,9 +1907,9 @@ function texteOrigineItem(qui, slot, id) {
   if (BASE_ECURIE[slot] === id) return { t: "De série", p: "Fourni à tout le monde dès le départ." };
   if (org.exclusif) {
     const x = org.exclusif, d = detenteur(x.id), quoi = "le premier à " + x.def.replace("l'indice", "le " + D.marche.indices[iRef()]);
-    if (d && d.nom === qui) return { t: "Exclusif · " + x.nom, p: "À toi seul : tu as été " + quoi + " (" + moisLong(d.k) + "). Personne d'autre ne pourra l'avoir." };
-    if (d) return { t: "Exclusif · " + x.nom, p: d.nom + " l'a décroché en " + moisLong(d.k) + " : " + quoi + ". Il n'existe qu'en un exemplaire." };
-    return { t: "Exclusif · " + x.nom, p: "Encore libre : sois " + quoi + ", et il sera à toi seul." };
+    if (d && d.nom === qui) return { t: MED_EX[x.niv] + " Exclusif " + NIV_EX[x.niv].toLowerCase() + " · " + x.nom, p: "À toi seul : tu as été " + quoi + " (" + moisLong(d.k) + "). Personne d'autre ne pourra l'avoir." };
+    if (d) return { t: MED_EX[x.niv] + " Exclusif " + NIV_EX[x.niv].toLowerCase() + " · " + x.nom, p: d.nom + " l'a décroché en " + moisLong(d.k) + " : " + quoi + ". Il n'existe qu'en un exemplaire." };
+    return { t: MED_EX[x.niv] + " Exclusif " + NIV_EX[x.niv].toLowerCase() + " · " + x.nom, p: "Encore libre : sois " + quoi + ", et il sera à toi seul." };
   }
   if (org.million) return { t: "Unique · Premier millionnaire", p: D.premierMillion ? (D.premierMillion.nom === qui ? "À toi : premier millionnaire du groupe." : "Réservé à " + D.premierMillion.nom + ", premier millionnaire du groupe.") : "Réservé au premier du groupe qui atteindra 1 000 000 €." };
   if (org.secret) return ouvert ? { t: "Défi secret · " + org.secret.nom, p: "Gagné en réussissant : " + org.secret.def + "." } : { t: "Défi secret", p: "Un défi caché le débloque. Personne ne sait lequel… pour l'instant." };
@@ -1796,19 +1934,25 @@ function defsMotif(u, motif, c) {
   if (motif === "oranime") return lg([[0, "#FFF6CC"], [.18, "#F7CF55"], [.38, "#9A6716"], [.52, "#FFE596"], [.72, "#C98E22"], [1, "#6B430C"]]) + "</linearGradient>";
   if (motif === "foudre") return lg([[0, "#2A3450"], [.45, "#0B1020"], [1, "#05070D"]]) + "</linearGradient>";
   if (motif === "phenix") return lg([[0, "#FFE08A"], [.3, "#FF8A1F"], [.62, "#E0301E"], [1, "#6E0D12"]]) + "</linearGradient>";
+  if (motif === "glace") return lg([[0, "#F4FDFF"], [.25, "#BFEFFC"], [.5, "#72C6E8"], [.7, "#E2F8FF"], [1, "#3C8AB5"]]) + "</linearGradient>";
+  if (motif === "rubis") return lg([[0, "#FF9BB0"], [.22, "#E0115F"], [.45, "#72001E"], [.6, "#FF4D6D"], [1, "#43000F"]]) + "</linearGradient>";
+  if (motif === "orrose") return lg([[0, "#FFE9E1"], [.22, "#E8A598"], [.42, "#9C5562"], [.56, "#F9D1C7"], [.76, "#C47F86"], [1, "#6E3640"]]) + "</linearGradient>";
+  if (motif === "empereur") return lg([[0, "#8E5BE0"], [.4, "#4A1A8C"], [1, "#1C0638"]]) + "</linearGradient>";
+  if (motif === "galaxie") return '<pattern id="' + u + 'm" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#170A36"/><rect width="14" height="14" fill="#5B2A9E" opacity=".35"/>' +
+    '<circle cx="2" cy="3" r=".7" fill="#fff"/><circle cx="9" cy="2" r=".45" fill="#FFC6F2"/><circle cx="6" cy="9" r=".55" fill="#fff"/><circle cx="12" cy="11" r=".7" fill="#B9E6FF"/><circle cx="3" cy="12" r=".35" fill="#fff"/></pattern>';
   if (motif === "platine") return lg([[0, "#FFFFFF"], [.2, "#E3EAF2"], [.38, "#9AA6B6"], [.5, "#F6F9FF"], [.64, "#C9D6EA"], [.8, "#EEF2F8"], [1, "#7D8898"]]) + "</linearGradient>";
   if (motif === "holo" || motif === "arcenciel") return '<linearGradient id="' + u + 'm" x1="0" y1="0" x2="1" y2=".35" spreadMethod="reflect">' +
     [["#FF6B9A", 0], ["#FFC15E", .2], ["#E9F27A", .38], ["#5CF0B5", .55], ["#5AB8FF", .72], ["#B98CFF", .88], ["#FF6B9A", 1]].map(([col, o]) => '<stop offset="' + o + '" stop-color="' + col + '"/>').join("") +
     (ANIM ? '<animateTransform attributeName="gradientTransform" type="translate" values="0 0;1 0" dur="5s" repeatCount="indefinite"/>' : "") + "</linearGradient>";
   return "";
 }
-const MOTIFS_PLEINS = ["carbone", "damier", "tortue", "chrome", "or", "couronne", "oranime", "holo", "arcenciel", "foudre", "phenix", "platine"];
+const MOTIFS_PLEINS = ["carbone", "damier", "tortue", "chrome", "or", "couronne", "oranime", "holo", "arcenciel", "foudre", "phenix", "platine", "glace", "rubis", "orrose", "empereur", "galaxie"];
 function remplissage(u, motif, c) { return MOTIFS_PLEINS.includes(motif) ? "fill:url(#" + u + "m)" : "fill:" + c; }
 
 /* ---------- Casque : coque brillante, visière fumée (irisée pour les plus rares), décor selon le modèle ---------- */
 const COQUE = "M-15 5C-16-9-7-18 4-18C14-18 20-10 20 0V6C20 10 18 12 14 12H-9C-13 12-15 9-15 5Z";
 function casqueForme(u, m, c, fin, lead) {
-  const iri = ["holo", "couronne", "chrome", "etoile", "foudre"].includes(m), orv = m === "couronne" || m === "phenix";
+  const iri = ["holo", "couronne", "chrome", "etoile", "foudre", "glace", "galaxie"].includes(m), orv = m === "couronne" || m === "phenix" || m === "empereur";
   const defs = '<defs>' + defsMotif(u, m, c) + '<clipPath id="' + u + 'k"><path d="' + COQUE + '"/></clipPath>' +
     '<radialGradient id="' + u + 'h" cx=".32" cy=".16" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset=".28" stop-color="#fff" stop-opacity=".16"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>' +
     '<linearGradient id="' + u + 'v" x1="0" y1="0" x2="1" y2="1">' + (orv ? '<stop offset="0" stop-color="#FFE596"/><stop offset=".5" stop-color="#7A4A0C"/><stop offset="1" stop-color="#F7CF55"/>'
@@ -1825,10 +1969,14 @@ function casqueForme(u, m, c, fin, lead) {
     holo: '<path d="M-17 2C-6-4 7-8 23-9" stroke="#fff" stroke-width="1.6" fill="none" opacity=".7"/>',
     couronne: '<path d="M-17 3C-6-3 7-7 23-8" stroke="#11151B" stroke-width="1.6" fill="none" opacity=".45"/>',
     foudre: '<g fill="#5CE1FF" stroke="#E6FBFF" stroke-width=".5"><path d="M-12-16-16-3-10-4.5-14 9-3-6.5-9-5.5-5-16Z"/><path d="M0 2-3 9 1 8.4-1 13 5 6.8 1.5 7.2 4 2Z" opacity=".85"/></g><path d="M-17 4C-6-2 7-6 23-7" stroke="#5CE1FF" stroke-width="1" fill="none" opacity=".7"/>',
-    phenix: '<path d="M-15 6C-9-2-2-9 8-13C2-8-1-3 0 2C3-4 7-7 13-9C8-4 6 1 7 6Z" fill="#FFF1B0" opacity=".85"/><path d="M-15 6C-9 0-3-5 4-8" stroke="#7A0B10" stroke-width="1" fill="none" opacity=".6"/>'
+    phenix: '<path d="M-15 6C-9-2-2-9 8-13C2-8-1-3 0 2C3-4 7-7 13-9C8-4 6 1 7 6Z" fill="#FFF1B0" opacity=".85"/><path d="M-15 6C-9 0-3-5 4-8" stroke="#7A0B10" stroke-width="1" fill="none" opacity=".6"/>',
+    glace: '<g stroke="#fff" stroke-width=".7" fill="none" opacity=".9"><path d="M-12-12-7-6-9 0M-7-6-1-8M-9 0-4 4 2 2M-4 4-6 10"/><path d="M8 4 12 8 16 6M12 8 11 12" opacity=".7"/></g>',
+    galaxie: '<path d="M-14 2C-8-8 6-12 14-6C6-8-4-5-8 2C-4-2 4-3 8 1" stroke="#FFB8F0" stroke-width="1.2" fill="none" opacity=".75"/><circle cx="-4" cy="-6" r="1.2" fill="#fff"/><circle cx="10" cy="5" r=".9" fill="#B9E6FF"/>',
+    empereur: '<path d="M-17 1C-6-5 7-9 23-10" stroke="#F7CF55" stroke-width="3" fill="none"/><path d="M-17 4.4C-6-1.6 7-5.6 23-6.6" stroke="#F7CF55" stroke-width=".9" fill="none" opacity=".8"/><path d="M-6-14-4.6-10.6-1-10.4-3.8-8.2-2.8-4.8-6-6.8-9.2-4.8-8.2-8.2-11-10.4-7.4-10.6Z" fill="#FFE596" stroke="#7A5300" stroke-width=".5"/>'
   }[m] || "";
+  const brille = ["chrome", "couronne", "empereur", "glace", "holo", "etoile", "foudre", "galaxie", "phenix"].includes(m) ? '<path class="cq-brille" d="M-34-30H-28L-40 16H-46Z" fill="#fff" opacity=".55"/>' : "";
   return defs + '<path d="' + COQUE + '" style="' + remplissage(u, m, c) + '"/>' +
-    '<g clip-path="url(#' + u + 'k)">' + deco + '<path d="' + COQUE + '" fill="url(#' + u + 'h)"/></g>' +
+    '<g clip-path="url(#' + u + 'k)">' + deco + '<path d="' + COQUE + '" fill="url(#' + u + 'h)"/>' + brille + "</g>" +
     '<path d="M3-10C10-11.5 16.5-9 20.5-4.5" stroke="#0b0d11" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
     '<path d="M4-8C10-9 17-7 20-3V3C15 5 9 5 5 3 2.5 1 2.6-6 4-8Z" fill="url(#' + u + 'v)"/>' +
     '<path d="M6-6.6C11-7.2 16-5.6 19-3" stroke="#fff" stroke-opacity=".7" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
@@ -1848,12 +1996,21 @@ function finitionCasque(u, fin, c, lead) {
   else if (fin === "neon") h += '<path class="fin-neon" d="' + COQUE + '" fill="none" style="stroke:' + c + ';filter:drop-shadow(0 0 2px ' + c + ') drop-shadow(0 0 4px ' + c + ')" stroke-width="1.6"/>';
   else if (fin === "diamant") h += lis("#2B5F72", 2.4) + lis("#C9F6FF", 1.3) +
     [[-13, -12, 2.6], [17, -9, 2.1], [8, 10, 1.8]].map(([x, y, r]) => '<path class="fin-eclat" d="M' + x + " " + (y - r) + "L" + (x + r * .3) + " " + (y - r * .3) + "L" + (x + r) + " " + y + "L" + (x + r * .3) + " " + (y + r * .3) + "L" + x + " " + (y + r) + "L" + (x - r * .3) + " " + (y + r * .3) + "L" + (x - r) + " " + y + "L" + (x - r * .3) + " " + (y - r * .3) + 'Z" fill="#fff"/>').join("");
+  else if (fin === "etoilee") h += lis("#6B430C", 2.4) + lis("#F7CF55", 1.2) +
+    [[-14, -6], [-6, -17], [6, -17], [16, -9], [19, 5]].map(([x, y]) => '<path d="M' + x + " " + (y - 2.6) + "L" + (x + .8) + " " + (y - .8) + "L" + (x + 2.6) + " " + (y - .6) + "L" + (x + 1.2) + " " + (y + .7) + "L" + (x + 1.6) + " " + (y + 2.6) + "L" + x + " " + (y + 1.5) + "L" + (x - 1.6) + " " + (y + 2.6) + "L" + (x - 1.2) + " " + (y + .7) + "L" + (x - 2.6) + " " + (y - .6) + "L" + (x - .8) + " " + (y - .8) + 'Z" fill="#FFE596" stroke="#7A5300" stroke-width=".35"/>').join("");
+  else if (fin === "soleil") h += '<g class="fin-soleil">' + [-150, -125, -100, -75, -50, -25, 0].map(a => { const r = a * Math.PI / 180, cx = 2.5, cy = -2; return '<path d="M' + (cx + 19 * Math.cos(r)).toFixed(1) + " " + (cy + 19 * Math.sin(r)).toFixed(1) + "L" + (cx + 24 * Math.cos(r)).toFixed(1) + " " + (cy + 24 * Math.sin(r)).toFixed(1) + '" stroke="#FFB21E" stroke-width="1.6" stroke-linecap="round"/>'; }).join("") + "</g>" +
+    '<path d="' + COQUE + '" fill="none" stroke="#FF8A1F" stroke-width="2.4" style="filter:drop-shadow(0 0 2px #FFB21E)"/>' + lis("#FFE596", 1);
   else if (fin === "lauriers") {
     const feuilles = (sens) => [0, 1, 2, 3, 4].map(i => { const t = i / 4, x = sens < 0 ? -13 - 3 * Math.sin(t * 2.4) : 18 + 3 * Math.sin(t * 2.4), y = 12 - t * 20, a = sens < 0 ? -30 - t * 40 : 30 + t * 40;
       return '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="1.5" ry="3.3" transform="rotate(' + a.toFixed(0) + " " + x.toFixed(1) + " " + y.toFixed(1) + ')" fill="#E9C25A" stroke="#6B4B0C" stroke-width=".45"/>'; }).join("");
     h += '<path d="M-12 13C-18 6-18-3-15-9M17 13C23 6 23-3 21-9" stroke="#8A6414" stroke-width=".9" fill="none"/>' + feuilles(-1) + feuilles(1);
   }
   return h;
+}
+/** Avatar public : le casque (avec sa finition) dans une pastille dont le fond se débloque en course */
+function avatar(nom, e) {
+  const eq = e || equipDe(nom);
+  return '<span class="av av-' + (eq.fond || "couleur") + '" style="--c:' + couleur(nom) + '">' + svgCasque(nom, eq) + "</span>";
 }
 function svgCasque(nom, e) {
   const eq = e || equipDe(nom), u = "sv" + (++NSVG), c = couleur(nom), lead = !eq.vignette && saisonVisible() && leaderSaison() === nom;
@@ -1867,7 +2024,7 @@ function svgVoiture(o) {
   const haut = avecDrapeau ? 92 : 10, sol = haut + 150, H = sol + (o.reflet ? 46 : 10);
   const neon = lv === "neon";
   const peinture = neon ? "fill:#0a0c11" : remplissage(u, lv === "couleur" ? "" : lv, c);
-  const filet = neon ? c : lv === "or" || lv === "oranime" ? "#3B2405" : lv === "chrome" || lv === "platine" ? "#11151B" : "#ffffff";
+  const filet = neon ? c : lv === "or" || lv === "oranime" ? "#3B2405" : lv === "chrome" || lv === "platine" || lv === "orrose" ? "#11151B" : lv === "rubis" ? "#FFD1DC" : lv === "galaxie" ? "#FFB8F0" : "#ffffff";
   const CORPS = "M36 112L40 98C70 94 110 88 140 82C156 76 178 56 196 48L210 48C213 58 215 72 216 86L262 86C276 88 300 92 330 96L420 104C440 106 452 110 458 114L456 119C420 121 380 121 330 122L120 124L40 124Z";
   const PONTON = "M118 123C124 106 148 97 184 95L298 94C305 94 309 98 309 104V122Z";
   const traineeFx = {
@@ -1878,6 +2035,8 @@ function svgVoiture(o) {
     supernova: '<defs><radialGradient id="' + u + 'sn"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#D9C9FF"/><stop offset="1" stop-color="#7A5CFF" stop-opacity="0"/></radialGradient></defs>' +
       '<g class="vt-nova"><path d="M140 82L-50 102 140 120Z" fill="#9D86FF" opacity=".35"/><circle cx="-6" cy="100" r="22" fill="url(#' + u + 'sn)"/>' +
       [[-6, 100, 9], [30, 86, 5], [20, 116, 4], [-34, 92, 4], [-30, 112, 3]].map(([x, y, r]) => '<path d="M' + x + " " + (y - r * 2) + "L" + (x + r * .4) + " " + (y - r * .4) + "L" + (x + r * 2) + " " + y + "L" + (x + r * .4) + " " + (y + r * .4) + "L" + x + " " + (y + r * 2) + "L" + (x - r * .4) + " " + (y + r * .4) + "L" + (x - r * 2) + " " + y + "L" + (x - r * .4) + " " + (y - r * .4) + 'Z" fill="#fff"/>').join("") + "</g>",
+    turbo: '<g class="vt-lignes" stroke="#5AB8FF" stroke-linecap="round"><path d="M-40 80h70M-60 94h96M-30 106h64M-52 118h80" stroke-width="3.4" opacity=".8"/><path d="M-20 87h40M-36 112h50" stroke="#fff" stroke-width="1.6" opacity=".9"/></g>',
+    arcenciel: '<g class="vt-arc" opacity=".85">' + ["#FF5A5F", "#FFB547", "#E9F27A", "#3DDC97", "#4C9AFF", "#B57BFF"].map((col, i) => '<path d="M140 ' + (84 + i * 6) + 'C80 ' + (82 + i * 6) + " 10 " + (78 + i * 7) + " -70 " + (70 + i * 9) + '" stroke="' + col + '" stroke-width="6" fill="none" stroke-linecap="round"/>').join("") + "</g>",
     comete: '<defs><linearGradient id="' + u + 'q" x1="1" x2="0"><stop offset="0" style="stop-color:' + c + '"/><stop offset="1" style="stop-color:' + c + '" stop-opacity="0"/></linearGradient></defs><path d="M140 78L-60 100 140 122Z" fill="url(#' + u + 'q)" opacity=".8"/>'
   }[e.trainee] || "";
   const roue = (x, y, r) => '<g transform="translate(' + x + " " + y + ')"><circle r="' + r + '" fill="url(#' + u + 'pn)"/><circle r="' + (r - 1.5) + '" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="1"/>' +
@@ -1914,7 +2073,7 @@ function svgVoiture(o) {
     '<path d="M44 56L52 56 58 100 48 102Z" fill="url(#' + u + 'cb)"/>' +
     '<path d="M2 50C18 44 40 44 62 48L62 55C40 53 18 53 2 59Z" fill="url(#' + u + 'cb)"/>' +
     '<path d="M4 34C20 28 42 28 62 32L62 39C42 37 20 37 4 43Z" style="' + peinture + '"/><path d="M4 34C20 28 42 28 62 32L62 39C42 37 20 37 4 43Z" fill="url(#' + u + 'sh)"/>' +
-    '<text x="33" y="38.5" text-anchor="middle" style="font:italic 800 6.5px var(--f-display);letter-spacing:.12em;fill:' + (["chrome", "or", "oranime", "platine"].includes(lv) ? "#11151B" : "#fff") + '" opacity=".9">VERSUS</text>' +
+    '<text x="33" y="38.5" text-anchor="middle" style="font:italic 800 6.5px var(--f-display);letter-spacing:.12em;fill:' + (["chrome", "or", "oranime", "platine", "orrose"].includes(lv) ? "#11151B" : "#fff") + '" opacity=".9">VERSUS</text>' +
     // fond plat et diffuseur
     '<path d="M28 122L420 122 422 129 70 132 30 128Z" fill="url(#' + u + 'cb)"/>' +
     // caisse et ponton
@@ -1924,7 +2083,7 @@ function svgVoiture(o) {
       '<rect x="0" y="113" width="480" height="20" fill="url(#' + u + 'cb)" opacity=".92"/>' +
       '<path d="M0 113H480" stroke="' + filet + '" stroke-width="1.6" opacity=".9"/>' +
       '<rect x="0" y="40" width="480" height="92" fill="url(#' + u + 'sh)"/>' +
-      (lv === "oranime" || lv === "chrome" || lv === "or" || lv === "platine" ? '<rect class="vt-brille" x="-90" y="40" width="70" height="92" fill="url(#' + u + 'br)" transform="skewX(-20)" opacity="' + (lv === "oranime" ? ".9" : ".35") + '"/>' : "") +
+      (["oranime", "chrome", "or", "platine", "rubis", "orrose"].includes(lv) ? '<rect class="vt-brille" x="-90" y="40" width="70" height="92" fill="url(#' + u + 'br)" transform="skewX(-20)" opacity="' + (lv === "oranime" ? ".9" : ".35") + '"/>' : "") +
     "</g>" +
     (neon ? '<path d="' + CORPS + '" fill="none" style="stroke:' + c + ';filter:drop-shadow(0 0 4px ' + c + ') drop-shadow(0 0 9px ' + c + ')" stroke-width="2"/>' : "") +
     // entrée d'air du ponton, reflets
@@ -1935,8 +2094,8 @@ function svgVoiture(o) {
     // caméra, rétroviseur, numéro
     '<rect x="197" y="43" width="12" height="5" rx="1.5" fill="#0b0d11"/><rect x="199" y="44" width="8" height="1.6" style="fill:' + c + '"/>' +
     '<path d="M284 92L286 84" stroke="#0b0d11" stroke-width="2"/><rect x="278" y="78" width="15" height="7" rx="3" style="' + peinture + '"/><rect x="278" y="78" width="15" height="7" rx="3" fill="url(#' + u + 'sh)"/>' +
-    '<text x="250" y="117" text-anchor="middle" style="font:italic 800 21px var(--f-display);fill:' + (["chrome", "or", "oranime", "platine"].includes(lv) ? "#11151B" : "#fff") + ';stroke:rgba(0,0,0,.35);stroke-width:.6;paint-order:stroke">' + e.numero + "</text>" +
-    '<text x="160" y="108" text-anchor="middle" style="font:italic 800 8px var(--f-display);letter-spacing:.2em;fill:' + (["chrome", "or", "oranime", "platine"].includes(lv) ? "#11151B" : "#fff") + '" opacity=".75">VERSUS</text>' +
+    '<text x="250" y="117" text-anchor="middle" style="font:italic 800 21px var(--f-display);fill:' + (["chrome", "or", "oranime", "platine", "orrose"].includes(lv) ? "#11151B" : "#fff") + ';stroke:rgba(0,0,0,.35);stroke-width:.6;paint-order:stroke">' + e.numero + "</text>" +
+    '<text x="160" y="108" text-anchor="middle" style="font:italic 800 8px var(--f-display);letter-spacing:.2em;fill:' + (["chrome", "or", "oranime", "platine", "orrose"].includes(lv) ? "#11151B" : "#fff") + '" opacity=".75">VERSUS</text>' +
     // pilote, rebord du cockpit, halo
     '<g transform="translate(236 75) scale(1.08)">' + casqueForme(u + "c", e.casque, c, e.finition) + "</g>" +
     '<path d="M214 87C230 83 250 83 264 87" stroke="#0b0d11" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
@@ -1947,7 +2106,7 @@ function svgVoiture(o) {
     '<path d="M386 126C408 122 436 123 462 126L462 129.5C436 127 408 127 386 131Z" style="' + peinture + '"/><path d="M386 126C408 122 436 123 462 126L462 129.5C436 127 408 127 386 131Z" fill="url(#' + u + 'sh)"/>' +
     '<path d="M458 116L466 116 468 142 456 142Z" fill="url(#' + u + 'cb)"/>' +
     "</g>" + roue(98, 116, 34) + roue(372, 119, 31) + "</g>";
-  return '<svg class="voiture' + (o.roule ? " roule" : "") + '" viewBox="0 0 480 ' + H + '" role="img" aria-label="' + esc(o.label || "Voiture de " + o.nom) + '">' + defs +
+  return '<svg class="voiture' + (o.roule ? " roule" : "") + (o.idle ? " idle" : "") + '" viewBox="0 0 480 ' + H + '" role="img" aria-label="' + esc(o.label || "Voiture de " + o.nom) + '">' + defs +
     '<g class="vt-sol"><path d="M0 ' + sol + 'H480" stroke="currentColor" stroke-width="1.5" opacity=".22" stroke-dasharray="26 18"/></g>' + drap +
     '<ellipse cx="240" cy="' + (sol - 2) + '" rx="215" ry="7" fill="#000" opacity=".55" filter="url(#' + u + 'fl)"/>' +
     '<g transform="translate(6 ' + haut + ')"><g class="vt-trainee">' + traineeFx + "</g>" + voiture + "</g>" + bras +
@@ -2013,7 +2172,7 @@ function htmlChampionnat(y) {
   const max = c.tot[c.classement[0]].pts;
   const lignes = c.classement.map((n, i) => {
     const t = c.tot[n], e = equipDe(n);
-    return '<div class="ch-l' + (n === ETAT.moi ? " moi" : "") + (i === 0 ? " tete" : "") + '"><span class="rk">' + (i + 1) + "</span>" + svgCasque(n, e) +
+    return '<div class="ch-l' + (n === ETAT.moi ? " moi" : "") + (i === 0 ? " tete" : "") + '"><span class="rk">' + (i + 1) + "</span>" + avatar(n, e) +
       '<div class="nm"><b' + attrLivree(n, e) + ">" + esc(n) + couronne(n) + "</b><small>" + plaqueDe(n) + t.v + " victoire" + (t.v > 1 ? "s" : "") + " · " + t.pod + " podium" + (t.pod > 1 ? "s" : "") + " · " + t.bonus + " 🎯" + (moisEnTete(n, y) ? " · 🟡 " + moisEnTete(n, y) + " mois en tête" : "") + "</small></div>" +
       '<span class="pt"><b>' + t.pts + "</b><small>" + (i ? "−" + (max - t.pts) : "pts") + "</small></span></div>";
   }).join("");
@@ -2033,7 +2192,7 @@ function dessinerChampionnat(y) {
 }
 function quiEcurie() { return estAdmin() ? ETAT.moi : SESSION.nom; }
 let ECU_SLOT = "casque";
-const ICONES_KLAXON = { confettis: "🎊", damier: "🏁", feu: "🎆", parade: "🎺", billets: "💸", fanfare: "👑" };
+const ICONES_KLAXON = { confettis: "🎊", damier: "🏁", feu: "🎆", parade: "🎺", billets: "💸", fanfare: "👑", cibles: "🎯", fusees: "🚀", trophees: "🏆" };
 /** Rareté d'un objet : série (de base), bronze, argent, or, légendaire, secret, unique (premier millionnaire) */
 function rareteItem(slot, id) {
   if (BASE_ECURIE[slot] === id) return { cls: "r-serie", lib: "Série" };
@@ -2047,6 +2206,7 @@ function rareteItem(slot, id) {
 function vignetteItem(slot, id, nom, e) {
   if (slot === "casque") return svgCasque(nom, { casque: id, finition: e.finition, vignette: true });
   if (slot === "finition") return svgCasque(nom, { casque: e.casque, finition: id, vignette: true });
+  if (slot === "fond") return avatar(nom, Object.assign({}, e, { fond: id, vignette: true }));
   if (slot === "livree") return svgVoiture({ nom, e: Object.assign({}, e, { livree: id, trainee: "" }) });
   if (slot === "trainee") return '<svg class="vg-trainee" viewBox="0 0 200 80" aria-hidden="true"><path class="fx fx-' + id + '" d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-linecap="round"/>' +
     '<path d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-width="3.5" stroke-linecap="round"/><circle cx="192" cy="12" r="5" style="fill:' + couleur(nom) + '"/></svg>';
@@ -2069,9 +2229,9 @@ function htmlEcurie() {
   const slot = ECU_SLOT === "numero" || SLOTS.some(s => s[0] === ECU_SLOT) ? ECU_SLOT : "casque";
   const total = SLOTS.reduce((a, [s]) => a + Object.keys(ITEMS[s]).length, 0) - Object.keys(BASE_ECURIE).length, nb = ouverts.size - Object.keys(BASE_ECURIE).length;
   const showroom = '<div class="showroom"><div class="sr-num" aria-hidden="true">' + e.numero + '</div>' +
-    '<div class="sr-h"><span class="sr-k">Mon écurie · Saison 1</span><b' + attrLivree(qui, e) + ">" + esc(qui) + "</b>" +
+    '<div class="sr-h"><span class="sr-k">Mon écurie · Saison 1</span><span class="sr-id">' + avatar(qui, Object.assign({}, e, { vignette: true })) + "<b" + attrLivree(qui, e) + ">" + esc(qui) + "</b></span>" +
     '<span class="sr-p"><span class="sr-barre"><i style="width:' + (total ? nb / total * 100 : 0).toFixed(0) + '%"></i></span>' + nb + " / " + total + " objets</span></div>" +
-    svgVoiture({ nom: qui, e, reflet: true }) +
+    svgVoiture({ nom: qui, e, reflet: true, idle: true }) +
     '<button class="sr-klaxon" type="button" id="ecu-klaxon">📯 Klaxonner</button></div>';
   const onglets = '<div class="slot-tabs">' + SLOTS.concat([["numero", "Numéro"]]).map(([s, lib]) => '<button type="button" data-ecu-slot="' + s + '" aria-pressed="' + (s === slot) + '">' + lib +
     "<small>" + (s === "numero" ? "#" + e.numero : esc(ITEMS[s][e[s]])) + "</small></button>").join("") + "</div>";
@@ -2087,11 +2247,25 @@ function htmlEcurie() {
       '<span class="it-n">' + (cache ? "???" : esc(ITEMS[slot][id])) + '</span><span class="it-r">' + esc(sous2) + "</span></button>" +
       '<button type="button" class="it-q" data-itq="' + slot + "." + id + '" aria-label="D\'où vient ' + esc(cache ? "cet objet" : ITEMS[slot][id]) + ' ?">?</button></div>';
   }).join("") + '</div><div class="it-d" id="it-d" aria-live="polite">' + htmlDetailItem(qui) + "</div>";
-  const grille = D.personnes.map(p => { const eq = p.nom === qui ? e : equipDe(p.nom); return '<div class="gr-l">' + svgCasque(p.nom, eq) + "<b" + attrLivree(p.nom, eq) + ">" + esc(p.nom) + "</b>" + (eq.plaque !== "aucune" ? '<span class="plaque">' + esc(ITEMS.plaque[eq.plaque]) + "</span>" : "") + '<span class="num">#' + eq.numero + "</span></div>"; }).join("");
+  const grille = D.personnes.map(p => { const eq = p.nom === qui ? e : equipDe(p.nom); return '<button type="button" class="gr-l' + (ECU_VOIR === p.nom ? " on" : "") + '" data-voir="' + esc(p.nom) + '">' + avatar(p.nom, eq) + "<b" + attrLivree(p.nom, eq) + ">" + esc(p.nom) + "</b>" + (eq.plaque !== "aucune" ? '<span class="plaque">' + esc(ITEMS.plaque[eq.plaque]) + "</span>" : "") + '<span class="num">#' + eq.numero + " ›</span></button>"; }).join("");
   return showroom + onglets + corps +
     '<button class="btn acc plein" type="button" id="ecu-garder">Enregistrer mon écurie</button>' +
     '<p class="info">Le « ? » de chaque objet dit d\'où il vient. Ton casque, sa finition, ta livrée et ta plaque s\'affichent au classement, ta traînée sur les courbes, ton klaxon quand tu gagnes un mois. Le leader du championnat porte en plus le liseré or 🟡, qui change de casque quand il perd la tête.</p>' +
-    '<div><h3 class="s-h3">La grille</h3></div><div class="grille-dep">' + grille + "</div>";
+    '<div><h3 class="s-h3">La grille <small>touche une écurie pour la voir</small></h3></div><div class="grille-dep">' + grille + "</div>" + htmlGarage(qui);
+}
+let ECU_VOIR = null;
+/** Garage d'un autre pilote : sa voiture et tout son équipement, en lecture seule */
+function htmlGarage(qui) {
+  const n = ECU_VOIR; if (!n || !D.personnes.some(p => p.nom === n)) return "";
+  const eq = n === qui && ECU ? ECU.e : equipDe(n), ouverts = debloques(n);
+  const total = SLOTS.reduce((a, [s]) => a + Object.keys(ITEMS[s]).length, 0) - Object.keys(BASE_ECURIE).length, nb = ouverts.size - Object.keys(BASE_ECURIE).length;
+  const ex = exclusifsDe(n);
+  return '<div class="garage" id="garage"><div class="showroom">' + '<div class="sr-num" aria-hidden="true">' + eq.numero + '</div><div class="sr-h"><span class="sr-k">Écurie de ' + esc(n) + '</span><span class="sr-id">' + avatar(n, Object.assign({}, eq, { vignette: true })) + "<b" + attrLivree(n, eq) + ">" + esc(n) + "</b></span>" +
+    '<span class="sr-p"><span class="sr-barre"><i style="width:' + (total ? nb / total * 100 : 0).toFixed(0) + '%"></i></span>' + nb + " / " + total + " objets</span></div>" + svgVoiture({ nom: n, e: eq, reflet: true, idle: true }) +
+    '<button class="sr-klaxon" type="button" id="garage-klaxon">📯 Son klaxon</button></div>' +
+    '<div class="gar-eq">' + SLOTS.map(([s, lib]) => '<span><small>' + lib + "</small>" + esc(ITEMS[s][eq[s]]) + "</span>").join("") + "</div>" +
+    (ex.length ? '<div class="gar-ex">' + ex.sort((a, b) => b.niv - a.niv).map(x => '<span title="' + esc(x.nom) + '">' + x.ico + " " + esc(x.nom) + "</span>").join("") + "</div>" : "") +
+    '<button class="lien" type="button" id="garage-fermer">Fermer</button></div>';
 }
 function htmlDefis() {
   const noms = D.personnes.map(p => p.nom), E = {}; noms.forEach(n => E[n] = etatDefis(n));
@@ -2109,6 +2283,16 @@ function htmlDefis() {
   }).join("") + "</div>";
   return htmlCourseExclusifs() + '<p class="info">Les défis se débloquent une fois pour toutes et ouvrent des objets pour ton écurie. Niveaux : 🥉 bronze · 🥈 argent · 🥇 or · 💎 légendaire. Portefeuille total, ' + esc(D.marche.indices[iRef()]) + " comme référence, versements des relevés du Versus.</p>" + fams + secrets;
 }
+/* Animations du showroom : la voiture démarre au klaxon, rebondit quand on change un objet */
+function demarrer(v) {
+  const car = (v || document).querySelector(".showroom .voiture"); if (!car || !ANIM) return;
+  car.classList.remove("boost"); void car.getBoundingClientRect(); car.classList.add("boost", "roule");
+  setTimeout(() => car.classList.remove("boost", "roule"), 1500);
+}
+function popVoiture() {
+  const car = document.querySelector(".showroom .voiture"); if (!car || !ANIM) return;
+  car.classList.add("pop"); setTimeout(() => car.classList.remove("pop"), 500);
+}
 async function garderEcurie() {
   const qui = ECU.nom, equip = Object.assign({}, ECU.e);
   if (SOURCE !== "api") { D.ecurie = Object.assign({}, D.ecurie, { [qui]: { equip } }); toast("Aperçu : écurie gardée sur cet appareil seulement."); rendreTrophees(); return; }
@@ -2121,6 +2305,8 @@ function brancherSaison(v) {
   v.querySelectorAll("[data-saison]").forEach(b => b.addEventListener("click", () => { ETAT.saisonY = +b.dataset.saison; garder(); rendreTrophees(); }));
   const ys = anneesSaison(), y = ys.includes(ETAT.saisonY) ? ETAT.saisonY : ys[ys.length - 1];
   if (ETAT.podium !== "ecurie" && ETAT.podium !== "defis") dessinerChampionnat(y);
+  bandesDefilantes(v); expliquerBadges(v);
+  v.querySelectorAll("details.ex-bloc").forEach(d => d.addEventListener("toggle", () => { const n = +d.dataset.exn; if (d.open) EX_OUVERTS.add(n); else EX_OUVERTS.delete(n); }));
   v.querySelectorAll("[data-ecu-slot]").forEach(b => b.addEventListener("click", () => { ECU_SLOT = b.dataset.ecuSlot; ECU_Q = null; rendreTrophees(); }));
   const majQ = () => { const z = v.querySelector("#it-d"); if (z) z.innerHTML = htmlDetailItem(ECU.nom); v.querySelectorAll(".it-w").forEach(w => w.classList.toggle("q-on", w.querySelector("[data-itq]").dataset.itq === ECU_Q)); };
   v.querySelectorAll("[data-itq]").forEach(b => b.addEventListener("click", () => { ECU_Q = ECU_Q === b.dataset.itq ? null : b.dataset.itq; majQ(); }));
@@ -2128,12 +2314,15 @@ function brancherSaison(v) {
     const s = b.dataset.slot, id = b.dataset.item;
     if (b.classList.contains("verrou")) { ECU_Q = s + "." + id; majQ(); return; }
     ECU_Q = s + "." + id;
-    ECU.e[s] = id; rendreTrophees();
+    ECU.e[s] = id; rendreTrophees(); popVoiture();
     if (s === "klaxon") confettis(id);
   }));
   const num = v.querySelector("#ecu-num");
   if (num) num.addEventListener("change", () => { const n = parseInt(num.value, 10); if (n >= 1 && n <= 99) { ECU.e.numero = n; rendreTrophees(); } else { num.value = ECU.e.numero; toast("Un numéro entre 1 et 99."); } });
-  const kl = v.querySelector("#ecu-klaxon"); if (kl) kl.addEventListener("click", () => confettis(ECU.e.klaxon));
+  v.querySelectorAll("[data-voir]").forEach(b => b.addEventListener("click", () => { ECU_VOIR = ECU_VOIR === b.dataset.voir ? null : b.dataset.voir; rendreTrophees(); const g = document.getElementById("garage"); if (g) g.scrollIntoView({ behavior: "smooth", block: "start" }); }));
+  const gf = v.querySelector("#garage-fermer"); if (gf) gf.addEventListener("click", () => { ECU_VOIR = null; rendreTrophees(); });
+  const gk = v.querySelector("#garage-klaxon"); if (gk) gk.addEventListener("click", () => { const g = v.querySelector("#garage"); confettis(equipDe(ECU_VOIR).klaxon); demarrer(g); });
+  const kl = v.querySelector("#ecu-klaxon"); if (kl) kl.addEventListener("click", () => { confettis(ECU.e.klaxon); demarrer(v); });
   const g = v.querySelector("#ecu-garder"); if (g) g.addEventListener("click", garderEcurie);
 }
 
@@ -2220,7 +2409,7 @@ function confettis(style) {
   c.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:99";
   document.body.appendChild(c); x.scale(dpr, dpr);
   const pal = ["--p0", "--p1", "--p2", "--p3", "--gold"].map(css);
-  const emo = { parade: ["🏁", "🎺", "🎉", "🏆", "🥁"], billets: ["💶", "💸", "💶", "💰"], lingots: ["🪙", "💰", "🥇", "🪙"], fanfare: ["👑", "🎺", "✨", "🏆", "🎺"], etoiles: ["⭐", "✨", "🌟", "💫"], fusees: ["🚀", "🌙", "⭐", "🪐"] }[style];
+  const emo = { parade: ["🏁", "🎺", "🎉", "🏆", "🥁"], billets: ["💶", "💸", "💶", "💰"], lingots: ["🪙", "💰", "🥇", "🪙"], fanfare: ["👑", "🎺", "✨", "🏆", "🎺"], cibles: ["🎯", "🏹", "🎯", "✨"], trophees: ["🏆", "🥇", "🏆", "🎖️"], etoiles: ["⭐", "✨", "🌟", "💫"], fusees: ["🚀", "🌙", "⭐", "🪐"] }[style];
   const hasard = l => l[Math.floor(Math.random() * l.length)];
   let ps;
   if (emo) ps = Array.from({ length: 46 }, () => ({ x: Math.random() * W, y: -20 - Math.random() * H * .6, vx: (Math.random() - .5) * 1.5, vy: 2 + Math.random() * 3, r: (Math.random() - .5) * .8, vr: (Math.random() - .5) * .06, e: hasard(emo), g: .04 }));
@@ -2785,7 +2974,7 @@ async function envoyerReleve(forcer) {
   majSaisie(i > 0 ? p.rows[i - 1] : null);
 }
 let minuteur;
-function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(() => { el.hidden = true; }, 4200); }
+function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(() => { el.hidden = true; }, Math.max(4200, String(t).length * 50)); }
 
 /* ---------- Navigation ---------- */
 const VUES = ["classement", "mois", "fiche", "trophees", "moi"];
