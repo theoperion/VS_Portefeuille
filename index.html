@@ -126,9 +126,10 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .pos .rk { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; background: var(--ink); color: var(--bg); font: italic 800 17px/1 var(--f-display); }
 .pos .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .pos .who i { width: 5px; align-self: stretch; min-height: 30px; border-radius: 2px; transform: skewX(-12deg); flex: none; }
-.pos .who div { min-width: 0; }
-.pos .who b { display: block; font: italic 700 18px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pos .who small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos .who div { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.pos .who div::-webkit-scrollbar { display: none; }
+.pos .who b { display: block; font: italic 700 18px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; padding-right: 18px; }
+.pos .who small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; padding-right: 18px; }
 .pos .t { font: 700 17px/1 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; }
 .pos .g { font: 500 12px/1.2 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; color: var(--ink-2); }
 .pos .g.lead { font: 800 11px/1 var(--f-display); letter-spacing: .12em; color: var(--accent-ink); }
@@ -246,6 +247,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); padding: 0 4px 8px; }
 .legend i { display: inline-block; width: 16px; height: 0; border-top: 2.5px solid; vertical-align: middle; margin-right: 6px; }
 .legend i.dash { border-top-style: dashed; border-top-width: 2px; }
+.legend i.dot { border-top-style: dotted; border-top-width: 3px; }
 .chart { width: 100%; display: block; touch-action: pan-y; }
 .chart text { font: 500 10.5px var(--f-num); fill: var(--ink-3); }
 .tip { position: absolute; pointer-events: none; z-index: 5; min-width: 160px; background: var(--ink); color: var(--bg); border-radius: 8px; padding: 8px 10px; font: 500 12px/1.5 var(--f-num); font-variant-numeric: tabular-nums; box-shadow: 0 6px 18px var(--shade); }
@@ -323,10 +325,10 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 
 /* Barre du bas */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: var(--panel); border-top: 1px solid var(--rule); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
-.tabbar nav { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; }
+.tabbar nav { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 68px 1fr 1fr; }
 .onglet { border: 0; background: none; cursor: pointer; display: grid; justify-items: center; gap: 4px; padding: 9px 2px 10px; color: var(--ink-3); position: relative; }
 .onglet svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.onglet span { font: 700 11px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; }
+.onglet span { font: 700 clamp(9px, 2.55vw, 11px)/1 var(--f-display); letter-spacing: .03em; text-transform: uppercase; white-space: nowrap; }
 .onglet[aria-current="page"] { color: var(--ink); }
 .onglet[aria-current="page"]::before { content: ""; position: absolute; top: -1px; left: 26%; right: 26%; height: 3px; border-radius: 0 0 3px 3px; background: var(--accent); }
 .plus { border: 0; background: none; cursor: pointer; display: grid; place-items: center; padding: 0; }
@@ -437,6 +439,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <section class="view" id="v-mois" data-vue="mois" hidden></section>
     <section class="view" id="v-fiche" data-vue="fiche" hidden></section>
     <section class="view" id="v-objectifs" data-vue="objectifs" hidden></section>
+    <section class="view" id="v-trophees" data-vue="trophees" hidden></section>
   </main>
 </div>
 
@@ -446,7 +449,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <button class="onglet" type="button" data-vue="mois"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg><span>Mois</span></button>
     <button class="plus" type="button" id="btn-saisie" aria-label="Saisir un relevé"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
     <button class="onglet" type="button" data-vue="fiche"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Fiche</span></button>
-    <button class="onglet" type="button" data-vue="objectifs"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h13l-2 4 2 4H5"/></svg><span>Objectifs</span></button>
+    <button class="onglet" type="button" data-vue="trophees"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M16 5h3v2a3 3 0 0 1-3 3M8 5H5v2a3 3 0 0 0 3 3M12 13v4M8 20h8M10 17h4"/></svg><span>Trophées</span></button>
   </nav>
 </div>
 
@@ -875,7 +878,7 @@ function tracer(box, conf) {
       const premier = s.v.findIndex(ok);
       o += '<path d="' + d + "L" + X(dernier).toFixed(1) + " " + (m.t + ih) + "L" + X(premier).toFixed(1) + " " + (m.t + ih) + 'Z" fill="' + C(s.c) + '" fill-opacity=".14" stroke="none"/>';
     }
-    o += '<path d="' + d + '" fill="none" stroke="' + C(s.c) + '" stroke-width="' + (s.w || 2) + '" stroke-linejoin="round" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="5 4"' : "") + "/>";
+    o += '<path d="' + d + '" fill="none" stroke="' + C(s.c) + '" stroke-width="' + (s.w || 2) + '" stroke-linejoin="round" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="' + (s.dash === true ? "5 4" : s.dash) + '"' : "") + "/>";
     if (dernier !== null) {
       o += '<circle cx="' + X(dernier).toFixed(1) + '" cy="' + Y(s.v[dernier]).toFixed(1) + '" r="3.5" fill="' + C(s.c) + '" stroke="' + C("var(--panel)") + '" stroke-width="2"/>';
       if (conf.finEtiq) fins.push({ y: Y(s.v[dernier]), t: conf.fmt(s.v[dernier]), c: s.c });
@@ -907,7 +910,7 @@ function tracer(box, conf) {
   hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); dots.innerHTML = ""; tip.hidden = true; });
 }
 function boiteGraphe(id, legende) {
-  return '<div class="chart-box" id="' + id + '"><div class="legend">' + legende.map(l => '<span><i class="' + (l.dash ? "dash" : "") + '" style="border-color:' + l.c + '"></i>' + esc(l.nom) + "</span>").join("") +
+  return '<div class="chart-box" id="' + id + '"><div class="legend">' + legende.map(l => '<span><i class="' + (l.dash ? (l.dash === true ? "dash" : "dash dot") : "") + '" style="border-color:' + l.c + '"></i>' + esc(l.nom) + "</span>").join("") +
     '</div><svg class="chart" role="img" aria-label="Graphique"></svg><div class="tip" hidden></div></div>';
 }
 
@@ -940,7 +943,7 @@ function rendreClassement() {
   const dernierVerdict = verdictMois(env);
   if (VK && !moisVerdict(env).includes(VK)) VK = null;
   const verdict = VK ? verdictMois(env, VK) : dernierVerdict;
-  const titres = titresMois(env).parPersonne;
+  const titres = titresMois(0).parPersonne;
   const enSerie = Object.entries(pal).filter(([, x]) => x.serie >= 2).sort((a, b) => b[1].serie - a[1].serie)[0];
   let bref = "";
   if (duMois.length && !(verdict && verdict.complet)) bref += "<b>" + esc(moisLong(der)) + "</b> : meilleur mois pour <b>" + esc(duMois[0].nom) + "</b> (" + pct(duMois[0].r) + ")" + (duMois.length > 1 ? ", plus dur pour <b>" + esc(duMois[duMois.length - 1].nom) + "</b> (" + pct(duMois[duMois.length - 1].r) + ")" : "") + (ok(iDer) ? ", " + esc(D.marche.indices[i1]) + " " + pct(iDer) : "") + ". ";
@@ -955,12 +958,14 @@ function rendreClassement() {
     const ecart = s.i1 ? s.twr - s.i1.twr : null;
     return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who"><i style="background:' + couleur(s.nom) + '"></i><div><b>' + esc(s.nom) +
       (s.nom === ETAT.moi ? '<span class="tag moi">moi</span>' : "") + (manque.has(s.nom) ? '<span class="tag manque">relevé à saisir</span>' : "") +
-      "</b><small>" + (fetiche(s.nom) ? '<span class="fet-tag">' + fetiche(s.nom).e + " " + esc(fetiche(s.nom).nom) + "</span> " : "") + (titres[s.nom] && titres[s.nom].length ? '<span class="titres">' + titres[s.nom].slice(0, 3).map(t => '<span title="' + esc(t.nom + " : " + t.def) + '">' + t.e + "</span>").join("") + (titres[s.nom].length > 3 ? "+" + (titres[s.nom].length - 3) : "") + "</span> " : "") + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
+      "</b><small>" + (fetiche(s.nom) ? '<span class="fet-tag">' + fetiche(s.nom).e + " " + esc(fetiche(s.nom).nom) + "</span> " : "") + (titres[s.nom] && titres[s.nom].length ? '<span class="titres">' + titres[s.nom].map(t => '<span title="' + esc(t.nom + " : " + t.def) + '">' + t.e + "</span>").join("") + "</span> " : "") + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
       (s === leader ? '<span class="g lead">LEADER</span>' : '<span class="g">' + pts(s.twr - leader.twr) + "</span>") + "</div>";
   }).join("");
 
   // Courbes base 100
-  const ks = [deb || null].concat([...new Set(st.flatMap(s => s.mois.map(x => x.k)).concat(idx ? idx.chemin.slice(1).map(c => c.k) : []))].sort((a, b) => a - b));
+  const i2c = ETAT.i2c !== undefined && ETAT.i2c !== null && ETAT.i2c >= 0 && ETAT.i2c !== i1 ? ETAT.i2c : -1;
+  const idx2 = i2c >= 0 ? statsIndice(D, i2c, deb, fin) : null;
+  const ks = [deb || null].concat([...new Set(st.flatMap(s => s.mois.map(x => x.k)).concat(idx ? idx.chemin.slice(1).map(c => c.k) : []).concat(idx2 ? idx2.chemin.slice(1).map(c => c.k) : []))].sort((a, b) => a - b));
   if (!ks[0]) ks[0] = cleMoins(ks[1], 1);
   const aligne = chemin => {
     const out = ks.map(() => null);
@@ -970,6 +975,7 @@ function rendreClassement() {
   };
   const series = st.map(s => ({ nom: s.nom, v: aligne(s.chemin), c: couleur(s.nom), w: s.nom === ETAT.moi ? 2.8 : 2 }));
   if (idx) series.push({ nom: idx.nom, v: aligne(idx.chemin), c: "var(--idx)", dash: true, w: 1.6 });
+  if (idx2) series.push({ nom: idx2.nom, v: aligne(idx2.chemin), c: "var(--ink-2)", dash: "1.5 4", w: 1.8 });
 
   // Plus-value réelle depuis l'ouverture
   const pv = D.personnes.map(p => stats(D, p, env, 0, fin, null, null)).filter(s => ok(s.valeur)).sort((a, b) => b.pvLatentePct - a.pvLatentePct);
@@ -984,6 +990,8 @@ function rendreClassement() {
     '<div><h2 class="sec">Classement <small>performance (TWR), versements neutralisés</small></h2></div>' +
     '<div class="tour"><div class="tour-h"><span>Pos.</span><span>Portefeuille</span><span>TWR</span><span>Écart</span></div>' + tour + "</div>" +
     "<div>" + '<h2 class="sec">La course <small>performance cumulée</small></h2></div>' +
+    '<div class="filtres" style="grid-template-columns:1fr"><label class="sel"><span>Second indice sur la course</span><select id="f-i2c"><option value="-1">Aucun</option>' +
+      D.marche.indices.map((n, i) => i === i1 ? "" : '<option value="' + i + '"' + (i === i2c ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label></div>" +
     boiteGraphe("g-course", series.map(s => ({ nom: s.nom, c: s.c, dash: s.dash }))) +
     (ks.length > 2 && st.length > 1 ? '<div><h2 class="sec">Les positions <small>place au classement à chaque fin de mois</small></h2></div>' + boiteGraphe("g-places", st.map(s => ({ nom: s.nom, c: couleur(s.nom) }))) : "") +
     '<div><h2 class="sec">Gain réel <small>depuis l\'ouverture · ' + esc(ENVELOPPES[env]) + "</small></h2>" +
@@ -1001,6 +1009,7 @@ function rendreClassement() {
       finEtiq: true, h: 170, fmt: x => rangTxt(-x), fmtAxe: t => Number.isInteger(t) && t < 0 ? rangTxt(-t) : "", titreX: k => "Fin " + moisCourt(k) });
   }
   brancherVerdict(verdict);
+  const s2 = $("#f-i2c"); if (s2) s2.addEventListener("change", e => { ETAT.i2c = +e.target.value; garder(); rendreClassement(); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
   feterChampion(dernierVerdict);
   annoncerSucces();
@@ -1078,6 +1087,8 @@ function victoires(env, jusqua) {
    LE JEU : verdict du mois, titres, positions, duel, confettis
    Tout est calculé à partir des relevés existants, rien n'est stocké.
    ============================================================ */
+/** Référence fixe des titres, trophées et succès : portefeuille total contre le S&P 500, quels que soient les filtres */
+function iRef() { const i = D.marche.indices.findIndex(n => /S&P\s*500/i.test(n)); return i < 0 ? 0 : i; }
 function rangTxt(n) { return n === 1 ? "1er" : n + "e"; }
 function aRendement(p, env, k) { return serie(p, env).some(z => z.k === k && typeof z.r === "number"); }
 function rendementsDuMois(env, k) {
@@ -1126,15 +1137,13 @@ function carteVerdict(v) {
   if (!v) return "";
   if (!v.complet) return '<div class="bref">⏳ Verdict de <b>' + esc(moisLong(v.k)) + "</b> dès que tout le monde a saisi son relevé : il manque " + v.manquent.map(n => "<b>" + esc(n) + "</b>").join(" et ") + "." +
     (moisVerdict(v.env).some(k => k < v.k) ? ' <button class="lien" type="button" data-vk="' + moisVerdict(v.env).filter(k => k < v.k).pop() + '">Voir le verdict précédent</button>' : "") + "</div>";
-  const an = Math.floor(v.k / 100);
   const c = (titre, nom, ligne) => '<div class="v-c"><span>' + titre + "</span><b" + (nom && D.personnes.some(p => p.nom === nom) ? ' style="color:' + couleur(nom) + '"' : "") + ">" + esc(nom || "—") + "</b><em>" + ligne + "</em></div>";
   return '<div class="verdict"><div class="v-h"><span>' + navVerdict(v) + "Verdict · " + esc(moisLong(v.k)) + (v.env ? " · " + esc(ENVELOPPES[v.env]) : "") + '</span></div><div class="v-g">' +
     c("🏆 Champion du mois", v.champion.nom, pct(v.champion.r)) +
-    (v.remontee ? c(v.remontee.a === 1 ? "🚀 Prend la tête" : "🚀 Plus belle remontée", v.remontee.nom, rangTxt(v.remontee.de) + " → " + rangTxt(v.remontee.a) + " sur " + an)
-      : c("🥇 En tête de " + an, v.leader && v.leader.nom, v.leader ? pct(v.leader.t) + " · aucun changement de place" : "")) +
+    '<div class="v-c"><span>🤏 Écart du mois</span><b>' + pts(v.du[0].r - v.du[v.du.length - 1].r).replace(/^\+/, "") + "</b><em>entre le 1er et le dernier</em></div>" +
     c("🐢 Lanterne rouge", v.lanterne.nom, pct(v.lanterne.r)) +
     (v.iR !== null ? c("🎯 Battent " + esc(D.marche.indices[ETAT.i1]) + " (" + pct(v.iR) + ")", v.battent.length ? v.battent.join(", ") : "Personne", v.battent.length + " sur " + v.du.length) : "") +
-    '</div><p class="v-n">Sur un seul mois, la chance pèse plus que le talent : c\'est le classement de l\'année qui fait foi.</p></div>';
+    '</div><p class="v-n">Uniquement le mois de ' + esc(moisLong(v.k)) + ". Sur un seul mois, la chance pèse plus que le talent.</p></div>";
 }
 function brancherVerdict(v) {
   const boite = $("#boite-verdict"); if (!boite) return;
@@ -1177,7 +1186,7 @@ function titresMois(env, k) {
       const avant = rangs(env, debAnnee(fin), cleMoins(fin, 1)), apres = rangs(env, debAnnee(fin), fin);
       Object.keys(apres).forEach(n => { if (avant[n] && avant[n] - apres[n] >= 2) qui.remontada.push(n); });
     }
-    const st = actifs.map(p => stats(D, p, env, cleMoins(fin, 12), fin, ETAT.i1, null)).filter(s => s.n >= RECUL);
+    const st = actifs.map(p => stats(D, p, env, cleMoins(fin, 12), fin, iRef(), null)).filter(s => s.n >= RECUL);
     st.forEach(s => { if (s.i1 && s.twr > s.i1.twr) qui.marche.push(s.nom); });
     const unique = (id, val, plusGrand) => {
       const l = st.filter(s => ok(val(s))); if (l.length < 2) return;
@@ -1204,13 +1213,13 @@ function titresMois(env, k) {
       if (a12.length >= 12 && serie(p, env).filter(z => z.k > cleMoins(fin, 12) && z.k <= fin).every(z => (z.verse || 0) >= 0)) qui.patient.push(p.nom);
     });
     // Bouclier : sur 12 mois, a moins perdu que l'indice pendant ses mois de baisse (au moins 2)
-    const mi = rendementsIndice(D, ETAT.i1);
+    const mi = rendementsIndice(D, iRef());
     st.forEach(s => {
       const bas = s.mois.filter(x => typeof mi[x.k] === "number" && mi[x.k] < 0);
       if (bas.length >= 2 && bas.reduce((a, x) => a + x.r - mi[x.k], 0) > 0) qui.bouclier.push(s.nom);
     });
   }
-  const liste = TITRES.map(t => Object.assign({}, t, { qui: qui[t.id], def: t.id === "marche" ? "devant " + D.marche.indices[ETAT.i1] + " sur 12 mois, à mois égaux" : t.def }));
+  const liste = TITRES.map(t => Object.assign({}, t, { qui: qui[t.id], def: t.id === "marche" ? "devant " + D.marche.indices[iRef()] + " sur 12 mois, à mois égaux" : t.def }));
   const parPersonne = {};
   liste.forEach(t => t.qui.forEach(n => (parPersonne[n] = parPersonne[n] || []).push(t)));
   return { k: fin, liste, parPersonne };
@@ -1218,7 +1227,7 @@ function titresMois(env, k) {
 /* ---------- Salle des trophées : titres et victoires cumulés depuis le début ---------- */
 let MEMO_TROPHEES = { d: null, env: null, i1: null, val: null };
 function trophees(env) {
-  if (MEMO_TROPHEES.d === D && MEMO_TROPHEES.env === env && MEMO_TROPHEES.i1 === ETAT.i1) return MEMO_TROPHEES.val;
+  if (MEMO_TROPHEES.d === D && MEMO_TROPHEES.env === env) return MEMO_TROPHEES.val;
   const res = {}; D.personnes.forEach(p => { res[p.nom] = { champion: 0 }; TITRES.forEach(t => res[p.nom][t.id] = 0); });
   const mois = moisVerdict(env);
   mois.forEach(k => {
@@ -1227,7 +1236,7 @@ function trophees(env) {
     titresMois(env, k).liste.forEach(t => t.qui.forEach(n => res[n][t.id]++));
   });
   const val = { mois: mois.length, res };
-  MEMO_TROPHEES = { d: D, env, i1: ETAT.i1, val };
+  MEMO_TROPHEES = { d: D, env, val };
   return val;
 }
 function blocTrophees(env) {
@@ -1257,10 +1266,22 @@ function choixFetiche() {
 }
 async function changerFetiche(titre) {
   const qui = estAdmin() ? ETAT.moi : SESSION.nom;
-  if (SOURCE !== "api") { D.fetiches = Object.assign({}, D.fetiches, { [qui]: titre }); toast("Aperçu : titre épinglé sur cet appareil seulement."); rendreMois(); return; }
+  if (SOURCE !== "api") { D.fetiches = Object.assign({}, D.fetiches, { [qui]: titre }); toast("Aperçu : titre épinglé sur cet appareil seulement."); rendreTrophees(); return; }
   const rep = await posterAdmin({ action: "fetiche", personne: qui, titre });
   toast(rep.message || (rep.ok ? "Titre fétiche mis à jour." : "Modification impossible."));
   if (rep.ok) await charger(true);
+}
+/* ---------- Vue Trophées : titres, salle des trophées, titre fétiche, succès ---------- */
+function rendreTrophees() {
+  const v = $("#v-trophees");
+  if (!finGlobale(D, 0)) { v.innerHTML = '<div class="vide">Pas encore de relevé.</div>'; return; }
+  const qui = D.personnes.some(p => p.nom === ETAT.succes) ? ETAT.succes : ETAT.moi;
+  v.innerHTML = '<p class="info">Titres, trophées et succès se calculent toujours sur le portefeuille total, avec le ' + esc(D.marche.indices[iRef()]) + " comme référence : tout le monde voit les mêmes chiffres, quels que soient les filtres.</p>" +
+    blocTitres(0) + blocTrophees(0) +
+    '<div class="chips" role="group" aria-label="Succès de" style="margin-top:4px">' + D.personnes.map(x => '<button class="chip" type="button" data-suc="' + esc(x.nom) + '" aria-pressed="' + (x.nom === qui) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
+    blocSucces(qui);
+  if ($("#f-fetiche")) $("#f-fetiche").addEventListener("change", e => changerFetiche(e.target.value));
+  v.querySelectorAll("[data-suc]").forEach(b => b.addEventListener("click", () => { ETAT.succes = b.dataset.suc; garder(); rendreTrophees(); }));
 }
 function blocTitres(env) {
   const t = titresMois(env);
@@ -1520,7 +1541,7 @@ const SUCCES = [
 ];
 let MEMO_SUCCES = { d: null, i1: null, val: null };
 function succesTous() {
-  if (MEMO_SUCCES.d === D && MEMO_SUCCES.i1 === ETAT.i1) return MEMO_SUCCES.val;
+  if (MEMO_SUCCES.d === D) return MEMO_SUCCES.val;
   const env = 0, val = {};
   const pal = palmares(D, env, null, null).filter(l => !l.enCours && !l.debutPartiel && l.vainqueur);
   const ks = moisVerdict(env);
@@ -1542,13 +1563,13 @@ function succesTous() {
       const tout = stats(D, p, env, 0, k, null, null);
       if (tout.twr >= 0.25) fait("plus25", k);
       if (ok(tout.pvLatentePct) && tout.pvLatentePct >= 0.10) fait("argent", k);
-      const a12 = stats(D, p, env, cleMoins(k, 12), k, ETAT.i1, null);
+      const a12 = stats(D, p, env, cleMoins(k, 12), k, iRef(), null);
       if (a12.n >= 12 && a12.i1 && a12.i1.n >= 12 && a12.twr > a12.i1.twr) fait("marche", k);
       if (vic[k] && vic[k][p.nom] && vic[k][p.nom].record >= 3) fait("triple", k);
     });
     pal.forEach(l => { if (l.vainqueur === p.nom) fait("roi", l.annee * 100 + 12); });
     // progression des succès pas encore débloqués (état au dernier relevé)
-    const fin = finGlobale(D, env), tout = stats(D, p, env, 0, fin, null, null), a12 = stats(D, p, env, cleMoins(fin, 12), fin, ETAT.i1, null);
+    const fin = finGlobale(D, env), tout = stats(D, p, env, 0, fin, null, null), a12 = stats(D, p, env, cleMoins(fin, 12), fin, iRef(), null);
     const v = vic[ks[ks.length - 1]] || {};
     const pr = (id, a, b, txt) => { res[id].prog = Math.max(0, Math.min(1, a / b)); res[id].txt = txt; };
     pr("an", n, 12, Math.min(n, 12) + " / 12 relevés");
@@ -1565,7 +1586,7 @@ function succesTous() {
     pr("roi", 0, 1, "une année complète à gagner");
     val[p.nom] = res;
   });
-  MEMO_SUCCES = { d: D, i1: ETAT.i1, val };
+  MEMO_SUCCES = { d: D, val };
   return val;
 }
 function blocSucces(nom) {
@@ -1619,8 +1640,6 @@ function rendreMois() {
     '<div class="filtres"><label class="sel"><span>Second indice</span><select id="f-i2">' + D.marche.indices.map((n, i) => '<option value="' + i + '"' + (i === i2 ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label></div>" +
     boutonsBilans() +
     palmaresMois(env) +
-    blocTitres(env) +
-    blocTrophees(env) +
     blocDuel(env) +
     '<div><h2 class="sec">Palmarès annuel <small>années civiles · figé</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Année</th>' +
     D.personnes.map(p => "<th>" + esc(p.nom) + "</th>").join("") + "<th>" + esc(D.marche.indices[i1]) + "</th><th>" + esc(D.marche.indices[i2]) + "</th><th>Vainqueur</th></tr></thead><tbody>" +
@@ -1632,7 +1651,6 @@ function rendreMois() {
   brancherFiltres("mois");
   $("#f-i2").addEventListener("change", e => { ETAT.i2 = +e.target.value; garder(); rendreMois(); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
-  if ($("#f-fetiche")) $("#f-fetiche").addEventListener("change", e => changerFetiche(e.target.value));
   ["d1", "d2"].forEach(c => { const el = $("#f-" + c); if (el) el.addEventListener("change", e => { ETAT[c] = e.target.value; garder(); rendreMois(); }); });
 }
 
@@ -1685,13 +1703,14 @@ function rendreFiche() {
         envs.map(x => "<tr><td>" + esc(x.nom) + '</td><td class="' + sens(x.s.twr) + '">' + pct(x.s.twr) + "</td><td>" + (x.s.n ? volTxt(x.s) : "—") + "</td><td>" + eur(x.s.valeur) + '</td><td class="' + sens(x.s.pvLatente) + '">' + eur(x.s.pvLatente, 0, true) + "<br><small>" + pct(x.s.pvLatentePct) + "</small></td><td>" + pct(totalV ? x.s.valeur / totalV.valeur : null, 0, false) + "</td></tr>").join("") +
         "</tbody></table></div>" +
         '<div class="stack" style="margin-top:12px" role="img" aria-label="Répartition">' + envs.filter(x => x.nom !== "Portefeuille").map((x, j) => '<i title="' + esc(x.nom) + '" style="flex:' + x.s.valeur + ";background:color-mix(in srgb, " + couleur(p.nom) + " " + (100 - j * 22) + '%, var(--panel))"></i>').join("") + "</div></div>" : "") +
-      blocSucces(p.nom) +
       '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + '</small></h2><div class="scroll-x"><table class="grille"><thead><tr><th></th>' + MOIS.map(m => "<th>" + m + "</th>").join("") + "<th>Année</th></tr></thead><tbody>" +
         annees.map(y => { const st = stats(D, p, env, (y - 1) * 100 + 12, y * 100 + 12, null, null); return '<tr><td class="nom">' + y + "</td>" + MOIS.map((m, j) => { const x = sAll.find(z => z.k === y * 100 + j + 1); return x && typeof x.r === "number" ? '<td style="' + teinte(x.r, max) + '">' + pct(x.r) + "</td>" : '<td class="vide">·</td>'; }).join("") + '<td style="' + teinte(st.twr, max * 3) + '"><b>' + pct(st.twr) + "</b></td></tr>"; }).join("") +
       "</tbody></table></div></div>" +
-      (obj && env === 0 ? '<div><h2 class="sec">Objectif <small>' + eur(obj.objectif) + " au " + esc(isoFr(obj.dateCible)) + '</small></h2></div><button class="lien" type="button" id="vers-obj">Voir la projection →</button>' : "");
+      (obj && env === 0 ? '<div><h2 class="sec">Objectif <small>' + eur(obj.objectif) + " au " + esc(isoFr(obj.dateCible)) + '</small></h2></div><button class="lien" type="button" id="vers-obj">Voir la projection →</button>' : "") +
+      '<button class="btn ghost" type="button" id="vers-objs" style="justify-self:start">🎯 Objectifs de chacun →</button>';
     if (vx.length > 1) tracer($("#g-fiche"), { x: vx, zeroMin: true, series: [{ nom: "Valeur", v: pts2.map(x => x.val), c: couleur(p.nom), aire: true, w: 2.2 }, { nom: "Versé cumulé", v: pts2.map(x => x.cum), c: "var(--idx)", marche: true, dash: true, w: 1.6 }], fmt: x => eur(x), fmtAxe: axeEur, titreX: k => "Fin " + moisCourt(k) });
     const vo = $("#vers-obj"); if (vo) vo.addEventListener("click", () => allerA("objectifs"));
+    const vs = $("#vers-objs"); if (vs) vs.addEventListener("click", () => allerA("objectifs"));
     compterChiffres(v.querySelector(".hero"));
   }
   brancherFiltres("fiche");
@@ -1934,7 +1953,7 @@ let minuteur;
 function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(() => { el.hidden = true; }, 4200); }
 
 /* ---------- Navigation ---------- */
-const VUES = ["classement", "mois", "fiche", "objectifs"];
+const VUES = ["classement", "mois", "fiche", "objectifs", "trophees"];
 function vueActive() {
   const h = location.hash.replace("#", "");
   if (VUES.includes(h)) return h;
@@ -1942,11 +1961,11 @@ function vueActive() {
   if (ETAT.ouverture === "fiche") return "fiche";
   return stock.get(CLES.vue) || "classement";
 }
-function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs })[v](); }
+function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs, trophees: rendreTrophees })[v](); }
 function montrerVue(v) {
   if (!VUES.includes(v)) v = "classement";
   document.querySelectorAll(".view").forEach(s => { s.hidden = s.dataset.vue !== v; });
-  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v ? "page" : "false"));
+  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v || (v === "objectifs" && t.dataset.vue === "fiche") ? "page" : "false"));
   stock.set(CLES.vue, v);
   if (D) rendreVue(v);
   window.scrollTo(0, 0);
