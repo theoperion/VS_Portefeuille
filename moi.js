@@ -31,7 +31,7 @@ function frDate(iso) { return iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "
 function isoJour(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function kEur(v) { return ETAT.discret === "oui" ? "•••" : (Math.abs(v) >= 1000 ? sgn(v) + F1.format(Math.abs(v) / 1000) + "k" : sgn(Math.round(v)) + F0.format(Math.abs(v))); }
 function sgn(v) { return v > 0 ? "+" : v < 0 ? MOINS : ""; }
-function maCouleur() { try { return D ? couleur(ETAT.moi) : "var(--p0)"; } catch (e) { return "var(--p0)"; } }
+function maCouleur() { try { return D ? couleur(M && M.personne ? M.personne : ETAT.moi) : "var(--p0)"; } catch (e) { return "var(--p0)"; } }
 
 /* ---------- Styles (injectés une fois, tous préfixés par .moi) ---------- */
 function injecterStyle() {
@@ -424,7 +424,7 @@ async function charger(frais) {
     }
     recevoir(json); SRC = "api"; dernierAppel = Date.now();
     stock.set(K.cache, JSON.stringify(json));
-    setTimeout(() => { verifierPaliers(); partagerLignes(); revendiquerMillion(); }, 0);
+    setTimeout(() => { verifierPaliers(); partagerLignes(); revendiquerMillion(); revendiquerFichier(); }, 0);
   } catch (e) {
     erreur = e && e.name === "AbortError" ? "Ton fichier met trop de temps à répondre." : (e && e.message) || String(e);
     if (M) SRC = "cache";
@@ -1296,7 +1296,8 @@ function badgeMillion() {
 async function revendiquerMillion() {
   try {
     if (!M || SRC !== "api" || !((M.synthese || {}).financier >= 1e6) || typeof D === "undefined" || !D || D.premierMillion || SOURCE !== "api") return;
-    const qui = estAdmin() ? ETAT.moi : SESSION.nom;
+    if (M.simple && (estAdmin() || !M.personne)) return;
+    const qui = M.simple ? M.personne : estAdmin() ? ETAT.moi : SESSION.nom;
     if (stock.get("versus.moi.million") === qui) return;
     const rep2 = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify({ cle: stock.get(CLES.cle), action: "million", personne: qui }) })).json();
     if (rep2.ok) { stock.set("versus.moi.million", qui); toast(rep2.message); if (typeof window.charger === "function") window.charger(true); }
@@ -2139,6 +2140,22 @@ function recevoir(json) {
   else { RAW = null; M = json; }
 }
 function dVersus() { return typeof D !== "undefined" && D ? D : null; }
+/** Propriétaire d'un fichier simple : le nom enregistré dans le fichier ; à défaut, la personne connectée avec son code (jamais l'admin) */
+function proprietaire(raw) {
+  const Dv = dVersus(), nom = ((raw && raw.reglages) || {}).personne;
+  if (nom && (!Dv || Dv.personnes.some(x => x.nom === nom))) return nom;
+  if (Dv && !estAdmin() && SESSION && SESSION.nom && Dv.personnes.some(x => x.nom === SESSION.nom)) return SESSION.nom;
+  return null;
+}
+/** À la première ouverture par son propriétaire (connecté avec son code), le fichier retient à qui il est */
+let revendique = false;
+async function revendiquerFichier() {
+  if (!RAW || revendique || estAdmin() || (RAW.reglages || {}).personne || typeof SOURCE === "undefined" || SOURCE !== "api") return;
+  const qui = proprietaire(RAW); if (!qui) return;
+  revendique = true;
+  const rep = await posterFichier({ action: "reglages", reglages: { "versus.nom": qui } });
+  if (rep.ok) { recevoir(Object.assign({ profil: "simple" }, rep)); stock.set(K.cache, JSON.stringify(RAW)); }
+}
 function assurerSimple() { if (RAW && M && M._d !== dVersus()) M = adapterSimple(RAW); }
 function finMoisIso(an, mo) { return isoJour(new Date(an, mo, 0)); }
 function moisPlus(an, mo, n) { const d = new Date(an, mo - 1 + n, 1); return [d.getFullYear(), d.getMonth() + 1]; }
@@ -2170,8 +2187,8 @@ function echeancier(pr) {
   };
 }
 function adapterSimple(raw) {
-  const Dv = dVersus(), qui = Dv ? (estAdmin() ? ETAT.moi : SESSION.nom) : null;
-  const p = Dv ? Dv.personnes.find(x => x.nom === qui) : null;
+  const Dv = dVersus(), qui = proprietaire(raw);
+  const p = Dv && qui ? Dv.personnes.find(x => x.nom === qui) : null;
   const noms = (Dv && Dv.enveloppes) || ["Portefeuille", "PEA", "Assurance vie", "CTO", "Crypto"];
   const fin = Dv ? finGlobale(Dv, 0) : 0;
   const iR = Dv ? Math.max(0, Dv.marche.indices.findIndex(n => /S&P\s*500/i.test(n))) : 0;
@@ -2239,7 +2256,7 @@ function adapterSimple(raw) {
   const vieux = derSaisie && (Date.now() - new Date(derSaisie + "T12:00:00")) / 864e5 > 31;
   const total = { nom: "Portefeuille", type: "total", valeur: tot.valeur, gain: tot.pvLatente, gainPct: tot.pvLatentePct, twr: tot.twr, mwr: tot.mwr, vol: tot.vol, sharpe: tot.sharpe, m1: dernierR(0), ytd: st(0, debAn).twr, s1: null, m6: null, a1: null };
   return {
-    simple: true, profil: "simple", _d: Dv, ok: true, genere: raw.genere,
+    simple: true, profil: "simple", _d: Dv, ok: true, genere: raw.genere, personne: qui,
     majTexte: (fin ? "Bourse : relevé de " + MOIS_L[fin % 100 - 1] + " " + Math.floor(fin / 100) : "Bourse : pas encore de relevé") + (derSaisie ? " · épargne saisie le " + frDate(derSaisie) : ""),
     anomalies: "", marches: "",
     rappel: !comptes.length ? "🔔 À mettre à jour : ajoute tes comptes d'épargne et leurs soldes (➕ › Comptes et prêt)" : vieux ? "🔔 À mettre à jour : tes soldes d'épargne (dernière saisie il y a plus d'un mois)" : derSaisie ? "✓ Soldes à jour (saisis le " + frDate(derSaisie) + ")." : "🔔 À mettre à jour : saisis le solde de tes comptes (➕ › Mes soldes)",
@@ -2265,9 +2282,13 @@ function htmlJourSimple() {
   const c = (k, lab, val, cls, sub) => '<button type="button" data-def="' + k + '"><span class="lab">' + lab + '</span><b class="' + cls + '">' + val + "</b><small>" + sub + "</small></button>";
   const rel = s.releve ? MOIS_L[s.releve % 100 - 1] + " " + Math.floor(s.releve / 100) : null;
   const ligne = (nom, val, a, aCls, b, bCls) => '<div class="m-env-h"><b>' + esc(nom) + '</b><span class="v">' + eur(val) + '</span><span class="pv ' + (aCls || "") + '">' + a + '</span><span class="j ' + (bCls || "") + '">' + b + "</span></div>";
-  return '<div class="m-hero"><span class="eyebrow">Patrimoine financier</span>' +
+  const Dv = dVersus();
+  const apercu = !M.personne ? '<div class="m-note warn"><span class="ic">!</span><span>Ce fichier ne sait pas encore à qui il est, donc la bourse n\'est pas affichée. ' +
+      (estAdmin() && Dv ? "Choisis son propriétaire :</span></div>" + '<div class="chips ms-proprio">' + Dv.personnes.map(x => '<button class="chip" type="button" data-ms-proprio="' + esc(x.nom) + '">' + esc(x.nom) + "</button>").join("") + "</div>"
+        : "Il le saura dès que son propriétaire l'ouvrira avec son code.</span></div>") : "";
+  return apercu + '<div class="m-hero"><span class="eyebrow">Patrimoine financier</span>' +
       '<div class="m-flaps" role="img" aria-label="' + esc(texteFlap) + '">' + flaps(texteFlap, animer) + "</div>" +
-      '<div class="m-jour"><span class="badge big-b flat">Bourse ' + eur(s.valeur) + " · épargne " + eur(s.epargne) + "</span><span>" + (rel ? "relevé de " + esc(rel) : "pas encore de relevé") + "</span></div></div>" +
+      '<div class="m-jour"><span class="badge big-b flat">' + (M.personne ? esc(M.personne) + " · " : "") + 'Bourse ' + eur(s.valeur) + " · épargne " + eur(s.epargne) + "</span><span>" + (rel ? "relevé de " + esc(rel) : "pas encore de relevé") + "</span></div></div>" +
     (envs.length ? '<div class="m-debut-w"><span class="eyebrow">Bourse depuis le début</span><div class="m-debut">' +
       c("gain", "Résultat", eur(s.gain, 0, true), sens(s.gain), pct(s.gainPct)) + c("verse", "Versé", eur(s.apports), "", "au total") +
       c("twr", "TWR", pct(s.twr), sens(s.twr), "S&amp;P " + pct(s.sp500)) + c("mwr", "MWR", pct(s.mwr), sens(s.mwr), "ton argent") +
@@ -2291,6 +2312,7 @@ function brancherJourSimple(v) {
     b.setAttribute("aria-pressed", String(on)); def.hidden = !on; def.textContent = on ? TXT[b.dataset.def] : "";
   }));
   const b = v.querySelector("#ms-ouvrir"); if (b) b.addEventListener("click", () => ouvrirSoldes("soldes"));
+  v.querySelectorAll("[data-ms-proprio]").forEach(x => x.addEventListener("click", () => envoyerSimple({ action: "reglages", reglages: { "versus.nom": x.dataset.msProprio } }, x)));
 }
 
 /* ---- Saisie (profil simple) : soldes, historique, comptes et prêt ---- */
