@@ -103,7 +103,94 @@ function injecterStyle() {
 .moi .aff-c.on small { color: var(--accent-ink); font-weight: 600; }
 .moi .aff-c .jauge { display: block; width: 80%; height: 3px; border-radius: 2px; background: var(--rule-2); overflow: hidden; }
 .moi .aff-c .jauge i { display: block; height: 100%; background: var(--gold); }
-.m-fete .mf-af { color: #F5C542; font-weight: 600; }
+.m-fete .mf-af { color: #F5C542; font-weight: 600; } .m-fete .wr-btn { justify-self: center; }
+.moi .m-flaps { --fh: clamp(40px, 12.6vw, 64px); }
+.m-million .mm-flaps { --fh: clamp(32px, 10vw, 48px); }
+.moi .aff-c .m-flaps { --fh: 24px; }
+.moi .m-af { position: relative; display: inline-flex; flex-wrap: wrap; align-items: center; max-width: 100%; }
+/* Tambours (compteur à rouleaux) */
+.moi .t-tambour { gap: 2px; padding: calc(var(--fh) * .07); border-radius: calc(var(--fh) * .1); background: linear-gradient(#4a4a4a, #141414); box-shadow: inset 0 0 0 1px #000, 0 0 0 2px #8a8a8a, 0 0 0 3px #2a2a2a, 0 4px 12px var(--shade); }
+.moi .od { position: relative; width: calc(var(--fh) * .6); height: var(--fh); overflow: hidden; border-radius: 2px; background: #0d0d0d; color: #F4F1EA; font: 600 calc(var(--fh) * .6)/var(--fh) var(--f-num); text-align: center; }
+.moi .od b { display: block; height: var(--fh); font-weight: 600; }
+.moi .od-r { display: block; transform: translateY(calc(var(--d) * var(--fh) * -1)); }
+.moi .od-r.go { animation: mOd 1.3s cubic-bezier(.2, .75, .25, 1) both; }
+@keyframes mOd { from { transform: translateY(0); } }
+.moi .od::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(0,0,0,.8), rgba(0,0,0,0) 32%, rgba(255,255,255,.07) 50%, rgba(0,0,0,0) 68%, rgba(0,0,0,.8)); }
+.moi .od.u { background: #8a0d0d; }
+.moi .od-sep { width: calc(var(--fh) * .14); }
+/* Sept segments */
+.moi .t-seg { gap: calc(var(--fh) * .06); padding: calc(var(--fh) * .12) calc(var(--fh) * .16); border-radius: calc(var(--fh) * .1); }
+.moi .t-seg svg { height: calc(var(--fh) * .82); width: calc(var(--fh) * .82 * 44 / 70); overflow: visible; }
+.moi .t-seg .sg-x { font: 600 calc(var(--fh) * .58)/1 var(--f-num); min-width: calc(var(--fh) * .3); text-align: center; }
+.moi .t-seg .sg-sep { width: calc(var(--fh) * .12); }
+.moi .t-seg.calc { background: linear-gradient(170deg, #b4c29d, #95a57e); box-shadow: inset 0 2px 7px rgba(0,0,0,.4), 0 0 0 3px #44474b, 0 0 0 5px #1f2022, 0 4px 12px var(--shade); }
+.moi .t-seg.calc rect { fill: rgba(28,40,24,.09); } .moi .t-seg.calc rect.l { fill: #1c2818; } .moi .t-seg.calc .sg-x { color: #1c2818; }
+.moi .t-seg.reveil { background: #0c0303; box-shadow: inset 0 0 0 1px #2a0b08, 0 0 0 3px #1b1b1b, 0 4px 12px var(--shade); }
+.moi .t-seg.reveil rect { fill: rgba(255,58,40,.08); } .moi .t-seg.reveil rect.l { fill: #ff3a28; }
+.moi .t-seg.reveil svg { filter: drop-shadow(0 0 3px rgba(255,58,40,.75)); } .moi .t-seg.reveil .sg-x { color: #ff3a28; text-shadow: 0 0 6px rgba(255,58,40,.8); }
+.moi .t-seg.go svg, .moi .t-seg.go .sg-x { animation: mSeg .6s steps(1) both; }
+@keyframes mSeg { 0% { opacity: 0; } 30% { opacity: 1; } 45% { opacity: .15; } 60%, 100% { opacity: 1; } }
+/* Matrice de points */
+.moi .t-mat { gap: calc(var(--fh) * .1); padding: calc(var(--fh) * .14) calc(var(--fh) * .18); border-radius: calc(var(--fh) * .08); background: #0b0705; box-shadow: inset 0 0 0 1px #2a1d0e, 0 0 0 2px #151515, 0 4px 12px var(--shade); }
+.moi .t-mat svg { height: calc(var(--fh) * .78); width: calc(var(--fh) * .78 * 5 / 7); filter: drop-shadow(0 0 2px rgba(255,170,30,.7)); }
+.moi .t-mat circle { fill: #170f05; } .moi .t-mat circle.l { fill: #FFB21E; }
+.moi .t-mat .mt-sep { width: calc(var(--fh) * .1); }
+.moi .t-mat.go svg { animation: mMat .5s steps(3) both; }
+@keyframes mMat { from { opacity: 0; } to { opacity: 1; } }
+/* Ticket de caisse */
+.moi .t-ticket { flex-direction: column; align-items: stretch; flex-wrap: nowrap; margin-bottom: 7px; padding: calc(var(--fh) * .16) calc(var(--fh) * .32) calc(var(--fh) * .22); background: #FBF8F1; color: #1d1d1b; transform: rotate(-1.2deg); box-shadow: 0 6px 12px var(--shade); }
+.moi .t-ticket::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px; background: linear-gradient(135deg, #FBF8F1 33%, transparent 33%) 0 0 / 8px 8px repeat-x, linear-gradient(225deg, #FBF8F1 33%, transparent 33%) 0 0 / 8px 8px repeat-x; }
+.moi .t-ticket .tk-h { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 3px; margin-bottom: 4px; border-bottom: 1px dashed #8a877f; font: 700 calc(var(--fh) * .2)/1.2 "Courier New", ui-monospace, monospace; letter-spacing: .18em; color: #55534d; }
+.moi .t-ticket .tk-v { font: 700 calc(var(--fh) * .66)/1.05 "Courier New", ui-monospace, monospace; letter-spacing: -.02em; white-space: nowrap; }
+.moi .t-ticket .tk-v i { font-style: normal; } .moi .t-ticket .tk-v i.tk-s { display: inline-block; width: .3em; }
+.moi .t-ticket.go .tk-v i { animation: mTk .01s steps(1) both; }
+@keyframes mTk { from { visibility: hidden; } }
+/* Billet de banque */
+.moi .t-billet { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; overflow: hidden; padding: calc(var(--fh) * .14) calc(var(--fh) * .9) calc(var(--fh) * .14) calc(var(--fh) * .26); border-radius: 4px; color: #23473a;
+  background: radial-gradient(circle at calc(100% - var(--fh) * .45) 50%, rgba(35,71,58,.18) 0 calc(var(--fh) * .3), transparent calc(var(--fh) * .31)),
+    repeating-radial-gradient(circle at 0 120%, transparent 0 3px, rgba(35,71,58,.12) 3px 4px), repeating-radial-gradient(circle at 100% -20%, transparent 0 3px, rgba(120,80,40,.1) 3px 4px),
+    linear-gradient(120deg, #ECE6CC, #D8DFC4 45%, #EADBBD);
+  box-shadow: inset 0 0 0 3px #ECE6CC, inset 0 0 0 4px #23473a, inset 0 0 0 6px #ECE6CC, inset 0 0 0 7px rgba(35,71,58,.5), 0 4px 12px var(--shade); }
+.moi .t-billet::after { content: "€"; position: absolute; right: calc(var(--fh) * .3); top: 50%; transform: translateY(-50%); font: 700 calc(var(--fh) * .32)/1 Georgia, "Times New Roman", serif; color: rgba(35,71,58,.55); }
+.moi .t-billet .bl-c { font: 700 calc(var(--fh) * .15)/1.2 Georgia, "Times New Roman", serif; letter-spacing: .32em; color: rgba(35,71,58,.75); }
+.moi .t-billet .bl-v { font: 700 calc(var(--fh) * .66)/1.05 Georgia, "Times New Roman", serif; letter-spacing: .01em; white-space: nowrap; text-shadow: 0 1px 0 rgba(255,255,255,.7), 0 -1px 0 rgba(0,0,0,.12); }
+.moi .t-billet.go .bl-v { animation: mEncre 1s ease-out both; }
+@keyframes mEncre { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* Carte black */
+.moi .t-carte { gap: calc(var(--fh) * .22); flex-wrap: nowrap; overflow: hidden; padding: calc(var(--fh) * .2) calc(var(--fh) * .32); border-radius: calc(var(--fh) * .16);
+  background: repeating-linear-gradient(115deg, rgba(255,255,255,.025) 0 2px, transparent 2px 5px), linear-gradient(135deg, #2b2b2e, #0d0d0f 55%, #222226); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 6px 14px var(--shade); }
+.moi .t-carte .ca-puce { flex: none; width: calc(var(--fh) * .48); height: calc(var(--fh) * .36); border-radius: calc(var(--fh) * .06);
+  background: linear-gradient(90deg, transparent 32%, rgba(0,0,0,.28) 32% 36%, transparent 36% 64%, rgba(0,0,0,.28) 64% 68%, transparent 68%), linear-gradient(transparent 46%, rgba(0,0,0,.28) 46% 54%, transparent 54%), linear-gradient(135deg, #f3dc95, #b9913f 55%, #e8cd7d); }
+.moi .t-carte .ca-v { font: 600 calc(var(--fh) * .56)/1 var(--f-num); letter-spacing: .06em; white-space: nowrap; color: #d9d9de;
+  background: linear-gradient(180deg, #ffffff, #b9bac2 55%, #8d8e96); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 1px 0 rgba(0,0,0,.9)) drop-shadow(-1px -1px 0 rgba(255,255,255,.18)); }
+.moi .t-carte::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.14), transparent); animation: mLingot 5s ease-in-out infinite; }
+/* Cartes de choix */
+.moi .aff-c .t-ticket .tk-h, .moi .aff-c .t-billet .bl-c { display: none; }
+.moi .aff-c .t-ticket { margin-bottom: 4px; }
+.moi .aff-c .t-ticket::after { height: 4px; bottom: -4px; background-size: 6px 6px; }
+.moi .aff-c .m-af { max-width: none; }
+.moi .aff-c .aff-v { height: 40px; }
+.moi .aff-c i.aff-t { font-style: normal; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { .moi .od-r.go, .moi .t-seg.go svg, .moi .t-seg.go .sg-x, .moi .t-mat.go svg, .moi .t-ticket.go .tk-v i, .moi .t-billet.go .bl-v, .moi .t-carte::after { animation: none; } }
+/* Paliers en blocs dépliables */
+.moi .pl-blocs { display: grid; gap: 8px; }
+.moi details.pl-bloc { border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); }
+.moi details.pl-bloc > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto 14px; gap: 5px 10px; align-items: center; padding: 11px 12px; }
+.moi details.pl-bloc > summary::-webkit-details-marker { display: none; }
+.moi details.pl-bloc > summary::after { content: ""; grid-column: 3; grid-row: 1; width: 8px; height: 8px; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg) translate(-2px, -2px); transition: transform .2s; }
+.moi details.pl-bloc[open] > summary::after { transform: rotate(225deg) translate(-2px, -2px); }
+.moi details.pl-bloc > summary:focus-visible { outline: 2px solid var(--accent); border-radius: 12px; }
+.moi .pl-bloc .pb-t { font: italic 800 14.5px/1.15 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.moi .pl-bloc .pb-n { font: 600 12.5px/1 var(--f-num); color: var(--ink-2); }
+.moi .pl-bloc.complet .pb-n { color: var(--up); }
+.moi .pl-bloc .jauge { grid-column: 1 / -1; height: 4px; }
+.moi .pl-bloc .jauge i { background: var(--gold); }
+.moi .pl-bloc .pb-s { grid-column: 1 / -1; font-size: 12px; line-height: 1.35; color: var(--ink-3); }
+.moi .pl-bloc .pb-s b { color: var(--ink-2); font-weight: 600; }
+.moi .pl-bloc .pb-r { color: var(--gold); font-weight: 600; white-space: nowrap; }
+.moi .pl-bloc > .pl-liste { padding: 0 12px 6px; border-top: 1px solid var(--rule-2); }
+.moi .pl-bloc > .pl-liste .pl-r:last-child { border-bottom: 0; }
+.moi .pl-r .pl-rec { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--gold); }
 .moi .m-jour { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; font-size: 13px; color: var(--ink-2); }
 .moi .m-status { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-3); }
 .moi .m-status i { font-style: normal; display: inline-flex; align-items: center; gap: 6px; }
@@ -532,12 +619,63 @@ function brancherConnexion(v) {
   if (b) b.addEventListener("click", () => { if (typeof ouvrirReglages === "function") ouvrirReglages("regl-moi"); });
 }
 
-/* Afficheur à palettes (repris de Cote) */
+/* Afficheurs : palettes (repris de Cote) et autres types (tambours, segments, matrice, ticket, billet, carte) */
+const estSepAff = ch => ch === NB || ch === " " || ch === "\u202F" || ch === "\u00A0";
+const MATRICE = {
+  "0": "01110100011001110101110011000101110", "1": "00100011000010000100001000010001110", "2": "01110100010000100010001000100011111",
+  "3": "11111000100010000010000011000101110", "4": "00010001100101010010111110001000010", "5": "11111100001111000001000011000101110",
+  "6": "00110010001000011110100011000101110", "7": "11111000010001000100010000100001000", "8": "01110100011000101110100011000101110",
+  "9": "01110100011000101111000010001001100", "A": "01110100011000111111100011000110001", "B": "11110100011000111110100011000111110",
+  "C": "01110100011000010000100001000101110", "D": "11100100101000110001100011001011100", "E": "11111100001000011110100001000011111",
+  "F": "11111100001000011110100001000010000", "G": "01110100011000010111100011000101111", "H": "10001100011000111111100011000110001",
+  "I": "01110001000010000100001000010001110", "J": "00111000100001000010000101001001100", "K": "10001100101010011000101001001010001",
+  "L": "10000100001000010000100001000011111", "M": "10001110111010110101100011000110001", "N": "10001100011100110101100111000110001",
+  "O": "01110100011000110001100011000101110", "P": "11110100011000111110100001000010000", "Q": "01110100011000110001101011001001101",
+  "R": "11110100011000111110101001001010001", "S": "01111100001000001110000010000111110", "T": "11111001000010000100001000010000100",
+  "U": "10001100011000110001100011000101110", "V": "10001100011000110001100010101000100", "W": "10001100011000110101101011010101010",
+  "X": "10001100010101000100010101000110001", "Y": "10001100010101000100001000010000100", "Z": "11111000010001000100010001000011111",
+  "€": "00111010001111001000111100100000111", "+": "00000001000010011111001000010000000", "-": "00000000000000011111000000000000000",
+  "•": "00000000000111001110011100000000000", "%": "11000110010001000100010001001100011", ">": "01000001000001000001000100010001000",
+  ":": "00000011000110000000011000110000000", ",": "00000000000000000000011000010001000", ".": "00000000000000000000000000110001100"
+};
+const SEGMENTS = { "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg",
+  "-": "g", "•": "g", "A": "abcefg", "B": "cdefg", "C": "adef", "D": "bcdeg", "E": "adefg", "F": "aefg", "G": "acdef", "H": "bcefg", "I": "bc", "J": "bcde",
+  "L": "def", "N": "ceg", "O": "abcdef", "P": "abefg", "R": "eg", "S": "acdfg", "T": "defg", "U": "bcdef", "Y": "bcdfg" };
+const SEG_R = { a: [7, 2, 26, 5], b: [33, 7, 5, 26], c: [33, 37, 5, 26], d: [7, 63, 26, 5], e: [2, 37, 5, 26], f: [2, 7, 5, 26], g: [7, 32.5, 26, 5] };
+const majAff = ch => ch === MOINS ? "-" : ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+function rendreAff(type, style, texte, animer) {
+  const ch = Array.from(texte), go = animer ? " go" : "", aDesChiffres = /\d/.test(texte);
+  if (type === "tambour") return '<span class="m-af t-tambour" aria-hidden="true">' + ch.map((c, i) => {
+    if (estSepAff(c)) return '<i class="od-sep"></i>';
+    if (/\d/.test(c)) return '<span class="od"><span class="od-r' + go + '" style="--d:' + (10 + +c) + (animer ? ";animation-delay:" + i * 90 + "ms" : "") + '">' + "01234567890123456789".split("").map(x => "<b>" + x + "</b>").join("") + "</span></span>";
+    return '<span class="od' + (c === "€" ? " u" : "") + '"><b>' + esc(c) + "</b></span>";
+  }).join("") + "</span>";
+  if (type === "seg") return '<span class="m-af t-seg ' + style + go + '" aria-hidden="true">' + ch.map((c, i) => {
+    const dl = animer ? ' style="animation-delay:' + i * 70 + 'ms"' : "";
+    if (estSepAff(c)) return '<i class="sg-sep"></i>';
+    const on = SEGMENTS[majAff(c)];
+    if (!on) return '<span class="sg-x"' + dl + ">" + esc(c) + "</span>";
+    return '<svg viewBox="0 0 44 70"' + dl + '><g transform="translate(5 0) skewX(-6)">' + Object.keys(SEG_R).map(k => { const r = SEG_R[k]; return '<rect x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '" rx="2.5"' + (on.includes(k) ? ' class="l"' : "") + "/>"; }).join("") + "</g></svg>";
+  }).join("") + "</span>";
+  if (type === "matrice") return '<span class="m-af t-mat' + go + '" aria-hidden="true">' + ch.map((c, i) => {
+    if (estSepAff(c)) return '<i class="mt-sep"></i>';
+    const m = MATRICE[majAff(c)] || "0".repeat(35);
+    let ronds = ""; for (let k = 0; k < 35; k++) ronds += '<circle cx="' + (k % 5 + .5) + '" cy="' + (Math.floor(k / 5) + .5) + (m[k] === "1" ? '" r=".44" class="l"/>' : '" r=".32"/>');
+    return '<svg viewBox="0 0 5 7"' + (animer ? ' style="animation-delay:' + i * 80 + 'ms"' : "") + ">" + ronds + "</svg>";
+  }).join("") + "</span>";
+  if (type === "ticket") return '<span class="m-af t-ticket' + go + '" aria-hidden="true"><span class="tk-h"><span>' + (aDesChiffres ? "TOTAL" : "VERSUS") + "</span><span>" + (aDesChiffres ? "EUR" : "MOI") + '</span></span><span class="tk-v">' +
+    ch.map((c, i) => "<i" + (estSepAff(c) ? ' class="tk-s"' : "") + (animer ? ' style="animation-delay:' + (150 + i * 75) + 'ms"' : "") + ">" + (estSepAff(c) ? "" : esc(c)) + "</i>").join("") + "</span></span>";
+  if (type === "billet") return '<span class="m-af t-billet' + go + '" aria-hidden="true"><span class="bl-c">VERSUS</span><span class="bl-v">' + esc(texte.replace(/\s*€$/, "")) + "</span></span>";
+  if (type === "carte") return '<span class="m-af t-carte" aria-hidden="true"><span class="ca-puce"></span><span class="ca-v">' + esc(texte) + "</span></span>";
+  return "";
+}
 function flaps(texte, animer, style) {
   let i = 0;
-  const af = " af-" + (style || afficheurActif());
+  const st = style || afficheurActif(), def = AFFICHEURS.find(a => a[0] === st), type = def && def[3] ? def[3] : "palette";
+  if (type !== "palette") return rendreAff(type, st, texte, animer);
+  const af = " af-" + st;
   return Array.from(texte).map(ch => {
-    if (ch === NB || ch === " " || ch === " ") return '<span class="m-flap sep" aria-hidden="true"></span>';
+    if (estSepAff(ch)) return '<span class="m-flap sep" aria-hidden="true"></span>';
     const cls = (ch === "€" ? "m-flap u" : (ch === MOINS || ch === "+") ? "m-flap s" : "m-flap") + af;
     const delai = animer ? ' style="animation-delay:' + (i++ * 55) + 'ms"' : "";
     return '<span class="' + cls + (animer ? " go" : "") + '"' + delai + ' aria-hidden="true">' + esc(ch) + "</span>";
@@ -2034,10 +2172,14 @@ function feter(x) {
   if (typeof confettis === "function" && !reduit) confettis();
 }
 /* ---------- Styles d'afficheur : débloqués par les paliers perso (privés), gardés une fois débloqués ---------- */
+// [id, nom, palier qui le débloque, type de rendu (palette par défaut), famille affichée]
 const AFFICHEURS = [
-  ["classique", "Palettes", null], ["laiton", "Laiton", "serie3"], ["nuit", "Bleu nuit", "annee1"], ["ivoire", "Ivoire", "pat10000"],
-  ["gare", "Rouge gare", "serie6"], ["terminal", "Terminal", "gains1000"], ["led", "LED de gare", "pat25000"], ["compteur", "Compteur", "serie12"],
-  ["neon", "Néon", "pat50000"], ["nixie", "Nixie", "pat100000"], ["lingot", "Lingot", "pat250000"], ["prisme", "Prisme", "pat500000"]
+  ["classique", "Palettes", null, "palette", "Palettes"], ["laiton", "Laiton", "serie3", "palette", "Palettes"], ["nuit", "Bleu nuit", "annee1", "palette", "Palettes"],
+  ["calc", "Calculatrice", "verse5000", "seg", "Segments"], ["ivoire", "Ivoire", "pat10000", "palette", "Palettes"], ["gare", "Rouge gare", "serie6", "palette", "Palettes"],
+  ["terminal", "Terminal", "gains1000", "palette", "Écran"], ["ticket", "Ticket de caisse", "bourse10000", "ticket", "Papier"], ["compteur", "Compteur", "serie12", "tambour", "Rouleaux"],
+  ["reveil", "Réveil", "annee2", "seg", "Segments"], ["led", "LED de gare", "pat25000", "matrice", "Matrice"], ["billet", "Billet", "verse25000", "billet", "Papier"],
+  ["neon", "Néon", "pat50000", "palette", "Lumière"], ["carte", "Carte black", "gains10000", "carte", "Métal"], ["nixie", "Nixie", "pat100000", "palette", "Lumière"],
+  ["lingot", "Lingot", "pat250000", "palette", "Métal"], ["prisme", "Prisme", "pat500000", "palette", "Lumière"]
 ];
 let MEMO_AFF = { m: null, ok: null };
 function afficheursOuverts() {
@@ -2054,42 +2196,47 @@ function afficheurActif() { const a = PREF.afficheur || "classique"; return affi
 function htmlAfficheurs() {
   const ok = afficheursOuverts(), actif = afficheurActif(), pal = paliers();
   return '<div><h2 class="sec">Afficheur <small>' + ok.size + " / " + AFFICHEURS.length + ' débloqués · privé</small></h2></div><div class="aff-g">' +
-    AFFICHEURS.map(([id, nom, cle]) => {
+    AFFICHEURS.map(([id, nom, cle, , fam]) => {
       const o = ok.has(id), p = cle ? pal.find(x => x.id === cle) : null;
       return '<button type="button" class="aff-c' + (o ? "" : " verrou") + (id === actif ? " on" : "") + '" data-aff="' + id + '"><span class="aff-v"><span class="m-flaps">' + flaps("128€", false, id) + "</span>" + (o ? "" : '<i class="aff-l">🔒</i>') + "</span>" +
-        "<b>" + esc(nom) + "</b><small>" + (id === actif ? "✓ équipé" : o ? "équiper" : p ? esc(p.titre) : "") + "</small>" + (!o && p ? '<span class="jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, p.part)) * 100) + '%"></i></span>' : "") + "</button>";
+        '<i class="aff-t">' + esc(fam) + "</i><b>" + esc(nom) + "</b><small>" + (id === actif ? "✓ équipé" : o ? "équiper" : p ? esc(p.titre) : "") + "</small>" + (!o && p ? '<span class="jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, p.part)) * 100) + '%"></i></span>' : "") + "</button>";
     }).join("") + "</div>";
 }
-let paliersOuverts = false;
+const palOuverts = new Set();
 function htmlMissions() {
   const sv = serieVersements(), auj = cleMoisD(new Date());
   const finM = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
   const pal = paliers(), nbFaits = pal.filter(x => x.atteint).length;
-  const visibles = paliersCles(pal, FAMILLES.filter(f => f[2]).map(f => f[0]));
   const carte = x => '<button type="button" class="palier' + (x.atteint ? " fait" : "") + '" data-palier="' + esc(x.id) + '"' + (x.atteint ? "" : " disabled") + '>' +
     '<span class="pastille">' + esc(x.court) + '</span><span class="pl-t">' + esc(x.titre) + "</span>" +
     (x.atteint ? '<span class="pl-s">✓ franchi en ' + esc(libMois(x.quand)) + "</span>"
                : '<span class="jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, x.part)) * 100) + '%"></i></span><span class="pl-s">' + esc(x.reste) + "</span>") + "</button>";
+  const recDe = id => AFFICHEURS.find(a => a[2] === id);
   const ligneP = x => '<button type="button" class="pl-r' + (x.atteint ? " fait" : "") + '" data-palier="' + esc(x.id) + '"' + (x.atteint ? "" : " disabled") + '>' +
-    '<span class="pastille">' + esc(x.court) + '</span><span class="pl-t">' + esc(x.titre) + (x.atteint ? "" : '<span class="jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, x.part)) * 100) + '%"></i></span><small>' + esc(x.reste) + "</small>") + "</span>" +
+    '<span class="pastille">' + esc(x.court) + '</span><span class="pl-t">' + esc(x.titre) + (recDe(x.id) ? '<em class="pl-rec">🎨 Afficheur « ' + esc(recDe(x.id)[1]) + " »</em>" : "") + (x.atteint ? "" : '<span class="jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, x.part)) * 100) + '%"></i></span><small>' + esc(x.reste) + "</small>") + "</span>" +
     (x.atteint ? '<span class="pl-s">✓ ' + esc(libMois(x.quand)) + "</span>" : '<span class="pl-s">' + pct(Math.max(0, Math.min(1, x.part)), 0, false) + "</span>") + "</button>";
-  const tous = FAMILLES.map(([g, nom]) => {
+  const blocs = FAMILLES.map(([g, nom]) => {
     const l = pal.filter(x => x.groupe === g); if (!l.length) return "";
-    return '<h3 class="m-sous">' + esc(nom) + " <small>" + l.filter(x => x.atteint).length + " / " + l.length + "</small></h3>" + '<div class="pl-liste">' + l.map(ligneP).join("") + "</div>";
+    const faits = l.filter(x => x.atteint).length, suiv = l.find(x => !x.atteint);
+    const recs = l.filter(x => !x.atteint && recDe(x.id)).length;
+    return '<details class="pl-bloc' + (suiv ? "" : " complet") + '" data-fam="' + g + '"' + (palOuverts.has(g) ? " open" : "") + "><summary>" +
+      '<span class="pb-t">' + esc(nom) + '</span><span class="pb-n">' + faits + " / " + l.length + "</span>" +
+      '<span class="jauge"><i style="width:' + Math.round(faits / l.length * 100) + '%"></i></span>' +
+      '<span class="pb-s">' + (suiv ? "Prochain : <b>" + esc(suiv.titre) + "</b> · " + pct(Math.max(0, Math.min(1, suiv.part)), 0, false) : "Tout est franchi ✓") +
+        (recs ? ' · <span class="pb-r">🎨 ' + recs + (recs > 1 ? " afficheurs" : " afficheur") + " à gagner</span>" : "") + "</span>" +
+      '</summary><div class="pl-liste">' + l.map(ligneP).join("") + "</div></details>";
   }).join("");
   return '<div id="m-million-z"></div>' +
     '<div class="m-serie' + (sv.moisEnCours ? " ok" : "") + '"><b>' + sv.actuelle + " mois</b><span>de versements d'affilée · record " + sv.record + " · " +
       (sv.moisEnCours ? "versement de " + MOIS_L[new Date().getMonth()] + " fait ✓" : "pas encore de versement en " + MOIS_L[new Date().getMonth()] + " (même 10 € comptent, jusqu'au " + dateCourte(finM) + ")") + "</span></div>" +
     htmlAfficheurs() +
     '<div><h2 class="sec">Paliers <small>' + nbFaits + " franchis sur " + pal.length + "</small></h2></div>" +
-    '<div class="pl-liste">' + visibles.map(ligneP).join("") + "</div>" +
-    '<button class="btn ghost" type="button" id="voir-paliers" aria-expanded="' + paliersOuverts + '" style="justify-self:start">' + (paliersOuverts ? "Masquer les autres paliers" : "Voir tous les paliers") + "</button>" +
-    (paliersOuverts ? '<div class="tous-paliers">' + tous + "</div>" : "") +
-    '<p class="info">Touche un palier franchi pour revoir sa fête. Certains paliers débloquent un style d\'afficheur : il s\'applique à tous les chiffres de ton onglet Moi, et reste à toi même si tu repasses sous le palier.</p>';
+    '<div class="pl-blocs">' + blocs + "</div>" +
+    '<p class="info">Touche une famille pour voir ses paliers, puis un palier franchi pour revoir sa fête. Les paliers marqués 🎨 débloquent un afficheur : il s\'applique aux grands chiffres de ton onglet Moi, et reste à toi même si tu repasses sous le palier.</p>';
 }
 function brancherMissions(v) {
   const z = v.querySelector("#m-million-z"); if (z) afficherMillion(z);
-  const vp = v.querySelector("#voir-paliers"); if (vp) vp.addEventListener("click", () => { paliersOuverts = !paliersOuverts; rendre(); });
+  v.querySelectorAll("details.pl-bloc").forEach(d => d.addEventListener("toggle", () => { if (d.open) palOuverts.add(d.dataset.fam); else palOuverts.delete(d.dataset.fam); }));
   const pal = paliers();
   v.querySelectorAll("[data-aff]").forEach(b => b.addEventListener("click", () => {
     const a = AFFICHEURS.find(x => x[0] === b.dataset.aff);
