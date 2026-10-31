@@ -144,6 +144,22 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .tag.moi { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
 .titres { font-style: normal; font-size: 12px; letter-spacing: 1px; }
 .fet-tag { font-weight: 600; color: var(--ink-2); }
+.suc-tete { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 4px 10px; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); }
+.suc-tete b { font: italic 800 20px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
+.suc-tete span { font: 600 13px/1.2 var(--f-num); color: var(--ink-2); text-align: right; }
+.suc-tete .jauge { grid-column: 1 / -1; display: block; height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+.suc-tete .jauge i { display: block; height: 100%; background: var(--gold); border-radius: 4px; }
+.acc { border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); }
+.acc > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 14px; }
+.acc > summary::-webkit-details-marker { display: none; }
+.acc > summary::after { content: ""; grid-column: 2; grid-row: 1; width: 8px; height: 8px; margin: 6px 4px 0; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform .2s; }
+.acc[open] > summary::after { transform: rotate(-135deg); }
+.acc > summary .t { font: italic 800 17px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
+.acc > summary .t small { font: 400 12px/1 var(--f-text); letter-spacing: 0; text-transform: none; color: var(--ink-3); margin-left: 6px; }
+.acc > summary .r { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-2); line-height: 1.4; }
+.acc[open] > summary { border-bottom: 1px solid var(--rule); }
+.acc > div { padding: 12px; }
+.acc .titres-l { border: 0; background: none; }
 .succes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .suc { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); opacity: .75; }
 .suc .e { font-size: 20px; filter: grayscale(1); opacity: .55; }
@@ -168,6 +184,20 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .verdict .v-c b { font: italic 700 16px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .verdict .v-c em { font: 600 12.5px/1.2 var(--f-num); font-style: normal; font-variant-numeric: tabular-nums; color: var(--ink-2); }
 .verdict .v-n { font-size: 11.5px; color: var(--ink-3); margin: 0; }
+.verdict .v-c.champ { border: 1px solid color-mix(in srgb, var(--gold) 65%, transparent); background: color-mix(in srgb, var(--gold) 10%, var(--panel-2)); }
+.verdict .v-c.large { grid-column: 1 / -1; }
+.verdict .v-c.idx { background: none; border: 1px dashed var(--rule); }
+.verdict .v-c.idx b { font-family: var(--f-num); font-style: normal; font-size: 18px; color: var(--ink-2); }
+.verdict .v-c em i { font-style: normal; }
+.v-rang { display: grid; gap: 6px; }
+.vr { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; background: var(--panel-2); }
+.vr .p { font: italic 800 15px/1 var(--f-display); text-align: center; font-size: 18px; }
+.vr b { font: italic 700 17px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vr b i { font-style: normal; font-size: 14px; }
+.vr b small { display: block; font: 400 11.5px/1.3 var(--f-text); letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+.vr .n { font: 700 15px/1 var(--f-num); font-variant-numeric: tabular-nums; }
+.vr.idx { background: none; border: 1px dashed var(--rule); }
+.vr.idx b { color: var(--ink-2); font-size: 15px; }
 .verdict .v-h > span { display: flex; align-items: center; gap: 8px; }
 .navs { display: inline-flex; gap: 4px; font-style: normal; }
 .nav-v { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--rule); background: var(--panel-2); color: var(--ink); font: 700 15px/1 var(--f-text); cursor: pointer; display: grid; place-items: center; padding: 0; }
@@ -1139,10 +1169,21 @@ function carteVerdict(v) {
     (moisVerdict(v.env).some(k => k < v.k) ? ' <button class="lien" type="button" data-vk="' + moisVerdict(v.env).filter(k => k < v.k).pop() + '">Voir le verdict précédent</button>' : "") + "</div>";
   const c = (titre, nom, ligne) => '<div class="v-c"><span>' + titre + "</span><b" + (nom && D.personnes.some(p => p.nom === nom) ? ' style="color:' + couleur(nom) + '"' : "") + ">" + esc(nom || "—") + "</b><em>" + ligne + "</em></div>";
   return '<div class="verdict"><div class="v-h"><span>' + navVerdict(v) + "Verdict · " + esc(moisLong(v.k)) + (v.env ? " · " + esc(ENVELOPPES[v.env]) : "") + '</span></div><div class="v-g">' +
-    c("🏆 Champion du mois", v.champion.nom, pct(v.champion.r)) +
-    '<div class="v-c"><span>🤏 Écart du mois</span><b>' + pts(v.du[0].r - v.du[v.du.length - 1].r).replace(/^\+/, "") + "</b><em>entre le 1er et le dernier</em></div>" +
-    c("🐢 Lanterne rouge", v.lanterne.nom, pct(v.lanterne.r)) +
-    (v.iR !== null ? c("🎯 Battent " + esc(D.marche.indices[ETAT.i1]) + " (" + pct(v.iR) + ")", v.battent.length ? v.battent.join(", ") : "Personne", v.battent.length + " sur " + v.du.length) : "") +
+    (() => {
+      const n = v.du.length, idxOk = v.iR !== null, impair = (n + (idxOk ? 1 : 0)) % 2 === 1;
+      const rangDe = x => v.du.findIndex(y => Math.abs(y.r - x.r) < 1e-9) + 1;        // ex aequo : même place
+      const rangDernier = rangDe(v.du[n - 1]);
+      const tuiles = v.du.map(x => {
+        const rg = rangDe(x), ico = rg === 1 ? "🥇" : rg === 2 ? "🥈" : rg === 3 ? "🥉" : "";
+        const tortue = n >= 3 && rg === rangDernier && rg > 1, bat = idxOk && x.r > v.iR;
+        const cls = "v-c" + (rg === 1 ? " champ" : "") + (rg === 1 && impair && x === v.du[0] ? " large" : "");
+        return '<div class="' + cls + '"><span>' + (ico ? ico + " " : "") + rangTxt(rg) + (rg === 1 ? " · champion" : tortue ? " · lanterne rouge 🐢" : "") + "</span>" +
+          '<b style="color:' + couleur(x.nom) + '">' + esc(x.nom) + '</b><em class="' + sens(x.r) + '">' + pct(x.r) + (bat ? ' <i title="Bat ' + esc(D.marche.indices[ETAT.i1]) + '">🎯</i>' : "") + "</em></div>";
+      }).join("");
+      const tIdx = idxOk ? '<div class="v-c idx"><span>🎯 ' + esc(D.marche.indices[ETAT.i1]) + "</span><b>" + pct(v.iR) + "</b><em>" +
+        (v.battent.length ? v.battent.length + " sur " + n + " l'" + (v.battent.length > 1 ? "ont" : "a") + " battu" : "personne ne l'a battu") + "</em></div>" : "";
+      return tuiles + tIdx;
+    })() +
     '</div><p class="v-n">Uniquement le mois de ' + esc(moisLong(v.k)) + ". Sur un seul mois, la chance pèse plus que le talent.</p></div>";
 }
 function brancherVerdict(v) {
@@ -1239,7 +1280,7 @@ function trophees(env) {
   MEMO_TROPHEES = { d: D, env, val };
   return val;
 }
-function blocTrophees(env) {
+function blocTrophees(env, nu) {
   const t = trophees(env);
   if (!t.mois) return "";
   const cols = [{ id: "champion", e: "🏆", nom: "Champion du mois" }].concat(TITRES);
@@ -1247,7 +1288,7 @@ function blocTrophees(env) {
   const max = {}; cols.forEach(c => max[c.id] = Math.max(0, ...noms.map(n => t.res[n][c.id])));
   const total = n => cols.reduce((a, c) => a + t.res[n][c.id], 0);
   noms.sort((a, b) => total(b) - total(a));
-  return '<div><h2 class="sec">Salle des trophées <small>nombre de mois · depuis le début</small></h2><div class="scroll-x"><table class="tab trophees"><thead><tr><th>Personne</th>' +
+  return '<div>' + (nu ? "" : '<h2 class="sec">Salle des trophées <small>nombre de mois · depuis le début</small></h2>') + '<div class="scroll-x"><table class="tab trophees"><thead><tr><th>Personne</th>' +
     cols.map(c => '<th title="' + esc(c.nom) + '">' + c.e + "</th>").join("") + "<th>Total</th></tr></thead><tbody>" +
     noms.map(n => '<tr><td><span class="pastille" style="background:' + couleur(n) + '"></span>' + esc(n) + "</td>" +
       cols.map(c => { const x = t.res[n][c.id], f = fetiche(n); return '<td class="' + (x && x === max[c.id] ? "record" : x ? "" : "muted") + (f && f.id === c.id ? " fet" : "") + '">' + (x || "·") + "</td>"; }).join("") + "<td><b>" + total(n) + "</b></td></tr>").join("") +
@@ -1276,17 +1317,36 @@ function rendreTrophees() {
   const v = $("#v-trophees");
   if (!finGlobale(D, 0)) { v.innerHTML = '<div class="vide">Pas encore de relevé.</div>'; return; }
   const qui = D.personnes.some(p => p.nom === ETAT.succes) ? ETAT.succes : ETAT.moi;
-  v.innerHTML = '<p class="info">Titres, trophées et succès se calculent toujours sur le portefeuille total, avec le ' + esc(D.marche.indices[iRef()]) + " comme référence : tout le monde voit les mêmes chiffres, quels que soient les filtres.</p>" +
-    blocTitres(0) + blocTrophees(0) +
-    '<div class="chips" role="group" aria-label="Succès de" style="margin-top:4px">' + D.personnes.map(x => '<button class="chip" type="button" data-suc="' + esc(x.nom) + '" aria-pressed="' + (x.nom === qui) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
-    blocSucces(qui);
+  const r = succesTous()[qui] || {}, nb = SUCCES.filter(x => r[x.id] && r[x.id].k).length;
+  const tm = titresMois(0), tr = trophees(0);
+  const cols = ["champion"].concat(TITRES.map(t => t.id));
+  const total = n => cols.reduce((a, c) => a + ((tr.res[n] || {})[c] || 0), 0);
+  const classes = D.personnes.map(p => p.nom).filter(n => total(n) > 0).sort((a, b) => total(b) - total(a));
+  const tenus = tm.liste.filter(x => x.qui.length);
+  const ouvert = id => (ETAT.acc || []).includes(id) ? " open" : "";
+  v.innerHTML =
+    // 1. Succès, mis en avant
+    '<div><h2 class="sec">Succès <small>objectifs à long terme</small></h2></div>' +
+    '<div class="chips" role="group" aria-label="Succès de">' + D.personnes.map(x => '<button class="chip" type="button" data-suc="' + esc(x.nom) + '" aria-pressed="' + (x.nom === qui) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
+    '<div class="suc-tete"><b style="color:' + couleur(qui) + '">' + esc(qui) + "</b><span>" + nb + " / " + SUCCES.length + ' débloqués</span><span class="jauge"><i style="width:' + (nb / SUCCES.length * 100).toFixed(0) + '%"></i></span></div>' +
+    blocSucces(qui, true) +
+    // 2. Titres du mois, repliés
+    '<details class="acc" data-acc="titres"' + ouvert("titres") + '><summary><span class="t">🎖️ Titres du mois <small>' + esc(moisLong(tm.k)) + '</small></span><span class="r">' +
+      (tenus.length ? tenus.map(x => x.e + " " + x.qui.map(esc).join("/")).join(" · ") : "aucun titre ce mois-ci") + "</span></summary>" + blocTitres(0, true) + "</details>" +
+    // 3. Salle des trophées, repliée
+    '<details class="acc" data-acc="salle"' + ouvert("salle") + '><summary><span class="t">🏆 Salle des trophées <small>depuis le début</small></span><span class="r">' +
+      (classes.length ? classes.map(n => esc(n) + " " + total(n)).join(" · ") : "pas encore de trophée") + "</span></summary>" + blocTrophees(0, true) + "</details>" +
+    '<p class="info">Tout est calculé sur le portefeuille total, avec le ' + esc(D.marche.indices[iRef()]) + " comme référence : tout le monde voit les mêmes chiffres, quels que soient les filtres.</p>";
   if ($("#f-fetiche")) $("#f-fetiche").addEventListener("change", e => changerFetiche(e.target.value));
   v.querySelectorAll("[data-suc]").forEach(b => b.addEventListener("click", () => { ETAT.succes = b.dataset.suc; garder(); rendreTrophees(); }));
+  v.querySelectorAll("details[data-acc]").forEach(d => d.addEventListener("toggle", () => {
+    const l = new Set(ETAT.acc || []); if (d.open) l.add(d.dataset.acc); else l.delete(d.dataset.acc); ETAT.acc = [...l]; garder();
+  }));
 }
-function blocTitres(env) {
+function blocTitres(env, nu) {
   const t = titresMois(env);
   if (!t.k) return "";
-  return '<div><h2 class="sec">Titres du mois <small>recalculés à chaque relevé · ' + esc(moisLong(t.k)) + '</small></h2><div class="titres-l">' +
+  return '<div>' + (nu ? "" : '<h2 class="sec">Titres du mois <small>recalculés à chaque relevé · ' + esc(moisLong(t.k)) + "</small></h2>") + '<div class="titres-l">' +
     t.liste.map(x => '<div class="titre-l"><span class="e">' + x.e + '</span><div class="d"><span class="k">' + esc(x.type) + "</span><b>" + esc(x.nom) + "</b><small>" + esc(x.def) + "</small></div>" +
       (x.qui.length ? '<span class="h">' + x.qui.map(n => '<span style="color:' + couleur(n) + '">' + esc(n) + "</span>").join("<br>") + "</span>" : '<span class="h aucun">personne</span>') + "</div>").join("") +
     '</div><p class="info" style="margin-top:8px">Cinq titres récompensent la performance, six la régularité et la maîtrise du risque : tout miser sur un levier ne suffit pas à tout rafler. Les titres sur 12 mois demandent ' + RECUL + " mois de relevés.</p></div>";
@@ -1589,10 +1649,10 @@ function succesTous() {
   MEMO_SUCCES = { d: D, val };
   return val;
 }
-function blocSucces(nom) {
+function blocSucces(nom, nu) {
   const r = succesTous()[nom]; if (!r) return "";
   const nb = SUCCES.filter(x => r[x.id].k).length;
-  return '<div><h2 class="sec">Succès <small>' + nb + " / " + SUCCES.length + ' débloqués · objectifs à long terme</small></h2><div class="succes">' +
+  return '<div>' + (nu ? "" : '<h2 class="sec">Succès <small>' + nb + " / " + SUCCES.length + " débloqués · objectifs à long terme</small></h2>") + '<div class="succes">' +
     SUCCES.map(x => { const o = r[x.id];
       return '<div class="suc' + (o.k ? " ok" : "") + '"><span class="e">' + x.e + '</span><div><b>' + esc(x.nom) + "</b><small>" + esc(x.def) + "</small>" +
         (o.k ? '<em>Débloqué en ' + esc(moisLong(o.k)) + "</em>" : '<span class="jauge"><i style="width:' + (o.prog * 100).toFixed(0) + '%"></i></span><em>' + esc(o.txt) + "</em>") + "</div></div>"; }).join("") +
@@ -1739,7 +1799,7 @@ function rendreObjectifs() {
         '<div class="piste" role="img" aria-label="Progression ' + pct(pc, 0, false) + '"><i style="width:' + (pc * 100).toFixed(1) + "%;background:" + couleur(o.personne) + '"></i></div>' +
         '<div class="obj-l"><div><span>Progression</span><b>' + pct(o.progression, 0, false) + "</b></div><div><span>Atteint vers</span><b>" + esc(atteint(o)) + "</b></div><div><span>Projection au " + esc(isoFr(o.dateCible)) + '</span><b class="' + sens(o.ecart) + '">' + eur(o.projection) + "</b></div>" +
         "<div><span>Versement retenu</span><b>" + eur(o.versementRetenu) + " /mois" + (ok(o.versementPrevu) ? "" : ' <small class="muted">(rythme réel)</small>') + "</b></div><div><span>Rendement supposé</span><b>" + pct(o.rendement, 1, false) + "</b></div><div><span>Écart à l'objectif</span><b class=\"" + sens(o.ecart) + '">' + eur(o.ecart, 0, true) + "</b></div></div>" +
-        (SOURCE === "api" && (estAdmin() || o.personne === SESSION.nom) ? (OBJ_EDIT === o.personne ? formObjectif(o) : '<button class="lien" type="button" data-objedit="' + esc(o.personne) + '">Modifier l\'objectif</button>') : "") + "</div>";
+        (SOURCE === "api" && o.personne === (estAdmin() ? ETAT.moi : SESSION.nom) ? (OBJ_EDIT === o.personne ? formObjectif(o) : '<button class="lien" type="button" data-objedit="' + esc(o.personne) + '">Modifier l\'objectif</button>') : "") + "</div>";
     }).join("") +
     (ks.length > 1 ? '<div><h2 class="sec">Projection <small>' + esc(choisi.personne) + "</small></h2></div>" +
       '<div class="chips" role="group" aria-label="Personne">' + objs.map(o => '<button class="chip" type="button" data-proj="' + esc(o.personne) + '" aria-pressed="' + (o === choisi) + '"><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</button>").join("") + "</div>" +
