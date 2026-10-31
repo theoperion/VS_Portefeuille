@@ -795,7 +795,7 @@ body.vue-moi .ticker { display: none; }
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbwyUDvVGGaGwkpwGO61BIOAevCsSIrrjNolMDgjt4vcxTV9pGbbs_N7Jc915kCo1qqY-Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwiisSjp70VTj-BpP_kJOALWO14L_hhfaYF16-KSLRARpYLSjd9ob7aWG65BDNl7_JYCQ/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -2570,7 +2570,7 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=13";
+const MOI_JS = "moi.js?v=15";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");

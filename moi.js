@@ -52,6 +52,58 @@ function injecterStyle() {
 .moi .m-flap.sep { width: clamp(6px, 2vw, 10px); background: none; box-shadow: none; } .moi .m-flap.sep::after { display: none; }
 .moi .m-flap.go { animation: mBascule .32s cubic-bezier(.3, .7, .3, 1) both; }
 @keyframes mBascule { from { transform: rotateX(-88deg); } to { transform: rotateX(0); } }
+.moi .m-flap.af-laiton { --flap: #3B2C12; --flap-2: #4B3A1A; --flap-ink: #F3DDA4; --flap-line: #1C1406; --flap-acc: #FFD27A; }
+.moi .m-flap.af-ivoire { --flap: #E6DDC6; --flap-2: #F1EAD6; --flap-ink: #1B1F1C; --flap-line: #B3A88C; --flap-acc: #A35E0B; }
+.moi .m-flap.af-nuit { --flap: #0E1C33; --flap-2: #172B4D; --flap-ink: #DCE7FF; --flap-line: #060D1A; --flap-acc: #7FB2FF; }
+.moi .m-flap.af-gare { --flap: #5B1611; --flap-2: #701F17; --flap-ink: #F7E8CF; --flap-line: #2A0806; --flap-acc: #FFC15E; }
+.moi .m-flap.af-terminal { overflow: hidden; border-radius: 3px; background: #021208; color: #39FF7A; font-weight: 500; text-shadow: 0 0 4px rgba(57,255,122,.9), 0 0 12px rgba(57,255,122,.45); box-shadow: inset 0 0 14px rgba(57,255,122,.14), 0 0 0 1px rgba(57,255,122,.22), 0 4px 10px var(--shade); }
+.moi .m-flap.af-terminal::after { top: 0; bottom: 0; height: auto; margin: 0; background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.38) 2px 3px); }
+.moi .m-flap.af-terminal.u, .moi .m-flap.af-terminal.s { color: #C8FFD8; }
+.moi .m-flap.af-terminal.go { animation: mTerm .5s steps(4) both; }
+@keyframes mTerm { 0% { opacity: 0; } 50% { opacity: .6; } 75% { opacity: .2; } 100% { opacity: 1; } }
+.moi .m-flap.af-led { overflow: hidden; border-radius: 4px; background: #0a0705; color: #FFB21E; font-weight: 800; text-shadow: 0 0 6px rgba(255,170,30,.9); box-shadow: inset 0 0 0 1px #2a1d0e, 0 4px 10px var(--shade); }
+.moi .m-flap.af-led::after { top: 0; bottom: 0; height: auto; margin: 0; background: radial-gradient(circle at center, transparent 0 1.15px, #0a0705 1.6px) 0 0 / 4px 4px; }
+.moi .m-flap.af-led.u, .moi .m-flap.af-led.s { color: #FF5A3C; text-shadow: 0 0 6px rgba(255,90,60,.9); }
+.moi .m-flap.af-compteur { overflow: hidden; border-radius: 2px; background: linear-gradient(to bottom, #050505 0%, #2d2d2d 18%, #161616 50%, #2d2d2d 82%, #050505 100%); color: #F4F1EA; box-shadow: inset 0 0 0 1px #000, 0 0 0 2px #3a3a3a, 0 4px 10px var(--shade); }
+.moi .m-flap.af-compteur::after { display: none; }
+.moi .m-flap.af-compteur.u, .moi .m-flap.af-compteur.s { background: linear-gradient(to bottom, #2a0000, #9a0c0c 20%, #5a0606 50%, #9a0c0c 80%, #2a0000); color: #fff; }
+.moi .m-flap.af-compteur.go { animation: mRoule .7s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes mRoule { from { color: transparent; text-shadow: 0 -1.1em 0 #F4F1EA, 0 -2.2em 0 #F4F1EA, 0 -3.3em 0 #F4F1EA; } to { color: #F4F1EA; text-shadow: 0 0 0 transparent; } }
+.moi .m-flap.af-neon { border-radius: 8px; background: #0b0614; color: #fff; font-weight: 400; text-shadow: 0 0 2px #fff, 0 0 6px #FF4FD8, 0 0 14px #FF4FD8, 0 0 28px #C026D3; box-shadow: inset 0 0 0 1px rgba(255,79,216,.35), 0 0 16px rgba(255,79,216,.22); }
+.moi .m-flap.af-neon::after { display: none; }
+.moi .m-flap.af-neon.u, .moi .m-flap.af-neon.s { text-shadow: 0 0 2px #fff, 0 0 6px #22D3EE, 0 0 14px #22D3EE, 0 0 28px #0891B2; box-shadow: inset 0 0 0 1px rgba(34,211,238,.35), 0 0 16px rgba(34,211,238,.22); }
+.moi .m-flap.af-neon.go { animation: mNeon 1.1s linear both; }
+@keyframes mNeon { 0% { opacity: 0; } 10% { opacity: .9; } 14% { opacity: .1; } 22% { opacity: 1; } 30% { opacity: .3; } 38%, 100% { opacity: 1; } }
+.moi .m-flap.af-nixie { overflow: hidden; border-radius: 45% 45% 10px 10px / 22% 22% 10px 10px; background: radial-gradient(ellipse at 50% 35%, #2c1b12 0%, #120a06 60%, #050302 100%); color: #FFA05A; font-weight: 300;
+  text-shadow: 0 0 4px #FF7A1A, 0 0 10px #FF5A00, 0 0 22px rgba(255,80,0,.6); box-shadow: inset 0 0 0 1px rgba(255,200,160,.18), inset 0 8px 12px rgba(255,255,255,.06), 0 4px 12px var(--shade); }
+.moi .m-flap.af-nixie::after { top: 6%; bottom: 6%; left: 8%; right: 8%; height: auto; margin: 0; border-radius: inherit; background: repeating-linear-gradient(60deg, rgba(255,170,100,.09) 0 1px, transparent 1px 4px), repeating-linear-gradient(-60deg, rgba(255,170,100,.09) 0 1px, transparent 1px 4px); }
+.moi .m-flap.af-nixie.go { animation: mNixie .9s ease-out both; }
+@keyframes mNixie { from { color: #3a1d0a; text-shadow: none; } to { color: #FFA05A; } }
+.moi .m-flap.af-lingot { overflow: hidden; border-radius: 0; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); box-shadow: none; color: #5B3A0A; font-weight: 800;
+  background: linear-gradient(160deg, #FFF3C4 0%, #F2C94C 25%, #B7832F 55%, #F7D774 75%, #9A6A1E 100%); text-shadow: 0 1px 0 rgba(255,255,255,.6), 0 -1px 0 rgba(0,0,0,.25); }
+.moi .m-flap.af-lingot::after { top: 0; bottom: 0; height: auto; margin: 0; left: -60%; right: auto; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent); animation: mLingot 3.6s ease-in-out infinite; }
+@keyframes mLingot { 0% { left: -60%; } 55%, 100% { left: 130%; } }
+.moi .m-flap.af-lingot.u, .moi .m-flap.af-lingot.s { color: #3B2405; }
+.moi .m-flap.af-prisme { border-radius: 8px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); box-shadow: 0 4px 14px rgba(185,140,255,.35);
+  background: linear-gradient(120deg, #FF6B9A, #FFC15E, #E9F27A, #5CF0B5, #5AB8FF, #B98CFF, #FF6B9A); background-size: 300% 300%; animation: mPrisme 6s linear infinite; }
+.moi .m-flap.af-prisme::after { background: rgba(255,255,255,.45); }
+.moi .m-flap.af-prisme.go { animation: mBascule .32s cubic-bezier(.3, .7, .3, 1) both, mPrisme 6s linear infinite; }
+@keyframes mPrisme { from { background-position: 0% 50%; } to { background-position: 300% 50%; } }
+.moi .aff-g { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.moi .aff-c { position: relative; display: grid; gap: 3px; justify-items: center; align-content: start; text-align: center; padding: 10px 4px 8px; border-radius: 12px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
+.moi .aff-c.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.moi .aff-c .aff-v { position: relative; display: grid; place-items: center; height: 34px; }
+.moi .aff-c .m-flaps { gap: 2px; flex-wrap: nowrap; }
+.moi .aff-c .m-flap { width: 17px; height: 26px; font-size: 16px; border-radius: 3px; }
+.moi .aff-c .m-flap.af-nixie { border-radius: 45% 45% 4px 4px / 22% 22% 4px 4px; }
+.moi .aff-c.verrou .m-flaps { filter: saturate(.4) brightness(.55); }
+.moi .aff-c .aff-l { position: absolute; font-style: normal; font-size: 15px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.moi .aff-c b { font: italic 800 12.5px/1.1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.moi .aff-c small { font-size: 10.5px; line-height: 1.25; color: var(--ink-3); }
+.moi .aff-c.on small { color: var(--accent-ink); font-weight: 600; }
+.moi .aff-c .jauge { display: block; width: 80%; height: 3px; border-radius: 2px; background: var(--rule-2); overflow: hidden; }
+.moi .aff-c .jauge i { display: block; height: 100%; background: var(--gold); }
+.m-fete .mf-af { color: #F5C542; font-weight: 600; }
 .moi .m-jour { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; font-size: 13px; color: var(--ink-2); }
 .moi .m-status { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-3); }
 .moi .m-status i { font-style: normal; display: inline-flex; align-items: center; gap: 6px; }
@@ -398,7 +450,7 @@ function injecterStyle() {
 .m-fete h3 { margin: 0; font: italic 800 24px/1.15 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
 .m-fete p { margin: 0; opacity: .75; font-size: 14px; }
 @media (max-width: 380px) { .moi .paliers { grid-template-columns: minmax(0, 1fr); } }
-@media (prefers-reduced-motion: reduce) { .moi .m-flap.go { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .moi .m-flap.go, .moi .m-flap.af-prisme, .moi .m-flap.af-lingot::after { animation: none; } }
 `;
   document.head.appendChild(st);
 }
@@ -481,11 +533,12 @@ function brancherConnexion(v) {
 }
 
 /* Afficheur à palettes (repris de Cote) */
-function flaps(texte, animer) {
+function flaps(texte, animer, style) {
   let i = 0;
+  const af = " af-" + (style || afficheurActif());
   return Array.from(texte).map(ch => {
     if (ch === NB || ch === " " || ch === " ") return '<span class="m-flap sep" aria-hidden="true"></span>';
-    const cls = ch === "€" ? "m-flap u" : (ch === MOINS || ch === "+") ? "m-flap s" : "m-flap";
+    const cls = (ch === "€" ? "m-flap u" : (ch === MOINS || ch === "+") ? "m-flap s" : "m-flap") + af;
     const delai = animer ? ' style="animation-delay:' + (i++ * 55) + 'ms"' : "";
     return '<span class="' + cls + (animer ? " go" : "") + '"' + delai + ' aria-hidden="true">' + esc(ch) + "</span>";
   }).join("");
@@ -1781,7 +1834,7 @@ function soumettreReglage(type, form) {
     if (!lireChamp("r-date") || !ids.length || vals.some(x => !(x >= 0 && x < 20))) { reglageMsg.taux = ["err", "Saisis la date et les taux en % (ex. 1,5)."]; rendreMaj(); return; }
     const corps = { action: "taux", date: lireChamp("r-date") };
     ids.forEach((x, i) => { corps[x[1]] = vals[i] / 100; });
-    return envoyerReglage("taux", corps, form, () => { p.taux = Object.assign({}, p.taux, corps, { date: lireChamp("r-date") }); });
+    return envoyerReglage("taux", corps, form, () => { p.taux = Object.assign({}, p.taux, corps, { date: lireChamp("r-date") }); propagerTaux(corps); });
   }
   if (type === "fondsEuros") {
     const an = n("r-an"), t = n("r-taux");
@@ -1811,6 +1864,14 @@ function soumettreReglage(type, form) {
     const liste = (M.alertes || []).concat([{ code: code, sens: lireChamp("al-sens"), seuil: s }]);
     return envoyerReglage("alertes", { action: "alertes", alertes: liste }, form, () => { M.alertes = liste; });
   }
+}
+/** Administrateur : les taux des livrets (les mêmes pour tous) sont recopiés par le Versus dans les fichiers des autres */
+async function propagerTaux(corps) {
+  try {
+    if (!estAdmin() || typeof SOURCE === "undefined" || SOURCE !== "api") return;
+    const rep = await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify(Object.assign({ cle: stock.get(CLES.cle) }, corps, { action: "tauxLivrets" })) })).json();
+    toast(rep.message || (rep.ok ? "Taux recopiés chez les autres." : "Taux non recopiés chez les autres."));
+  } catch (e) { toast("Taux enregistrés chez toi, mais pas recopiés chez les autres (Versus injoignable)."); }
 }
 async function envoyerReglage(k, corps, form, local) {
   const btn = form ? form.querySelector('button[type="submit"]') : null;
@@ -1959,13 +2020,45 @@ function feter(x) {
   injecterStyle();
   const o = document.createElement("div");
   o.className = "m-fete moi"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
-  o.innerHTML = '<div><span class="mf-k">Palier franchi</span><div class="m-flaps">' + flaps(x.grand, !reduit) + "</div><h3>" + esc(x.titre) + "</h3>" +
-    (x.quand ? "<p>Franchi en " + esc(libMois(x.quand, true)) + ".</p>" : "") + '<button class="wr-btn" type="button">Continuer</button></div>';
+  const st = AFFICHEURS.find(a => a[2] === x.id);
+  o.innerHTML = '<div><span class="mf-k">Palier franchi</span><div class="m-flaps">' + flaps(x.grand, !reduit, st ? st[0] : null) + "</div><h3>" + esc(x.titre) + "</h3>" +
+    (x.quand ? "<p>Franchi en " + esc(libMois(x.quand, true)) + ".</p>" : "") +
+    (st ? '<p class="mf-af">Débloque l\'afficheur « ' + esc(st[1]) + ' »</p><button class="wr-btn mf-essayer" type="button">Essayer</button>' : "") +
+    '<button class="wr-btn" type="button" data-continuer>Continuer</button></div>';
   document.body.appendChild(o);
   const fermer = () => o.remove();
-  o.querySelector("button").addEventListener("click", fermer);
+  o.querySelector("[data-continuer]").addEventListener("click", fermer);
+  const es = o.querySelector(".mf-essayer");
+  if (es) es.addEventListener("click", () => { MEMO_AFF = { m: null, ok: null }; PREF.afficheur = st[0]; garderPref(); dernierFlap = ""; fermer(); if (vueMoi()) rendre(); });
   o.addEventListener("click", e => { if (e.target === o) fermer(); });
   if (typeof confettis === "function" && !reduit) confettis();
+}
+/* ---------- Styles d'afficheur : débloqués par les paliers perso (privés), gardés une fois débloqués ---------- */
+const AFFICHEURS = [
+  ["classique", "Palettes", null], ["laiton", "Laiton", "serie3"], ["nuit", "Bleu nuit", "annee1"], ["ivoire", "Ivoire", "pat10000"],
+  ["gare", "Rouge gare", "serie6"], ["terminal", "Terminal", "gains1000"], ["led", "LED de gare", "pat25000"], ["compteur", "Compteur", "serie12"],
+  ["neon", "Néon", "pat50000"], ["nixie", "Nixie", "pat100000"], ["lingot", "Lingot", "pat250000"], ["prisme", "Prisme", "pat500000"]
+];
+let MEMO_AFF = { m: null, ok: null };
+function afficheursOuverts() {
+  if (!M) return new Set(["classique"]);
+  if (MEMO_AFF.m === M) return MEMO_AFF.ok;
+  let vus = []; try { vus = JSON.parse(stock.get("versus.moi.afficheurs") || "[]"); } catch (e) { vus = []; }
+  const ok = new Set(["classique"].concat(vus));
+  MEMO_AFF = { m: M, ok };
+  try { const pal = paliers(); AFFICHEURS.forEach(a => { if (a[2] && pal.some(x => x.atteint && x.id === a[2])) ok.add(a[0]); }); } catch (e) { /* données incomplètes */ }
+  stock.set("versus.moi.afficheurs", JSON.stringify(Array.from(ok)));
+  return ok;
+}
+function afficheurActif() { const a = PREF.afficheur || "classique"; return afficheursOuverts().has(a) ? a : "classique"; }
+function htmlAfficheurs() {
+  const ok = afficheursOuverts(), actif = afficheurActif(), pal = paliers();
+  return '<div><h2 class="sec">Afficheur <small>' + ok.size + " / " + AFFICHEURS.length + ' débloqués · privé</small></h2></div><div class="aff-g">' +
+    AFFICHEURS.map(([id, nom, cle]) => {
+      const o = ok.has(id), p = cle ? pal.find(x => x.id === cle) : null;
+      return '<button type="button" class="aff-c' + (o ? "" : " verrou") + (id === actif ? " on" : "") + '" data-aff="' + id + '"><span class="aff-v"><span class="m-flaps">' + flaps("128€", false, id) + "</span>" + (o ? "" : '<i class="aff-l">🔒</i>') + "</span>" +
+        "<b>" + esc(nom) + "</b><small>" + (id === actif ? "✓ équipé" : o ? "équiper" : p ? esc(p.titre) : "") + "</small>" + (!o && p ? '<span class="jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, p.part)) * 100) + '%"></i></span>' : "") + "</button>";
+    }).join("") + "</div>";
 }
 let paliersOuverts = false;
 function htmlMissions() {
@@ -1987,16 +2080,22 @@ function htmlMissions() {
   return '<div id="m-million-z"></div>' +
     '<div class="m-serie' + (sv.moisEnCours ? " ok" : "") + '"><b>' + sv.actuelle + " mois</b><span>de versements d'affilée · record " + sv.record + " · " +
       (sv.moisEnCours ? "versement de " + MOIS_L[new Date().getMonth()] + " fait ✓" : "pas encore de versement en " + MOIS_L[new Date().getMonth()] + " (même 10 € comptent, jusqu'au " + dateCourte(finM) + ")") + "</span></div>" +
+    htmlAfficheurs() +
     '<div><h2 class="sec">Paliers <small>' + nbFaits + " franchis sur " + pal.length + "</small></h2></div>" +
     '<div class="pl-liste">' + visibles.map(ligneP).join("") + "</div>" +
     '<button class="btn ghost" type="button" id="voir-paliers" aria-expanded="' + paliersOuverts + '" style="justify-self:start">' + (paliersOuverts ? "Masquer les autres paliers" : "Voir tous les paliers") + "</button>" +
     (paliersOuverts ? '<div class="tous-paliers">' + tous + "</div>" : "") +
-    '<p class="info">Touche un palier franchi pour revoir sa fête. Les styles d\'afficheur et d\'autres récompenses à débloquer arrivent bientôt.</p>';
+    '<p class="info">Touche un palier franchi pour revoir sa fête. Certains paliers débloquent un style d\'afficheur : il s\'applique à tous les chiffres de ton onglet Moi, et reste à toi même si tu repasses sous le palier.</p>';
 }
 function brancherMissions(v) {
   const z = v.querySelector("#m-million-z"); if (z) afficherMillion(z);
   const vp = v.querySelector("#voir-paliers"); if (vp) vp.addEventListener("click", () => { paliersOuverts = !paliersOuverts; rendre(); });
   const pal = paliers();
+  v.querySelectorAll("[data-aff]").forEach(b => b.addEventListener("click", () => {
+    const a = AFFICHEURS.find(x => x[0] === b.dataset.aff);
+    if (!afficheursOuverts().has(a[0])) { const p = pal.find(x => x.id === a[2]); toast("🔒 " + a[1] + " : " + (p ? p.titre + (p.reste ? " (" + p.reste + ")" : "") : "palier à franchir")); return; }
+    PREF.afficheur = a[0]; garderPref(); dernierFlap = ""; rendre(); toast("Afficheur « " + a[1] + " » équipé.");
+  }));
   v.querySelectorAll("[data-palier]").forEach(b => b.addEventListener("click", () => { const x = pal.find(p => p.id === b.dataset.palier); if (x && x.atteint) feter(x); }));
 }
 
