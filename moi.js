@@ -10,14 +10,13 @@
 (function () {
 "use strict";
 const K = { api: "versus.moi.api", cle: "versus.moi.cle", cache: "versus.moi.cache", pref: "versus.moi.pref" };
-const PREF = Object.assign({ onglet: "cote", tri: "env", mode: "valeur", per: "6m", serie: "ip", moisMode: "pct", rep: "classe", acc: {} },
+const PREF = Object.assign({ onglet: "jour", patri: "net", million: "financier", tri: "env", mode: "valeur", per: "6m", serie: "ip", moisMode: "pct", rep: "classe", acc: {} },
   (() => { try { return JSON.parse(stock.get(K.pref) || "{}"); } catch (e) { return {}; } })());
 function garderPref() { stock.set(K.pref, JSON.stringify(PREF)); }
 
 let M = null;            // dernières données reçues de ton fichier
 let SRC = "";            // "api" | "cache"
 let enCours = false, dernierAppel = 0, dernierFlap = "", erreur = "";
-const ouverts = new Set();   // enveloppes dépliées
 
 /* ---------- Format (complète ceux de Versus) ---------- */
 const $m = s => document.querySelector("#v-moi " + s);
@@ -41,8 +40,6 @@ function injecterStyle() {
 .moi { --s1: var(--mc, var(--p0)); --s2: var(--gold); --s3: var(--accent);
   --flap: #1C222B; --flap-2: #262E39; --flap-ink: #F2F4F7; --flap-line: #0B0E12; --flap-acc: #B8A9FF; }
 .moi .m-onglets { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 62px); z-index: 15; box-shadow: 0 6px 10px -6px var(--shade); }
-.moi .m-prive { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); }
-.moi .m-prive b { font: 700 10.5px/1.4 var(--f-display); letter-spacing: .1em; text-transform: uppercase; padding: 1px 7px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-ink); }
 .moi .m-hero { display: grid; gap: 10px; }
 .moi .m-flaps { display: flex; flex-wrap: wrap; gap: 4px; }
 .moi .m-flap { position: relative; width: clamp(26px, 8.4vw, 44px); height: clamp(40px, 12.6vw, 64px); display: grid; place-items: center; border-radius: 6px;
@@ -62,52 +59,61 @@ function injecterStyle() {
 .moi .tuiles .lab .qm { display: inline-grid; place-items: center; width: 14px; height: 14px; margin-left: 4px; border-radius: 50%; border: 1px solid var(--rule); font: 700 9px/1 var(--f-num); font-style: normal; color: var(--ink-3); vertical-align: 1px; }
 .moi .tuiles .m-def { display: none; font-size: 12px; line-height: 1.4; color: var(--ink-2); padding-top: 4px; }
 .moi .tuiles .ouvert .m-def { display: block; }
-.moi .m-totaux { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--flap); color: var(--flap-ink); border-radius: 12px; overflow: hidden; }
-.moi .m-totaux button { all: unset; box-sizing: border-box; cursor: pointer; padding: 11px; display: grid; gap: 4px; border-right: 1px solid var(--flap-line); min-width: 0; }
-.moi .m-totaux button:last-child { border-right: 0; }
-.moi .m-totaux button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.moi .m-totaux .lab { font: 700 10px/1.15 var(--f-display); letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; opacity: .72; }
-.moi .m-totaux .val { font: 600 15px/1.1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.moi .m-totaux .val.acc { color: var(--flap-acc); }
 .moi .m-notes { display: grid; gap: 6px; }
 .moi .m-note { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--ink-2); padding: 9px 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--rule); }
 .moi .m-note .ic { flex: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 700 11px/1 var(--f-num); }
 .moi .m-note.ok .ic { background: var(--up-bg); color: var(--up); }
 .moi .m-note.warn { border-color: var(--down); color: var(--ink); } .moi .m-note.warn .ic { background: var(--down-bg); color: var(--down); }
 .moi .m-note.rappel .ic { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold); }
-.moi .m-cote { width: 100%; border-collapse: collapse; }
-.moi .m-cote th { font: 700 10.5px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: right; padding: 0 0 7px 8px; white-space: nowrap; }
-.moi .m-cote th:first-child { text-align: left; padding-left: 0; }
-.moi .m-cote td { padding: 11px 0 11px 8px; border-top: 1px solid var(--rule); text-align: right; vertical-align: middle; font: 500 13px/1.2 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.moi .m-cote td:first-child { text-align: left; padding-left: 0; font-family: var(--f-text); white-space: normal; }
-.moi .m-cote td .nm { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
-.moi .m-cote td .nm::before { content: ""; width: 7px; height: 7px; flex: none; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(-45deg); transition: transform .2s; margin-right: 2px; }
-.moi .m-cote tr[aria-expanded="true"] td .nm::before { transform: rotate(45deg); }
-.moi .m-cote tr.total td .nm::before { display: none; }
-.moi .m-cote td .sm { display: block; font-size: 11.5px; color: var(--ink-3); font-family: var(--f-text); }
-.moi .m-cote td .sm.r { text-align: right; font-family: var(--f-num); }
-.moi .m-cote tr.click { cursor: pointer; }
-.moi .m-cote tr.click:hover td { background: var(--panel-2); }
-.moi .m-cote tr.total td { border-top: 2px solid var(--ink); font-weight: 600; }
-.moi .m-cote tr.m-det > td { padding: 0 0 12px; border-top: 0; white-space: normal; text-align: left; font-family: var(--f-text); }
-.moi .m-spark { width: 60px; height: 22px; display: block; margin-left: auto; overflow: visible; }
-.moi .mini.quatre { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.moi .badge.big-b { font-size: 15px; padding: 5px 11px; }
+.moi .m-carte { display: flex; flex-wrap: wrap; gap: 3px; }
+.moi .m-tuile { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 64px; min-width: 64px; min-height: 54px; padding: 7px 8px; border-radius: 8px; background: var(--panel); border: 1px solid var(--rule); display: grid; align-content: space-between; gap: 2px; }
+.moi .m-tuile:focus-visible { outline: 2px solid var(--accent); }
+.moi .m-tuile b { font: 700 13px/1.1 var(--f-num); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moi .m-tuile span { font: 600 12px/1.1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.moi .m-tri { display: flex; justify-content: space-between; align-items: end; gap: 10px; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+.moi .m-tri h2.sec { border: 0; padding: 0; white-space: nowrap; }
+.moi .m-tri .sel { min-width: 0; width: min(190px, 44%); }
+.moi .m-env { display: grid; }
+.moi .m-env.total .m-env-h { border-bottom: 0; border-top: 2px solid var(--ink); margin-top: 6px; }
+.moi .m-env-h .pv { font: 500 12px/1.1 var(--f-num); font-variant-numeric: tabular-nums; }
+.moi .m-coche { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; margin-left: auto; padding-bottom: 8px; white-space: nowrap; }
+.moi .m-coche input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.moi .m-debut-w { display: grid; gap: 6px; }
+.moi .m-debut { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.moi .m-debut button { all: unset; box-sizing: border-box; cursor: pointer; background: var(--panel); padding: 8px 8px 7px; display: grid; gap: 2px; min-width: 0; }
+.moi .m-debut button[aria-pressed="true"] { background: var(--panel-2); box-shadow: inset 0 -2px 0 var(--accent); }
+.moi .m-debut button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.moi .m-debut .lab { font: 700 10px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.moi .m-debut b { font: 600 13.5px/1.15 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moi .m-debut small { font: 400 10.5px/1.2 var(--f-num); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moi .m-def-l { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); padding: 8px 10px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 0 8px 8px 0; }
+@media (max-width: 359px) { .moi .m-debut { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.moi .m-env-h { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: baseline; padding: 14px 0 6px; border-bottom: 2px solid var(--s1); }
+.moi .m-env-h b { font: italic 800 16px/1.1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; min-width: 0; }
+.moi .m-env-h .v { font: 600 14px/1.1 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; }
+.moi .m-env-h .j { justify-self: end; font: 600 12.5px/1.1 var(--f-num); font-variant-numeric: tabular-nums; }
+.moi .m-l { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; padding: 10px 2px; border-bottom: 1px solid var(--rule-2); cursor: pointer; transition: background .3s; }
+.moi .m-l:hover, .moi .m-l.eclair { background: var(--panel-2); }
+.moi .m-l .g { min-width: 0; display: grid; gap: 2px; }
+.moi .m-l .g b { font: 700 15px/1.1 var(--f-num); letter-spacing: .02em; }
+.moi .m-l .g b .tag { font-style: normal; background: var(--rule-2); color: var(--ink-3); }
+.moi .m-l .g small { font-size: 12px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moi .m-l .d { display: grid; gap: 3px; justify-items: end; }
+.moi .m-l .d .badge { font-size: 14px; padding: 3px 9px; }
+.moi .m-l .d small { font: 600 12px/1.1 var(--f-num); font-variant-numeric: tabular-nums; }
+.moi .m-l .d .v { font: 600 14px/1.1 var(--f-num); }
+.moi .m-l .b { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font: 400 11.5px/1.3 var(--f-num); font-variant-numeric: tabular-nums; color: var(--ink-3); }
+.moi .m-l .b i { font-style: normal; opacity: .75; }
+.moi .m-l.especes { cursor: default; color: var(--ink-3); } .moi .m-l.especes:hover { background: none; }
+.moi .m-l.especes .g b { font: 500 13px/1.1 var(--f-text); }
+.moi .m-idx { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.moi .m-idx div { background: var(--panel); padding: 8px 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; min-width: 0; }
+.moi .m-idx span { font-size: 12.5px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moi .m-idx b { font: 600 12.5px/1 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.moi .tuiles.m-petit .val { font-size: 15.5px; }
+.moi .tuiles.m-petit > div { padding: 9px 11px; }
 .moi .mini p { grid-column: 1 / -1; margin: 2px 0 0; font-size: 12px; color: var(--ink-2); }
-.moi .m-lignes { display: grid; margin-top: 8px; }
-.moi .m-ligne { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 10px 2px; border-top: 1px solid var(--rule-2); cursor: pointer; }
-.moi .m-ligne:hover { background: var(--panel-2); }
-.moi .m-ligne .code { font: 700 14px/1.1 var(--f-num); letter-spacing: .02em; }
-.moi .m-ligne .code .tag { font-style: normal; background: var(--rule-2); color: var(--ink-3); }
-.moi .m-ligne .nom { font-size: 12px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.moi .m-ligne .v { text-align: right; font: 600 14px/1.1 var(--f-num); font-variant-numeric: tabular-nums; }
-.moi .m-ligne .pv { text-align: right; font: 500 12px/1.25 var(--f-num); font-variant-numeric: tabular-nums; }
-.moi .m-ligne .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font: 400 11.5px/1.3 var(--f-num); color: var(--ink-2); }
-.moi .m-ligne .meta .badge { font-size: 11.5px; padding: 1px 7px; }
-.moi .m-poids { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
-.moi .m-poids .bar { height: 4px; background: var(--rule-2); border-radius: 2px; overflow: hidden; }
-.moi .m-poids .bar i { display: block; height: 100%; background: var(--s1); border-radius: 2px; }
-.moi .m-poids span { font: 500 11px/1 var(--f-num); color: var(--ink-3); text-align: right; }
-.moi .m-ligne.especes { cursor: default; color: var(--ink-3); } .moi .m-ligne.especes:hover { background: none; }
 .moi .m-ligne-det { grid-column: 1 / -1; padding-top: 4px; cursor: default; }
 .moi .m-tri { display: flex; justify-content: space-between; align-items: end; gap: 10px; }
 .moi .m-tri .sel { min-width: 0; width: min(240px, 60%); }
@@ -151,16 +157,147 @@ function injecterStyle() {
 .moi .m-jr .l span:not(:first-child) { font: 500 11.5px/1.2 var(--f-num); white-space: nowrap; }
 .moi .m-jr .l span:last-child { text-align: right; }
 .moi .acc > div { display: grid; gap: 10px; }
+.moi .m-h4 { margin: 10px 0 0; font: italic 800 14px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
 .moi .m-vide { display: grid; gap: 14px; justify-items: start; padding: 26px 0 10px; }
 .moi .m-vide p { margin: 0; font-size: 14px; color: var(--ink-2); }
 .moi .tab td small { color: var(--ink-3); }
 @media (max-width: 430px) {
-  .moi .mini.quatre { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .moi .m-cote td { font-size: 12px; padding-left: 6px; } .moi .m-cote th { padding-left: 6px; }
-  .moi .m-cote td .nm { font-size: 13px; } .moi .m-spark { width: 40px; }
   .moi .m-rep > div { grid-template-columns: minmax(60px, 26%) minmax(0, 1fr) 44px 66px; }
 }
-@media (max-width: 360px) { .moi .m-cote .c-spark { display: none; } .moi .m-totaux .val { font-size: 13px; } }
+
+/* signal levier (repris de Cote) */
+.moi .sig { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; background: var(--panel); --sc: var(--up); }
+.moi .sig.hors { --sc: var(--down); } .moi .sig.x1 { --sc: var(--p0); } .moi .sig.creux { --sc: var(--accent); }
+.moi .sig-tete { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px 11px 10px; border-left: 4px solid var(--sc); }
+.moi .sig-tete:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.moi .sig-lab { font: 700 11px/1.1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); }
+.moi .sig-pos { margin-left: auto; font: 700 13px/1 var(--f-num); padding: 6px 9px; border-radius: 6px; white-space: nowrap; color: var(--sc); background: color-mix(in srgb, var(--sc) 15%, transparent); }
+.moi .sig-tete .chev { font: 600 18px/1 var(--f-num); color: var(--ink-3); transition: transform .2s; }
+.moi .sig-tete[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.moi .sig-cells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--rule); margin: 0 -12px; }
+.moi .pc-c { padding: 10px 12px; display: grid; gap: 4px; border-right: 1px solid var(--rule); min-width: 0; }
+.moi .pc-c:last-child { border-right: 0; }
+.moi .pc-c .lab { font: 700 11px/1.1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); }
+.moi .pc-c .val { font: 600 15px/1.15 var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moi .pc-c .sub { font-size: 11px; color: var(--ink-3); }
+.moi .sig-msg { margin: 0; padding: 9px 12px; font-size: 13px; border-top: 1px solid var(--rule); color: var(--ink-2); }
+.moi .sig-msg.ordre { font-weight: 600; color: var(--ink); background: color-mix(in srgb, var(--gold) 18%, transparent); }
+.moi .sig-msg.alerte { color: var(--ink); background: var(--down-bg); }
+.moi .sig-detail { border-top: 1px solid var(--rule); padding: 0 12px 12px; display: grid; gap: 4px; }
+.moi .sig-detail .m-liste .r { padding: 8px 0; }
+.moi .sig-detail .t-ACHAT, .moi .sig-detail .t-RELAIS, .moi .sig-detail .t-x2 { color: var(--up); }
+.moi .sig-detail .t-VENTE { color: var(--down); } .moi .sig-detail .t-x1 { color: var(--p0); }
+.moi .sig-detail .t-CREUX, .moi .sig-detail .t-EVITEE { color: var(--accent-ink); } .moi .sig-detail .t-REFUS { color: var(--gold); }
+.moi .sig-pied { font-size: 11px; color: var(--ink-3); padding-top: 6px; }
+.moi .sig-cto { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 14px; border-top: 1px solid var(--rule); min-width: 0; flex-wrap: wrap; }
+.moi .sig-cto .sig-pos { margin-left: 0; }
+.moi .sig-cto .sub { font-size: 11.5px; color: var(--ink-3); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.moi .sig-pos.cto-x3 { --sc: #E0841A; } .moi .sig-pos.cto-x2 { --sc: var(--up); } .moi .sig-pos.cto-x1 { --sc: var(--p0); } .moi .sig-pos.cto-or { --sc: #B8962E; }
+.moi .sig-h { margin: 12px 0 2px; font: 700 12px/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.moi .sig-h small { font: 400 11px/1.2 var(--f-text); letter-spacing: 0; text-transform: none; color: var(--ink-3); text-align: right; }
+.moi .sig-detail .b.acc { color: var(--accent-ink); } .moi .sig-detail .b.down { color: var(--down); }
+.moi .ck { font-style: normal; font-weight: 700; margin-left: 4px; } .moi .ck.up { color: var(--up); } .moi .ck.down { color: var(--down); }
+.moi .qm-b { all: unset; box-sizing: border-box; cursor: pointer; display: inline-grid; place-items: center; width: 17px; height: 17px; margin-left: 6px; border-radius: 50%; border: 1px solid var(--rule); font: 700 10.5px/1 var(--f-num); color: var(--ink-3); vertical-align: 1px; letter-spacing: 0; text-transform: none; }
+.moi .qm-b:focus-visible { outline: 2px solid var(--accent); }
+.moi [data-aide].aide-on > .a .qm-b, .moi [data-aide].aide-on .sig-lab .qm-b, .moi [data-aide].aide-on .sig-h .qm-b, .moi .qm-b.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.moi .aide { display: none; font: 400 12.5px/1.45 var(--f-text); color: var(--ink); background: color-mix(in srgb, var(--accent) 9%, transparent); border-left: 3px solid var(--accent); padding: 7px 9px; border-radius: 0 6px 6px 0; margin-top: 6px; letter-spacing: 0; text-transform: none; }
+.moi [data-aide].aide-on .aide { display: block; }
+.moi .aide-l { padding: 0; }
+.moi .sig-cto .aide { flex-basis: 100%; }
+.moi .sig-case-aide { padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.moi .sig-case-aide .aide { display: block; margin-top: 0; }
+.moi .m-status { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink-2); }
+/* saisie (feuille ➕) */
+.moi.m-feuille { min-height: 70vh; }
+.moi .m-seg4 button { font-size: 12.5px; padding: 10px 4px; }
+.moi .form { display: grid; gap: 14px; }
+.moi .rang.trois { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.moi .champ select, .moi .champ input[type="date"], .moi .champ input[type="text"] { font: 500 15px/1.2 var(--f-text); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); width: 100%; min-width: 0; }
+.moi .champ input[inputmode="decimal"] { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.moi .aide.lie, .moi .champ .aide { display: block; background: none; border: 0; padding: 0; margin: 0; font-size: 11.5px; color: var(--ink-3); }
+.moi .aide.lie { margin-top: -8px; }
+.moi .types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.moi .type-btn { border: 1px solid var(--rule); background: var(--panel); border-radius: 10px; padding: 11px 4px; cursor: pointer; font: italic 800 14px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.moi .type-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent); }
+.moi .raccourcis { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.moi .raccourcis > span:first-child { font-size: 12px; color: var(--ink-3); }
+.moi .chip.suppr { border-color: var(--down); color: var(--down); }
+.moi .coche { display: flex; gap: 10px; align-items: center; font-size: 14px; cursor: pointer; }
+.moi .coche input { width: 20px; height: 20px; accent-color: var(--accent); }
+.moi .mini-btn { border: 1px solid var(--rule); background: var(--panel); border-radius: 8px; padding: 6px 10px; font-size: 12.5px; cursor: pointer; color: var(--ink); }
+.moi .recap { display: grid; gap: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 4px 12px; }
+.moi .recap div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rule-2); font-size: 13px; color: var(--ink-2); align-items: center; }
+.moi .recap div:last-child { border-bottom: 0; }
+.moi .recap b { font: 600 13px/1.2 var(--f-num); font-variant-numeric: tabular-nums; color: var(--ink); text-align: right; }
+.moi .alertes { display: grid; gap: 6px; }
+.moi .alertes:empty, .moi .recap[hidden] { display: none; }
+.moi .pied-form { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.moi .nommer { display: flex; gap: 8px; align-items: center; flex: 1; min-width: 0; }
+.moi .nommer input { flex: 1; min-width: 0; font: 500 14px/1.2 var(--f-text); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); }
+.moi .m-jo { display: grid; }
+.moi .jr { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 2px 10px; padding: 10px 0; border-bottom: 1px solid var(--rule); align-items: start; }
+.moi .jr .jd { font: 600 13px/1.1 var(--f-num); }
+.moi .jr .jd small { display: block; font-size: 10.5px; color: var(--ink-3); font-weight: 400; }
+.moi .jr .jm { min-width: 0; display: grid; gap: 2px; }
+.moi .jr .jm b { font-size: 14px; }
+.moi .jr .jm span { font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+.moi .jr .jv { font: 600 13.5px/1.1 var(--f-num); font-variant-numeric: tabular-nums; text-align: right; }
+.moi .jr .ja { grid-column: 2 / -1; display: flex; gap: 14px; }
+.moi .jr.envoi { opacity: .6; }
+.moi .tag.prog { background: var(--rule-2); color: var(--ink-2); }
+.moi .tag.app { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-ink); }
+.moi .raps { display: grid; }
+.moi .rap { border-bottom: 1px solid var(--rule); }
+.moi .rap-h { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 11px 0; }
+.moi .rap-h.fixe { cursor: default; }
+.moi .rap-h:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.moi .rap-n { font-weight: 600; font-size: 14px; display: grid; gap: 2px; min-width: 0; }
+.moi .rap-n small { font-weight: 400; font-size: 12px; color: var(--ink-3); }
+.moi .pt { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.moi .pt.ok { background: var(--up); } .moi .pt.faire { background: #F59E0B; box-shadow: 0 0 0 3px color-mix(in srgb, #F59E0B 25%, transparent); }
+.moi .st { font: 700 11px/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; padding: 4px 7px; border-radius: 5px; background: var(--rule-2); color: var(--ink-2); }
+.moi .st.ok { background: var(--up-bg); color: var(--up); } .moi .st.faire { background: color-mix(in srgb, #F59E0B 18%, transparent); color: #D97706; }
+.moi .rap-c { padding: 0 0 14px 20px; }
+.moi .ligne-champ { display: flex; gap: 8px; }
+.moi .ligne-champ input { flex: 1; min-width: 0; font: 500 15px/1.2 var(--f-num); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); }
+.moi .m-h4 small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transform: none; color: var(--ink-3); margin-left: 6px; }
+.moi .m-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; }
+@media (max-width: 380px) { .moi .rang.trois { grid-template-columns: 1fr 1fr; } .moi .types .type-btn { font-size: 12.5px; } }
+/* jauge du millionnaire */
+.m-million { --gold: #F5C542; position: relative; overflow: hidden; border-radius: 18px; padding: 18px 16px 16px; display: grid; gap: 12px; color: #F4F5F8;
+  background: radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--gold) 34%, transparent), transparent 55%), radial-gradient(90% 80% at 0% 100%, color-mix(in srgb, var(--mc) 40%, transparent), transparent 60%), #0B0D12;
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, #0B0D12); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.m-million .mm-h { display: flex; justify-content: space-between; align-items: center; }
+.m-million .mm-k { font: italic 800 15px/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.m-million .mm-prive { font: 700 10px/1.4 var(--f-display); letter-spacing: .12em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.7); }
+.m-million .mm-pct { display: flex; align-items: baseline; gap: 4px; }
+.m-million .mm-pct b { font: italic 800 clamp(64px, 22vw, 96px)/.9 var(--f-display); letter-spacing: -.01em; background: linear-gradient(180deg, #FFF3C4, var(--gold) 60%, #B7791F); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.m-million .mm-pct span { font: italic 800 28px/1 var(--f-display); color: var(--gold); }
+.m-million .mm-flaps .m-flap { width: clamp(22px, 7vw, 34px); height: clamp(32px, 10vw, 48px); font-size: clamp(18px, 6vw, 28px); }
+.m-million .mm-piste { position: relative; height: 54px; margin: 6px 4px 0 2px; }
+.m-million .mm-rail { position: absolute; left: 0; right: 0; top: 10px; height: 14px; border-radius: 7px; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.m-million .mm-rail i { position: absolute; inset: 0 auto 0 0; border-radius: 7px; background: linear-gradient(90deg, var(--mc), var(--gold)); box-shadow: 0 0 18px color-mix(in srgb, var(--gold) 60%, transparent); }
+.m-million .mm-rail em { position: absolute; top: -7px; width: 12px; height: 28px; margin-left: -6px; border-radius: 3px; background: #fff; transform: skewX(-12deg); box-shadow: 0 0 0 3px var(--mc), 0 0 16px #fff; }
+.m-million .mj { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 22px; }
+.m-million .mj i { width: 2px; height: 34px; background: rgba(255,255,255,.25); position: absolute; top: 4px; }
+.m-million .mj b { margin-top: 36px; font: 600 10.5px/1 var(--f-num); color: rgba(255,255,255,.55); }
+.m-million .mj.passe b { color: var(--gold); } .m-million .mj.passe i { background: var(--gold); }
+.m-million .mj.fin { transform: translateX(-100%); }
+.m-million .mj.fin i { width: 14px; height: 34px; background: repeating-conic-gradient(#fff 0 25%, #0B0D12 0 50%) 0 0 / 7px 7px; border-radius: 2px; }
+.m-million .mj.fin b { color: var(--gold); font-weight: 800; }
+.m-million .mm-seg { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); }
+.m-million .mm-seg button { color: rgba(255,255,255,.75); }
+.m-million .mm-seg button[aria-pressed="true"] { background: var(--gold); color: #17110A; }
+.m-million .mm-eta { margin: 0; font-size: 16px; line-height: 1.4; }
+.m-million .mm-eta b { color: var(--gold); font-weight: 700; }
+.m-million .mm-sub { margin: 0; font-size: 13px; color: rgba(255,255,255,.75); }
+.m-million .mm-sub b { font-family: var(--f-num); color: #fff; }
+.m-million .mm-curseur { display: grid; gap: 6px; font-size: 13px; color: rgba(255,255,255,.85); }
+.m-million .mm-curseur b { font-family: var(--f-num); color: #fff; }
+.m-million .mm-curseur small { color: rgba(255,255,255,.55); }
+.m-million .mm-curseur input { width: 100%; accent-color: var(--gold); }
+.m-million .mm-raz { all: unset; cursor: pointer; color: var(--gold); text-decoration: underline; margin-left: 4px; }
+.m-million .mm-note { margin: 0; font-size: 11.5px; color: rgba(255,255,255,.5); }
 @media (prefers-reduced-motion: reduce) { .moi .m-flap.go { animation: none; } }
 `;
   document.head.appendChild(st);
@@ -192,20 +329,21 @@ async function charger(frais) {
     if (M) SRC = "cache";
   } finally {
     clearTimeout(minuteur); enCours = false;
+    signalerCloche();
     if (vueMoi()) rendre();
   }
 }
 function vueMoi() { const s = document.getElementById("v-moi"); return s && !s.hidden; }
 
 /* ---------- Rendu ---------- */
-const ONGLETS = [["cote", "Cote"], ["patrimoine", "Patrimoine"], ["stats", "Stats"]];
+const ONGLETS = [["jour", "Aujourd'hui"], ["patrimoine", "Patrimoine"], ["stats", "Stats"]];
 
 function rendre() {
   injecterStyle();
   const v = document.getElementById("v-moi"); if (!v) return;
   v.style.setProperty("--mc", maCouleur());
   if (!configure()) { v.innerHTML = ecranConnexion(); brancherConnexion(v); return; }
-  lireCache();
+  lireCache(); signalerCloche();
   if (!M) {
     v.innerHTML = erreur ? '<div class="m-vide"><p>Impossible de lire ton fichier.</p><p class="info">' + esc(erreur) + '</p><button class="btn" type="button" id="m-reessayer">Réessayer</button></div>'
       : '<div class="m-vide"><div class="m-flaps" aria-hidden="true">' + flaps("MOI", !reduit) + "</div><p>Ouverture de ton fichier…</p><p class=\"info\">La première lecture prend quelques secondes. Ensuite, les derniers chiffres s'affichent tout de suite pendant la mise à jour.</p></div>";
@@ -214,16 +352,15 @@ function rendre() {
     return;
   }
   if (Date.now() - dernierAppel > 5 * 60e3 && !enCours && !erreur) setTimeout(() => charger(false), 0);
-  const o = ONGLETS.some(x => x[0] === PREF.onglet) ? PREF.onglet : "cote";
+  const o = ONGLETS.some(x => x[0] === PREF.onglet) ? PREF.onglet : "jour";
   const bandeau = SRC === "cache" ? '<div class="demo-band">' + (enCours ? "Mise à jour de ton fichier…" : erreur ? "Ton fichier n'a pas répondu (" + esc(erreur) + ") · chiffres de la dernière ouverture." : "Chiffres de la dernière ouverture · mise à jour…") + " <small>" + esc(M.majTexte || "") + "</small></div>" : "";
   v.innerHTML =
     '<div class="seg m-onglets" role="tablist" aria-label="Moi">' + ONGLETS.map(([k, l]) => '<button type="button" role="tab" data-m-ong="' + k + '" aria-pressed="' + (o === k) + '" aria-selected="' + (o === k) + '">' + l + "</button>").join("") + "</div>" +
     bandeau +
-    '<div class="m-prive"><b>Privé</b><span>Lu depuis ton fichier, visible seulement sur cet appareil' + (M.majTexte ? " · " + esc(M.majTexte.replace(/^Cours du /, "").replace(/\s*\(.*\)$/, "")) : "") + "</span></div>" +
-    ({ cote: htmlCote, patrimoine: htmlPatrimoine, stats: htmlStats })[o]();
+    ({ jour: htmlJour, patrimoine: htmlPatrimoine, stats: htmlStats })[o]();
   v.querySelectorAll("[data-m-ong]").forEach(b => b.addEventListener("click", () => { PREF.onglet = b.dataset.mOng; garderPref(); rendre(); window.scrollTo(0, 0); }));
   v.querySelectorAll("details.acc[data-acc]").forEach(d => d.addEventListener("toggle", () => { PREF.acc[d.dataset.acc] = d.open; garderPref(); if (d.open && d.dataset.acc === "m-courbe") dessinerCourbe(); }));
-  ({ cote: brancherCote, patrimoine: brancherPatrimoine, stats: brancherStats })[o](v);
+  ({ jour: brancherJour, patrimoine: brancherPatrimoine, stats: brancherStats })[o](v);
 }
 
 function acc(id, titre, sous, contenu, defaut) {
@@ -264,21 +401,6 @@ function note(txt, type) {
   const propre = txt.replace(/^[✓⚠🔔✏️\s]+/u, "").trim();
   return '<div class="m-note ' + type + '"><span class="ic">' + (type === "ok" ? "✓" : type === "warn" ? "!" : "◷") + "</span><span>" + esc(propre).replace(/ +▸ /g, "<br>▸ ") + "</span></div>";
 }
-function serieIndice(nom) {
-  const h = M.historique; if (!h || !h.rows || !h.rows.length) return null;
-  const col = /^Portefeuille/.test(nom) ? "ip" : /PEA/.test(nom) ? "pea" : /CTO/.test(nom) ? "cto" : /^AV/.test(nom) ? "av" : /Crypto/i.test(nom) ? "cr" : null;
-  const k = col ? h.cols.indexOf(col) : -1; if (k < 0) return null;
-  return h.rows.slice(-64).map(r => r[k]).filter(x => ok(x));
-}
-function sparkline(vals) {
-  if (!vals || vals.length < 2) return "";
-  const w = 60, hgt = 22, mn = Math.min(...vals), mx = Math.max(...vals), r = mx - mn || 1;
-  const pts = vals.map((v, i) => [i / (vals.length - 1) * w, hgt - 2 - (v - mn) / r * (hgt - 4)]);
-  const s = sens(vals[vals.length - 1] - vals[0]);
-  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join("");
-  const last = pts[pts.length - 1];
-  return '<svg class="m-spark" viewBox="0 0 ' + w + " " + hgt + '" aria-hidden="true"><path d="' + d + '" fill="none" style="stroke:var(--ink-3)" stroke-width="1.4" stroke-linejoin="round"/><circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.6" style="fill:var(--' + (s === "flat" ? "ink-3" : s) + ')"/></svg>';
-}
 function tuile(lab, val, cls, sub, def) {
   return '<div' + (def ? ' class="m-def-t" role="button" tabindex="0" aria-expanded="false"' : "") + '><span class="lab">' + lab + (def ? '<i class="qm" aria-hidden="true">?</i>' : "") + '</span><span class="val ' + (cls || "") + '">' + val + '</span><span class="sub">' + (sub || "&nbsp;") + "</span>" + (def ? '<span class="m-def">' + esc(def) + "</span>" : "") + "</div>";
 }
@@ -289,90 +411,92 @@ function brancherDefs(v) {
   });
 }
 
-/* ================= Onglet Cote : valeur du jour, enveloppes et leurs lignes ================= */
+/* ================= Onglet Aujourd'hui : la bourse du jour, toutes les lignes visibles d'emblée ================= */
 function patrimoineNet() {
   const imm = M.immo || [], s = M.synthese || {};
   const l = imm.find(x => /^Patrimoine net/.test(x.nom));
   return l ? { avecImmo: true, montant: l.montant, note: l.note } : { avecImmo: false, montant: s.financier, note: "" };
 }
-function htmlCote() {
+function lignesTenues() {
+  const out = [];
+  (M.groupes || []).forEach(g => g.lignes.forEach(l => { if (!l.especes) out.push(Object.assign({ env: g.env }, l)); }));
+  return out;
+}
+function htmlJour() {
   const s = M.synthese || {};
-  const net = patrimoineNet();
   const texteFlap = ETAT.discret === "oui" ? "•••" + NB + "€" : eur(s.valeur);
   const animer = !reduit && texteFlap !== dernierFlap; dernierFlap = texteFlap;
   const suffixe = (s.jourLibelle || "").replace(/^Variation du jour\s*·?\s*/, "");
-  const envs = (M.enveloppes || []).filter(e => e.type !== "indice");
-  const alertes = alertesDeclenchees();
-  const tri = PREF.tri || "env";
-  const lignesEnv = nom => { const g = (M.groupes || []).find(x => x.env === nom); return g ? g.lignes : []; };
-  const rang = (e, i) => {
-    const total = e.type === "total", ouvert = ouverts.has(total ? "__total" : e.nom);
-    let h = '<tr class="click' + (total ? " total" : "") + '" data-i="' + i + '" tabindex="0" aria-expanded="' + ouvert + '">' +
-      '<td><span class="nm">' + esc(e.nom) + '</span><span class="sm">' + (total ? "Toutes enveloppes" : "TWR " + pct(e.twr)) + "</span></td>" +
-      "<td>" + eur(e.valeur) + "</td>" +
-      '<td class="' + sens(e.jourPct) + '">' + pct(e.jourPct, 2) + "</td>" +
-      '<td class="' + sens(e.gain) + '">' + eur(e.gain, 0, true) + '<span class="sm r">' + pct(e.gainPct) + "</span></td>" +
-      '<td class="c-spark">' + sparkline(serieIndice(e.nom)) + "</td></tr>";
-    if (ouvert) h += detailEnv(e, total ? [] : lignesEnv(e.nom));
-    return h;
-  };
+  const toutes = lignesTenues();
+  const detail = PREF.lignes !== false;
+  const tri = detail ? (PREF.tri || "env") : "env";
+  const hausse = toutes.filter(l => l.pct > 1e-9).length, baisse = toutes.filter(l => l.pct < -1e-9).length;
+  // carte du jour : une tuile par ligne, taille = poids dans le portefeuille, couleur = variation du jour
+  const maxP = Math.max(.01, ...toutes.map(l => Math.abs(l.pct || 0)));
+  const totalV = toutes.reduce((a, l) => a + (l.valeur || 0), 0) || 1;
+  const carte = toutes.slice().sort((a, b) => (b.valeur || 0) - (a.valeur || 0)).map(l =>
+    '<button type="button" class="m-tuile" data-aller-ligne="' + esc(l.env + "|" + l.code) + '" style="flex:' + Math.max(1, Math.round((l.valeur || 0) / totalV * 100)) + " 1 calc(" + Math.max(0, ((l.valeur || 0) / totalV * 100) - 2).toFixed(1) + '% - 3px);' + (Math.abs(l.pct || 0) > 1e-9 ? teinte(l.pct, maxP) : "") + '">' +
+    "<b>" + esc(l.code) + "</b><span>" + pct(l.pct, 2) + "</span></button>").join("");
+  // liste : par enveloppe (en-tête avec le jour de l'enveloppe) ou toutes ensemble triées
+  let liste;
+  if (tri === "env") {
+    liste = (M.groupes || []).map(g => {
+      const t = g.total || {};
+      return '<div class="m-env">' + enteteEnv(g.env, t.valeur, t.jour, t.pct, t.pv, t.pvPct) +
+        (detail ? g.lignes.filter(l => !l.especes || Math.abs(l.valeur || 0) >= 0.5).map(l => ligneJour(Object.assign({ env: g.env }, l))).join("") : "") + "</div>";
+    }).join("") + (detail ? "" : '<div class="m-env total">' + enteteEnv("Portefeuille", s.valeur, s.jour, s.jourPct, s.latente, s.latentePct) + "</div>");
+  } else {
+    const cle = { poids: l => -(l.valeur || 0), jour: l => -(l.pct || 0), pv: l => -(l.pvPct || 0) }[tri];
+    liste = '<div class="m-env">' + toutes.slice().sort((a, b) => cle(a) - cle(b)).map(l => ligneJour(l, true)).join("") + "</div>";
+  }
+  const indices = (M.indices || []).filter(i => i.nom !== "1 USD en EUR");
+  const nomIdx = n => n.replace(/\s*\((ETF\s)?([^)]*)\)/, "");
   return '<div class="m-hero">' +
-      '<span class="eyebrow">Valeur du portefeuille</span>' +
+      '<span class="eyebrow">Bourse aujourd\'hui' + (heureCours() ? " · " + esc(heureCours()) : "") + "</span>" +
       '<div class="m-flaps" role="img" aria-label="' + esc(texteFlap) + '">' + flaps(texteFlap, animer) + "</div>" +
-      '<div class="m-jour"><span class="badge ' + sens(s.jour) + '">' + fleche(s.jour) + " " + eur(s.jour, 0, true) + " <small>" + pct(s.jourPct, 2) + "</small></span><span>aujourd'hui" + (suffixe ? " · " + esc(suffixe) : "") + "</span></div>" +
-      '<div class="m-status">' + marches(M.marches) + "</div>" +
+      '<div class="m-jour"><span class="badge big-b ' + sens(s.jour) + '">' + fleche(s.jour) + " " + eur(s.jour, 0, true) + " · " + pct(s.jourPct, 2) + "</span>" +
+        "<span>" + (suffixe ? esc(suffixe) : hausse + " en hausse · " + baisse + " en baisse") + "</span></div>" +
     "</div>" +
-    '<div class="tuiles">' +
-      tuile("Résultat total", eur(s.gain, 0, true), sens(s.gain), pct(s.gainPct) + " des apports · frais inclus", "Valeur actuelle moins apports nets : ce que tes placements t'ont rapporté ou coûté au total, frais compris, ventes comprises.") +
-      tuile("Rendement investisseur (MWR)", pct(s.mwr), sens(s.mwr), "Timing des apports : <b>" + esc(s.timing || "—") + "</b>", "Rendement de ton argent en tenant compte des dates et montants de tes versements. Non annualisé avant un an de recul.") +
-      tuile("Plus-value latente", eur(s.latente, 0, true), sens(s.latente), pct(s.latentePct) + " sur les lignes ouvertes", "Écart entre la valeur des lignes encore détenues et leur prix de revient. Elle devient « réalisée » quand tu vends.") +
-      tuile("Performance (TWR)", pct(s.twr), sens(s.twr), "S&amp;P 500 même durée <b>" + pct(s.sp500) + "</b>", "Performance des placements eux-mêmes, sans l'effet de tes versements : c'est elle qu'on compare au S&P 500. Elle garde la trace des pertes faites quand le portefeuille était petit.") +
-    "</div>" +
-    '<div class="m-totaux">' +
-      '<button type="button" data-m-aller="patrimoine"><span class="lab">Apports nets</span><span class="val">' + eur(s.apports) + "</span></button>" +
-      '<button type="button" data-m-aller="patrimoine"><span class="lab">Financier</span><span class="val">' + eur(s.financier) + "</span></button>" +
-      '<button type="button" data-m-aller="patrimoine"><span class="lab">' + (net.avecImmo ? "Patrimoine net" : "Épargne") + '</span><span class="val acc">' + eur(net.avecImmo ? net.montant : s.epargne) + "</span></button>" +
-    "</div>" +
-    '<div class="m-notes">' + alertes.map(t => note(t, "warn")).join("") +
-      note(M.anomalies, /^✓/.test(M.anomalies || "") ? "ok" : "warn") +
-      note(M.rappel, /À mettre à jour/.test(M.rappel || "") ? "warn" : "rappel") + "</div>" +
+    blocSignal() +
+    bandeDebut(s) +
+    '<div class="m-carte" role="group" aria-label="Carte du jour : une tuile par ligne">' + carte + "</div>" +
     "<div>" +
-      '<h2 class="sec">Mes enveloppes <small>touche une enveloppe pour ses lignes</small></h2>' +
-      '<div class="m-tri"><span class="info">' + (tri === "env" ? "Lignes rangées sous chaque enveloppe." : "Toutes les lignes classées plus bas.") + "</span>" +
-        '<label class="sel"><span>Lignes</span><select id="m-tri">' + [["env", "Par enveloppe"], ["poids", "Par poids"], ["jour", "Par variation du jour"], ["pv", "Par plus-value"]].map(([k, l]) => '<option value="' + k + '"' + (tri === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select></label></div>" +
-      '<div class="scroll-x"><table class="m-cote"><thead><tr><th>Enveloppe</th><th>Valeur</th><th>Jour</th><th>Résultat</th><th class="c-spark">3 mois</th></tr></thead><tbody>' + envs.map(rang).join("") + "</tbody></table></div>" +
+      '<div class="m-tri"><h2 class="sec">' + (detail ? "Mes lignes" : "Mes enveloppes") + "</h2>" +
+        '<label class="m-coche"><input type="checkbox" id="m-detail"' + (detail ? " checked" : "") + "> Lignes</label>" +
+        (detail ? '<label class="sel"><span>Classer</span><select id="m-tri">' + [["env", "Par enveloppe"], ["jour", "Par variation du jour"], ["poids", "Par montant"], ["pv", "Par plus-value"]].map(([k, l]) => '<option value="' + k + '"' + (tri === k ? " selected" : "") + ">" + l + "</option>").join("") + "</select></label>" : "") + "</div>" +
+      liste +
+      (detail ? '<p class="info" style="margin-top:6px">Touche une ligne pour ses performances et son prix de revient.</p>' : "") +
     "</div>" +
-    (tri !== "env" ? toutesLignes(tri) : "");
+    (indices.length ? '<div><h2 class="sec">Marchés <small>variation du jour</small></h2><div class="m-idx">' + indices.map(i => '<div><span>' + esc(nomIdx(i.nom)) + '</span><b class="' + sens(i.pct) + '">' + pct(i.pct, 2) + "</b></div>").join("") + "</div></div>" : "") +
+    "";
 }
-function detailEnv(e, lignes) {
-  const m = (l, v) => "<div><span>" + l + '</span><b class="' + sens(v) + '">' + pct(v) + "</b></div>";
-  const debut = e.debut ? dateLongue(new Date(e.debut + "T12:00:00")) : "—";
-  const tri = PREF.tri || "env";
-  return '<tr class="m-det"><td colspan="5"><div class="mini quatre">' +
-    m("1 semaine", e.s1) + m("1 mois", e.m1) + m("6 mois", e.m6) + m("Depuis janv.", e.ytd) +
-    m("1 an", e.a1) + m("TWR", e.twr) + m("MWR", e.mwr) +
-    "<div><span>Volatilité 1 an</span><b>" + pct(e.vol, 1, false) + "</b></div>" +
-    "<p>" + esc(e.lecture || "") + (e.lecture ? " · " : "") + "suivi depuis le " + debut + "</p></div>" +
-    (tri === "env" && lignes.length ? '<div class="m-lignes">' + lignes.map(l => ligneHtml(Object.assign({ env: e.nom }, l))).join("") + "</div>" : "") +
-    "</td></tr>";
+function enteteEnv(nom, valeur, jour, jourPct, pv, pvPct) {
+  return '<div class="m-env-h"><b>' + esc(nom) + '</b><span class="v">' + eur(valeur) + "</span>" +
+    '<span class="pv ' + sens(pv) + '">PV ' + eur(pv, 0, true) + " · " + pct(pvPct) + '</span><span class="j ' + sens(jour) + '">' + eur(jour, 0, true) + " · " + pct(jourPct, 2) + "</span></div>";
 }
-function toutesLignes(tri) {
-  const toutes = [];
-  (M.groupes || []).forEach(g => g.lignes.forEach(l => { if (!l.especes) toutes.push(Object.assign({ env: g.env }, l)); }));
-  const cle = { poids: l => -(l.poids || 0), jour: l => -(l.pct || 0), pv: l => -(l.pvPct || 0) }[tri];
-  toutes.sort((a, b) => cle(a) - cle(b));
-  return '<div><h2 class="sec">Toutes les lignes <small>' + toutes.length + " lignes</small></h2>" +
-    '<div class="m-lignes">' + toutes.map(l => ligneHtml(l, true)).join("") + "</div></div>";
+function heureCours() { return String(M.majTexte || "").replace(/^Cours du /, "").replace(/\s*\(.*\)$/, "").replace(/^.* à /, ""); }
+/* « Depuis le début » : bande compacte sous le chiffre du jour, définition au toucher */
+const DEFS = {
+  gain: "Résultat total : valeur actuelle moins apports nets, ce que tes placements t'ont rapporté ou coûté, frais et ventes compris.",
+  latente: "Plus-value latente : écart entre la valeur des lignes encore détenues et leur prix de revient. Elle devient « réalisée » quand tu vends.",
+  mwr: "MWR : rendement de ton argent en tenant compte des dates et montants de tes versements. Non annualisé avant un an de recul.",
+  twr: "TWR : performance des placements eux-mêmes, sans l'effet de tes versements. C'est elle qu'on compare au S&P 500."
+};
+function bandeDebut(s) {
+  const c = (k, lab, val, cls, sub) => '<button type="button" data-def="' + k + '"><span class="lab">' + lab + '</span><b class="' + cls + '">' + val + "</b><small>" + sub + "</small></button>";
+  return '<div class="m-debut-w"><span class="eyebrow">Depuis le début</span><div class="m-debut">' +
+    c("gain", "Résultat", eur(s.gain, 0, true), sens(s.gain), pct(s.gainPct)) +
+    c("latente", "Latente", eur(s.latente, 0, true), sens(s.latente), pct(s.latentePct)) +
+    c("mwr", "MWR", pct(s.mwr), sens(s.mwr), "timing " + esc(s.timing || "—")) +
+    c("twr", "TWR", pct(s.twr), sens(s.twr), "S&amp;P " + pct(s.sp500)) +
+    '</div><p class="m-def-l" hidden></p></div>';
 }
-function ligneHtml(l, avecEnv) {
-  if (l.especes) return '<div class="m-ligne especes"><div class="code">Espèces</div><div class="v">' + eur(l.valeur) + "</div></div>";
-  const poids = Math.max(0, Math.min(1, l.poids || 0));
-  return '<div class="m-ligne" role="button" tabindex="0" aria-expanded="false" data-code="' + esc(l.code) + '" data-env="' + esc(l.env) + '">' +
-    '<div style="min-width:0"><div class="code">' + esc(l.code) + (avecEnv ? '<span class="tag">' + esc(String(l.env).split(" ")[0]) + "</span>" : "") + '</div><div class="nom">' + esc(l.nom || "") + "</div></div>" +
-    '<div><div class="v">' + eur(l.valeur) + '</div><div class="pv ' + sens(l.pv) + '">' + eur(l.pv, 0, true) + " · " + pct(l.pvPct) + "</div></div>" +
-    '<div class="meta"><span>' + cours(l.cours) + '</span><span class="badge ' + sens(l.pct) + '">' + fleche(l.pct) + " " + pct(l.pct, 2) + "</span>" +
-      '<span class="muted">' + qte(l.qte) + " × PRU " + cours(l.pru) + "</span></div>" +
-    '<div class="m-poids"><div class="bar"><i style="width:' + (poids * 100).toFixed(1) + '%"></i></div><span>' + pct(poids, 1, false) + "</span></div>" +
+function ligneJour(l, avecEnv) {
+  if (l.especes) return '<div class="m-l especes"><div class="g"><b>Espèces</b></div><div class="d"><span class="v">' + eur(l.valeur) + "</span></div></div>";
+  return '<div class="m-l" role="button" tabindex="0" aria-expanded="false" data-code="' + esc(l.code) + '" data-env="' + esc(l.env) + '">' +
+    '<div class="g"><b>' + esc(l.code) + (avecEnv ? '<span class="tag">' + esc(String(l.env).split(" ")[0]) + "</span>" : "") + "</b><small>" + esc(l.nom || "") + "</small></div>" +
+    '<div class="d"><span class="badge ' + sens(l.pct) + '">' + pct(l.pct, 2) + '</span><small class="' + sens(l.jour) + '">' + eur(l.jour, 0, true) + "</small></div>" +
+    '<div class="b"><span>' + cours(l.cours) + "</span><span>" + eur(l.valeur) + ' <i>' + pct(l.poids, 0, false) + '</i></span><span class="' + sens(l.pv) + '">PV ' + eur(l.pv, 0, true) + " · " + pct(l.pvPct) + "</span></div>" +
     "</div>";
 }
 function basculerLigne(el) {
@@ -381,14 +505,25 @@ function basculerLigne(el) {
   const env = el.dataset.env, code = el.dataset.code;
   const p = (M.perfLignes || {})[env + "|" + code] || {};
   const pos = (((M.ref || {}).detenu) || []).find(d => d.env === env && d.code === code) || {};
-  const m = (l, v) => "<div><span>" + l + '</span><b class="' + sens(v) + '">' + pct(v) + "</b></div>";
-  const e = (l, v, sig) => "<div><span>" + l + '</span><b class="' + (sig ? sens(v) : "") + '">' + (ok(v) ? eur(v, 2, sig) : "—") + "</b></div>";
+  const l = lignesTenues().find(x => x.env === env && x.code === code) || {};
+  const m = (lab, v) => "<div><span>" + lab + '</span><b class="' + sens(v) + '">' + pct(v) + "</b></div>";
+  const e = (lab, v, sig) => "<div><span>" + lab + '</span><b class="' + (sig ? sens(v) : "") + '">' + (ok(v) ? eur(v, 2, sig) : "—") + "</b></div>";
   const d = document.createElement("div");
   d.className = "m-ligne-det";
   d.innerHTML = '<div class="mini">' + m("1 semaine", p.s1) + m("1 mois", p.m1) + m("6 mois", p.m6) + m("Depuis janv.", p.ytd) + m("1 an", p.a1) +
+    "<div><span>Quantité × PRU</span><b>" + qte(l.qte) + " × " + cours(l.pru) + "</b></div>" +
     e("Coût de revient", pos.cout) + e("Plus-value réalisée", pos.pvr, true) + e("Frais payés", pos.frais) +
-    '<p style="grid-column:1/-1;margin:0;font-size:12px;color:var(--ink-2)">' + (p.ticker ? "Performance du cours (" + esc(p.ticker) + "), indépendante de tes dates d'achat." : "Pas de cotation Google Finance pour cette ligne : performances du cours indisponibles.") + "</p></div>";
+    '<p style="grid-column:1/-1;margin:0;font-size:12px;color:var(--ink-2)">' + (p.ticker ? "Performance du cours (" + esc(p.ticker) + "), indépendante de tes dates d'achat." : "Pas de cotation Google Finance pour cette ligne : performances du cours indisponibles.") + "</p>" +
+    '<p class="m-actions"><button class="mini-btn" type="button" data-ordre="Achat">Acheter</button><button class="mini-btn" type="button" data-ordre="Vente">Vendre</button><button class="mini-btn" type="button" data-alerte="1">Alerte de cours</button></p></div>';
   el.appendChild(d);
+  d.querySelectorAll("[data-ordre]").forEach(b => b.addEventListener("click", ev => { ev.stopPropagation(); ouvrirSaisieM({ type: b.dataset.ordre, env: env, actif: code }); }));
+  d.querySelector("[data-alerte]").addEventListener("click", ev => {
+    ev.stopPropagation();
+    const c = (refData().cours || {})[code];
+    alertePre = { code: code, seuil: c ? saisieNombre(c, c < 10 ? 2 : 0) : "" };
+    reglageOuvert = null; ouvrirSaisieM(null, "maj");
+    setTimeout(() => { const el2 = document.querySelector('#m-pane-maj [data-reg="alertes"]'); if (el2) el2.scrollIntoView({ block: "start" }); }, 40);
+  });
   el.setAttribute("aria-expanded", "true");
 }
 function alertesDeclenchees() {
@@ -400,20 +535,28 @@ function alertesDeclenchees() {
   });
   return out;
 }
-function brancherCote(v) {
-  brancherDefs(v);
-  const envs = (M.enveloppes || []).filter(e => e.type !== "indice");
-  v.querySelectorAll(".m-cote tr.click").forEach(tr => {
-    const f = () => { const e = envs[+tr.dataset.i]; const k = e.type === "total" ? "__total" : e.nom; if (ouverts.has(k)) ouverts.delete(k); else ouverts.add(k); rendre(); };
-    tr.addEventListener("click", f);
-    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); f(); } });
-  });
-  v.querySelectorAll(".m-ligne[data-code]").forEach(el => {
+function brancherJour(v) {
+  brancherDefs(v); brancherSignal(v);
+  v.querySelectorAll(".m-l[data-code]").forEach(el => {
     el.addEventListener("click", e => { if (!e.target.closest(".m-ligne-det")) basculerLigne(el); });
     el.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target === el) { e.preventDefault(); basculerLigne(el); } });
   });
+  v.querySelectorAll("[data-aller-ligne]").forEach(b => b.addEventListener("click", () => {
+    const [env, code] = b.dataset.allerLigne.split("|");
+    const el = Array.from(v.querySelectorAll(".m-l[data-code]")).find(x => x.dataset.env === env && x.dataset.code === code);
+    if (!el) return;
+    if (!el.querySelector(".m-ligne-det")) basculerLigne(el);
+    el.scrollIntoView({ block: "center", behavior: reduit ? "auto" : "smooth" });
+    el.classList.add("eclair"); setTimeout(() => el.classList.remove("eclair"), 1200);
+  }));
   const t = v.querySelector("#m-tri"); if (t) t.addEventListener("change", () => { PREF.tri = t.value; garderPref(); rendre(); });
-  v.querySelectorAll("[data-m-aller]").forEach(b => b.addEventListener("click", () => { PREF.onglet = b.dataset.mAller; garderPref(); rendre(); window.scrollTo(0, 0); }));
+  const dt = v.querySelector("#m-detail"); if (dt) dt.addEventListener("change", () => { PREF.lignes = dt.checked; garderPref(); rendre(); });
+  const def = v.querySelector(".m-def-l");
+  v.querySelectorAll("[data-def]").forEach(b => b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    v.querySelectorAll("[data-def]").forEach(x => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", String(on)); def.hidden = !on; def.textContent = on ? DEFS[b.dataset.def] : "";
+  }));
 }
 
 /* ================= Onglet Patrimoine ================= */
@@ -441,11 +584,9 @@ function htmlPatrimoine() {
     return '<div class="r' + (t ? " total" : "") + '"><span class="a">' + esc(r.nom) + '</span><span class="b ' + sens(r.gainNet) + '">' + eur(r.gainNet, 0, true) + "</span>" +
       '<span class="c">' + (r.fiscal && r.fiscal !== "—" ? "Fiscalité allégée le " + esc(r.fiscal) : t ? "Après impôt estimé" : "Pas d'avantage fiscal de durée") + '</span><span class="d">impôt ≈ ' + eur(r.impot) + "</span></div>"; };
   const bloc = (id, c, titre, sous, contenu) => '<section class="m-bloc" id="' + id + '" style="--c:var(' + c + ')"><h2 class="sec">' + titre + " <small>" + sous + "</small></h2>" + contenu + "</section>";
-  const aBarres = seriePatrimoine().length > 1;
   return '<div class="hero"><span class="eyebrow">' + (net.avecImmo ? "Patrimoine net (avec immobilier)" : "Patrimoine financier") + '</span><span class="m-big">' + eur(net.montant) + '</span><div class="sous">' + esc(net.note || "") + "</div></div>" +
     '<div><div class="stack" role="img" aria-label="Répartition du patrimoine">' + parts.map(p => '<i style="flex:' + Math.max(p[1], 0) + ";background:var(" + p[2] + ')"></i>').join("") + "</div>" +
       '<div class="m-leg3">' + parts.map(p => '<button type="button" data-cible="' + p[3] + '"><i style="background:var(' + p[2] + ')"></i><span>' + p[0] + '</span><span class="num">' + eur(p[1]) + '</span><span class="pc">' + pct(p[1] / tot, 0, false) + "</span></button>").join("") + "</div></div>" +
-    (aBarres ? '<div><h2 class="sec">Mois par mois <small>fin de mois, empilé</small></h2><div class="chart-box m-barres"><div class="legend" id="m-leg-patri"></div><svg id="m-barres" role="img" aria-label="Patrimoine mois par mois"></svg></div><p class="resume" id="m-patri-sel"></p></div>' : "") +
     bloc("p-bourse", "--s1", "Bourse", "portefeuille", liste(envs, rEnv)) +
     bloc("p-epargne", "--s2", "Épargne", esc(s.epargneLibelle || ""), liste(ep, rEp) + (sup.length ? '<h3 class="m-sous">Assurance-vie · supports</h3>' + liste(sup, rSup) : "")) +
     (net.avecImmo ? bloc("p-immo", "--s3", "Immobilier", "prix d'achat, prêts restants", pretHtml() + liste(imm, rImm)) : "") +
@@ -491,43 +632,8 @@ function graduations(mn, mx, n) {
   const t = []; for (let v = a; v <= b + pas / 2; v += pas) t.push(+v.toFixed(6));
   return t;
 }
-function dessinerBarres() {
-  const svg = document.getElementById("m-barres"); if (!svg) return;
-  const s = seriePatrimoine(); if (s.length < 2) return;
-  const series = [["bourse", "Bourse", "--s1"], ["epargne", "Épargne", "--s2"]].concat(s.some(x => x.immo) ? [["immo", "Immobilier net", "--s3"]] : []);
-  document.getElementById("m-leg-patri").innerHTML = series.map(x => '<span><i class="carre" style="background:var(' + x[2] + ')"></i>' + x[1] + "</span>").join("");
-  const W = Math.max(280, svg.parentElement.clientWidth - 20), H = 210, m = { l: 44, r: 6, t: 8, b: 22 };
-  const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const ticks = graduations(0, Math.max(...s.map(x => x.total)) * 1.05 || 1, 4), top = ticks[ticks.length - 1];
-  const Y = v => m.t + ih - v / top * ih;
-  const pas = iw / s.length, bw = Math.max(4, Math.min(24, pas - 4));
-  let out = "";
-  ticks.forEach(t => {
-    out += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '" style="stroke:var(--rule)"/>';
-    out += '<text x="' + (m.l - 6) + '" y="' + (Y(t) + 3.5).toFixed(1) + '" text-anchor="end">' + axeEur(t) + "</text>";
-  });
-  s.forEach((x, i) => {
-    const cx = m.l + pas * i + pas / 2; let base = 0;
-    series.forEach(([k, , c]) => {
-      const v = x[k]; if (!(v > 0)) return;
-      const y0 = Y(base), y1 = Y(base + v);
-      out += '<rect x="' + (cx - bw / 2).toFixed(1) + '" y="' + (y1 + 1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(0, y0 - y1 - 1).toFixed(1) + '" rx="2" style="fill:var(' + c + ')"' + (x.complet ? "" : ' fill-opacity=".45"') + "/>";
-      base += v;
-    });
-    if (x.mo === 1 || i === 0) out += '<text x="' + cx.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + (x.mo === 1 ? x.an : MOIS[x.mo - 1]) + "</text>";
-    out += '<rect class="hitb" data-i="' + i + '" x="' + (cx - pas / 2).toFixed(1) + '" y="0" width="' + pas.toFixed(1) + '" height="' + H + '" fill="transparent"/>';
-  });
-  svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("height", H);
-  svg.innerHTML = out;
-  const detail = i => { const x = s[i];
-    svg.querySelectorAll(".hitb").forEach(r => r.style.fill = +r.dataset.i === i ? "color-mix(in srgb, var(--ink) 7%, transparent)" : "transparent");
-    document.getElementById("m-patri-sel").innerHTML = "<b>" + MOIS[x.mo - 1] + " " + x.an + "</b> : bourse " + eur(x.bourse) + " · épargne " + eur(x.epargne) + (x.immo ? " · immobilier net " + eur(x.immo) : "") + " · total <b>" + eur(x.total) + "</b>" + (x.complet ? "" : " (épargne non suivie ce mois-là)"); };
-  svg.querySelectorAll(".hitb").forEach(r => { r.addEventListener("pointerenter", () => detail(+r.dataset.i)); r.addEventListener("pointerdown", () => detail(+r.dataset.i)); });
-  detail(s.length - 1);
-}
 function brancherPatrimoine(v) {
   v.querySelectorAll("[data-cible]").forEach(b => b.addEventListener("click", () => { const c = document.getElementById(b.dataset.cible); if (c) c.scrollIntoView({ block: "start", behavior: reduit ? "auto" : "smooth" }); }));
-  dessinerBarres();
 }
 
 /* ================= Onglet Stats ================= */
@@ -559,6 +665,7 @@ function htmlStats() {
     '<div class="chips" role="group" aria-label="Période">' + PERIODES_M.map(([k, l]) => '<button class="chip" type="button" data-m-per="' + k + '" aria-pressed="' + (per === k) + '">' + l + "</button>").join("") + "</div>" +
     '<div id="m-courbe-box"></div><p class="resume" id="m-resume"></p>' : '<div class="vide">Pas encore assez de relevés pour tracer une courbe.</div>';
   return '<div><h2 class="sec">Courbe <small>' + (derniere ? "relevé du " + dateLongue(derniere) : "") + "</small></h2></div>" + courbe +
+    blocPatrimoineTemps() + blocEpargneTemps() + blocPret() +
     blocRisque() + blocMois() + blocRepartition() +
     blocJours() +
     acc("m-perf", "Performances", "TWR par période, par enveloppe", '<div class="scroll-x"><table class="tab"><thead><tr><th>Enveloppe</th><th>1 sem.</th><th>1 mois</th><th>6 mois</th><th>Janv.</th><th>1 an</th><th>Début</th><th>MWR</th><th>Vol.</th></tr></thead><tbody>' + envs.map(perfLigne).join("") + "</tbody></table></div>", false) +
@@ -708,12 +815,886 @@ function brancherStats(v) {
     td.addEventListener("click", f); td.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); f(); } });
   });
   const g = v.querySelector(".grille"); if (g) { const sx = g.closest(".scroll-x"); if (sx) sx.scrollLeft = sx.scrollWidth; }
-  dessinerCourbe();
+  v.querySelectorAll("[data-m-patri]").forEach(b => b.addEventListener("click", () => { PREF.patri = b.dataset.mPatri; garderPref(); re(); }));
+  dessinerCourbe(); dessinerPatrimoine(); dessinerEpargne(); dessinerPret();
+}
+
+/* ================= Signal levier Nasdaq (repris tel quel de Cote V5.6 : mêmes données, mêmes règles, mêmes textes) ================= */
+let signalOuvert = false;
+function blocSignal() {
+  const g = M.signal;
+  if (!g || !g.position) return "";
+  const NNBSP = NB;
+  const cls = !g.expose ? "hors" : g.reduit ? "x1" : g.creux ? "creux" : "x2";
+  const court = s => s ? s.slice(8, 10) + "/" + s.slice(5, 7) + "/" + s.slice(2, 4) : "—";
+  const p = v => v === null || v === undefined ? "—" : pct(v / 100);
+  const p1 = v => v === null || v === undefined ? "—" : F1.format(v) + NNBSP + "%";
+  const coche = ok2 => ok2 === null || ok2 === undefined ? '<i class="ck">?</i>' : ok2 ? '<i class="ck up">✓</i>' : '<i class="ck down">✕</i>';
+  const qm = '<button type="button" class="qm-b" aria-label="Que veut dire cette donnée ?">?</button>';
+  const aide = t => t ? '<span class="aide">' + t + "</span>" : "";
+  const qmCase = k => '<button type="button" class="qm-b" data-case="' + k + '" aria-label="Que veut dire cette donnée ?">?</button>';
+  const cell = (lab, val, c, sub, k) => '<span class="pc-c"><span class="lab">' + lab + (k ? qmCase(k) : "") + '</span><span class="val ' + (c || "") + '">' + val + '</span><span class="sub">' + sub + "</span></span>";
+  const ligne = (a, b, c, bCls, ex) => '<div class="r" data-aide><span class="a">' + a + (ex ? qm : "") + '</span><span class="b ' + (bCls || "") + '">' + b + "</span>" + (c ? '<span class="c" style="grid-column:1/-1">' + c + "</span>" : "") + (ex ? '<span class="c aide-l" style="grid-column:1/-1">' + aide(ex) + "</span>" : "") + "</div>";
+  const EX = {
+    distance: "Écart entre le Nasdaq-100 (dernière clôture) et le seuil qui déclencherait un ordre. En position, ce seuil est la vente : la moyenne mobile 45 semaines (EMA) moins 5 %. +11 % veut dire que le Nasdaq peut encore baisser d'environ 11 % avant un signal de vente. Hors marché, c'est la distance au seuil d'achat (l'EMA) : un chiffre négatif veut dire qu'il est encore en dessous.",
+    vol: "Amplitude des variations quotidiennes du Nasdaq sur les 20 dernières séances, ramenée à l'année. Au-dessus de 30 %, la règle passe en ×1, parce qu'un ETF à levier perd beaucoup quand le marché secoue. Elle ne revient au levier que sous 25 %, pour éviter les allers-retours. Un marché calme est autour de 15 à 20 %.",
+    depuis: "Date du dernier changement d'exposition (entrée en position ou sortie du marché) et variation du Nasdaq depuis cette date. Une bascule ×2 ↔ ×1 ne remet pas ce compteur à zéro.",
+    cto: "Ce que la même règle dit pour le compte-titres, le même jour que le PEA : QQQ3 (×3) en position, Nasdaq-100 ×1 quand l'alarme de volatilité est allumée, or quand le signal est hors marché (au lieu du cash du PEA). Au CTO, chaque bascule est une vente imposée à 31,4 % sur la plus-value.",
+    apport: "Où placer l'argent nouveau du mois selon la formule d'espérance du Pine : ×1 (ETF Nasdaq au PEA), ×2 (LQQ au PEA) ou ×3 (QQQ3 au CTO), après impôt. Ça ne change rien à ce que tu détiens déjà : c'est seulement pour le nouvel argent.",
+    verdict: "Le levier qui donne le meilleur rendement attendu après impôt avec la croissance (μ), la volatilité (σ) et le taux (r) du jour. « Avance » = écart avec le deuxième meilleur choix : sous 1 point par an, les deux se valent. Hors marché, la règle prime : pas d'apport en actions (cash au PEA, or au CTO).",
+    donnees: "μ : croissance annuelle de fond du Nasdaq, mesurée par la pente des 5 dernières années, dividendes compris. C'est l'hypothèse la plus fragile : elle est au plus haut juste avant les retournements (fin 1999, fin 2021). σ : volatilité du Nasdaq sur un an. Plus elle est haute, plus le levier perd (le coût grimpe avec le carré du levier). r : taux directeur de la Fed (FRED, DFF). C'est le coût d'emprunt payé par les ETF à levier sur la part empruntée : une fois sur un ×2, deux fois sur un ×3.",
+    net: "Rendement annuel attendu de chaque option si μ, σ et r restaient constants, frais et impôts déduits. PEA : 18,6 % prélevés une seule fois à la sortie (horizon 15 ans). CTO : 31,4 % sur la plus-value à chaque vente, environ tous les 1,2 an au rythme de la stratégie. Ces chiffres servent à comparer les options entre elles, pas à prévoir ton rendement.",
+    x21: "Gain (ou perte) annuel attendu du LQQ ×2 par rapport à un Nasdaq sans levier, au PEA. ✓ = le ×2 vaut le coup. « Taux max » = taux de la Fed au-delà duquel le ×2 ne battrait plus le ×1.",
+    x32: "Le QQQ3 ×3 au CTO face au LQQ ×2 au PEA, impôts compris. ✓ = le ×3 rapporterait plus malgré l'impôt du CTO. « Taux max » = taux de la Fed au-delà duquel le ×3 perd (« aucun » = il perd même à taux zéro, à cause de l'impôt). « σ ≤ … » = volatilité au-dessus de laquelle le ×3 perd au taux actuel.",
+    museuil: "Croissance annuelle minimale du Nasdaq pour que le ×3 batte le ×2. Brut = sans impôt ; net = en comptant l'impôt du CTO à chaque vente et celui du PEA à la sortie. ✓ si la pente des 5 dernières années dépasse le seuil net. L'écart entre brut et net, c'est ce que coûte la fiscalité du CTO.",
+    vol20: "Même volatilité que la case du haut. Au-dessus de 30 % : passage en ×1 au PEA (LQQ → Nasdaq ×1) et au CTO (QQQ3 → Nasdaq ×1). Retour au levier sous 25 %. Une position prise sur un creux n'est pas concernée, pour ne pas vendre au pire moment.",
+    omen: "Le Pine utilise une deuxième alarme, le Hindenburg Omen, qui détecte une bourse de New York fragile (beaucoup de plus hauts et de plus bas en même temps). Ses données ne sont pas disponibles gratuitement, donc elle n'est pas suivie ici. Tu passeras un peu moins souvent en ×1 que le Pine.",
+    creux: "Règle d'entrée anticipée, utile seulement hors marché après une forte baisse. PRÊT = toutes les sécurités sont au vert, il n'attend qu'une baisse assez large. BLOQUÉ = une sécurité est au rouge (la raison est indiquée). DÉSARMÉ = déjà utilisée pendant cet épisode. EN CREUX = la position a été prise ainsi. En position normale, la règle ne sert pas.",
+    largeur: "Profondeur de la baisse : écart entre le Nasdaq et sa moyenne des 150 dernières séances. Le creux se déclenche à −10 % ou moins. Un ✕ en marché haussier est normal : il n'y a pas de baisse.",
+    bulle: "Combien de fois le Nasdaq a été multiplié sur 5 ans, au plus haut des 2 dernières années. Au-dessus de ×4, le marché est jugé en bulle et l'entrée sur creux est refusée (en 2000, c'était ×10,5).",
+    sahm: "Indicateur de récession de la Fed de Saint-Louis : hausse du chômage américain (moyenne 3 mois) par rapport à son plus bas de l'année. Vers 0,50, la récession est en général déjà là ; la règle refuse le creux dès 0,30. 0,00 = le chômage est à son plus bas de l'année.",
+    prime: "Même logique, sur le taux d'emploi des 25-54 ans, moins bruité que le chômage : baisse depuis son plus haut de l'année. Refus du creux à partir de 0,50.",
+    arme: "L'entrée sur creux ne sert qu'une fois par épisode de baisse. Elle se réarme quand la tendance redevient acheteuse.",
+    journal: "ACHAT / VENTE : signal de tendance (EMA 45 semaines). ×1 / ×2 : alarme de volatilité (au CTO, ×2 veut dire retour au QQQ3 ×3). CREUX : entrée anticipée. RELAIS : la tendance reprend une position creux, rien à acheter. VENTE ÉVITÉE : vente et creux le même jour, position gardée. REFUS : un creux bloqué par une sécurité."
+  };
+  const seuil = g.creux ? "relais par l'EMA" : g.expose ? "avant la vente" : "avant l'achat";
+  const vol = g.vol20 === null || g.vol20 === undefined ? "—" : F1.format(g.vol20) + NNBSP + "%";
+  const volCls = g.vol20 !== null && g.vol20 >= g.volHaut ? "down" : "";
+  let msg = "";
+  if (g.transition) msg = '<p class="sig-msg ordre">⏵ PEA : ' + esc(g.ordre) + "</p>" + (g.positionCTO && g.ordreCTO && g.ordreCTO !== "Aucun" ? '<p class="sig-msg ordre">⏵ CTO : ' + esc(g.ordreCTO) + "</p>" : "");
+  else if (g.provisoire && g.provisoire.changement) msg = '<p class="sig-msg alerte">Séance US en cours : ' + esc(g.provisoire.position) + " si la clôture reste à ce niveau (provisoire)</p>";
+  else if (g.zoneTendance) msg = '<p class="sig-msg alerte">Zone d\'alerte : le Nasdaq est à ' + F1.format(Math.abs(g.distance)) + NNBSP + "% du seuil " + (g.expose ? "de vente" : "d'achat") + "</p>";
+  else if (g.zoneVol) msg = '<p class="sig-msg alerte">Zone d\'alerte : volatilité proche de ' + g.volHaut + NNBSP + "%, passage en ×1 possible</p>";
+  else msg = '<p class="sig-msg">Aucun ordre · séance du ' + esc(court(g.date)) + "</p>";
+
+  /* une VENTE et un CREUX le même jour = la vente n'a pas lieu (anciens journaux) : une seule ligne */
+  const bruts = g.signaux || [], fusion = [];
+  bruts.forEach(x => {
+    const jumeau = bruts.find(y => y !== x && y.date === x.date && ((x.type === "VENTE" && y.type === "CREUX") || (x.type === "CREUX" && y.type === "VENTE")));
+    if (!jumeau) { fusion.push(x); return; }
+    if (x.type === "VENTE") fusion.push({ type: "VENTE ÉVITÉE", date: x.date, detail: "Creux détecté le même jour : la position est gardée, aucun ordre." });
+  });
+  const typeCls = t => t === "VENTE ÉVITÉE" ? "t-EVITEE" : "t-" + String(t).replace("×1", "x1").replace("×2", "x2");
+  const journal = fusion.slice(0, 8).map(x =>
+    '<div class="r"><span class="a ' + typeCls(x.type) + '">' + esc(x.type) + '</span><span class="b">' + esc(court(x.date)) + '</span><span class="c" style="grid-column:1/-1">' + esc(x.detail) + "</span></div>").join("");
+
+  /* arbitrage du DCA : ×1 / ×2 au PEA, ×3 au CTO, nets d'impôt (formule d'espérance du Pine) */
+  const a = g.arbitrage;
+  let arb = "";
+  if (a) {
+    const tMax = x => x === undefined || x === null ? "" : x < 0 ? "taux max : aucun" : x >= 50 ? "taux max > 50 %" : "taux max " + F1.format(x) + NNBSP + "%";
+    const ou = a.optimal === 3 ? "CTO · QQQ3" : a.optimal === 2 ? "PEA · LQQ" : "PEA · ETF ×1";
+    arb = '<h4 class="sig-h">Apport du mois <small>formule d\'espérance, pas une prévision</small></h4>' +
+      ligne(g.expose ? "Verdict" : "Hors marché", g.expose ? "×" + a.optimal + " · " + ou : "cash PEA · or CTO", g.expose && a.avance !== undefined ? "avance de " + F1.format(a.avance) + " pt/an sur le deuxième choix, après impôt" : "le DCA ne va jamais sur ce que le signal dit de ne pas détenir", g.expose ? "acc" : "down", EX.verdict) +
+      ligne("Données", "μ " + F1.format(a.mu) + " · σ " + F1.format(a.sigma) + " · r " + F2.format(a.taux) + " %", "μ = pente " + "5 ans du Nasdaq, dividendes compris · σ sur 252 séances · r = taux Fed (" + esc(a.tauxSource || "FRED") + ")", "", EX.donnees) +
+      (a.rendX1 !== undefined ? ligne("Net/an", "×1 " + F1.format(a.rendX1) + " · ×2 " + F1.format(a.rendX2) + (a.cto ? " · ×3 " + F1.format(a.rendX3) : "") + " %", "rendement annuel attendu après impôt : ×1 et ×2 au PEA (impôt à la sortie), ×3 au CTO (" + (g.tauxCTO ? F1.format(g.tauxCTO) : "31,4") + " % à chaque vente, tous les " + F1.format(a.H || 1.2) + " an)", "", EX.net) : "") +
+      ligne("×2 contre ×1 (PEA)", pct(a.ecart / 100, 1) + "/an " + coche(a.ecart > 0), tMax(a.tauxMax), "", EX.x21) +
+      (a.cto && a.ecart32 !== undefined ? ligne("×3 CTO contre ×2 PEA", pct(a.ecart32 / 100, 1) + "/an " + coche(a.ecart32 > 0), tMax(a.tauxMax32) + (a.sigmaMax3 === undefined ? "" : " · " + (a.sigmaMax3 < 0 ? "×3 : jamais, quelle que soit la volatilité" : a.sigmaMax3 >= 100 ? "×3 quelle que soit la volatilité" : "×3 seulement si σ ≤ " + F1.format(a.sigmaMax3) + " %")), "", EX.x32) : "") +
+      (a.cto && a.muReqBrut !== undefined ? ligne("μ seuil ×3", (a.muReqBrut >= 200 ? "> 200" : F1.format(a.muReqBrut)) + " / " + (a.muReqNet === null ? "n/d" : a.muReqNet >= 200 ? "> 200" : F1.format(a.muReqNet)) + " %/an " + coche(a.muReqNet === null ? null : a.pente >= a.muReqNet), "pente minimale du Nasdaq pour que le ×3 batte le ×2, brut / net d'impôt · pente 5 ans actuelle : " + F1.format(a.pente) + " % (un repère sur le passé : records juste avant les retournements)", "", EX.museuil) : "");
+  }
+
+  /* creux : les 4 conditions du Pine */
+  const j = g.jauges;
+  const creux = '<h4 class="sig-h">Entrée sur creux <small>utile seulement hors marché</small></h4>' +
+    ligne("Verdict", esc(g.creuxVerdict || "—"), g.expose && !g.creux ? "en position : la règle ne sert pas" : "", g.creux ? "acc" : "", EX.creux) +
+    (j ? ligne("Largeur (proxy)", p1(j.ecartSMA) + " " + coche(j.declLargeur), "déclenche quand le Nasdaq est à " + F1.format(Math.abs(j.seuilEcart)) + " % ou plus sous sa moyenne " + j.smaLen + " séances", "", EX.largeur) +
+      ligne("1 · Bulle", (j.bulle === null ? "—" : "×" + F2.format(j.bulle)) + " " + coche(j.bulle === null ? null : j.okBulle), "montée sur 5 ans au pic des 2 ans, doit rester < ×" + F2.format(j.seuilBulle), "", EX.bulle) +
+      ligne("2 · Sahm", (j.sahm === null ? "—" : F2.format(j.sahm)) + " " + coche(j.sahm === null ? null : j.okSahm), "chômage US, doit rester < " + F2.format(j.seuilSahm), "", EX.sahm) +
+      ligne("3 · Sahm 25-54 ans", (j.prime === null ? "—" : F2.format(j.prime)) + " " + coche(j.prime === null ? null : j.okPrime), "emploi des 25-54 ans, doit rester < " + F2.format(j.seuilPrime), "", EX.prime) +
+      ligne("Armée", j.arme ? "oui" : "non", "une seule entrée par épisode : se réarme quand la tendance repasse acheteuse", "", EX.arme) : "");
+
+  const levier = '<h4 class="sig-h">Levier <small>PEA ×2 / CTO ×3 ↔ ×1</small></h4>' +
+    ligne("Volatilité 20 séances", vol + " " + coche(g.vol20 === null ? null : g.vol20 < g.volHaut), "passe en ×1 au-dessus de " + g.volHaut + " %, revient sous " + (g.volBas || 25) + " % · position creux exemptée", "", EX.vol20) +
+    ligne("Alarme Omen", "non suivie", "données NYSE introuvables gratuitement : seule la volatilité pilote le ×1", "", EX.omen);
+
+  const detail = '<div class="sig-detail"' + (signalOuvert ? "" : " hidden") + ">" +
+    '<div class="sig-cells">' +
+      cell("Distance", p(g.distance), g.distance < 0 && g.expose ? "down" : "", seuil, "distance") +
+      cell("Volatilité", vol, volCls, "20 j · ×1 au-dessus de " + g.volHaut + NNBSP + "%", "vol") +
+      cell("Depuis", esc(court(g.depuis)), "", g.expose ? "Nasdaq " + p(g.perfDepuis) : g.joursDepuis + " j hors marché", "depuis") +
+    "</div>" +
+    ["distance", "vol", "depuis"].map(k => '<div class="sig-case-aide" data-pour="' + k + '" hidden><span class="aide">' + EX[k] + "</span></div>").join("") +
+    '<div class="m-liste">' + arb + levier + creux + '<div data-aide><h4 class="sig-h"><span>Journal' + qm + '</span><small>8 derniers signaux</small></h4>' + aide(EX.journal) + "</div>" + journal + "</div>" +
+    '<div class="sig-pied">Calcul du ' + esc(g.majLe || "") + " · données " + esc(g.source || "") + " · EMA " + (g.emaSem || 45) + " sem. " + F0.format(g.ema) + " · seuil de vente " + F0.format(g.bandeSortie) + "</div>" +
+  "</div>";
+
+  /* vue courte : la position à tenir sur chaque compte, l'apport du mois, et l'ordre éventuel */
+  return '<div class="sig ' + cls + '">' +
+    '<button type="button" class="sig-tete" aria-expanded="' + signalOuvert + '">' +
+      '<span class="sig-lab">' + (g.positionCTO ? "Levier · PEA + CTO" : "Signal levier · PEA") + '</span><span class="sig-pos">' + esc(g.position) + '</span><span class="chev" aria-hidden="true">›</span>' +
+    "</button>" +
+    (g.positionCTO ? '<div class="sig-cto" data-aide><span class="sig-lab">CTO' + qm + '</span><span class="sig-pos cto-' + (g.positionCTO === "OR" ? "or" : /×1/.test(g.positionCTO) ? "x1" : "x3") + '">' + esc(g.positionCTO) + '</span><span class="sub">même signal · ×1 si alarme · or hors marché</span>' + aide(EX.cto) + "</div>" : "") +
+    (a && g.expose ? '<div class="sig-cto" data-aide><span class="sig-lab">Apport' + qm + '</span><span class="sig-pos cto-' + (a.optimal === 3 ? "x3" : a.optimal === 2 ? "x2" : "x1") + '">×' + a.optimal + '</span><span class="sub">' + (a.optimal === 3 ? "CTO · QQQ3" : a.optimal === 2 ? "PEA · LQQ" : "PEA · ETF ×1") + " · net d'impôt</span>" + aide(EX.apport) + "</div>" : "") +
+    msg + detail +
+  "</div>";
+}
+function brancherSignal(v) {
+  const carte = v.querySelector(".sig"); if (!carte) return;
+  carte.addEventListener("click", e => {
+    const q = e.target.closest(".qm-b"); if (!q) return;
+    e.stopPropagation();
+    if (q.dataset.case) {   // cases du détail : explication en pleine largeur sous les cases
+      carte.querySelectorAll(".sig-case-aide").forEach(d => { d.hidden = d.dataset.pour !== q.dataset.case || !d.hidden; });
+      carte.querySelectorAll("[data-case]").forEach(b => b.classList.toggle("on", b === q && !carte.querySelector('.sig-case-aide[data-pour="' + q.dataset.case + '"]').hidden));
+      return;
+    }
+    const z = q.closest("[data-aide]"); if (z) z.classList.toggle("aide-on");
+  });
+  const t = carte.querySelector(".sig-tete");
+  t.addEventListener("click", () => { signalOuvert = !signalOuvert; t.setAttribute("aria-expanded", String(signalOuvert)); carte.querySelector(".sig-detail").hidden = !signalOuvert; });
+}
+
+/* ================= Graphiques du patrimoine (onglet Stats) ================= */
+function cleMoisIso(iso) { return +String(iso).slice(0, 4) * 100 + +String(iso).slice(5, 7); }
+function libMoisK(k) { return MOIS[k % 100 - 1] + " " + Math.floor(k / 100); }
+/* aires empilées : couches positives au-dessus de zéro, dettes en dessous, ligne du total net par-dessus */
+function empile(box, conf) {
+  const svg = box.querySelector("svg"), tip = box.querySelector(".tip");
+  const xs = conf.x, n = xs.length; if (n < 2) { box.hidden = true; return; }
+  const W = Math.max(280, box.clientWidth - 20), H = W < 420 ? 220 : 250, m = { l: 46, r: 10, t: 10, b: 24 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const haut = xs.map((_, i) => conf.couches.reduce((a, c) => a + Math.max(0, c.v[i] || 0), 0));
+  const bas = xs.map((_, i) => (conf.negs || []).reduce((a, c) => a - Math.max(0, c.v[i] || 0), 0));
+  let mn = Math.min(0, ...bas), mx = Math.max(...haut, ...(conf.ligne ? conf.ligne.v.filter(ok) : []));
+  const pad = (mx - mn) * .06 || 1; mx += pad; if (mn < 0) mn -= pad;
+  const ticks = graduations(mn, mx, 4); mn = Math.min(mn, ticks[0]); mx = Math.max(mx, ticks[ticks.length - 1]);
+  const X = i => m.l + i / (n - 1) * iw, Y = v => m.t + ih - (v - mn) / (mx - mn) * ih;
+  let o = "";
+  ticks.forEach(t => {
+    o += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '" style="stroke:var(' + (Math.abs(t) < 1e-9 ? "--ink-3" : "--rule") + ')"/>';
+    o += '<text x="' + (m.l - 6) + '" y="' + (Y(t) + 3.5).toFixed(1) + '" text-anchor="end">' + esc(axeEur(t)) + "</text>";
+  });
+  let dx = -99;
+  xs.forEach((k, i) => {
+    const lab = i === 0 || k % 100 === 1 ? (k % 100 === 1 ? String(Math.floor(k / 100)) : MOIS[k % 100 - 1]) : (n <= 14 ? MOIS[k % 100 - 1] : "");
+    if (!lab) return; const x = X(i); if (x - dx < 40) return; dx = x;
+    o += '<text x="' + x.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(lab) + "</text>";
+  });
+  const aire = (bas0, haut1, c, op) => {
+    let d = "M" + X(0).toFixed(1) + " " + Y(haut1[0]).toFixed(1);
+    for (let i = 1; i < n; i++) d += "L" + X(i).toFixed(1) + " " + Y(haut1[i]).toFixed(1);
+    for (let i = n - 1; i >= 0; i--) d += "L" + X(i).toFixed(1) + " " + Y(bas0[i]).toFixed(1);
+    return '<path d="' + d + 'Z" style="fill:' + c + ';fill-opacity:' + (op || .78) + '"/>';
+  };
+  let base = xs.map(() => 0);
+  conf.couches.forEach(c => { const h = base.map((b, i) => b + Math.max(0, c.v[i] || 0)); o += aire(base, h, c.c, c.op); base = h; });
+  base = xs.map(() => 0);
+  (conf.negs || []).forEach(c => { const h = base.map((b, i) => b - Math.max(0, c.v[i] || 0)); o += aire(base, h, c.c, c.op || .45); base = h; });
+  if (conf.ligne) {
+    let d = ""; conf.ligne.v.forEach((v, i) => { if (ok(v)) d += (d ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); });
+    o += '<path d="' + d + '" fill="none" style="stroke:var(--ink)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>';
+  }
+  o += '<line class="cross" x1="0" x2="0" y1="' + m.t + '" y2="' + (m.t + ih) + '" style="stroke:var(--ink-3)" visibility="hidden"/>';
+  o += '<rect class="hit" x="' + m.l + '" y="0" width="' + iw + '" height="' + H + '" fill="transparent"/>';
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("height", H); svg.innerHTML = o;
+  const cross = svg.querySelector(".cross"), hit = svg.querySelector(".hit");
+  const montrer = ev => {
+    const r = svg.getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.round(((ev.clientX - r.left) * W / r.width - m.l) / iw * (n - 1))));
+    const x = X(i); cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("visibility", "visible");
+    const rows = conf.couches.concat(conf.negs || []).filter(c => ok(c.v[i]) && c.v[i]).map(c => '<div class="row" style="--c:' + c.c + '"><span>' + esc(c.nom) + "</span><span>" + (conf.negs && conf.negs.includes(c) ? MOINS : "") + eur(c.v[i]) + "</span></div>").join("");
+    tip.hidden = false;
+    tip.innerHTML = "<b>Fin " + esc(libMoisK(xs[i])) + "</b>" + rows + (conf.ligne && ok(conf.ligne.v[i]) ? '<div class="row" style="--c:var(--ink)"><span>' + esc(conf.ligne.nom) + "</span><span>" + eur(conf.ligne.v[i]) + "</span></div>" : "");
+    const bx = box.getBoundingClientRect(), px = x / W * r.width + (r.left - bx.left), tw = tip.offsetWidth;
+    let left = px + 14; if (left + tw > bx.width - 6) left = px - tw - 14;
+    tip.style.left = Math.max(6, left) + "px"; tip.style.top = "38px";
+  };
+  hit.addEventListener("pointermove", montrer); hit.addEventListener("pointerdown", montrer);
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); tip.hidden = true; });
+}
+function boiteEmpile(id, leg) {
+  return '<div class="chart-box" id="' + id + '"><div class="legend">' + leg.map(l => '<span><i class="carre" style="background:' + l.c + (l.op ? ";opacity:" + l.op : "") + '"></i>' + esc(l.nom) + "</span>").join("") +
+    '</div><svg class="chart" role="img" aria-label="Graphique empilé"></svg><div class="tip" hidden></div></div>';
+}
+/* A · patrimoine dans le temps, brut ou net */
+function donneesPatrimoine() {
+  const s = seriePatrimoine(); if (s.length < 2) return null;
+  const app = (M.parametres || {}).appart || null, mens = (M.prets || {}).mensuel || [];
+  return s.map(x => {
+    const finIso = isoJour(new Date(x.an, x.mo, 0));
+    let prix = 0, dette = 0;
+    if (app && app.prix && app.date && finIso >= app.date) {
+      prix = app.prix;
+      let restant = null; mens.forEach(r => { if (r[0] <= finIso) restant = r[1]; });
+      dette = mens.length ? (restant === null ? mens[0][1] : restant) : Math.max(0, prix - x.immo);
+    }
+    return Object.assign({ k: x.an * 100 + x.mo, prix, dette }, x);
+  });
+}
+function blocPatrimoineTemps() {
+  const d = donneesPatrimoine(); if (!d) return "";
+  const brut = PREF.patri === "brut", aImmo = d.some(x => x.prix > 0);
+  const leg = [{ nom: "Bourse", c: "var(--s1)" }, { nom: "Épargne", c: "var(--s2)" }]
+    .concat(aImmo ? (brut ? [{ nom: "Appartement", c: "var(--s3)" }, { nom: "Prêts restants", c: "var(--down)", op: .5 }] : [{ nom: "Immobilier net", c: "var(--s3)" }]) : []);
+  const der = d[d.length - 1], prem = d.find(x => x.complet) || d[0];
+  const net = x => x.bourse + x.epargne + x.immo;
+  return '<div><h2 class="sec">Patrimoine dans le temps <small>fin de mois</small></h2></div>' +
+    (aImmo ? '<div class="seg" role="group" aria-label="Brut ou net"><button type="button" data-m-patri="net" aria-pressed="' + !brut + '">Net</button><button type="button" data-m-patri="brut" aria-pressed="' + brut + '">Brut (dette à part)</button></div>' : "") +
+    boiteEmpile("g-patri", leg) +
+    '<p class="resume">' + (brut ? "Brut : l'appartement compté à son prix, les prêts restants en dessous de zéro. Les pointillés suivent ton patrimoine net. " : "Net : l'immobilier compte pour son prix moins les prêts restants. ") +
+      "Depuis fin " + esc(libMoisK(prem.k)) + " : <b class=\"" + sens(net(der) - net(prem)) + "\">" + eur(net(der) - net(prem), 0, true) + "</b>.</p>";
+}
+function dessinerPatrimoine() {
+  const box = document.getElementById("g-patri"); if (!box) return;
+  const d = donneesPatrimoine(), brut = PREF.patri === "brut", aImmo = d.some(x => x.prix > 0);
+  const couches = [{ nom: "Bourse", v: d.map(x => x.bourse), c: "var(--s1)" }, { nom: "Épargne", v: d.map(x => x.epargne), c: "var(--s2)" }];
+  if (aImmo) couches.push(brut ? { nom: "Appartement", v: d.map(x => x.prix), c: "var(--s3)" } : { nom: "Immobilier net", v: d.map(x => x.immo), c: "var(--s3)" });
+  empile(box, { x: d.map(x => x.k), couches, negs: brut && aImmo ? [{ nom: "Prêts restants", v: d.map(x => x.dette), c: "var(--down)" }] : [],
+    ligne: brut && aImmo ? { nom: "Patrimoine net", v: d.map(x => x.bourse + x.epargne + x.immo) } : null });
+}
+/* C · épargne livret par livret (soldes envoyés par l'API V10 ; l'assurance-vie = total épargne du mois moins les livrets) */
+const COUL_EP = ["var(--gold)", "var(--p1)", "var(--p2)", "var(--p3)", "var(--accent)", "var(--idx)"];
+function donneesEpargne() {
+  const em = M.epargneMois; if (!em || !em.rows || !em.rows.length) return null;
+  const mpm = {}; (M.moisParMois || []).forEach(r => { mpm[String(r.mois).slice(0, 7)] = r; });
+  const rows = em.rows.filter(r => { const t = mpm[String(r[0]).slice(0, 7)]; return t && ok(t.epargne); });
+  if (rows.length < 2) return null;
+  const av = rows.map(r => { const t = mpm[String(r[0]).slice(0, 7)]; return Math.max(0, (t.epargne || 0) + (t.uc || 0) - r.slice(1).reduce((a, b) => a + b, 0)); });
+  const couches = em.comptes.map((nom, j) => ({ nom: nom.replace(/\s+Banque Pop\.?$/, ""), v: rows.map(r => r[j + 1]), c: COUL_EP[j % COUL_EP.length] })).filter(c => c.v.some(x => x > 0.5));
+  if (av.some(x => x > 0.5)) couches.push({ nom: "Assurance-vie et autres", v: av, c: "var(--s3)" });
+  return { x: rows.map(r => cleMoisIso(r[0])), couches };
+}
+function blocEpargneTemps() {
+  const d = donneesEpargne();
+  if (!d) return M.epargneMois === undefined && (M.epargne || []).length ? '<div><h2 class="sec">Épargne livret par livret</h2></div><p class="info">Ce graphique a besoin de la version 10 de ton API patrimoine (nouveau déploiement).</p>' : "";
+  const der = d.couches.map(c => c.v[c.v.length - 1]), tot = der.reduce((a, b) => a + b, 0);
+  return '<div><h2 class="sec">Épargne livret par livret <small>fin de mois</small></h2></div>' + boiteEmpile("g-epargne", d.couches) +
+    '<p class="resume">Aujourd\'hui : ' + d.couches.map((c, i) => esc(c.nom) + " <b>" + eur(der[i]) + "</b>").join(" · ") + " · total <b>" + eur(tot) + "</b>.</p>";
+}
+function dessinerEpargne() { const box = document.getElementById("g-epargne"); const d = donneesEpargne(); if (box && d) empile(box, { x: d.x, couches: d.couches }); }
+/* B · prêt : capital restant dû, passé plein, à venir en pointillés */
+function blocPret() {
+  const p = M.prets; if (!p || !(p.mensuel || []).length) return "";
+  const mens = p.mensuel, emprunte = Math.max(...mens.map(r => r[1])), auj = isoJour(new Date());
+  const restant = p.actuel ? p.actuel.restant : mens[0][1], rembourse = emprunte - restant;
+  const t = (lab, val, cls, sub) => "<div><span class=\"lab\">" + lab + '</span><span class="val ' + (cls || "") + '">' + val + '</span><span class="sub">' + sub + "</span></div>";
+  return '<div><h2 class="sec">Ton prêt immobilier <small>capital restant dû</small></h2></div>' +
+    boiteGraphe("g-pret", [{ nom: "Déjà remboursé", c: "var(--accent)" }, { nom: "À venir", c: "var(--accent)", dash: true }]) +
+    '<div class="tuiles">' +
+      t("Remboursé", pct(rembourse / emprunte, 1, false), "up", eur(rembourse) + " sur " + eur(emprunte)) +
+      t("Restant dû", eur(restant), "", p.actuel ? "au " + frDate(p.actuel.date) : "") +
+      t("Intérêts restants", eur(p.interetsRestants), "", "payés en " + new Date().getFullYear() + " : " + eur(p.interetsAnnee)) +
+      t("Fin des prêts", p.fin ? frDate(p.fin) : "—", "", p.fin ? "dans " + Math.max(0, Math.round((new Date(p.fin) - new Date()) / (365.25 * 864e5))) + " ans" : "") +
+    "</div>";
+}
+function dessinerPret() {
+  const box = document.getElementById("g-pret"); if (!box) return;
+  const mens = M.prets.mensuel, auj = isoJour(new Date());
+  let iAuj = -1; mens.forEach((r, i) => { if (r[0] <= auj) iAuj = i; });
+  tracer(box, { x: mens.map(r => cleMoisIso(r[0])), zeroMin: true,
+    series: [{ nom: "Restant dû", v: mens.map((r, i) => i <= iAuj ? r[1] : null), c: "var(--accent)", aire: true, w: 2.4 },
+      { nom: "À venir", v: mens.map((r, i) => i >= Math.max(0, iAuj) ? r[1] : null), c: "var(--accent)", dash: true, w: 1.6 }],
+    fmt: x => eur(x), fmtAxe: axeEur, titreX: k => libMoisK(k),
+    etiqX: (k, kp) => kp === null ? "" : (Math.floor(k / 100) !== Math.floor(kp / 100) && Math.floor(k / 100) % 2 === 0 ? String(Math.floor(k / 100)) : "") });
+}
+
+/* ================= Jauge du millionnaire (privée : dans Trophées, seulement sur ton appareil) ================= */
+const CIBLE = 1e6, JALONS = [100000, 250000, 500000, 750000];
+function valeurMillion(mode) {
+  const s = M.synthese || {};
+  return mode === "net" ? patrimoineNet().montant : s.financier;
+}
+/* rythme d'épargne estimé : médiane des apports mensuels en bourse sur 12 mois (la médiane ignore les gros transferts ponctuels) */
+function effortMensuel() {
+  const h = M.historique; if (!h || !h.rows || h.rows.length < 2) return null;
+  const ka = h.cols.indexOf("a"); if (ka < 0) return null;
+  const fins = {}; h.rows.forEach(r => { fins[Math.floor(r[0] / 100)] = r[ka]; });
+  const ks = Object.keys(fins).map(Number).sort((x, y) => x - y), d = [];
+  for (let i = 1; i < ks.length; i++) d.push(fins[ks[i]] - fins[ks[i - 1]]);
+  const der = d.slice(-12).sort((x, y) => x - y); if (!der.length) return null;
+  const med = der.length % 2 ? der[(der.length - 1) / 2] : (der[der.length / 2 - 1] + der[der.length / 2]) / 2;
+  return Math.max(0, Math.round(med / 10) * 10);
+}
+function moisPourMillion(v0, c, rAn) {
+  if (v0 >= CIBLE) return 0;
+  const i = Math.pow(1 + rAn, 1 / 12) - 1;
+  let v = v0;
+  for (let n = 1; n <= 12 * 80; n++) { v = v * (1 + i) + c; if (v >= CIBLE) return n; }
+  return null;
+}
+function htmlMillion() {
+  if (!M) return "";
+  const mode = PREF.million === "net" ? "net" : "financier";
+  const v = valeurMillion(mode) || 0, part = Math.max(0, Math.min(1, v / CIBLE));
+  const c0 = effortMensuel(), c = ok(PREF.effort) ? PREF.effort : (c0 || 0), R = 0.05;
+  const n = moisPourMillion(v, c, R);
+  const quand = n === null ? null : new Date(new Date().getFullYear(), new Date().getMonth() + n, 1);
+  const prochain = JALONS.concat([CIBLE]).find(j => j > v);
+  const nProchain = prochain ? moisPourMillion(v * CIBLE / prochain, c * CIBLE / prochain, R) : null;   // même calcul, mis à l'échelle du jalon
+  const discret = ETAT.discret === "oui";
+  const texteFlap = discret ? "•••" : F0.format(Math.round(v));
+  const piste = JALONS.map(j => '<span class="mj' + (v >= j ? " passe" : "") + '" style="left:' + (j / CIBLE * 100) + '%"><i></i><b>' + (j / 1000) + "k</b></span>").join("");
+  return '<section class="m-million" style="--mc:' + maCouleur() + '">' +
+    '<div class="mm-h"><span class="mm-k">Cap sur le million</span><span class="mm-prive">privé</span></div>' +
+    '<div class="mm-pct"><b>' + F1.format(part * 100) + '</b><span>%</span></div>' +
+    '<div class="m-flaps mm-flaps" aria-label="' + esc(texteFlap) + ' euros">' + flaps(texteFlap + NB + "€", false) + "</div>" +
+    '<div class="mm-piste" role="img" aria-label="' + F1.format(part * 100) + ' % du million"><div class="mm-rail"><i style="width:' + (part * 100).toFixed(2) + '%"></i><em style="left:' + (part * 100).toFixed(2) + '%"></em></div>' + piste + '<span class="mj fin" style="left:100%"><i></i><b>1M</b></span></div>' +
+    '<div class="seg mm-seg" role="group" aria-label="Ce qui compte"><button type="button" data-m-million="financier" aria-pressed="' + (mode === "financier") + '">Financier</button><button type="button" data-m-million="net" aria-pressed="' + (mode === "net") + '">Net, avec l\'appartement</button></div>' +
+    (quand ? '<p class="mm-eta">À ton rythme, <b>millionnaire en ' + MOIS_L[quand.getMonth()] + " " + quand.getFullYear() + "</b>" + (n > 0 ? " · dans " + (n >= 24 ? Math.floor(n / 12) + " ans" + (n % 12 ? " et " + (n % 12) + " mois" : "") : n + " mois") : "") + ".</p>" : '<p class="mm-eta">Avec ce rythme, le million reste hors de portée : augmente l\'effort mensuel pour voir quand tu y serais.</p>') +
+    (prochain && prochain < CIBLE && nProchain !== null ? '<p class="mm-sub">Prochain jalon : <b>' + F0.format(prochain / 1000) + " 000 €</b>" + (discret ? "" : ", encore " + eur(prochain - v)) + (nProchain ? " · ≈ " + nProchain + " mois" : "") + "</p>" : "") +
+    '<label class="mm-curseur"><span>Épargne par mois : <b>' + (discret ? "•••" : F0.format(Math.round(c))) + " €</b>" + (c0 !== null ? " <small>· ton rythme estimé ≈ " + (discret ? "•••" : F0.format(c0)) + " €" + (ok(PREF.effort) && PREF.effort !== c0 ? ' <button type="button" class="mm-raz" id="mm-raz">revenir</button>' : "") + "</small>" : "") + '</span><input type="range" min="0" max="3000" step="50" value="' + c + '" id="mm-plus" aria-label="Épargne par mois"></label>' +
+    '<p class="mm-note">Hypothèse : ' + F0.format(R * 100) + " %/an de rendement moyen et une épargne constante. Rythme estimé = apports médians en bourse sur 12 mois. Bouge le curseur pour voir ce que change chaque euro mis de côté.</p>" +
+  "</section>";
+}
+function brancherMillion(el) {
+  el.querySelectorAll("[data-m-million]").forEach(b => b.addEventListener("click", () => { PREF.million = b.dataset.mMillion; garderPref(); afficherMillion(el); }));
+  const r = el.querySelector("#mm-plus");
+  if (r) r.addEventListener("input", () => { PREF.effort = +r.value; garderPref(); const y = window.scrollY; afficherMillion(el, true); window.scrollTo(0, y); });
+  const z = el.querySelector("#mm-raz"); if (z) z.addEventListener("click", e => { e.preventDefault(); delete PREF.effort; garderPref(); afficherMillion(el); });
+}
+function afficherMillion(el, garderFocus) {
+  injecterStyle(); lireCache();
+  if (!M) { el.innerHTML = ""; return; }
+  el.classList.add("moi");
+  el.innerHTML = htmlMillion(); brancherMillion(el);
+  if (garderFocus) { const r = el.querySelector("#mm-plus"); if (r) r.focus(); }
+}
+
+/* ================= Saisie : ordres, journal, mises à jour du fichier (repris de Cote) ================= */
+const AVEC_ACTIF = ["Achat", "Vente", "Frais en parts", "Relevé"];
+const AVEC_QTE = ["Achat", "Vente", "Frais en parts"];
+const AVEC_FRAIS = ["Achat", "Vente"];
+const PRINCIPAUX = ["Achat", "Vente", "Apport", "Retrait"];
+const LIB_MONTANT = {
+  "Achat": "Montant débité, frais compris", "Vente": "Montant crédité, net de frais", "Apport": "Montant viré sur l'enveloppe",
+  "Retrait": "Montant retiré", "Relevé": "Valeur indiquée sur le relevé", "Intérêts": "Intérêts versés",
+  "Frais en parts": "Valeur des parts prélevées", "Frais": "Frais débités", "Ajustement espèces": "Écart d'espèces (négatif si sortie)",
+  "Solde initial": "Solde à la date choisie"
+};
+let F = null, confirmeSuppr = null, tousRaccourcis = false, gererRaccourcis = false, nommerRaccourci = false;
+let reglageOuvert = null, reglageMsg = {}, alertePre = null;
+const $f = id => document.getElementById(id);
+function aujourdhuiISO() { return isoJour(new Date()); }
+function lireNombre(v) {
+  if (v === null || v === undefined) return null;
+  const t = String(v).replace(/[\s  €]/g, "").replace(",", ".");
+  if (t === "") return null;
+  const n = Number(t);
+  return isFinite(n) ? n : NaN;
+}
+function saisieNombre(n, dec) { return n === null || n === undefined || !isFinite(n) ? "" : String(+n.toFixed(dec)).replace(".", ","); }
+function refData() { return (M && M.ref) || { enveloppes: [], types: [], actifs: [], cours: {}, detenu: [], journal: [], raccourcis: [] }; }
+function quantiteTenue(env, code) { const x = refData().detenu.find(d => d.env === env && d.code === code); return x ? x.qte : 0; }
+function typeInfo(nom) { return refData().types.find(t => t.nom === nom) || { tresorerie: 0, quantite: 0, flux: 0 }; }
+function qteBrute(v) { return !ok(v) ? "—" : nf(0, 6).format(v); }   // quantités de la saisie : jamais masquées
+
+function formulaire(partiel) {
+  const f = Object.assign({ type: "Achat", date: aujourdhuiISO(), env: stock.get("versus.moi.derniereEnv") || "PEA Fortuneo", actif: "", qte: "", prix: "", pilote: "", montant: "", frais: "", apport: false, montantApport: "", forcer: null, erreur: "" }, partiel || {});
+  if (!f.pilote) f.pilote = f.qte ? "qte" : "prix";
+  if (AVEC_QTE.includes(f.type) && f.actif && !f.prix && !f.qte) { const c = refData().cours[f.actif]; if (c) f.prix = saisieNombre(c, c < 10 ? 4 : 2); }
+  return f;
+}
+function depuisRaccourci(rc) {
+  return { type: rc.type, env: rc.env, actif: rc.actif || "", montant: rc.montant !== null && rc.montant !== undefined ? saisieNombre(rc.montant, 2) : "", frais: rc.frais ? saisieNombre(rc.frais, 2) : "", qte: rc.quantite ? saisieNombre(rc.quantite, 6) : "", apport: !!rc.apport, montantApport: rc.montantApport ? saisieNombre(rc.montantApport, 2) : "" };
+}
+function assurerFeuille() {
+  if ($f("m-saisie")) return;
+  const d = document.createElement("div");
+  d.className = "voile"; d.id = "m-saisie"; d.hidden = true;
+  d.innerHTML = '<div class="feuille moi m-feuille" role="dialog" aria-modal="true" aria-labelledby="m-titre-saisie">' +
+    '<h3 id="m-titre-saisie">Saisir <button class="icon-btn" type="button" id="m-fermer-saisie" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>' +
+    '<div class="seg m-seg4" role="group" aria-label="Saisie">' +
+      '<button type="button" data-m-pane="ordre">Ordre</button><button type="button" data-m-pane="journal">Journal</button>' +
+      '<button type="button" data-m-pane="maj">Mises à jour</button><button type="button" data-m-pane="versus">Relevé Versus</button></div>' +
+    '<div id="m-pane-ordre"></div><div id="m-pane-journal" hidden></div><div id="m-pane-maj" hidden></div></div>';
+  document.body.appendChild(d);
+  d.addEventListener("click", e => { if (e.target === d) fermerSaisieM(); });
+  $f("m-fermer-saisie").addEventListener("click", fermerSaisieM);
+  d.querySelectorAll("[data-m-pane]").forEach(b => b.addEventListener("click", () => {
+    confirmeSuppr = null;
+    if (b.dataset.mPane === "versus") { fermerSaisieM(); if (typeof ouvrirSaisie === "function") ouvrirSaisie(); return; }
+    paneSaisie(b.dataset.mPane);
+  }));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") fermerSaisieM(); });
+}
+function ouvrirSaisieM(partiel, onglet) {
+  injecterStyle(); assurerFeuille(); lireCache();
+  if (!M) { toast("Lecture de ton fichier en cours, réessaie dans un instant."); charger(false); return; }
+  F = formulaire(partiel);
+  synchroniser();
+  nommerRaccourci = false;
+  $f("m-saisie").hidden = false;
+  paneSaisie(onglet || "ordre");
+}
+function fermerSaisieM() { const s = $f("m-saisie"); if (s) s.hidden = true; confirmeSuppr = null; gererRaccourcis = false; }
+function paneSaisie(o) {
+  document.querySelectorAll("[data-m-pane]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mPane === o)));
+  ["ordre", "journal", "maj"].forEach(k => { $f("m-pane-" + k).hidden = k !== o; });
+  if (o === "ordre") rendreFormulaire(); else if (o === "journal") rendreJournal(); else rendreMaj();
+}
+/* quantité <-> prix par part : celui que tu as saisi en dernier pilote l'autre */
+function netOrdre() {
+  const m = lireNombre(F.montant), fr = lireNombre(F.frais) || 0;
+  if (!(m > 0)) return null;
+  return m + (isNaN(fr) ? 0 : fr) * typeInfo(F.type).tresorerie;
+}
+function synchroniser() {
+  if (!AVEC_QTE.includes(F.type)) return;
+  const net = netOrdre();
+  if (!(net > 0)) return;
+  if (F.pilote === "prix") { const p = lireNombre(F.prix); if (p > 0) F.qte = saisieNombre(net / p, 6); }
+  else { const q = lireNombre(F.qte); if (q > 0) F.prix = saisieNombre(net / q, 4); }
+}
+function rendreRaccourcis() {
+  const liste = refData().raccourcis || [];
+  const visibles = tousRaccourcis || gererRaccourcis ? liste : liste.slice(0, 3);
+  return '<div class="raccourcis"><span>Raccourcis</span>' +
+    visibles.map((r, i) => '<button class="chip' + (gererRaccourcis ? " suppr" : "") + '" type="button" data-rac="' + i + '">' + (gererRaccourcis ? "✕ " : "") + esc(r.nom) + "</button>").join("") +
+    (liste.length > 3 && !gererRaccourcis ? '<button class="lien" type="button" id="rac-plus">' + (tousRaccourcis ? "Voir moins" : "Voir + (" + (liste.length - 3) + ")") + "</button>" : "") +
+    (liste.length ? '<button class="lien" type="button" id="rac-gerer">' + (gererRaccourcis ? "Terminé" : "Gérer") + "</button>" : '<span class="info">aucun pour l\'instant : « Enregistrer comme raccourci » en bas</span>') +
+    "</div>";
+}
+function rendreFormulaire() {
+  const r = refData();
+  const ouvertes = r.enveloppes.filter(e => !e.statut || e.statut === "Ouvert");
+  if (!ouvertes.find(e => e.nom === F.env) && ouvertes.length) F.env = ouvertes[0].nom;
+  const groupeEnv = (liste, lab) => liste.length ? '<optgroup label="' + lab + '">' + liste.map(e => '<option value="' + esc(e.nom) + '"' + (e.nom === F.env ? " selected" : "") + ">" + esc(e.nom) + "</option>").join("") + "</optgroup>" : "";
+  const autres = r.types.map(t => t.nom).filter(n => !PRINCIPAUX.includes(n));
+  const tenus = r.detenu.filter(d => d.env === F.env && d.qte > 1e-9).map(d => d.code);
+  const nomA = c => (r.actifs.find(a => a.code === c) || {}).nom || "";
+  const optA = c => '<option value="' + esc(c) + '"' + (c === F.actif ? " selected" : "") + ">" + esc(c) + (nomA(c) ? " · " + esc(nomA(c)) : "") + "</option>";
+  const autresActifs = r.actifs.map(a => a.code).filter(c => !tenus.includes(c));
+  if (AVEC_ACTIF.includes(F.type) && !F.actif && F.type !== "Achat" && tenus.length) { F.actif = tenus[0]; F = formulaire(F); }
+  const avecActif = AVEC_ACTIF.includes(F.type), avecQte = AVEC_QTE.includes(F.type), avecFrais = AVEC_FRAIS.includes(F.type);
+  $f("m-pane-ordre").innerHTML =
+    '<form class="form" id="m-form-ordre" novalidate>' +
+      rendreRaccourcis() +
+      '<div class="types" role="group" aria-label="Type d\'ordre">' + PRINCIPAUX.map(t => '<button type="button" class="type-btn" data-type="' + t + '" aria-pressed="' + (F.type === t) + '">' + t + "</button>").join("") + "</div>" +
+      '<div class="rang">' +
+        '<div class="champ"><label for="f-date">Date</label><input id="f-date" type="date" value="' + esc(F.date) + '"></div>' +
+        '<div class="champ"><label for="f-autre">Autre type</label><select id="f-autre"><option value="">Choisir…</option>' + autres.map(t => '<option value="' + esc(t) + '"' + (F.type === t ? " selected" : "") + ">" + esc(t) + "</option>").join("") + "</select></div>" +
+      "</div>" +
+      '<div class="champ"><label for="f-env">Enveloppe</label><select id="f-env">' +
+        groupeEnv(ouvertes.filter(e => e.perimetre === "Portefeuille"), "Bourse") + groupeEnv(ouvertes.filter(e => e.perimetre !== "Portefeuille"), "Épargne") + "</select></div>" +
+      (avecActif ? '<div class="champ"><label for="f-actif">Actif</label><select id="f-actif"><option value="">Choisir l\'actif…</option>' +
+        (tenus.length ? '<optgroup label="Détenus dans cette enveloppe">' + tenus.map(optA).join("") + "</optgroup>" : "") +
+        '<optgroup label="Autres actifs">' + autresActifs.map(optA).join("") + "</optgroup></select>" +
+        '<span class="aide">Actif absent de la liste ? <button class="lien" type="button" id="f-nouvel-actif">Ajouter un nouvel actif</button></span></div>' : "") +
+      '<div class="champ"><label for="f-montant">' + esc(LIB_MONTANT[F.type] || "Montant") + ' (€)</label><input id="f-montant" type="text" inputmode="decimal" autocomplete="off" value="' + esc(F.montant) + '" placeholder="0,00"></div>' +
+      (avecQte ? '<div class="rang">' +
+        '<div class="champ"><label for="f-qte">Quantité</label><input id="f-qte" type="text" inputmode="decimal" autocomplete="off" value="' + esc(F.qte) + '" placeholder="0"></div>' +
+        '<div class="champ"><label for="f-prix">Prix par part (€)</label><input id="f-prix" type="text" inputmode="decimal" autocomplete="off" value="' + esc(F.prix) + '" placeholder="0,00"></div>' +
+        '</div><span class="aide lie">Saisis la quantité ou le prix par part : l\'autre se calcule à partir du montant' + (avecFrais ? " hors frais" : "") + ".</span>" : "") +
+      (avecFrais ? '<div class="champ"><label for="f-frais">Dont frais (€)</label><input id="f-frais" type="text" inputmode="decimal" autocomplete="off" value="' + esc(F.frais) + '" placeholder="0,00"></div>' : "") +
+      (F.type === "Achat" ? '<label class="coche"><input type="checkbox" id="f-apport"' + (F.apport ? " checked" : "") + '> Enregistrer aussi l\'apport qui finance cet achat</label>' +
+        (F.apport ? '<div class="champ"><label for="f-mapport">Montant de l\'apport (€)</label><input id="f-mapport" type="text" inputmode="decimal" autocomplete="off" value="' + esc(F.montantApport) + '" placeholder="Identique au montant de l\'achat"></div>' : "") : "") +
+      '<div class="recap" id="m-recap"></div>' +
+      '<div class="alertes" id="m-alertes"></div>' +
+      '<button class="btn plein acc" type="submit" id="f-envoyer">Enregistrer l\'ordre</button>' +
+      '<div class="pied-form">' +
+        (nommerRaccourci
+          ? '<div class="nommer"><input id="f-nom-rac" type="text" maxlength="40" aria-label="Nom du raccourci" value="' + esc(nomParDefaut()) + '"><button class="mini-btn" type="button" id="rac-ok">Créer</button><button class="lien" type="button" id="rac-annuler">Annuler</button></div>'
+          : '<button class="lien" type="button" id="rac-creer">Enregistrer comme raccourci</button>') +
+        '<button class="lien" type="button" id="f-vider">Vider le formulaire</button>' +
+      "</div>" +
+    "</form>";
+  const form = $f("m-form-ordre");
+  form.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { F = formulaire({ type: b.dataset.type, date: F.date, env: F.env, actif: AVEC_ACTIF.includes(b.dataset.type) ? F.actif : "", montant: F.montant }); synchroniser(); rendreFormulaire(); }));
+  $f("f-autre").addEventListener("change", e => { if (e.target.value) { F = formulaire({ type: e.target.value, date: F.date, env: F.env, montant: F.montant }); rendreFormulaire(); } });
+  $f("f-env").addEventListener("change", e => { F = formulaire({ type: F.type, date: F.date, env: e.target.value, montant: F.montant, frais: F.frais }); rendreFormulaire(); });
+  if ($f("f-actif")) $f("f-actif").addEventListener("change", e => { F = formulaire({ type: F.type, date: F.date, env: F.env, actif: e.target.value, montant: F.montant, frais: F.frais, apport: F.apport, montantApport: F.montantApport }); synchroniser(); rendreFormulaire(); });
+  if ($f("f-apport")) $f("f-apport").addEventListener("change", e => { F.apport = e.target.checked; rendreFormulaire(); });
+  if ($f("f-nouvel-actif")) $f("f-nouvel-actif").addEventListener("click", () => { reglageOuvert = null; paneSaisie("maj"); setTimeout(() => { const el = document.querySelector('#m-pane-maj [data-reg="actif"]'); if (el) el.scrollIntoView({ block: "start" }); }, 40); });
+  [["f-date", "date"], ["f-montant", "montant"], ["f-frais", "frais"], ["f-mapport", "montantApport"], ["f-qte", "qte"], ["f-prix", "prix"]].forEach(([id, k]) => {
+    const el = $f(id);
+    if (!el) return;
+    el.addEventListener("input", () => {
+      F[k] = el.value; F.forcer = null; F.erreur = "";
+      if (k === "qte" || k === "prix") F.pilote = k;
+      synchroniser();
+      if (k !== "qte" && $f("f-qte")) $f("f-qte").value = F.qte;
+      if (k !== "prix" && $f("f-prix")) $f("f-prix").value = F.prix;
+      majRecap();
+    });
+  });
+  form.querySelectorAll("[data-rac]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.rac, liste = (refData().raccourcis || []).slice();
+    if (gererRaccourcis) { liste.splice(i, 1); sauverRaccourcis(liste); rendreFormulaire(); return; }
+    F = formulaire(depuisRaccourci(liste[i])); synchroniser(); rendreFormulaire();
+  }));
+  if ($f("rac-plus")) $f("rac-plus").addEventListener("click", () => { tousRaccourcis = !tousRaccourcis; rendreFormulaire(); });
+  if ($f("rac-gerer")) $f("rac-gerer").addEventListener("click", () => { gererRaccourcis = !gererRaccourcis; rendreFormulaire(); });
+  if ($f("rac-creer")) $f("rac-creer").addEventListener("click", () => { nommerRaccourci = true; rendreFormulaire(); setTimeout(() => { const i = $f("f-nom-rac"); if (i) { i.focus(); i.select(); } }, 30); });
+  if ($f("rac-annuler")) $f("rac-annuler").addEventListener("click", () => { nommerRaccourci = false; rendreFormulaire(); });
+  if ($f("rac-ok")) $f("rac-ok").addEventListener("click", () => {
+    const nom = ($f("f-nom-rac").value || "").trim() || nomParDefaut();
+    const liste = (refData().raccourcis || []).slice();
+    liste.push({ nom: nom, type: F.type, env: F.env, actif: AVEC_ACTIF.includes(F.type) ? F.actif : "", montant: lireNombre(F.montant), frais: lireNombre(F.frais), quantite: F.pilote === "qte" ? lireNombre(F.qte) : null, apport: F.type === "Achat" && F.apport, montantApport: lireNombre(F.montantApport) });
+    nommerRaccourci = false;
+    sauverRaccourcis(liste);
+    rendreFormulaire();
+    toast("Raccourci « " + nom + " » créé.");
+  });
+  $f("f-vider").addEventListener("click", () => { F = formulaire({ type: F.type, env: F.env }); nommerRaccourci = false; rendreFormulaire(); });
+  form.addEventListener("submit", e => { e.preventDefault(); envoyerOrdre(false); });
+  majRecap();
+}
+function nomParDefaut() {
+  const m = lireNombre(F.montant);
+  return (F.type + (F.actif ? " " + F.actif : "") + (m > 0 ? " " + saisieNombre(m, 0) + " €" : "")).slice(0, 40);
+}
+async function posterFichier(corps) {
+  const ctrl = window.AbortController ? new AbortController() : null;
+  const minuteur = setTimeout(() => { if (ctrl) ctrl.abort(); }, 45000);
+  try {
+    const rep = await fetch(adresse(), { method: "POST", body: JSON.stringify(Object.assign({ cle: cle() }, corps)), signal: ctrl ? ctrl.signal : undefined });
+    return await rep.json();
+  } catch (e) {
+    return { ok: false, erreur: "reseau", message: "Impossible de joindre ton fichier : vérifie ta connexion puis réessaie." };
+  } finally { clearTimeout(minuteur); }
+}
+async function sauverRaccourcis(liste) {
+  if (M && M.ref) M.ref.raccourcis = liste;
+  stock.set(K.cache, JSON.stringify(M));
+  const rep = await posterFichier({ action: "raccourcis", raccourcis: liste });
+  if (!rep.ok) toast("Raccourcis non enregistrés sur ton fichier : " + (rep.message || "erreur"));
+}
+function analyser() {
+  const r = refData(), t = typeInfo(F.type);
+  const q = lireNombre(F.qte), m = lireNombre(F.montant), fr = lireNombre(F.frais) || 0;
+  const msg = [], lignes = [];
+  let bloque = false;
+  if (!F.date) { bloque = true; msg.push(["err", "Choisis une date."]); }
+  if (AVEC_ACTIF.includes(F.type) && !F.actif) bloque = true;
+  if (m === null) bloque = true;
+  else if (isNaN(m)) { bloque = true; msg.push(["err", "Montant illisible."]); }
+  else if (F.type !== "Ajustement espèces" && m <= 0) { bloque = true; msg.push(["err", "Le montant doit être positif : c'est le type qui donne le sens."]); }
+  if (AVEC_QTE.includes(F.type)) {
+    if (q === null) bloque = true;
+    else if (isNaN(q) || q <= 0) { bloque = true; msg.push(["err", "La quantité doit être supérieure à 0."]); }
+  }
+  if (isNaN(fr) || (fr && m > 0 && fr > m)) { bloque = true; msg.push(["err", "Les frais doivent être positifs et inférieurs au montant."]); }
+  const tenu = F.actif ? quantiteTenue(F.env, F.actif) : 0;
+  const c = F.actif ? r.cours[F.actif] : null;
+  if ((F.type === "Vente" || F.type === "Frais en parts") && F.actif) {
+    lignes.push(["Détenu aujourd'hui", qteBrute(tenu) + " " + esc(F.actif) + (tenu > 0 && F.type === "Vente" ? ' <button class="mini-btn" type="button" id="tout-vendre">Tout</button>' : "")]);
+    if (q > tenu + 1e-9) { bloque = true; msg.push(["err", "Tu ne détiens que " + qteBrute(tenu) + " " + F.actif + " dans " + F.env + "."]); }
+  }
+  if ((F.type === "Achat" || F.type === "Vente") && q > 0 && m > 0 && c) {
+    const pu = (m + fr * t.tresorerie) / q;
+    lignes.push(["Cours actuel", nf(c < 1 ? 4 : 2, c < 1 ? 4 : 2).format(c) + NB + "€ · écart " + pct(pu / c - 1)]);
+    if (Math.abs(pu / c - 1) > .5) msg.push(["warn", "Écart de plus de 50 % avec le cours actuel : vérifie la quantité et le montant (virgule mal placée ?)."]);
+  }
+  if (F.actif && q > 0 && t.quantite) lignes.push(["Détenu après l'ordre", qteBrute(+(tenu + q * t.quantite).toFixed(6)) + " " + esc(F.actif)]);
+  if (F.type === "Achat" && F.apport) {
+    const ma = lireNombre(F.montantApport);
+    if (ma !== null && (isNaN(ma) || ma <= 0)) { bloque = true; msg.push(["err", "Montant de l'apport illisible."]); }
+    lignes.push(["Apport enregistré avant l'achat", nf(2, 2).format(ma === null ? m : ma) + NB + "€"]);
+  }
+  if (F.date && F.date > aujourdhuiISO()) msg.push(["warn", "Ordre programmé : il restera ignoré par les calculs jusqu'au " + frDate(F.date) + "."]);
+  return { bloque, msg, lignes };
+}
+function majRecap() {
+  const a = analyser();
+  $f("m-recap").innerHTML = a.lignes.map(l => "<div><span>" + l[0] + "</span><b>" + l[1] + "</b></div>").join("");
+  $f("m-recap").hidden = !a.lignes.length;
+  let al = a.msg.map(m => '<div class="alerte ' + m[0] + '">' + esc(m[1]) + "</div>").join("");
+  if (F.erreur) al += '<div class="alerte err">' + esc(F.erreur) + "</div>";
+  if (F.forcer) al += '<div class="alerte warn">' + esc(F.forcer) + '<br><button class="btn" type="button" id="forcer">Enregistrer quand même</button></div>';
+  $f("m-alertes").innerHTML = al;
+  const btn = $f("f-envoyer");
+  btn.disabled = a.bloque;
+  btn.textContent = F.type === "Achat" && F.apport ? "Enregistrer l'apport et l'achat" : "Enregistrer l'ordre";
+  if ($f("tout-vendre")) $f("tout-vendre").addEventListener("click", () => { F.qte = saisieNombre(quantiteTenue(F.env, F.actif), 8); F.pilote = "qte"; synchroniser(); $f("f-qte").value = F.qte; if ($f("f-prix")) $f("f-prix").value = F.prix; majRecap(); });
+  if ($f("forcer")) $f("forcer").addEventListener("click", () => envoyerOrdre(true));
+}
+/* Envoi optimiste : la feuille se ferme tout de suite, l'enregistrement continue en arrière-plan */
+async function envoyerOrdre(forcer) {
+  const a = analyser();
+  if (a.bloque) return;
+  const base = { date: F.date, enveloppe: F.env };
+  const ordres = [];
+  if (F.type === "Achat" && F.apport) {
+    const ma = lireNombre(F.montantApport);
+    ordres.push(Object.assign({}, base, { type: "Apport", montant: ma === null ? lireNombre(F.montant) : ma }));
+  }
+  ordres.push(Object.assign({}, base, {
+    type: F.type, actif: AVEC_ACTIF.includes(F.type) ? F.actif : "",
+    quantite: AVEC_QTE.includes(F.type) ? lireNombre(F.qte) : null,
+    montant: lireNombre(F.montant), frais: AVEC_FRAIS.includes(F.type) ? lireNombre(F.frais) : null
+  }));
+  stock.set("versus.moi.derniereEnv", F.env);
+  const sauvegarde = Object.assign({}, F);
+  fermerSaisieM();
+  toast("Enregistrement de l'ordre…");
+  const enAttente = ordres.map(o => Object.assign({ app: false, envoi: true, ligne: 0 }, o, { quantite: o.quantite === undefined ? null : o.quantite }));
+  if (M && M.ref) M.ref.journal = enAttente.reverse().concat(M.ref.journal || []);
+  const rep = await posterFichier({ action: "ordre", ordres: ordres, forcer: !!forcer });
+  if (M && M.ref) M.ref.journal = (M.ref.journal || []).filter(o => !o.envoi);
+  if (rep.ok) { toast(rep.message || "Ordre enregistré."); charger(true); return; }
+  if (rep.erreur === "cle") { stock.del(K.cle); toast(rep.message || "Clé refusée par ton fichier."); return; }
+  toast(rep.erreur === "avertissement" ? "Ordre à confirmer." : "Ordre non enregistré.");
+  F = sauvegarde;
+  if (rep.erreur === "avertissement") F.forcer = rep.message; else F.erreur = rep.message || "Erreur inattendue.";
+  $f("m-saisie").hidden = false;
+  paneSaisie("ordre");
+}
+function rendreJournal() {
+  const j = refData().journal || [];
+  const auj = aujourdhuiISO();
+  const z = $f("m-pane-journal");
+  if (!j.length) { z.innerHTML = '<div class="vide">Aucun ordre pour l\'instant.</div>'; return; }
+  z.innerHTML = '<p class="info">Les 30 derniers ordres de ton onglet Ordres. « Refaire » reprend un ordre à la date du jour ; seuls les ordres saisis depuis l\'app depuis moins de 7 jours peuvent être supprimés.</p><div class="m-jo">' +
+    j.map((o, i) => '<div class="jr' + (o.envoi ? " envoi" : "") + '"><div class="jd">' + o.date.slice(8, 10) + "/" + o.date.slice(5, 7) + "<small>" + o.date.slice(0, 4) + "</small></div>" +
+      '<div class="jm"><b>' + esc(o.type) + (o.actif ? " " + esc(o.actif) : "") + (o.envoi ? '<span class="tag app">envoi…</span>' : "") + (o.date > auj ? '<span class="tag prog">programmé</span>' : "") + (o.app ? '<span class="tag app">saisi ici</span>' : "") + "</b>" +
+      "<span>" + esc(o.enveloppe) + (o.quantite !== null && o.quantite !== undefined ? " · " + qteBrute(o.quantite) + " part" + (o.quantite > 1 ? "s" : "") : "") + (o.frais ? " · frais " + eur(o.frais, 2) : "") + "</span></div>" +
+      '<div class="jv">' + eur(o.montant, 2) + "</div>" +
+      (o.envoi ? "" : '<div class="ja"><button class="lien" type="button" data-refaire="' + i + '">Refaire</button>' +
+      (o.app ? '<button class="lien danger" type="button" data-suppr="' + i + '">' + (confirmeSuppr === i ? "Confirmer la suppression" : "Supprimer") + "</button>" : "") + "</div>") + "</div>").join("") + "</div>";
+  z.querySelectorAll("[data-refaire]").forEach(b => b.addEventListener("click", () => {
+    const o = j[+b.dataset.refaire];
+    ouvrirSaisieM({ type: o.type, env: o.enveloppe, actif: o.actif || "", qte: o.quantite !== null && o.quantite !== undefined ? saisieNombre(o.quantite, 8) : "", montant: saisieNombre(o.montant, 2), frais: o.frais ? saisieNombre(o.frais, 2) : "" }, "ordre");
+  }));
+  z.querySelectorAll("[data-suppr]").forEach(b => b.addEventListener("click", async () => {
+    const i = +b.dataset.suppr;
+    if (confirmeSuppr !== i) { confirmeSuppr = i; rendreJournal(); return; }
+    confirmeSuppr = null;
+    const o = j[i];
+    M.ref.journal = j.filter((x, k) => k !== i);
+    rendreJournal();
+    toast("Suppression en cours…");
+    const rep = await posterFichier({ action: "supprimer", ordre: o });
+    if (rep.ok) { toast(rep.message || "Ordre supprimé."); charger(true); }
+    else { toast(rep.message || "Suppression impossible."); M.ref.journal = j; if (!$f("m-saisie").hidden) rendreJournal(); }
+  }));
+}
+
+/* ---- Mises à jour du fichier : rappels (taux, fonds euros, Artema, appartement), nouvel actif, alertes de cours ---- */
+function nomRappel(n) { return String(n || "").replace(/\s*\((bloc ci-contre|Ordres[^)]*|fixe)\)/g, "").trim(); }
+function cleRappel(n) {
+  if (/^Taux des livrets/.test(n)) return "taux";
+  if (/fonds euros/i.test(n)) return "fondsEuros";
+  if (/Artema : niveau initial/.test(n)) return "artemaInitial";
+  if (/Artema : niveau actuel/.test(n)) return "artemaActuel";
+  if (/^Relevé Quintessa/.test(n)) return "releve";
+  if (/^Intérêts annuels/.test(n)) return "interets";
+  if (/appartement/i.test(n)) return "appart";
+  if (/^Versement Quintessa/.test(n)) return "versement";
+  if (/Calendrier/.test(n)) return "calendrier";
+  return "";
+}
+function pourcent(v) { return v === null || v === undefined || v === "" ? "" : saisieNombre(v * 100, 3); }
+function champ(id, lab, val, attrs) {
+  return '<div class="champ"><label for="' + id + '">' + lab + '</label><input id="' + id + '" type="' + ((attrs && attrs.type) || "text") + '"' + (attrs && attrs.type === "date" ? "" : ' inputmode="decimal"') + ' autocomplete="off" value="' + esc(val === null || val === undefined ? "" : val) + '"' + (attrs && attrs.ph ? ' placeholder="' + esc(attrs.ph) + '"' : "") + "></div>";
+}
+function formReglage(k) {
+  const p = (M && M.parametres) || {};
+  const msg = reglageMsg[k] ? '<div class="alerte ' + reglageMsg[k][0] + '">' + esc(reglageMsg[k][1]) + "</div>" : "";
+  const btn = '<button class="btn" type="submit">Enregistrer</button>';
+  const rap = rappelsFichier().find(r => cleRappel(r.nom) === k) || {};
+  if (k === "taux") {
+    const t = p.taux || {};
+    return '<form class="form reg-form" data-form="taux"><p class="info">Dernier changement le ' + frDate(t.date) + ". Saisis les nouveaux taux annoncés par l'État (en %)." + (t.place !== undefined ? " Place restante : " + t.place + " ligne(s)." : "") + "</p>" +
+      champ("r-date", "Date d'effet", rap.prochaine || "", { type: "date" }) +
+      '<div class="rang trois">' + (t.livretA !== null && t.livretA !== undefined ? champ("r-la", "Livret A (%)", pourcent(t.livretA)) : "") + (t.ldds !== null && t.ldds !== undefined ? champ("r-ld", "LDDS (%)", pourcent(t.ldds)) : "") + (t.lep !== null && t.lep !== undefined ? champ("r-le", "LEP (%)", pourcent(t.lep)) : "") + "</div>" + msg + btn + "</form>";
+  }
+  if (k === "fondsEuros") {
+    const f = p.fondsEuros || {};
+    return '<form class="form reg-form" data-form="fondsEuros"><p class="info">Taux servi par Quintessa pour l\'année écoulée, net de frais, avant bonus et prélèvements sociaux. Dernier saisi : ' + pct(f.taux, 2, false) + " pour " + (f.annee || "—") + ".</p>" +
+      '<div class="rang">' + champ("r-an", "Année", f.annee ? f.annee + 1 : "") + champ("r-taux", "Taux net (%)", "") + "</div>" + msg + btn + "</form>";
+  }
+  if (k === "artemaInitial") {
+    const a = p.artema || {};
+    return '<form class="form reg-form" data-form="artemaInitial"><p class="info">Niveau de l\'indice à la date de constatation initiale (indiqué par la banque après le 5 décembre 2026).</p>' +
+      champ("r-niv", "Niveau initial", a.initial === null || a.initial === undefined ? "" : saisieNombre(a.initial, 4)) + msg + btn + "</form>";
+  }
+  if (k === "artemaActuel") {
+    const a = p.artema || {};
+    return '<form class="form reg-form" data-form="artemaActuel"><p class="info">Niveau actuel de l\'indice, une fois par an avant chaque date de constatation.</p>' +
+      '<div class="rang">' + champ("r-niv", "Niveau actuel", a.actuel === null || a.actuel === undefined ? "" : saisieNombre(a.actuel, 4)) + champ("r-date", "Relevé le", a.date || aujourdhuiISO(), { type: "date" }) + "</div>" + msg + btn + "</form>";
+  }
+  if (k === "appart") {
+    const a = p.appart || {};
+    return '<form class="form reg-form" data-form="appart"><p class="info">Valeur utilisée pour le patrimoine net. Par défaut, le prix d\'achat hors frais de notaire.</p>' +
+      champ("r-prix", "Valeur de l'appartement (€)", a.prix ? saisieNombre(a.prix, 0) : "") + msg + btn + "</form>";
+  }
+  if (k === "calendrier") return '<p class="info reg-info">La liste des jours fériés d\'Euronext et de Wall Street se complète directement dans Paramètres du Sheet (colonnes « Bourses fermées »), une fois par an.</p>';
+  return "";
+}
+function coursConnu(c) { const r = refData(); let v = r.cours[c]; (M.groupes || []).forEach(g => g.lignes.forEach(l => { if (l.code === c && l.cours) v = l.cours; })); return v; }
+function rendreMaj() {
+  const z = $f("m-pane-maj"); const p = (M && M.parametres) || null;
+  if (!p) { z.innerHTML = '<p class="info">Paramètres de ton fichier indisponibles.</p>'; return; }
+  const r = refData();
+  const rappels = rappelsFichier().map(x => {
+    const k = cleRappel(x.nom);
+    const etat = /À faire|mettre à jour/i.test(x.statut) ? "faire" : /À jour|Fait/.test(x.statut) ? "ok" : "neutre";
+    const quand = x.prochaine && /^\d{4}-/.test(x.prochaine) ? "prochaine le " + frDate(x.prochaine) : (x.derniere && !/^\d{4}-/.test(String(x.derniere)) ? String(x.derniere) : (x.derniere ? "dernière le " + frDate(x.derniere) : ""));
+    const ouvert = reglageOuvert === k;
+    return '<div class="rap' + (ouvert ? " ouvert" : "") + '" data-reg="' + k + '">' +
+      (k ? '<button type="button" class="rap-h" data-rap="' + k + '" aria-expanded="' + ouvert + '">' : '<div class="rap-h fixe">') + '<span class="pt ' + etat + '"></span><span class="rap-n">' + esc(nomRappel(x.nom)) + "<small>" + esc(quand) + "</small></span>" +
+      '<span class="st ' + etat + '">' + (etat === "faire" ? "À faire" : etat === "ok" ? "À jour" : "—") + "</span>" + (k ? "</button>" : "</div>") +
+      (ouvert ? '<div class="rap-c">' + formReglage(k) + "</div>" : "") + "</div>";
+  }).join("");
+  const alertes = M.alertes || [];
+  const codesAlerte = Array.from(new Set((r.detenu || []).map(d => d.code).concat(r.actifs.filter(a => r.cours[a.code]).map(a => a.code))));
+  const classes = Array.from(new Set((p.classes || []).concat(["Actions", "Obligations", "Or", "Crypto", "Monétaire", "Immobilier"])));
+  const zones = Array.from(new Set((p.zones || []).concat(["Monde", "États-Unis", "Europe", "France", "Émergents", "Asie"])));
+  const opt = (l, v) => l.map(x => '<option value="' + esc(x) + '"' + (x === v ? " selected" : "") + ">" + esc(x) + "</option>").join("");
+  const mA = reglageMsg.actif ? '<div class="alerte ' + reglageMsg.actif[0] + '">' + esc(reglageMsg.actif[1]) + "</div>" : "";
+  const mAl = reglageMsg.alertes ? '<div class="alerte ' + reglageMsg.alertes[0] + '">' + esc(reglageMsg.alertes[1]) + "</div>" : "";
+  const pre = alertePre || {};
+  z.innerHTML =
+    '<h4 class="m-h4">Rappels de ton fichier <small>touche pour mettre à jour</small></h4><div class="raps">' + rappels + "</div>" +
+    '<h4 class="m-h4" data-reg="actif">Nouvel actif <small>avant un premier achat</small></h4>' +
+      '<form class="form reg-form" data-form="actif">' +
+        '<div class="rang">' + champ("a-code", "Code (court, unique)", "", { ph: "ex. CW8" }) + champ("a-nom", "Nom", "", { ph: "ex. Amundi MSCI World" }) + "</div>" +
+        '<div class="champ"><label for="a-ticker">Ticker Google Finance</label><div class="ligne-champ"><input id="a-ticker" type="text" autocomplete="off" autocapitalize="characters" placeholder="ex. EPA:CW8"><button class="mini-btn" type="button" id="a-verif">Vérifier</button></div><span class="aide" id="a-verif-res">EPA: pour Paris, ETR: pour Xetra, CURRENCY:ETHEUR pour une crypto. Sans ticker, saisis un cours manuel.</span></div>' +
+        '<div class="rang">' +
+          '<div class="champ"><label for="a-classe">Classe</label><select id="a-classe">' + opt(classes, "Actions") + "</select></div>" +
+          '<div class="champ"><label for="a-zone">Zone</label><select id="a-zone">' + opt(zones, "Monde") + "</select></div>" +
+        "</div>" +
+        '<div class="rang">' +
+          '<div class="champ"><label for="a-levier">Levier</label><select id="a-levier"><option>1</option><option>2</option><option>3</option></select></div>' +
+          champ("a-manuel", "Cours manuel (€)", "", { ph: "si pas de ticker" }) +
+        "</div>" + mA +
+        '<button class="btn" type="submit">Ajouter l\'actif</button>' +
+      "</form>" +
+    '<h4 class="m-h4" data-reg="alertes">Alertes de cours <small>la cloche passe au rouge si l\'une se déclenche</small></h4>' +
+      (alertes.length ? '<div class="m-liste">' + alertes.map((a, i) => {
+        const c = coursConnu(a.code), declenchee = c && (a.sens === "sous" ? c < a.seuil : c > a.seuil);
+        return '<div class="r"><span class="a">' + esc(a.code) + " " + (a.sens === "sous" ? "sous" : "au-dessus de") + " " + cours(a.seuil) + '</span><span class="b"><button class="lien danger" type="button" data-suppr-alerte="' + i + '">Retirer</button></span>' +
+          '<span class="c">' + (c ? "cours actuel " + cours(c) : "cours inconnu") + '</span><span class="d ' + (declenchee ? "down" : "") + '">' + (declenchee ? "déclenchée" : "en veille") + "</span></div>";
+      }).join("") + "</div>" : '<p class="info">Aucune alerte. Exemple : LQQ sous 9 €.</p>') +
+      '<form class="form reg-form" data-form="alerte">' +
+        '<div class="rang trois">' +
+          '<div class="champ"><label for="al-code">Actif</label><select id="al-code">' + codesAlerte.map(c => '<option' + (c === pre.code ? " selected" : "") + ">" + esc(c) + "</option>").join("") + "</select></div>" +
+          '<div class="champ"><label for="al-sens">Quand</label><select id="al-sens"><option value="sous">passe sous</option><option value="dessus">passe au-dessus</option></select></div>' +
+          champ("al-seuil", "Seuil (€)", pre.seuil || "") +
+        "</div>" + mAl +
+        '<button class="btn ghost" type="submit">Ajouter l\'alerte</button>' +
+      "</form>";
+  alertePre = null;
+  z.querySelectorAll("[data-rap]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.rap;
+    const quint = (r.enveloppes.find(e => /Quintessa/.test(e.nom)) || {}).nom;
+    if (k === "releve") { F = formulaire({ type: "Relevé", env: quint, actif: "ARTEMA" }); paneSaisie("ordre"); return; }
+    if (k === "interets") { F = formulaire({ type: "Intérêts", env: (r.enveloppes.find(e => /Livret A/.test(e.nom)) || {}).nom, date: (new Date().getFullYear() - 1) + "-12-31" }); paneSaisie("ordre"); return; }
+    if (k === "versement") { const rc = (r.raccourcis || []).find(x => /Quintessa/.test(x.env)); F = formulaire(rc ? depuisRaccourci(rc) : { env: quint }); synchroniser(); paneSaisie("ordre"); return; }
+    reglageOuvert = reglageOuvert === k ? null : k;
+    delete reglageMsg[k];
+    rendreMaj();
+  }));
+  z.querySelectorAll("form[data-form]").forEach(f => f.addEventListener("submit", e => { e.preventDefault(); soumettreReglage(f.dataset.form, f); }));
+  z.querySelectorAll("[data-suppr-alerte]").forEach(b => b.addEventListener("click", () => {
+    const liste = alertes.slice(); liste.splice(+b.dataset.supprAlerte, 1);
+    envoyerReglage("alertes", { action: "alertes", alertes: liste }, null, () => { M.alertes = liste; });
+  }));
+  const v = $f("a-verif");
+  if (v) v.addEventListener("click", async () => {
+    const t = ($f("a-ticker").value || "").trim().toUpperCase();
+    const res = $f("a-verif-res");
+    if (!t) { res.textContent = "Saisis d'abord un ticker."; return; }
+    v.disabled = true; res.textContent = "Vérification auprès de Google Finance…";
+    const rep = await posterFichier({ action: "verifierTicker", ticker: t });
+    v.disabled = false;
+    if (rep.ok) { res.textContent = "✓ " + t + " reconnu : " + cours(rep.cours) + (rep.nom ? " · " + rep.nom : ""); if (!$f("a-nom").value && rep.nom) $f("a-nom").value = rep.nom; }
+    else res.textContent = rep.message || "Ticker introuvable.";
+  });
+}
+function lireChamp(id) { const el = $f(id); return el ? el.value.trim() : ""; }
+function soumettreReglage(type, form) {
+  const n = id => lireNombre(lireChamp(id));
+  const p = M.parametres || {};
+  if (type === "taux") {
+    const ids = [["r-la", "livretA"], ["r-ld", "ldds"], ["r-le", "lep"]].filter(x => $f(x[0]));
+    const vals = ids.map(x => n(x[0]));
+    if (!lireChamp("r-date") || !ids.length || vals.some(x => !(x >= 0 && x < 20))) { reglageMsg.taux = ["err", "Saisis la date et les taux en % (ex. 1,5)."]; rendreMaj(); return; }
+    const corps = { action: "taux", date: lireChamp("r-date") };
+    ids.forEach((x, i) => { corps[x[1]] = vals[i] / 100; });
+    return envoyerReglage("taux", corps, form, () => { p.taux = Object.assign({}, p.taux, corps, { date: lireChamp("r-date") }); });
+  }
+  if (type === "fondsEuros") {
+    const an = n("r-an"), t = n("r-taux");
+    if (!(an >= 2020) || !(t >= 0 && t < 20)) { reglageMsg.fondsEuros = ["err", "Saisis l'année et le taux en % (ex. 3,1)."]; rendreMaj(); return; }
+    return envoyerReglage("fondsEuros", { action: "fondsEuros", annee: an, taux: t / 100 }, form, () => { p.fondsEuros = { annee: an, taux: t / 100 }; });
+  }
+  if (type === "artemaInitial" || type === "artemaActuel") {
+    const niv = n("r-niv");
+    if (!(niv > 0)) { reglageMsg[type] = ["err", "Saisis le niveau de l'indice."]; rendreMaj(); return; }
+    return envoyerReglage(type, { action: "artema", quoi: type === "artemaInitial" ? "initial" : "actuel", niveau: niv, date: lireChamp("r-date") }, form);
+  }
+  if (type === "appart") {
+    const v = n("r-prix");
+    if (!(v > 1000)) { reglageMsg.appart = ["err", "Saisis une valeur en euros."]; rendreMaj(); return; }
+    return envoyerReglage("appart", { action: "appart", prix: v }, form);
+  }
+  if (type === "actif") {
+    const a = { code: lireChamp("a-code").toUpperCase(), nom: lireChamp("a-nom"), ticker: lireChamp("a-ticker").toUpperCase(), classe: lireChamp("a-classe"), zone: lireChamp("a-zone"), levier: n("a-levier") || 1, coursManuel: n("a-manuel") };
+    if (!/^[A-Z0-9_]{2,12}$/.test(a.code) || !a.nom) { reglageMsg.actif = ["err", "Code (2 à 12 lettres ou chiffres) et nom obligatoires."]; rendreMaj(); return; }
+    if (refData().actifs.some(x => x.code === a.code)) { reglageMsg.actif = ["err", "Le code " + a.code + " existe déjà."]; rendreMaj(); return; }
+    if (!a.ticker && !(a.coursManuel > 0)) { reglageMsg.actif = ["err", "Indique un ticker Google Finance ou un cours manuel."]; rendreMaj(); return; }
+    return envoyerReglage("actif", { action: "actif", actif: a }, form, () => { refData().actifs.push({ code: a.code, nom: a.nom, classe: a.classe }); });
+  }
+  if (type === "alerte") {
+    const s = n("al-seuil"), code = lireChamp("al-code");
+    if (!code || !(s > 0)) { reglageMsg.alertes = ["err", "Choisis l'actif et un seuil en euros."]; rendreMaj(); return; }
+    const liste = (M.alertes || []).concat([{ code: code, sens: lireChamp("al-sens"), seuil: s }]);
+    return envoyerReglage("alertes", { action: "alertes", alertes: liste }, form, () => { M.alertes = liste; });
+  }
+}
+async function envoyerReglage(k, corps, form, local) {
+  const btn = form ? form.querySelector('button[type="submit"]') : null;
+  if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
+  const rep = await posterFichier(corps);
+  if (rep.ok) {
+    if (local) local();
+    delete reglageMsg[k];
+    if (k !== "alertes" && k !== "actif") reglageOuvert = null;
+    toast(rep.message || "Enregistré.");
+    rendreMaj(); signalerCloche();
+    charger(true);
+  } else {
+    if (rep.erreur === "cle") { stock.del(K.cle); fermerSaisieM(); toast(rep.message || "Clé refusée."); return; }
+    reglageMsg[k] = ["err", rep.message || "Erreur inattendue."];
+    rendreMaj();
+  }
+}
+
+/* ---------- Notifications (cloche de l'en-tête) ----------
+   rouge : anomalie dans les saisies ou alerte de cours déclenchée ; orange : rappel à faire ou dans les 2 jours ; rien sinon */
+function dateRappel(txt) { const m = /(\d{2})\/(\d{2})\/(\d{4})\s*$/.exec(String(txt || "")); return m ? new Date(+m[3], +m[2] - 1, +m[1], 23, 59) : null; }
+/* le bloc Rappels du fichier s'arrête avant le tableau « Mes actifs » */
+function rappelsFichier() {
+  const out = [];
+  for (const r of ((M.parametres || {}).rappels || [])) { if (/^Mes actifs/.test(r.nom || "")) break; if (r.nom) out.push(r); }
+  return out;
+}
+function notifications() {
+  if (!M) return { niveau: "", items: [] };
+  const items = [];
+  const anomalie = M.anomalies && !/^\s*✓/.test(M.anomalies);
+  if (anomalie) items.push({ t: "rouge", txt: M.anomalies });
+  alertesDeclenchees().forEach(a => items.push({ t: "rouge", txt: "Alerte de cours : " + a }));
+  const d = dateRappel(M.rappel);
+  const aFaire = /À mettre à jour/.test(M.rappel || "") || (d && d - Date.now() < 2 * 864e5);
+  rappelsFichier().filter(r => /mettre à jour|à faire|retard|⚠|✏/i.test(r.statut || "")).forEach(r => items.push({ t: "orange", txt: r.nom + " : " + String(r.statut).replace(/^[^\wÀ-ÿ]+/u, "") + (r.prochaine ? " (prévu le " + frDate(String(r.prochaine).slice(0, 10)) + ")" : "") }));
+  if (aFaire && !items.some(x => x.t === "orange")) items.push({ t: "orange", txt: M.rappel });
+  const niveau = items.some(x => x.t === "rouge") ? "rouge" : items.some(x => x.t === "orange") ? "orange" : "";
+  return { niveau, items };
+}
+function signalerCloche() { if (typeof majCloche === "function") majCloche(configure() ? notifications().niveau : null); }
+function htmlNotifications() {
+  if (!configure()) return '<p class="info">Connecte ton fichier dans Réglages › Mon fichier pour recevoir tes rappels et alertes ici.</p>';
+  if (!M) return '<p class="info">Lecture de ton fichier en cours…</p>';
+  const n = notifications(), propre = t => esc(String(t || "").replace(/^[✓⚠🔔✏️\s]+/u, "").trim()).replace(/ +▸ /g, "<br>▸ ");
+  const ligne = (cls, ic, txt) => '<div class="m-note ' + cls + '"><span class="ic">' + ic + "</span><span>" + txt + "</span></div>";
+  const rap = rappelsFichier();
+  return '<div class="moi" style="display:grid;gap:10px"><div class="m-notes">' +
+    (n.items.length ? n.items.map(x => ligne(x.t === "rouge" ? "warn" : "rappel", x.t === "rouge" ? "!" : "◷", propre(x.txt))).join("") : ligne("ok", "✓", "Rien à signaler : aucune anomalie, aucun rappel à faire.")) +
+    (!n.items.some(x => x.txt === M.anomalies) && M.anomalies ? ligne("ok", "✓", propre(M.anomalies)) : "") +
+    (M.rappel && !n.items.some(x => x.txt === M.rappel) ? ligne("rappel", "◷", propre(M.rappel)) : "") + "</div>" +
+    (M.marches ? '<h4 class="m-h4">Marchés</h4><div class="m-status">' + marches(M.marches) + "</div>" : "") +
+    (rap.length ? '<h4 class="m-h4">Rappels de ton fichier</h4><div class="m-liste">' + rap.map(r => '<div class="r"><span class="a">' + esc(r.nom) + '</span><span class="b">' + esc(String(r.statut || "").replace(/^[^\wÀ-ÿ]+/u, "")) + '</span><span class="c">dernière : ' + esc(/^\d{4}-/.test(r.derniere || "") ? frDate(r.derniere.slice(0, 10)) : r.derniere || "—") + '</span><span class="d">prochaine : ' + esc(/^\d{4}-/.test(r.prochaine || "") ? frDate(r.prochaine.slice(0, 10)) : r.prochaine || "—") + "</span></div>").join("") + "</div>" : "") + "</div>";
 }
 
 /* ---------- Interface publique ---------- */
 window.Moi = {
   rendre,
+  prechauffer() { injecterStyle(); if (!configure()) { signalerCloche(); return; } lireCache(); signalerCloche(); if (Date.now() - dernierAppel > 5 * 60e3) charger(false); },
+  notifications: htmlNotifications,
+  saisir(partiel, onglet) { ouvrirSaisieM(partiel, onglet); },
+  million(el) { afficherMillion(el); },
   rafraichir(frais) { if (configure()) { rendre(); charger(!!frais); } },
   configure,
   connecter(url, k) {
@@ -722,7 +1703,7 @@ window.Moi = {
     if (k) stock.set(K.cle, k);
     if (url || k) { M = null; SRC = ""; erreur = ""; dernierAppel = 0; stock.del(K.cache); }
   },
-  oublier() { [K.api, K.cle, K.cache].forEach(k => stock.del(k)); M = null; SRC = ""; erreur = ""; ouverts.clear(); },
+  oublier() { [K.api, K.cle, K.cache].forEach(k => stock.del(k)); M = null; SRC = ""; erreur = ""; signalerCloche(); },
   async tester(url, k) {
     try {
       const j = await (await fetch(url + (url.includes("?") ? "&" : "?") + "action=ping&cle=" + encodeURIComponent(k), { cache: "no-store" })).json();

@@ -88,6 +88,9 @@ button, select, input { font: inherit; color: inherit; }
 .icon-btn { width: 38px; height: 38px; display: grid; place-items: center; flex: none; border: 1px solid var(--rule); border-radius: 10px; background: var(--panel); cursor: pointer; }
 .icon-btn svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .icon-btn.spin svg { animation: tourne .9s linear infinite; }
+.cloche { position: relative; }
+.cloche i { position: absolute; top: 6px; right: 7px; width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 2px var(--panel); }
+.cloche i.rouge { background: var(--down); } .cloche i.orange { background: #F59E0B; }
 @keyframes tourne { to { transform: rotate(360deg); } }
 
 /* Bandeau marchés */
@@ -458,6 +461,9 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <button class="icon-btn" id="btn-maj" type="button" aria-label="Actualiser">
       <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
     </button>
+    <button class="icon-btn cloche" id="btn-notif" type="button" aria-label="Notifications" hidden>
+      <svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg><i id="point-notif" hidden></i>
+    </button>
     <button class="icon-btn" id="btn-reglages" type="button" aria-label="Réglages">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
@@ -493,6 +499,13 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     </div>
     <div id="corps-saisie"></div>
     <div id="corps-journal" hidden></div>
+  </div>
+</div>
+
+<div class="voile" id="notifs" hidden>
+  <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="titre-notifs">
+    <h3 id="titre-notifs">Notifications <button class="icon-btn" type="button" id="fermer-notifs" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
+    <div id="corps-notifs"></div>
   </div>
 </div>
 
@@ -1362,6 +1375,8 @@ function rendreTrophees() {
   v.querySelectorAll("details[data-acc]").forEach(d => d.addEventListener("toggle", () => {
     const l = new Set(ETAT.acc || []); if (d.open) l.add(d.dataset.acc); else l.delete(d.dataset.acc); ETAT.acc = [...l]; garder();
   }));
+  // jauge du millionnaire : privée, lue depuis le fichier perso connecté sur cet appareil
+  if (moiConnecte()) { const z = document.createElement("div"); z.id = "m-million-z"; v.prepend(z); chargerModuleMoi(() => { if (z.isConnected) window.Moi.million(z); }); }
 }
 function blocTitres(env, nu) {
   const t = titresMois(env);
@@ -2043,17 +2058,33 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=1";
+const MOI_JS = "moi.js?v=4";
+function chargerModuleMoi(apres, echec) {
+  if (window.Moi) { apres(); return; }
+  let sc = document.getElementById("script-moi");
+  if (!sc) { sc = document.createElement("script"); sc.id = "script-moi"; sc.src = MOI_JS; document.head.appendChild(sc); }
+  sc.addEventListener("load", apres);
+  sc.addEventListener("error", () => { sc.remove(); if (echec) echec(); });
+}
 function rendreMoi() {
   if (window.Moi) { window.Moi.rendre(); return; }
-  const v = $("#v-moi");
-  v.innerHTML = '<div class="vide">Chargement de ton espace…</div>';
-  if (document.getElementById("script-moi")) return;
-  const sc = document.createElement("script"); sc.id = "script-moi"; sc.src = MOI_JS;
-  sc.onload = () => { if (vueActive() === "moi") window.Moi.rendre(); };
-  sc.onerror = () => { sc.remove(); v.innerHTML = '<div class="vide">Impossible de charger l\'onglet Moi : vérifie ta connexion.</div>'; };
-  document.head.appendChild(sc);
+  $("#v-moi").innerHTML = '<div class="vide">Chargement de ton espace…</div>';
+  chargerModuleMoi(() => { if (vueActive() === "moi") window.Moi.rendre(); }, () => { $("#v-moi").innerHTML = '<div class="vide">Impossible de charger l\'onglet Moi : vérifie ta connexion.</div>'; });
 }
+/* Cloche : appelée par le module Moi (null = pas de fichier connecté, "" = rien à signaler, "orange" = rappel, "rouge" = anomalie ou alerte) */
+function majCloche(niveau) {
+  const b = $("#btn-notif"), p = $("#point-notif");
+  b.hidden = niveau === null;
+  p.hidden = !niveau; p.className = niveau || "";
+  b.setAttribute("aria-label", niveau === "rouge" ? "Notifications : anomalie ou alerte à voir" : niveau === "orange" ? "Notifications : rappel à faire" : "Notifications");
+  if (!$("#notifs").hidden && window.Moi) $("#corps-notifs").innerHTML = window.Moi.notifications();
+}
+$("#btn-notif").addEventListener("click", () => { $("#corps-notifs").innerHTML = window.Moi ? window.Moi.notifications() : ""; $("#notifs").hidden = false; });
+$("#fermer-notifs").addEventListener("click", () => { $("#notifs").hidden = true; });
+$("#notifs").addEventListener("click", e => { if (e.target.id === "notifs") $("#notifs").hidden = true; });
+/* au démarrage, si un fichier perso est connecté : on prépare Moi en arrière-plan pour la cloche */
+function moiConnecte() { return !!(stock.get("versus.moi.api") && stock.get("versus.moi.cle")); }
+function prechaufferMoi() { if (moiConnecte()) chargerModuleMoi(() => window.Moi.prechauffer()); }
 function montrerVue(v) {
   if (!VUES.includes(v)) v = "classement";
   document.querySelectorAll(".view").forEach(s => { s.hidden = s.dataset.vue !== v; });
@@ -2089,6 +2120,7 @@ $("#moi-enregistrer").addEventListener("click", () => {
   if (window.Moi) window.Moi.connecter(a, k);
   else { stock.set(MOI_CLES.api, a); if (k) stock.set(MOI_CLES.cle, k); stock.del("versus.moi.cache"); }
   majMoiReglages("Enregistré. Ouvre l'onglet Moi pour voir ton fichier.");
+  prechaufferMoi();
   if (vueActive() === "moi") { $("#reglages").hidden = true; rendreMoi(); }
 });
 $("#moi-tester").addEventListener("click", async () => {
@@ -2103,13 +2135,15 @@ $("#moi-tester").addEventListener("click", async () => {
 $("#moi-oublier").addEventListener("click", () => {
   if (window.Moi) window.Moi.oublier(); else ["versus.moi.api", "versus.moi.cle", "versus.moi.cache"].forEach(k => stock.del(k));
   majMoiReglages("Fichier déconnecté de cet appareil (adresse, clé et copie locale effacées).");
+  majCloche(null);
   if (vueActive() === "moi") rendreMoi();
 });
 $("#fermer-reglages").addEventListener("click", () => { $("#reglages").hidden = true; });
 $("#reglages").addEventListener("click", e => { if (e.target.id === "reglages") $("#reglages").hidden = true; });
 $("#saisie").addEventListener("click", e => { if (e.target.id === "saisie") $("#saisie").hidden = true; });
 $("#fermer-saisie").addEventListener("click", () => { $("#saisie").hidden = true; });
-$("#btn-saisie").addEventListener("click", ouvrirSaisie);
+/* ➕ : avec un fichier perso connecté, la feuille de saisie complète (ordre, journal, mises à jour, relevé Versus) ; sinon le relevé Versus */
+$("#btn-saisie").addEventListener("click", () => { if (moiConnecte()) chargerModuleMoi(() => window.Moi.saisir(), ouvrirSaisie); else ouvrirSaisie(); });
 document.querySelectorAll("[data-theme-choix]").forEach(b => b.addEventListener("click", () => { stock.set(CLES.theme, b.dataset.themeChoix); appliquerTheme(b.dataset.themeChoix); }));
 $("#enregistrer-api").addEventListener("click", () => {
   const v = $("#champ-api").value.trim();
@@ -2184,17 +2218,18 @@ async function actionLiaison(action, corps) {
 $("#liaison-bascule").addEventListener("click", async () => { const rep = await actionLiaison("liaison", { actif: !(D.liaison && D.liaison.active) }); if (rep.ok) { D.liaison = Object.assign({}, D.liaison, { active: !(D.liaison && D.liaison.active) }); majLiaison(); } });
 $("#liaison-test").addEventListener("click", () => actionLiaison("testerLiaison"));
 $("#liaison-import").addEventListener("click", async () => { const rep = await actionLiaison("importer"); if (rep.ok) { await charger(true); majLiaison(); } });
-document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie").hidden = true; $("#reglages").hidden = true; } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie").hidden = true; $("#reglages").hidden = true; $("#notifs").hidden = true; } });
 let attente, largeur = window.innerWidth;
 window.addEventListener("resize", () => { if (window.innerWidth === largeur) return; largeur = window.innerWidth; clearTimeout(attente); attente = setTimeout(() => { if (D) rendreVue(vueActive()); }, 150); });
 if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (D) rendreVue(vueActive()); });
-document.addEventListener("visibilitychange", () => { if (document.hidden) return; if (SOURCE !== "demo") charger(false); if (vueActive() === "moi" && window.Moi) window.Moi.rafraichir(false); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) return; if (SOURCE !== "demo") charger(false); if (window.Moi) { if (vueActive() === "moi") window.Moi.rafraichir(false); else window.Moi.prechauffer(); } });
 
 /* ---------- Démarrage ---------- */
 appliquerTheme(stock.get(CLES.theme) || "auto");
 if (ETAT.ouverture === "fiche") { ETAT.ouverture = "moi"; garder(); }
 montrerVue(vueActive());
 charger(false);
+setTimeout(prechaufferMoi, 600);
 </script>
 </body>
 </html>
