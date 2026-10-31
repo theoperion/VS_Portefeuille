@@ -145,13 +145,198 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 4px; font: 700 10px/1.4 var(--f-display); letter-spacing: .08em; text-transform: uppercase; vertical-align: 2px; font-style: normal; }
 .tag.manque { background: var(--down-bg); color: var(--down); }
 .tag.moi { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
-.titres { font-style: normal; font-size: 12px; letter-spacing: 1px; }
-.fet-tag { font-weight: 600; color: var(--ink-2); }
-.suc-tete { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 4px 10px; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); }
-.suc-tete b { font: italic 800 20px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
-.suc-tete span { font: 600 13px/1.2 var(--f-num); color: var(--ink-2); text-align: right; }
-.suc-tete .jauge { grid-column: 1 / -1; display: block; height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
-.suc-tete .jauge i { display: block; height: 100%; background: var(--gold); border-radius: 4px; }
+.h-boutons { display: inline-flex; gap: 6px; align-items: center; }
+.million-b { width: 30px; height: 30px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--gold) 70%, var(--rule)); background: var(--panel); cursor: pointer; font-size: 14px; line-height: 1; filter: grayscale(.6); padding: 0; }
+.million-b.pris { border-style: solid; filter: none; box-shadow: 0 0 10px color-mix(in srgb, var(--gold) 45%, transparent); }
+.couronne { margin-left: 5px; font-style: normal; font-size: .85em; filter: drop-shadow(0 0 4px rgba(245,197,66,.7)); }
+.million-strip { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--gold) 65%, var(--rule)); background: color-mix(in srgb, var(--gold) 7%, var(--panel)); }
+.million-strip.pris { border-style: solid; background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 22%, var(--panel)), var(--panel)); }
+.million-strip .mc { font-size: 22px; filter: grayscale(.5); }
+.million-strip.pris .mc { filter: none; }
+.million-strip b { display: block; font: italic 800 15px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+.million-strip small { display: block; font-size: 12px; color: var(--ink-2); }
+.million-strip:focus-visible { outline: 2px solid var(--accent); }
+.vers-fiches { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--rule); background: var(--panel); border-radius: 999px; padding: 5px 11px 5px 8px; cursor: pointer; font: 600 12.5px/1 var(--f-text); letter-spacing: 0; text-transform: none; font-style: normal; color: var(--ink-2); }
+.vers-fiches svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.filtres { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.vue-moi .ticker { display: none; }
+@media (max-width: 360px) { .logo b { font-size: 21px; } .top { gap: 6px; } .top .icon-btn { width: 34px; height: 34px; } .brand small { display: none; } }
+.bilans-bloc { display: grid; gap: 10px; }
+/* ---------- Podium · Saison 1 ---------- */
+.casque { width: 26px; height: 26px; flex: none; overflow: visible; }
+.pos .who .casque { width: 28px; height: 28px; margin-right: -2px; }
+@media (max-width: 360px) { .pos, .tour-h { gap: 6px; padding-left: 8px; padding-right: 8px; grid-template-columns: 28px minmax(0, 1fr) auto 62px; } .pos .g { font-size: 11px; white-space: nowrap; } .pos .rk { width: 26px; height: 26px; font-size: 15px; } .pos .who { gap: 5px; } .pos .who .casque { width: 21px; height: 21px; margin: 0; } .pos .t { font-size: 15px; } }
+.casque.holo { filter: drop-shadow(0 0 3px rgba(181,123,255,.6)); }
+.lv { font-style: italic; }
+.lv-chrome, .lv-or, .lv-arcenciel, .lv-oranime { -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.lv-chrome { background-image: linear-gradient(90deg, #6c7580, #c9d0d8 35%, #59616b 60%, #aab3bd); }
+.lv-or { background-image: linear-gradient(90deg, #B7791F, #F5C542 40%, #9A6418 70%, #E8B23A); }
+.lv-oranime { background-image: linear-gradient(90deg, #B7791F, #FFE08A 25%, #B7791F 50%, #FFE08A 75%, #B7791F); background-size: 200% 100%; animation: lvBrille 3s linear infinite; }
+.lv-arcenciel { background-image: linear-gradient(90deg, #FF5A5F, #FFB547, #D8C53A, #3DDC97, #4C9AFF, #B57BFF, #FF5A5F); background-size: 200% 100%; animation: lvBrille 5s linear infinite; }
+.lv-neon { color: var(--c) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--c) 70%, transparent), 0 0 14px color-mix(in srgb, var(--c) 45%, transparent); }
+@keyframes lvBrille { to { background-position: -200% 0; } }
+.plaque { display: inline-block; font: 800 9px/1.55 var(--f-num); letter-spacing: .08em; text-transform: uppercase; padding: 0 6px; border-radius: 3px; color: #1a1d22; font-style: normal; vertical-align: 1px;
+  background: linear-gradient(180deg, #fbfcfd 0%, #d5dbe1 48%, #b9c1ca 52%, #e6eaee 100%); border: 1px solid #7d8692; box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.25); }
+.plaque.grande { font-size: 8.5px; letter-spacing: .04em; padding: 3px 6px; border-radius: 4px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.showroom { position: relative; border-radius: 18px; overflow: hidden; padding: 14px 8px 8px; color: #EEF0F3; border: 1px solid #2A303C;
+  background: radial-gradient(70% 55% at 50% 8%, rgba(255,255,255,.16), transparent 70%), radial-gradient(120% 60% at 50% 100%, #1d2230, transparent 70%), linear-gradient(180deg, #121620, #07090d); }
+.showroom .voiture { color: #8C95A2; position: relative; margin-top: -6px; }
+.sr-num { position: absolute; right: 10px; top: -14px; font: italic 900 120px/1 var(--f-display); color: rgba(255,255,255,.06); pointer-events: none; }
+.sr-h { position: relative; display: grid; gap: 4px; padding: 0 8px; }
+.sr-k { font: 700 10.5px/1 var(--f-num); letter-spacing: .14em; text-transform: uppercase; color: #C9BEFF; }
+.sr-h b { font: italic 800 30px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: #fff; }
+.sr-p { display: flex; align-items: center; gap: 8px; font: 600 11.5px/1 var(--f-num); color: #9AA3AD; }
+.sr-barre { width: 90px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+.sr-barre i { display: block; height: 100%; background: linear-gradient(90deg, #B7791F, #F7CF55); }
+.sr-klaxon { position: absolute; right: 12px; bottom: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: #fff; border-radius: 999px; padding: 6px 12px; font: 600 12.5px/1 var(--f-text); cursor: pointer; backdrop-filter: blur(6px); }
+.slot-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px; }
+.slot-tabs::-webkit-scrollbar { display: none; }
+.slot-tabs button { flex: none; display: grid; gap: 2px; text-align: left; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); border-radius: 12px; padding: 7px 12px; font: italic 800 13px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.slot-tabs button small { font: 500 11px/1.1 var(--f-text); letter-spacing: 0; text-transform: none; font-style: normal; color: var(--ink-3); }
+.slot-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.slot-tabs button[aria-pressed="true"] small { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.it { --r: #8C95A2; position: relative; display: grid; gap: 2px; padding: 6px 6px 8px; text-align: center; cursor: pointer; border-radius: 14px; color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--r) 50%, var(--rule)); background: linear-gradient(180deg, var(--panel) 35%, color-mix(in srgb, var(--r) 16%, var(--panel))); overflow: hidden; }
+.it::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--r); }
+.it.r-bronze { --r: #D08A4E; } .it.r-argent { --r: #B9C3CE; } .it.r-or { --r: #F2BE3A; } .it.r-secret { --r: #3DDC97; } .it.r-unique { --r: #F7CF55; }
+.it.r-legende { --r: #B98CFF; border: 1.5px solid transparent; background: linear-gradient(180deg, var(--panel) 35%, color-mix(in srgb, #B98CFF 18%, var(--panel))) padding-box, linear-gradient(135deg, #FF6B9A, #FFC15E, #5CF0B5, #5AB8FF, #B98CFF) border-box; }
+.it.r-legende::before, .it.r-unique::before { background: linear-gradient(90deg, #FF6B9A, #FFC15E, #5CF0B5, #5AB8FF, #B98CFF); background-size: 200% 100%; animation: lvBrille 4s linear infinite; }
+.it.r-unique::before { background: linear-gradient(90deg, #B7791F, #FFF1B8, #B7791F); background-size: 200% 100%; }
+.it.on { box-shadow: 0 0 0 2px var(--accent), 0 6px 18px color-mix(in srgb, var(--accent) 30%, transparent); }
+.it-v { position: relative; height: 66px; display: grid; place-items: center; }
+.it-v .casque { width: 58px; height: 58px; }
+.it-v .voiture { width: 100%; }
+.it-v .vg-trainee { width: 100%; height: 50px; overflow: visible; }
+.it-emo { font-size: 32px; line-height: 1; }
+.it-emo.vide { color: var(--ink-3); font-size: 22px; }
+.it.verrou .it-v > :not(.it-lock):not(.it-on) { filter: saturate(.55) brightness(.6); opacity: .75; }
+.it-lock { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+.it-on { position: absolute; top: 0; right: 0; font: 800 8.5px/1 var(--f-num); letter-spacing: .08em; text-transform: uppercase; padding: 3px 5px; border-radius: 6px; background: var(--accent); color: #fff; }
+.it-n { font: italic 800 13.5px/1.1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.it-r { font: 600 10.5px/1.2 var(--f-text); color: var(--r); filter: brightness(.85); }
+.it.verrou .it-r { color: var(--ink-3); filter: none; }
+.num-bloc { display: grid; gap: 8px; justify-items: start; }
+.num-bloc .champ-num { width: 96px; font-size: 28px; padding: 10px; font-style: italic; }
+.vt-brille { animation: vtBrille 3.6s ease-in-out infinite; }
+@keyframes vtBrille { 0% { transform: skewX(-20deg) translateX(0); } 70%, 100% { transform: skewX(-20deg) translateX(640px); } }
+.fx { pointer-events: none; }
+.fx-halo { stroke-width: 10; opacity: .2; }
+.fx-flammes { stroke: #FF7A1A !important; stroke-width: 6; opacity: .6; stroke-dasharray: 3 7; animation: fxDefile .9s linear infinite; }
+.fx-etincelles { stroke: var(--gold) !important; stroke-width: 4.5; stroke-dasharray: .1 11; opacity: .95; animation: fxDefile 1.4s linear infinite; }
+.fx-comete { stroke-width: 8; opacity: .3; filter: blur(2.5px); }
+@keyframes fxDefile { to { stroke-dashoffset: -20; } }
+.voiture { display: block; width: 100%; height: auto; color: var(--ink-3); }
+.voiture.roule .vt-jante { transform-box: fill-box; transform-origin: center; animation: tourne .45s linear infinite; }
+.voiture.roule .vt-caisse { animation: vtRebond .5s ease-in-out infinite alternate; }
+.voiture.roule .vt-sol path { animation: vtSol .5s linear infinite; }
+.voiture.roule .vt-lignes { animation: vtLignes .6s linear infinite; }
+.voiture.roule .vt-flamme { transform-box: fill-box; transform-origin: right center; animation: vtFlamme .18s ease-in-out infinite alternate; }
+.voiture.roule .vt-etin { animation: vtLignes .5s linear infinite; }
+.vt-drapeau { transform-box: fill-box; transform-origin: left center; animation: vtDrapeau 1.3s ease-in-out infinite alternate; }
+@keyframes vtRebond { to { transform: translateY(-1.5px); } }
+@keyframes vtSol { to { stroke-dashoffset: 44; } }
+@keyframes vtLignes { from { transform: translateX(10px); opacity: .9; } to { transform: translateX(-16px); opacity: .2; } }
+@keyframes vtFlamme { to { transform: scaleX(1.18) scaleY(.92); } }
+@keyframes vtDrapeau { from { transform: skewY(-2.5deg) scaleX(1); } to { transform: skewY(2deg) scaleX(.965); } }
+.teaser { position: relative; display: grid; gap: 6px; padding: 18px 14px 16px; border-radius: 18px; overflow: hidden; color: #EEF0F3;
+  background: radial-gradient(120% 70% at 70% 0%, #2A2550 0%, transparent 60%), linear-gradient(180deg, #161B26 0%, #0C0F15 100%); border: 1px solid #262C38; }
+.teaser::before { content: ""; position: absolute; inset: auto 0 0 0; height: 46%; background: repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 34px); pointer-events: none; }
+.teaser .voiture { color: #8C95A2; margin: 0 -4px; max-height: 52vh; }
+.t-txt { position: relative; text-align: center; display: grid; gap: 6px; justify-items: center; }
+.t-saison { font: italic 800 40px/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; background: linear-gradient(90deg, #fff, #C9BEFF); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-date { font: 600 12px/1.2 var(--f-num); letter-spacing: .12em; text-transform: uppercase; color: #9AA3AD; }
+.t-phrase { margin: 6px 0 0; font: italic 600 16px/1.35 var(--f-text); color: #fff; text-wrap: balance; }
+.t-note { margin: 2px 0 0; font-size: 12.5px; color: #9AA3AD; }
+.t-concept { display: grid; gap: 8px; width: 100%; margin-top: 8px; text-align: left; }
+.t-concept div { padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); }
+.t-concept b { display: block; font: italic 800 15px/1.2 var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+.t-concept span { display: block; font-size: 13px; color: #C3C9D2; margin-top: 2px; }
+.t-admin { position: relative; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 6px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.14); }
+.t-admin .lien { color: #C9BEFF; }
+.apercu-ruban { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 9px 12px; border-radius: 12px; border: 1px dashed var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--panel)); font-size: 12.5px; color: var(--ink-2); }
+.apercu-ruban b { font: italic 800 13px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); }
+.apercu-ruban span { flex: 1; min-width: 160px; }
+.saison { display: grid; gap: 12px; }
+.saison-h { display: flex; justify-content: space-between; align-items: end; gap: 10px; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+.saison-h h2 { margin: 2px 0 0; font: italic 800 22px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.s-k { font: 700 11px/1 var(--f-num); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); }
+.s-ys { display: flex; gap: 4px; }
+.chip-s { border: 1px solid var(--rule); background: var(--panel); border-radius: 999px; padding: 3px 9px; font: 700 11px/1.4 var(--f-num); color: var(--ink-2); cursor: pointer; }
+.chip-s.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.s-corps { display: grid; gap: 12px; }
+.s-h3 { margin: 4px 0 0; font: italic 800 15px/1.1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.ch { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
+.ch-l { display: grid; grid-template-columns: 22px 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--rule-2); }
+.ch-l:first-child { border-top: 0; }
+.ch-l.tete { background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 14%, var(--panel)), var(--panel) 70%); }
+.ch-l.moi .rk { color: var(--accent-ink); }
+.ch-l .rk { font: italic 800 20px/1 var(--f-display); text-align: center; color: var(--ink-3); }
+.ch-l.tete .rk { color: var(--gold); }
+.ch-l .casque { width: 30px; height: 30px; }
+.ch-l .nm { min-width: 0; }
+.ch-l .nm b { display: block; font: italic 700 17px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-l .nm small { display: block; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-l .pt { text-align: right; }
+.ch-l .pt b { display: block; font: 700 22px/1 var(--f-num); }
+.ch-l .pt small { font: 600 11px/1 var(--f-num); color: var(--ink-3); }
+.ch-t th, .ch-t td { text-align: center; }
+.ch-t th:first-child, .ch-t td:first-child { text-align: left; }
+.ch-t th i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; transform: skewX(-12deg); margin-right: 4px; }
+.ch-t td { font: 600 13px/1.2 var(--f-num); }
+.ch-t td.r1 { color: var(--gold); font-weight: 800; }
+.ch-t sup { font-size: 8px; margin-left: 1px; }
+.champ-num { width: 64px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: 700 16px/1 var(--f-num); text-align: center; }
+.grille { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
+.gr-l { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--rule-2); min-width: 0; }
+.gr-l:first-child { border-top: 0; }
+.gr-l b { font: italic 700 15px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
+.gr-l .num { font: 700 12px/1 var(--f-num); color: var(--ink-3); margin-left: auto; }
+.defis-m td.n small { display: block; font: 400 11.5px/1.3 var(--f-text); color: var(--ink-3); margin-top: 1px; }
+.defis-m td.n em { display: block; font: 600 11px/1.3 var(--f-text); color: var(--accent-ink); font-style: normal; margin-top: 2px; }
+.defis-m th { white-space: nowrap; }
+.defis-m td.n { min-width: 124px; }
+.defis-m td:not(.n) { padding-left: 4px; font-size: 11px; }
+.defis-m th:not(:first-child) { padding-left: 4px; }
+.secrets { display: grid; gap: 6px; }
+.sec-l { display: grid; gap: 2px; padding: 9px 12px; border-radius: 12px; border: 1px dashed var(--rule); color: var(--ink-3); font-size: 13px; }
+.sec-l b { font: italic 800 14px/1.2 var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+.sec-l small { font-size: 12px; }
+.sec-l.ouvert { border-style: solid; background: var(--panel); color: var(--ink); }
+.sec-l.ouvert span { font-weight: 600; font-size: 12.5px; }
+@media (prefers-reduced-motion: reduce) {
+  .voiture .vt-jante, .voiture .vt-caisse, .voiture .vt-sol path, .voiture .vt-lignes, .voiture .vt-flamme, .voiture .vt-etin, .vt-drapeau, .fx, .lv-oranime, .lv-arcenciel, .it::before { animation: none !important; }
+  .vt-brille { animation: none !important; transform: skewX(-20deg) translateX(260px); }
+}
+.coche-r { display: flex; gap: 10px; align-items: center; font-size: 14px; cursor: pointer; }
+.coche-r input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; flex: none; }
+.bilans-h { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: end; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+.bilans-h h2.sec { border: 0; padding: 0; }
+.bilans-h .seg button { padding: 7px 8px; font-size: 13px; }
+.wr-big.titre { overflow-wrap: normal; word-break: keep-all; font-size: clamp(34px, 11vw, 64px); }
+.bilan-b .nouveau { display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 4px; background: var(--accent); color: #fff; font: 700 10px/1.4 var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+.bilan-b.prive { border-style: dashed; border-color: color-mix(in srgb, var(--gold) 60%, var(--rule)); }
+.bandeau-bilan { all: unset; box-sizing: border-box; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 16%, var(--panel)); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--rule)); font-size: 14px; font-weight: 600; }
+.bandeau-bilan b { color: var(--accent-ink); white-space: nowrap; }
+.bandeau-bilan:focus-visible { outline: 2px solid var(--accent); }
+.wr-r b small { display: block; font: 400 11.5px/1.3 var(--f-text); letter-spacing: 0; text-transform: none; color: rgba(255,255,255,.6); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bilans-une { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.bilan-carte { all: unset; box-sizing: border-box; cursor: pointer; position: relative; overflow: hidden; padding: 16px 14px; border-radius: 14px; color: #fff; display: grid; gap: 4px; min-height: 104px; align-content: end;
+  background: radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--gold) 55%, transparent), transparent 55%), radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--accent) 70%, transparent), transparent 65%), #12141B; }
+.bilan-carte:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bilan-carte b { font: italic 800 34px/1 var(--f-display); letter-spacing: .02em; }
+.bilan-carte span { font: 700 11px/1.2 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.75); }
+.bilan-carte small { font-size: 12px; color: rgba(255,255,255,.7); }
+.succes-m td { padding: 8px 0 8px 8px; }
+.succes-m td.n { white-space: normal; min-width: 150px; font: 600 13px/1.25 var(--f-text); }
+.succes-m th:not(:first-child) { font-size: 9.5px; letter-spacing: .04em; }
+.succes-m td:not(.n) { text-align: center; }
+.succes-m td.n i { font-style: normal; margin-right: 6px; }
+.succes-m td.ok { color: var(--gold); font-weight: 700; }
+.succes-m td.pr { color: var(--ink-3); font-size: 11.5px; }
+.succes-m th i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; transform: skewX(-12deg); margin-right: 4px; }
+.succes-m tr.click { cursor: pointer; }
+.succes-m tr.det td { border-top: 0; padding-top: 0; white-space: normal; font: 400 12px/1.4 var(--f-text); color: var(--ink-2); }
 .acc { border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); }
 .acc > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 14px; }
 .acc > summary::-webkit-details-marker { display: none; }
@@ -162,7 +347,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .acc > summary .r { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-2); line-height: 1.4; }
 .acc[open] > summary { border-bottom: 1px solid var(--rule); }
 .acc > div { padding: 12px; }
-.acc .titres-l { border: 0; background: none; }
 .succes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .suc { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); opacity: .75; }
 .suc .e { font-size: 20px; filter: grayscale(1); opacity: .55; }
@@ -175,7 +359,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .suc.ok .e { filter: none; opacity: 1; }
 .suc.ok em { color: var(--gold); font-weight: 600; }
 @media (max-width: 360px) { .succes { grid-template-columns: 1fr; } }
-.tab.trophees td.fet { box-shadow: inset 0 0 0 2px var(--accent); border-radius: 6px; }
 
 /* Verdict du mois */
 .verdict { border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); padding: 12px 14px; display: grid; gap: 10px; }
@@ -205,8 +388,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .navs { display: inline-flex; gap: 4px; font-style: normal; }
 .nav-v { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--rule); background: var(--panel-2); color: var(--ink); font: 700 15px/1 var(--f-text); cursor: pointer; display: grid; place-items: center; padding: 0; }
 .nav-v:disabled { opacity: .3; cursor: default; }
-.tab.trophees th, .tab.trophees td { text-align: center; }
-.tab.trophees th:first-child, .tab.trophees td:first-child { text-align: left; }
 /* Bilan de l'année (Wrapped) */
 .wr { --p0: #4C9AFF; --p1: #2FD1C0; --p2: #F25C9A; --p3: #FF8A3D; --gold: #F5C542; --up: #3DDC84; --down: #FF5C6C; --c: #9B87FF;
   position: fixed; inset: 0; z-index: 90; color: #F4F5F8; background: #0B0D12; display: grid; grid-template-rows: auto 1fr; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -246,18 +427,8 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .bilan-pret { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--rule)); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
 .bilan-pret b { font: italic 800 16px/1.15 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
 .bilan-pret small { display: block; font-size: 12.5px; color: var(--ink-2); }
-.tab.trophees td.record { color: var(--gold); font-weight: 700; }
 
 /* Titres du mois */
-.titres-l { display: grid; gap: 0; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
-.titre-l { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--rule-2); }
-.titre-l:first-child { border-top: 0; }
-.titre-l .e { font-size: 20px; text-align: center; }
-.titre-l .d b { display: block; font-weight: 600; font-size: 14px; }
-.titre-l .d small { display: block; font-size: 12px; color: var(--ink-3); }
-.titre-l .h { text-align: right; font-size: 13px; font-weight: 600; }
-.titre-l .h.aucun { color: var(--ink-3); font-weight: 400; font-size: 12px; }
-.titre-l .k { font: 700 9.5px/1.4 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
 
 /* Duel */
 .duel { border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); padding: 14px; display: grid; gap: 12px; }
@@ -341,19 +512,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .stack { display: flex; gap: 2px; height: 16px; border-radius: 4px; overflow: hidden; }
 .stack i { display: block; height: 100%; min-width: 3px; }
 
-/* Objectifs */
-.obj { display: grid; gap: 10px; padding: 14px; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; }
-.obj-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.obj-h b { font: italic 800 20px/1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-.obj-h b i { width: 5px; height: 18px; transform: skewX(-12deg); border-radius: 1px; }
-.obj-h span { font: 600 14px/1 var(--f-num); }
-.piste { position: relative; height: 12px; border-radius: 6px; background: var(--rule-2); overflow: hidden; }
-.piste i { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
-.piste::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 12px; background: repeating-conic-gradient(var(--ink) 0 25%, var(--panel) 0 50%) 0 0 / 6px 6px; opacity: .8; }
-.obj-l { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.obj-l div { display: grid; gap: 2px; min-width: 0; }
-.obj-l span { font-size: 11px; color: var(--ink-3); }
-.obj-l b { font: 600 13.5px/1.2 var(--f-num); font-variant-numeric: tabular-nums; }
 .info { font-size: 12.5px; color: var(--ink-3); margin: 0; }
 
 /* Barre du bas */
@@ -434,7 +592,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .statut.modif { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
 .statut.vide { background: var(--down-bg); color: var(--down); }
 .statut.annule { background: var(--rule-2); color: var(--ink-3); text-decoration: line-through; }
-.obj-form { display: grid; gap: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); }
 .champ input[disabled] { opacity: .6; }
 .vide { padding: 30px 0; text-align: center; color: var(--ink-3); font-size: 14px; }
 
@@ -474,7 +631,6 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <section class="view" id="v-classement" data-vue="classement"></section>
     <section class="view" id="v-mois" data-vue="mois" hidden></section>
     <section class="view" id="v-fiche" data-vue="fiche" hidden></section>
-    <section class="view" id="v-objectifs" data-vue="objectifs" hidden></section>
     <section class="view" id="v-trophees" data-vue="trophees" hidden></section>
     <section class="view moi" id="v-moi" data-vue="moi" hidden></section>
   </main>
@@ -486,7 +642,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <button class="onglet" type="button" data-vue="mois"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg><span>Mois</span></button>
     <button class="plus" type="button" id="btn-saisie" aria-label="Saisir un relevé"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
     <button class="onglet" type="button" data-vue="moi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Moi</span></button>
-    <button class="onglet" type="button" data-vue="trophees"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M16 5h3v2a3 3 0 0 1-3 3M8 5H5v2a3 3 0 0 0 3 3M12 13v4M8 20h8M10 17h4"/></svg><span>Trophées</span></button>
+    <button class="onglet" type="button" data-vue="trophees"><svg viewBox="0 0 24 24"><path d="M9 9h6v11H9zM3 13h6v7H3zM15 15h6v5h-6zM12 3.5l.9 1.9 2 .2-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.2z"/></svg><span>Podium</span></button>
   </nav>
 </div>
 
@@ -556,6 +712,8 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
         <button class="lien danger" type="button" id="moi-oublier">Déconnecter ce fichier</button>
       </div>
       <p class="info" id="moi-etat"></p>
+      <label class="coche-r"><input type="checkbox" id="moi-partage"> Partager mes lignes de bourse dans le récap du mois</label>
+      <p class="info">En fin de mois, la liste de tes lignes de bourse (nom, montant, performance) est envoyée au Versus pour le récap que tout le monde voit dans Podium. Jamais ton épargne, ton immobilier ni tes ordres.</p>
     </section>
     <section class="regl" id="regl-params" hidden>
       <h4>Calculs du classement (pour tous)</h4>
@@ -578,7 +736,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     </section>
     <section class="regl" id="bloc-codes" hidden>
       <h4>Codes personnels</h4>
-      <p class="info">Chaque code ouvre tout le classement, mais ne permet de modifier que le relevé et l'objectif de sa personne. « Nouveau code » remplace l'ancien, qui cesse aussitôt de fonctionner.</p>
+      <p class="info">Chaque code ouvre tout le classement, mais ne permet de modifier que le relevé de sa personne. « Nouveau code » remplace l'ancien, qui cesse aussitôt de fonctionner.</p>
       <div id="liste-codes" class="codes"></div>
     </section>
     <section class="regl">
@@ -620,7 +778,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbyQJqcsSJSmpxk3Rtb-kIfZKW-uJIwPaGJrt6E0WAeeiaaQ3eRY30dq6efjMJvY5U05zQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzEgxHHhbmrPOHV_ETZXV8M-VV8NCqkBvkO1PaQ-hBFWMJ9hNVd_JWbwTBKlAAA8MvTrA/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -751,7 +909,8 @@ function afficherTout() {
   const nbIdx = (D.marche.indices || []).length;
   if (!(ETAT.i1 >= 0 && ETAT.i1 < nbIdx)) ETAT.i1 = iRef();
   if (!(ETAT.i2 >= 0 && ETAT.i2 < nbIdx)) ETAT.i2 = Math.min(1, nbIdx - 1);
-  if (ETAT.i2c !== undefined && ETAT.i2c >= nbIdx) ETAT.i2c = -1;
+  if (ETAT.i2c === undefined || ETAT.i2c === null) ETAT.i2c = ok(ETAT.i2) ? ETAT.i2 : -1;
+  if (ETAT.i2c >= nbIdx) ETAT.i2c = -1;
   SESSION = D.session || { role: "admin" };
   if (!estAdmin() && D.personnes.find(p => p.nom === SESSION.nom)) { if (ETAT.moi !== SESSION.nom) { ETAT.moi = SESSION.nom; ETAT.fiche = SESSION.nom; garder(); } }
   if (!D.personnes.find(p => p.nom === ETAT.moi)) ETAT.moi = D.personnes[0].nom;
@@ -779,7 +938,7 @@ function afficherTout() {
   $("#bloc-nouvelle-cle").hidden = !estAdmin();
   $("#bloc-codes").hidden = !estAdmin() || SOURCE !== "api";
   $("#ligne-session").textContent = estAdmin() ? (SOURCE === "api" ? "Connecté avec la clé d'administration : tu vois et modifies tout, et tu gères les réglages communs." : "")
-    : "Connecté en tant que " + SESSION.nom + " : tu vois tout le classement, et tu modifies ton relevé et ton objectif.";
+    : "Connecté en tant que " + SESSION.nom + " : tu vois tout le classement, et tu modifies ton relevé.";
 }
 
 /* ---------- Codes personnels (administrateur) ---------- */
@@ -835,15 +994,19 @@ function rendreTicker() {
 }
 
 /* ---------- Filtres partagés ---------- */
-function filtres(avecIndices, avecPeriode = true) {
+/* Sélecteurs communs : enveloppe, période, indice de référence et second indice côte à côte */
+function i2Actif() { return ok(ETAT.i2c) && ETAT.i2c >= 0 && ETAT.i2c !== ETAT.i1 && ETAT.i2c < D.marche.indices.length ? ETAT.i2c : -1; }
+function filtres(avecIndices, avecPeriode = true, avecSecond = true) {
   const opt = (v, l, cur) => '<option value="' + v + '"' + (String(v) === String(cur) ? " selected" : "") + ">" + esc(l) + "</option>";
   const env = '<label class="sel"><span>Enveloppe</span><select id="f-env">' + ENVELOPPES.map((e, i) => opt(i, e, ETAT.env)).join("") + "</select></label>";
   const per = avecPeriode ? '<label class="sel"><span>Période</span><select id="f-per">' + PERIODES.map(([k, l]) => opt(k, l, ETAT.per)).join("") + "</select></label>" : "";
-  const idx = avecIndices ? '<label class="sel"><span>Indice de référence</span><select id="f-i1">' + D.marche.indices.map((n, i) => opt(i, n, ETAT.i1)).join("") + "</select></label>" : "";
-  return '<div class="filtres' + (avecIndices && avecPeriode ? " trois" : "") + '">' + env + per + idx + "</div>";
+  const idx = avecIndices ? '<label class="sel"><span>Indice</span><select id="f-i1">' + D.marche.indices.map((n, i) => opt(i, n, ETAT.i1)).join("") + "</select></label>" : "";
+  const idx2 = avecIndices && avecSecond ? '<label class="sel"><span>2e indice</span><select id="f-i2c">' + opt(-1, "Aucun", i2Actif()) + D.marche.indices.map((n, i) => i === ETAT.i1 ? "" : opt(i, n, i2Actif())).join("") + "</select></label>" : "";
+  const n = [env, per, idx, idx2].filter(Boolean).length;
+  return '<div class="filtres' + (n === 3 ? " trois" : "") + '">' + env + per + idx + idx2 + "</div>";
 }
 function brancherFiltres(vue) {
-  [["#f-env", "env", Number], ["#f-per", "per", String], ["#f-i1", "i1", Number]].forEach(([s, k, f]) => {
+  [["#f-env", "env", Number], ["#f-per", "per", String], ["#f-i1", "i1", Number], ["#f-i2c", "i2c", Number]].forEach(([s, k, f]) => {
     const el = document.querySelector("#v-" + vue + " " + s);
     if (el) el.addEventListener("change", () => { ETAT[k] = f(el.value); if (k === "i1" && ETAT.i2 === ETAT.i1) ETAT.i2 = ETAT.i1 === 1 ? 0 : 1; garder(); rendreVue(vue); });
   });
@@ -941,6 +1104,7 @@ function tracer(box, conf) {
       const premier = s.v.findIndex(ok);
       o += '<path d="' + d + "L" + X(dernier).toFixed(1) + " " + (m.t + ih) + "L" + X(premier).toFixed(1) + " " + (m.t + ih) + 'Z" fill="' + C(s.c) + '" fill-opacity=".14" stroke="none"/>';
     }
+    if (s.fx && s.fx !== "simple" && d) o += '<path class="fx fx-' + s.fx + '" d="' + d + '" fill="none" stroke="' + C(s.c) + '" stroke-linejoin="round" stroke-linecap="round"/>';
     o += '<path d="' + d + '" fill="none" stroke="' + C(s.c) + '" stroke-width="' + (s.w || 2) + '" stroke-linejoin="round" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="' + (s.dash === true ? "5 4" : s.dash) + '"' : "") + "/>";
     if (dernier !== null) {
       o += '<circle cx="' + X(dernier).toFixed(1) + '" cy="' + Y(s.v[dernier]).toFixed(1) + '" r="3.5" fill="' + C(s.c) + '" stroke="' + C("var(--panel)") + '" stroke-width="2"/>';
@@ -1006,7 +1170,6 @@ function rendreClassement() {
   const dernierVerdict = verdictMois(env);
   if (VK && !moisVerdict(env).includes(VK)) VK = null;
   const verdict = VK ? verdictMois(env, VK) : dernierVerdict;
-  const titres = titresMois(0).parPersonne;
   const enSerie = Object.entries(pal).filter(([, x]) => x.serie >= 2).sort((a, b) => b[1].serie - a[1].serie)[0];
   let bref = "";
   if (duMois.length && !(verdict && verdict.complet)) bref += "<b>" + esc(moisLong(der)) + "</b> : meilleur mois pour <b>" + esc(duMois[0].nom) + "</b> (" + pct(duMois[0].r) + ")" + (duMois.length > 1 ? ", plus dur pour <b>" + esc(duMois[duMois.length - 1].nom) + "</b> (" + pct(duMois[duMois.length - 1].r) + ")" : "") + (ok(iDer) ? ", " + esc(D.marche.indices[i1]) + " " + pct(iDer) : "") + ". ";
@@ -1019,14 +1182,14 @@ function rendreClassement() {
     }
     rang++;
     const ecart = s.i1 ? s.twr - s.i1.twr : null;
-    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who"><i style="background:' + couleur(s.nom) + '"></i><div><b>' + esc(s.nom) +
+    return '<div class="pos" tabindex="0" role="button" aria-expanded="false" data-key="' + esc(s.nom) + '" data-nom="' + esc(s.nom) + '"><span class="rk">' + rang + '</span><div class="who">' + (saisonVisible() ? svgCasque(s.nom) : '<i style="background:' + couleur(s.nom) + '"></i>') + '<div><b' + attrLivree(s.nom) + '>' + esc(s.nom) + couronne(s.nom) +
       (s.nom === ETAT.moi ? '<span class="tag moi">moi</span>' : "") + (manque.has(s.nom) ? '<span class="tag manque">relevé à saisir</span>' : "") +
-      "</b><small>" + (fetiche(s.nom) ? '<span class="fet-tag">' + fetiche(s.nom).e + " " + esc(fetiche(s.nom).nom) + "</span> " : "") + (titres[s.nom] && titres[s.nom].length ? '<span class="titres">' + titres[s.nom].map(t => '<span title="' + esc(t.nom + " : " + t.def) + '">' + t.e + "</span>").join("") + "</span> " : "") + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
+      "</b><small>" + plaqueDe(s.nom) + pts(ecart) + " vs " + esc(D.marche.indices[i1]) + (s.n < nMois ? " · " + s.n + " mois" : "") + '</small></div></div><span class="t ' + sens(s.twr) + '" data-cv="' + s.twr + '" data-cf="pct">' + pct(s.twr) + "</span>" +
       (s === leader ? '<span class="g lead">LEADER</span>' : '<span class="g">' + pts(s.twr - leader.twr) + "</span>") + "</div>";
   }).join("");
 
   // Courbes base 100
-  const i2c = ETAT.i2c !== undefined && ETAT.i2c !== null && ETAT.i2c >= 0 && ETAT.i2c !== i1 ? ETAT.i2c : -1;
+  const i2c = i2Actif();
   const idx2 = i2c >= 0 ? statsIndice(D, i2c, deb, fin) : null;
   const ks = [deb || null].concat([...new Set(st.flatMap(s => s.mois.map(x => x.k)).concat(idx ? idx.chemin.slice(1).map(c => c.k) : []).concat(idx2 ? idx2.chemin.slice(1).map(c => c.k) : []))].sort((a, b) => a - b));
   if (!ks[0]) ks[0] = cleMoins(ks[1], 1);
@@ -1036,7 +1199,7 @@ function rendreClassement() {
     chemin.forEach((c, j) => { const k = j === 0 ? debutK : c.k; const i = ks.indexOf(k); if (i >= 0) out[i] = c.v / 100 - 1; });
     return out;
   };
-  const series = st.map(s => ({ nom: s.nom, v: aligne(s.chemin), c: couleur(s.nom), w: s.nom === ETAT.moi ? 2.8 : 2 }));
+  const series = st.map(s => ({ nom: s.nom, v: aligne(s.chemin), c: couleur(s.nom), w: s.nom === ETAT.moi ? 2.8 : 2, fx: saisonVisible() ? equipDe(s.nom).trainee : null }));
   if (idx) series.push({ nom: idx.nom, v: aligne(idx.chemin), c: "var(--idx)", dash: true, w: 1.6 });
   if (idx2) series.push({ nom: idx2.nom, v: aligne(idx2.chemin), c: "var(--ink-2)", dash: "1.5 4", w: 1.8 });
 
@@ -1044,17 +1207,15 @@ function rendreClassement() {
   const pv = D.personnes.map(p => stats(D, p, env, 0, fin, null, null)).filter(s => ok(s.valeur)).sort((a, b) => b.pvLatentePct - a.pvLatentePct);
   const maxPv = Math.max(...pv.map(s => Math.abs(s.pvLatentePct || 0)), .01);
 
-  v.innerHTML = filtres(true) +
-    '<div class="periode">' + esc(textePeriode(deb, fin, nMois)) + (deb && st.some(s => s.n < nMois) ? " · chaque courbe démarre au premier relevé de la personne" : "") + "</div>" +
-    banniereBilan() +
+  v.innerHTML = banniereBilan() +
     '<div id="boite-verdict">' + carteVerdict(verdict) + "</div>" +
     (bref ? '<div class="bref">' + bref + "</div>" : "") +
     (anomalies.length ? '<div style="display:grid;gap:6px">' + anomalies.map(t => '<div class="alerte warn">' + t + "</div>").join("") + "</div>" : "") +
-    '<div><h2 class="sec">Classement <small>performance (TWR), versements neutralisés</small></h2></div>' +
+    '<div><h2 class="sec">Classement <span class="h-boutons"><button class="million-b' + (D.premierMillion ? " pris" : "") + '" type="button" id="info-million" aria-label="Premier millionnaire">👑</button><button class="vers-fiches" type="button" id="vers-fiches" aria-label="Ouvrir les fiches de chacun"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c1-3.2 3-4.8 5.5-4.8s4.5 1.6 5.5 4.8"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.4c2.3.1 3.9 1.6 4.8 4.6"/></svg>Fiches</button></span></h2></div>' +
+    filtres(true) +
+    '<div class="periode">' + esc(textePeriode(deb, fin, nMois)) + (deb && st.some(s => s.n < nMois) ? " · chaque courbe démarre au premier relevé de la personne" : "") + " · performance (TWR), versements neutralisés</div>" +
     '<div class="tour"><div class="tour-h"><span>Pos.</span><span>Portefeuille</span><span>TWR</span><span>Écart</span></div>' + tour + "</div>" +
     "<div>" + '<h2 class="sec">La course <small>performance cumulée</small></h2></div>' +
-    '<div class="filtres" style="grid-template-columns:1fr"><label class="sel"><span>Second indice sur la course</span><select id="f-i2c"><option value="-1">Aucun</option>' +
-      D.marche.indices.map((n, i) => i === i1 ? "" : '<option value="' + i + '"' + (i === i2c ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label></div>" +
     boiteGraphe("g-course", series.map(s => ({ nom: s.nom, c: s.c, dash: s.dash }))) +
     (ks.length > 2 && st.length > 1 ? '<div><h2 class="sec">Les positions <small>place au classement à chaque fin de mois</small></h2></div>' + boiteGraphe("g-places", st.map(s => ({ nom: s.nom, c: couleur(s.nom) }))) : "") +
     '<div><h2 class="sec">Gain réel <small>depuis l\'ouverture · ' + esc(ENVELOPPES[env]) + "</small></h2>" +
@@ -1072,10 +1233,11 @@ function rendreClassement() {
       finEtiq: true, h: 170, fmt: x => rangTxt(-x), fmtAxe: t => Number.isInteger(t) && t < 0 ? rangTxt(-t) : "", titreX: k => "Fin " + moisCourt(k) });
   }
   brancherVerdict(verdict);
-  const s2 = $("#f-i2c"); if (s2) s2.addEventListener("change", e => { ETAT.i2c = +e.target.value; garder(); rendreClassement(); });
+  $("#info-million").addEventListener("click", () => toast(texteMillion()));
+  $("#vers-fiches").addEventListener("click", () => { if (!ETAT.fiche) ETAT.fiche = ETAT.moi; garder(); allerA("fiche"); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
+  v.querySelectorAll("[data-aller-recap]").forEach(b => b.addEventListener("click", () => { ETAT.bilans = "mensuel"; garder(); allerA("trophees"); ouvrirRecap(+b.dataset.allerRecap); }));
   feterChampion(dernierVerdict);
-  annoncerSucces();
   glisserTour(v, avantTour);
   if (!Object.keys(avantTour).length) compterChiffres(v.querySelector(".tour"));
   v.querySelectorAll(".pos[data-nom]").forEach(el => {
@@ -1147,10 +1309,10 @@ function victoires(env, jusqua) {
 
 
 /* ============================================================
-   LE JEU : verdict du mois, titres, positions, duel, confettis
+   LE JEU : verdict du mois, positions, duel, confettis
    Tout est calculé à partir des relevés existants, rien n'est stocké.
    ============================================================ */
-/** Référence fixe des titres, trophées et succès : portefeuille total contre le S&P 500, quels que soient les filtres */
+/** Référence fixe de la saison (bonus, défis) : portefeuille total contre le S&P 500, quels que soient les filtres */
 function iRef() { const i = D.marche.indices.findIndex(n => /S&P\s*500/i.test(n)); return i < 0 ? 0 : i; }
 function rangTxt(n) { return n === 1 ? "1er" : n + "e"; }
 function aRendement(p, env, k) { return serie(p, env).some(z => z.k === k && typeof z.r === "number"); }
@@ -1229,162 +1391,526 @@ function brancherVerdict(v) {
   }));
 }
 
-/* ---------- Titres : moitié performance, moitié régularité et maîtrise du risque ---------- */
-const TITRES = [
-  { id: "feu", e: "🔥", nom: "En feu", type: "Performance", def: "au moins 3 victoires mensuelles d'affilée" },
-  { id: "remontada", e: "🚀", nom: "Remontada", type: "Performance", def: "a gagné au moins 2 places au classement de l'année ce mois-ci" },
-  { id: "marche", e: "🎯", nom: "Bat le marché", type: "Performance", def: "devant l'indice de référence sur 12 mois, à mois égaux" },
-  { id: "efficace", e: "💎", nom: "Efficace", type: "Risque maîtrisé", def: "meilleur ratio de Sharpe sur 12 mois : le plus de rendement pour le risque pris" },
-  { id: "froid", e: "🧊", nom: "Sang-froid", type: "Risque maîtrisé", def: "le portefeuille le moins agité (volatilité la plus faible sur 12 mois)" },
-  { id: "metronome", e: "📏", nom: "Métronome", type: "Régularité", def: "le plus de mois positifs sur 12 mois" },
-  { id: "fourmi", e: "🐜", nom: "Fourmi", type: "Régularité", def: "a versé quelque chose chaque mois depuis 6 mois" },
-  { id: "sommet", e: "🏔️", nom: "Sommet", type: "Performance", def: "sa performance cumulée atteint un nouveau record ce mois-ci" },
-  { id: "rebond", e: "🧗", nom: "Rebond", type: "Performance", def: "revenu à son plus haut ce mois-ci, après une baisse d'au moins 5 %" },
-  { id: "bouclier", e: "🛡️", nom: "Bouclier", type: "Risque maîtrisé", def: "a moins perdu que l'indice les mois où l'indice a baissé (12 mois)" },
-  { id: "patient", e: "🐢", nom: "Patient", type: "Régularité", def: "aucun retrait depuis 12 mois" }
-];
-/** Titre épinglé par la personne (choisi parmi ceux qu'elle a déjà gagnés) */
-function fetiche(nom) {
-  const id = D && D.fetiches && D.fetiches[nom];
-  if (!id) return null;
-  return id === "champion" ? { id, e: "🏆", nom: "Champion du mois" } : TITRES.find(t => t.id === id) || null;
+/* ============================================================
+   PODIUM · SAISON 1
+   Le 1er janvier 2027, tout le monde repart de zéro : championnat à points,
+   écurie à personnaliser, défis à débloquer. Ce qui s'est passé avant ne compte pas.
+   Jusque-là, les autres voient un teaser ; l'administrateur peut ouvrir un aperçu
+   (la saison rejouée sur 2026) pour faire ses retours.
+   Tout est recalculé à partir des relevés ; seule l'écurie choisie est stockée (propriété ECURIE).
+   Référence fixe : portefeuille total contre le S&P 500, quels que soient les filtres.
+   ============================================================ */
+const SAISON = { premiere: 2027, depart: new Date(2027, 0, 1), noel: new Date(2026, 11, 25) };
+function saisonOuverte() { return Date.now() >= SAISON.depart.getTime(); }
+function apercuSaison() { return !saisonOuverte() && estAdmin() && stock.get("versus.apercuSaison") === "1"; }
+function saisonVisible() { return saisonOuverte() || apercuSaison(); }
+/** Saisons jouées (2027, 2028…) ; en aperçu, une répétition sur 2026 */
+function anneesSaison() {
+  if (!saisonOuverte()) return apercuSaison() ? [SAISON.premiere - 1] : [];
+  const l = []; for (let y = SAISON.premiere; y <= Math.max(SAISON.premiere, new Date(Date.now()).getFullYear()); y++) l.push(y); return l;
 }
-function titresMois(env, k) {
-  const fin = k || finGlobale(D, env);
-  const qui = {}; TITRES.forEach(t => qui[t.id] = []);
-  if (fin) {
-    const actifs = D.personnes.filter(p => aRendement(p, env, fin));
-    const v = victoires(env, fin);
-    actifs.forEach(p => { if (v[p.nom] && v[p.nom].serie >= 3) qui.feu.push(p.nom); });
-    if (fin % 100 > 1) {
-      const avant = rangs(env, debAnnee(fin), cleMoins(fin, 1)), apres = rangs(env, debAnnee(fin), fin);
-      Object.keys(apres).forEach(n => { if (avant[n] && avant[n] - apres[n] >= 2) qui.remontada.push(n); });
-    }
-    const st = actifs.map(p => stats(D, p, env, cleMoins(fin, 12), fin, iRef(), null)).filter(s => s.n >= RECUL);
-    st.forEach(s => { if (s.i1 && s.twr > s.i1.twr) qui.marche.push(s.nom); });
-    const unique = (id, val, plusGrand) => {
-      const l = st.filter(s => ok(val(s))); if (l.length < 2) return;
-      l.sort((a, b) => plusGrand ? val(b) - val(a) : val(a) - val(b));
-      if (Math.abs(val(l[0]) - val(l[1])) > 1e-9) qui[id].push(l[0].nom);
-    };
-    unique("efficace", s => s.sharpe, true);
-    unique("froid", s => s.vol, false);
-    unique("metronome", s => s.positifs, true);
-    actifs.forEach(p => {
-      const s = serie(p, env).filter(z => z.k > cleMoins(fin, 6) && z.k <= fin);
-      if (s.length === 6 && s.every(z => (z.verse || 0) > 0)) qui.fourmi.push(p.nom);
-      // Sommet / Rebond : la courbe de performance depuis le début bat son record ce mois-ci
-      const tout = stats(D, p, env, 0, fin, null, null);
-      if (tout.n >= 2) {
-        const v = tout.chemin.map(c => c.v), der = v[v.length - 1], avant = v.slice(0, -1), haut = Math.max(...avant);
-        if (der > haut + 1e-9) {
-          const iH = avant.lastIndexOf(haut), creux = Math.min(...avant.slice(iH));
-          (creux <= haut * 0.95 ? qui.rebond : qui.sommet).push(p.nom);
-        }
-      }
-      // Patient : 12 mois de relevés sans aucun retrait
-      const a12 = serie(p, env).filter(z => z.k > cleMoins(fin, 12) && z.k <= fin && typeof z.r === "number");
-      if (a12.length >= 12 && serie(p, env).filter(z => z.k > cleMoins(fin, 12) && z.k <= fin).every(z => (z.verse || 0) >= 0)) qui.patient.push(p.nom);
+function numeroSaison(y) { return Math.max(1, y - SAISON.premiere + 1); }
+
+/* ---------- Championnat : 10 / 6 / 4 / 2 puis 1 point, +1 si le mois bat le S&P 500 ---------- */
+const BAREME = [10, 6, 4, 2];
+function ptsRang(r) { return BAREME[r - 1] !== undefined ? BAREME[r - 1] : 1; }
+function indiceMois(k) { const l = D.marche.mois.find(x => x[0] === k), v = l ? l[iRef() + 1] : null; return ok(v) ? v : null; }
+let MEMO_SAISON = { d: null, m: {} };
+function championnat(y) {
+  if (MEMO_SAISON.d !== D) MEMO_SAISON = { d: D, m: {} };
+  if (MEMO_SAISON.m[y]) return MEMO_SAISON.m[y];
+  const deb = (y - 1) * 100 + 12, f = y * 100 + 12;
+  const tot = {}; D.personnes.forEach(p => tot[p.nom] = { pts: 0, v: 0, pod: 0, bonus: 0, n: 0, cum: 1 });
+  const ordre = (a, b) => tot[b].pts - tot[a].pts || tot[b].v - tot[a].v || tot[b].cum - tot[a].cum;
+  const mois = []; let attente = null;
+  moisVerdict(0).filter(k => k > deb && k <= f).forEach(k => {
+    const v = verdictMois(0, k);
+    if (!v || !v.complet) { if (v) attente = v; return; }
+    const du = v.du.slice().sort((a, b) => b.r - a.r), n = du.length, iR = indiceMois(k);
+    const l = du.map(x => {
+      const rg = du.findIndex(z => Math.abs(z.r - x.r) < 1e-9) + 1, bonus = iR !== null && x.r > iR ? 1 : 0;
+      return { nom: x.nom, r: x.r, rg, p: ptsRang(rg) + bonus, bonus, dernier: n >= 3 && rg > 1 && Math.abs(x.r - du[n - 1].r) < 1e-9, ecart: rg === 1 && n > 1 ? x.r - du[1].r : null };
     });
-    // Bouclier : sur 12 mois, a moins perdu que l'indice pendant ses mois de baisse (au moins 2)
-    const mi = rendementsIndice(D, iRef());
-    st.forEach(s => {
-      const bas = s.mois.filter(x => typeof mi[x.k] === "number" && mi[x.k] < 0);
-      if (bas.length >= 2 && bas.reduce((a, x) => a + x.r - mi[x.k], 0) > 0) qui.bouclier.push(s.nom);
-    });
-  }
-  const liste = TITRES.map(t => Object.assign({}, t, { qui: qui[t.id], def: t.id === "marche" ? "devant " + D.marche.indices[iRef()] + " sur 12 mois, à mois égaux" : t.def }));
-  const parPersonne = {};
-  liste.forEach(t => t.qui.forEach(n => (parPersonne[n] = parPersonne[n] || []).push(t)));
-  return { k: fin, liste, parPersonne };
-}
-/* ---------- Salle des trophées : titres et victoires cumulés depuis le début ---------- */
-let MEMO_TROPHEES = { d: null, env: null, i1: null, val: null };
-function trophees(env) {
-  if (MEMO_TROPHEES.d === D && MEMO_TROPHEES.env === env) return MEMO_TROPHEES.val;
-  const res = {}; D.personnes.forEach(p => { res[p.nom] = { champion: 0 }; TITRES.forEach(t => res[p.nom][t.id] = 0); });
-  const mois = moisVerdict(env);
-  mois.forEach(k => {
-    const du = rendementsDuMois(env, k).sort((a, b) => b.r - a.r);
-    if (du.length >= 2 && du[0].r - du[1].r > 1e-9) res[du[0].nom].champion++;
-    titresMois(env, k).liste.forEach(t => t.qui.forEach(n => res[n][t.id]++));
+    l.forEach(x => { const t = tot[x.nom]; t.pts += x.p; t.n++; t.cum *= 1 + x.r; t.bonus += x.bonus; if (x.rg === 1) t.v++; if (x.rg <= 3) t.pod++; });
+    const presents = Object.keys(tot).filter(nm => tot[nm].n).sort(ordre), places = {}, cumul = {};
+    presents.forEach((nm, i) => { places[nm] = i + 1; cumul[nm] = tot[nm].pts; });
+    mois.push({ k, iR, l, places, cumul });
   });
-  const val = { mois: mois.length, res };
-  MEMO_TROPHEES = { d: D, env, val };
+  const classement = Object.keys(tot).filter(nm => tot[nm].n).sort(ordre);
+  const val = { y, deb, f, mois, attente: attente && (!mois.length || attente.k > mois[mois.length - 1].k) ? attente : null, tot, classement, complete: mois.length > 0 && mois[mois.length - 1].k === f };
+  MEMO_SAISON.m[y] = val;
   return val;
 }
-function blocTrophees(env, nu) {
-  const t = trophees(env);
-  if (!t.mois) return "";
-  const cols = [{ id: "champion", e: "🏆", nom: "Champion du mois" }].concat(TITRES);
-  const noms = D.personnes.map(p => p.nom).filter(n => cols.some(c => t.res[n][c.id]) || serie(D.personnes.find(p => p.nom === n), env).some(z => typeof z.r === "number"));
-  const max = {}; cols.forEach(c => max[c.id] = Math.max(0, ...noms.map(n => t.res[n][c.id])));
-  const total = n => cols.reduce((a, c) => a + t.res[n][c.id], 0);
-  noms.sort((a, b) => total(b) - total(a));
-  return '<div>' + (nu ? "" : '<h2 class="sec">Salle des trophées <small>nombre de mois · depuis le début</small></h2>') + '<div class="scroll-x"><table class="tab trophees"><thead><tr><th>Personne</th>' +
-    cols.map(c => '<th title="' + esc(c.nom) + '">' + c.e + "</th>").join("") + "<th>Total</th></tr></thead><tbody>" +
-    noms.map(n => '<tr><td><span class="pastille" style="background:' + couleur(n) + '"></span>' + esc(n) + "</td>" +
-      cols.map(c => { const x = t.res[n][c.id], f = fetiche(n); return '<td class="' + (x && x === max[c.id] ? "record" : x ? "" : "muted") + (f && f.id === c.id ? " fet" : "") + '">' + (x || "·") + "</td>"; }).join("") + "<td><b>" + total(n) + "</b></td></tr>").join("") +
-    '</tbody></table></div><p class="info" style="margin-top:8px">Chaque case compte les mois où la personne a tenu le titre (recalculé mois par mois, ' + t.mois + " mois). En doré : le record de la colonne. Entouré : le titre fétiche épinglé.</p>" + choixFetiche() + "</div>";
+
+/* ---------- Défis : quatre familles, quatre niveaux, et des secrets ---------- */
+const NIVEAUX = ["", "Bronze", "Argent", "Or", "Légendaire"], MEDAILLES = ["", "🥉", "🥈", "🥇", "💎"];
+const DEFIS = [
+  { id: "perf1", fam: "Performance", niv: 1, nom: "Chasseur d'indice", def: "battre le S&P 500 sur 3 mois de la saison", gain: [["trainee", "halo"]] },
+  { id: "perf2", fam: "Performance", niv: 2, nom: "Six de rang", def: "devant le S&P 500 sur 6 mois consécutifs, cumulés", gain: [["casque", "eclair"]] },
+  { id: "perf3", fam: "Performance", niv: 3, nom: "Grand cru", def: "atteindre +20 % cumulés dans la saison", gain: [["livree", "chrome"]], unite: " %" },
+  { id: "perf4", fam: "Performance", niv: 4, nom: "Dynastie", def: "finir 3 saisons devant le S&P 500", gain: [["livree", "arcenciel"]] },
+  { id: "comp1", fam: "Compétition", niv: 1, nom: "Triplé", def: "3 victoires mensuelles dans la saison", gain: [["klaxon", "damier"]] },
+  { id: "comp2", fam: "Compétition", niv: 2, nom: "Série noire", def: "3 victoires mensuelles d'affilée", gain: [["trainee", "flammes"]] },
+  { id: "comp3", fam: "Compétition", niv: 3, nom: "Champion", def: "remporter le championnat de la saison", gain: [["livree", "or"], ["casque", "etoile"]] },
+  { id: "comp4", fam: "Compétition", niv: 4, nom: "Légende", def: "remporter 2 championnats", gain: [["casque", "holo"]] },
+  { id: "reg1", fam: "Régularité", niv: 1, nom: "Métronome", def: "verser 6 mois d'affilée", gain: [["plaque", "metronome"]] },
+  { id: "reg2", fam: "Régularité", niv: 2, nom: "Fourmi", def: "verser 9 mois d'affilée", gain: [["klaxon", "feu"]] },
+  { id: "reg3", fam: "Régularité", niv: 3, nom: "Douze sur douze", def: "verser chaque mois de la saison", gain: [["livree", "neon"]] },
+  { id: "reg4", fam: "Régularité", niv: 4, nom: "Marathon", def: "verser 36 mois d'affilée", gain: [["klaxon", "parade"]] },
+  { id: "mai1", fam: "Maîtrise", niv: 1, nom: "Sang-froid", def: "6 mois d'affilée sans mois sous −3 %", gain: [["casque", "carbone"]] },
+  { id: "mai2", fam: "Maîtrise", niv: 2, nom: "Bouclier", def: "perdre moins que le S&P 500 sur 3 de ses mois de baisse", gain: [["plaque", "bouclier"]] },
+  { id: "mai3", fam: "Maîtrise", niv: 3, nom: "Main de fer", def: "une saison complète sans mois sous −3 %", gain: [["casque", "chrome"]] },
+  { id: "mai4", fam: "Maîtrise", niv: 4, nom: "Roc", def: "3 saisons complètes sans mois sous −3 %", gain: [["trainee", "comete"]] }
+];
+const SECRETS = [
+  { id: "photo", nom: "Photo finish", def: "gagner un mois avec moins de 0,1 point d'avance", gain: [["casque", "damier"]] },
+  { id: "contre", nom: "Contre-attaque", def: "gagner le mois juste après avoir été dernier", gain: [["plaque", "contre"]] },
+  { id: "casse", nom: "Le casse", def: "+10 % en un seul mois", gain: [["trainee", "etincelles"]] },
+  { id: "tortue", nom: "Tortue", def: "3 lanternes rouges dans la même saison", gain: [["casque", "tortue"]] },
+  { id: "remontada", nom: "Remontada", def: "passer de dernier à premier du championnat dans la même saison", gain: [["plaque", "remontada"]] }
+];
+const FAMILLES_DEFIS = ["Performance", "Compétition", "Régularité", "Maîtrise"];
+let MEMO_DEFIS = { d: null, cle: "", m: {} };
+function etatDefis(nom) {
+  const ys = anneesSaison(), cle = ys.join(",");
+  if (MEMO_DEFIS.d !== D || MEMO_DEFIS.cle !== cle) MEMO_DEFIS = { d: D, cle, m: {} };
+  if (MEMO_DEFIS.m[nom]) return MEMO_DEFIS.m[nom];
+  const r = {}; DEFIS.concat(SECRETS).forEach(d => r[d.id] = { ok: false, prog: 0, cible: 1 });
+  const monte = (id, v, cible) => { const o = r[id]; o.cible = cible; o.prog = Math.max(o.prog, Math.min(v, cible)); if (v >= cible) o.ok = true; };
+  if (!ys.length) { MEMO_DEFIS.m[nom] = r; return r; }
+  // Régularité : mois d'affilée avec un versement (relevés publics du Versus), depuis le début de la première saison
+  const p = D.personnes.find(x => x.nom === nom), finPf = finGlobale(D, 0), debut = (ys[0] - 1) * 100 + 12;
+  const sp = p ? serie(p, 0).filter(z => z.k > debut && z.k <= finPf) : [];
+  let run = 0, prec = null;
+  sp.forEach(z => {
+    run = z.val && (z.verse || 0) > 0 && (prec === null || cleMoins(z.k, 1) === prec) ? run + 1 : z.val && (z.verse || 0) > 0 ? 1 : 0;
+    prec = z.k;
+    monte("reg1", run, 6); monte("reg2", run, 9); monte("reg4", run, 36);
+  });
+  let saisonsBat = 0, titres = 0, saisonsRoc = 0;
+  ys.forEach(y => {
+    const c = championnat(y);
+    const verses = sp.filter(z => z.k > c.deb && z.k <= c.f && z.val && (z.verse || 0) > 0).length;
+    monte("reg3", verses, 12);
+    let bat = 0, win = 0, winRun = 0, lant = 0, calme = 0, boucl = 0, vu = 0, prod = 1, prodI = 1, sansIdx = 0, sansChute = true, etaitDernier = false, avantDernier = false;
+    const fen = [];
+    c.mois.forEach(m => {
+      const x = m.l.find(z => z.nom === nom);
+      if (!x) { winRun = 0; calme = 0; fen.length = 0; avantDernier = false; return; }
+      vu++;
+      if (m.iR !== null && x.r > m.iR) bat++;
+      monte("perf1", bat, 3);
+      fen.push({ r: x.r, i: m.iR }); if (fen.length > 6) fen.shift();
+      if (fen.length === 6 && fen.every(z => z.i !== null) && fen.reduce((a, z) => a * (1 + z.r), 1) > fen.reduce((a, z) => a * (1 + z.i), 1)) monte("perf2", 1, 1);
+      prod *= 1 + x.r; if (m.iR !== null) prodI *= 1 + m.iR; else sansIdx++;
+      monte("perf3", Math.floor((prod - 1) * 100), 20);
+      if (x.rg === 1) { win++; winRun++; } else winRun = 0;
+      monte("comp1", win, 3); monte("comp2", winRun, 3);
+      if (x.dernier) lant++;
+      monte("tortue", lant, 3);
+      calme = x.r >= -0.03 ? calme + 1 : 0; monte("mai1", calme, 6);
+      if (x.r < -0.03) sansChute = false;
+      if (m.iR !== null && m.iR < 0 && x.r > m.iR) boucl++;
+      monte("mai2", boucl, 3);
+      if (x.rg === 1 && x.ecart !== null && x.ecart > 1e-9 && x.ecart < 0.001) monte("photo", 1, 1);
+      if (x.rg === 1 && avantDernier) monte("contre", 1, 1);
+      avantDernier = x.dernier;
+      if (x.r >= 0.10) monte("casse", 1, 1);
+      const nb = Object.keys(m.places).length, place = m.places[nom];
+      if (nb >= 3 && place === nb) etaitDernier = true;
+      if (etaitDernier && place === 1) monte("remontada", 1, 1);
+    });
+    if (c.complete && vu === 12) {
+      if (!sansIdx && prod > prodI) saisonsBat++;
+      if (sansChute) { saisonsRoc++; monte("mai3", 1, 1); }
+    }
+    if (c.complete && c.classement[0] === nom) titres++;
+  });
+  monte("perf4", saisonsBat, 3); monte("comp3", titres, 1); monte("comp4", titres, 2); monte("mai4", saisonsRoc, 3);
+  MEMO_DEFIS.m[nom] = r;
+  return r;
 }
-/** Choix du titre fétiche : parmi les titres déjà gagnés au moins une fois (portefeuille total) */
-function choixFetiche() {
-  const qui = estAdmin() ? ETAT.moi : SESSION.nom;
-  if (!D.personnes.some(p => p.nom === qui)) return "";
-  const t = trophees(0), res = t.res[qui] || {};
-  const cols = [{ id: "champion", e: "🏆", nom: "Champion du mois" }].concat(TITRES).filter(c => res[c.id] > 0);
-  const f = fetiche(qui);
-  if (!cols.length) return '<p class="info" style="margin-top:6px">Ton titre fétiche se choisira ici dès que tu auras gagné un premier titre.</p>';
-  return '<div class="filtres" style="grid-template-columns:1fr;margin-top:10px"><label class="sel"><span>Titre fétiche de ' + esc(qui) + " (affiché à côté de ton nom)</span><select id=\"f-fetiche\"><option value=\"\">Aucun</option>" +
-    cols.map(c => '<option value="' + c.id + '"' + (f && f.id === c.id ? " selected" : "") + ">" + c.e + " " + esc(c.nom) + " · " + res[c.id] + " mois</option>").join("") + "</select></label></div>";
+
+/* ---------- Écurie : ce qui se débloque, ce qui est équipé ---------- */
+const ITEMS = {
+  casque: { uni: "Uni", carbone: "Carbone", eclair: "Éclair", damier: "Damier", tortue: "Tortue", chrome: "Chrome", etoile: "Étoile", holo: "Holo", couronne: "Couronne" },
+  livree: { couleur: "Couleur", chrome: "Chrome", or: "Or", neon: "Néon", arcenciel: "Prisme", oranime: "Or vivant" },
+  trainee: { simple: "Simple", halo: "Halo", flammes: "Flammes", etincelles: "Étincelles", comete: "Comète" },
+  klaxon: { confettis: "Confettis", damier: "Damier", feu: "Feu d'artifice", parade: "Parade", billets: "Pluie de billets" },
+  plaque: { aucune: "Aucune", metronome: "Le Métronome", bouclier: "Bouclier", contre: "Contre-attaque", remontada: "Roi de la remontée" }
+};
+const BASE_ECURIE = { casque: "uni", livree: "couleur", trainee: "simple", klaxon: "confettis", plaque: "aucune" };
+const SLOTS = [["casque", "Casque"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"]];
+const GAINS_MILLION = [["casque", "couronne"], ["livree", "oranime"], ["klaxon", "billets"]];
+function debloques(nom) {
+  const o = new Set(Object.entries(BASE_ECURIE).map(([s, v]) => s + "." + v));
+  const e = etatDefis(nom);
+  DEFIS.concat(SECRETS).forEach(d => { if (e[d.id].ok) d.gain.forEach(g => o.add(g.join("."))); });
+  if (D.premierMillion && D.premierMillion.nom === nom) GAINS_MILLION.forEach(g => o.add(g.join(".")));
+  return o;
 }
-async function changerFetiche(titre) {
-  const qui = estAdmin() ? ETAT.moi : SESSION.nom;
-  if (SOURCE !== "api") { D.fetiches = Object.assign({}, D.fetiches, { [qui]: titre }); toast("Aperçu : titre épinglé sur cet appareil seulement."); rendreTrophees(); return; }
-  const rep = await posterAdmin({ action: "fetiche", personne: qui, titre });
-  toast(rep.message || (rep.ok ? "Titre fétiche mis à jour." : "Modification impossible."));
-  if (rep.ok) await charger(true);
+/** D'où vient un objet : { defi, secret, million } */
+function origineItem(slot, id) {
+  const de = l => l.find(d => d.gain.some(g => g[0] === slot && g[1] === id));
+  const d = de(DEFIS); if (d) return { defi: d };
+  const s = de(SECRETS); if (s) return { secret: s };
+  if (GAINS_MILLION.some(g => g[0] === slot && g[1] === id)) return { million: true };
+  return {};
 }
-/* ---------- Vue Trophées : titres, salle des trophées, titre fétiche, succès ---------- */
+function numeroParDefaut(nom) { const i = D.personnes.findIndex(p => p.nom === nom); return ((i < 0 ? 0 : i) + 1) * 11 % 100 || 7; }
+/** Équipement affiché : un objet qui n'est pas (ou plus) débloqué retombe sur l'objet de base */
+function equipDe(nom) {
+  const brut = ((D.ecurie || {})[nom] || {}).equip || {}, ouverts = debloques(nom), e = {};
+  SLOTS.forEach(([s]) => e[s] = brut[s] && ouverts.has(s + "." + brut[s]) ? brut[s] : BASE_ECURIE[s]);
+  const n = parseInt(brut.numero, 10); e.numero = n >= 1 && n <= 99 ? n : numeroParDefaut(nom);
+  return e;
+}
+function attrLivree(nom, e) {
+  if (!saisonVisible()) return "";
+  const l = (e || equipDe(nom)).livree;
+  return l === "couleur" ? "" : ' class="lv lv-' + l + '" style="--c:' + couleur(nom) + '"';
+}
+function plaqueDe(nom) {
+  if (!saisonVisible()) return "";
+  const p = equipDe(nom).plaque;
+  return p === "aucune" ? "" : '<span class="plaque">' + esc(ITEMS.plaque[p]) + "</span> ";
+}
+
+/* ---------- Dessins : casque (avatar) et voiture ---------- */
+let NSVG = 0;
+/** Motifs et matières (casques, livrées). u = préfixe d'identifiants unique par dessin */
+function defsMotif(u, motif, c) {
+  const lg = (stops, att) => '<linearGradient id="' + u + 'm" ' + (att || 'x1="0" y1="0" x2="0" y2="1"') + ">" + stops.map(([o, col]) => '<stop offset="' + o + '" stop-color="' + col + '"/>').join("");
+  if (motif === "carbone") return '<pattern id="' + u + 'm" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#16191f"/><rect width="2.5" height="2.5" fill="#2d333d"/><rect x="2.5" y="2.5" width="2.5" height="2.5" fill="#2d333d"/></pattern>';
+  if (motif === "damier") return '<pattern id="' + u + 'm" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="#f5f5f2"/><rect width="4.5" height="4.5" fill="#101215"/><rect x="4.5" y="4.5" width="4.5" height="4.5" fill="#101215"/></pattern>';
+  if (motif === "tortue") return '<pattern id="' + u + 'm" width="11" height="10" patternUnits="userSpaceOnUse"><rect width="11" height="10" fill="#2F8A45"/><path d="M0 5 2.75 0h5.5L11 5 8.25 10h-5.5z" fill="#3FAE5A" stroke="#1B5528" stroke-width="1.3"/></pattern>';
+  if (motif === "chrome") return lg([[0, "#ffffff"], [.16, "#d4dae1"], [.3, "#59626d"], [.42, "#eef1f4"], [.58, "#8b95a1"], [.76, "#f6f8fa"], [1, "#454c56"]]) + "</linearGradient>";
+  if (motif === "or" || motif === "couronne") return lg([[0, "#FFF6CC"], [.18, "#F7CF55"], [.38, "#9A6716"], [.52, "#FFE596"], [.72, "#C98E22"], [1, "#6B430C"]]) + "</linearGradient>";
+  if (motif === "oranime") return lg([[0, "#FFF6CC"], [.18, "#F7CF55"], [.38, "#9A6716"], [.52, "#FFE596"], [.72, "#C98E22"], [1, "#6B430C"]]) + "</linearGradient>";
+  if (motif === "holo" || motif === "arcenciel") return '<linearGradient id="' + u + 'm" x1="0" y1="0" x2="1" y2=".35" spreadMethod="reflect">' +
+    [["#FF6B9A", 0], ["#FFC15E", .2], ["#E9F27A", .38], ["#5CF0B5", .55], ["#5AB8FF", .72], ["#B98CFF", .88], ["#FF6B9A", 1]].map(([col, o]) => '<stop offset="' + o + '" stop-color="' + col + '"/>').join("") +
+    (ANIM ? '<animateTransform attributeName="gradientTransform" type="translate" values="0 0;1 0" dur="5s" repeatCount="indefinite"/>' : "") + "</linearGradient>";
+  return "";
+}
+const MOTIFS_PLEINS = ["carbone", "damier", "tortue", "chrome", "or", "couronne", "oranime", "holo", "arcenciel"];
+function remplissage(u, motif, c) { return MOTIFS_PLEINS.includes(motif) ? "fill:url(#" + u + "m)" : "fill:" + c; }
+
+/* ---------- Casque : coque brillante, visière fumée (irisée pour les plus rares), décor selon le modèle ---------- */
+const COQUE = "M-15 5C-16-9-7-18 4-18C14-18 20-10 20 0V6C20 10 18 12 14 12H-9C-13 12-15 9-15 5Z";
+function casqueForme(u, m, c) {
+  const iri = ["holo", "couronne", "chrome", "etoile"].includes(m), orv = m === "couronne";
+  const defs = '<defs>' + defsMotif(u, m, c) + '<clipPath id="' + u + 'k"><path d="' + COQUE + '"/></clipPath>' +
+    '<radialGradient id="' + u + 'h" cx=".32" cy=".16" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset=".28" stop-color="#fff" stop-opacity=".16"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>' +
+    '<linearGradient id="' + u + 'v" x1="0" y1="0" x2="1" y2="1">' + (orv ? '<stop offset="0" stop-color="#FFE596"/><stop offset=".5" stop-color="#7A4A0C"/><stop offset="1" stop-color="#F7CF55"/>'
+      : iri ? '<stop offset="0" stop-color="#7FE8FF"/><stop offset=".45" stop-color="#6A4BFF"/><stop offset=".75" stop-color="#FF6BB5"/><stop offset="1" stop-color="#FFC15E"/>'
+      : '<stop offset="0" stop-color="#4a5466"/><stop offset=".45" stop-color="#090b0f"/><stop offset="1" stop-color="#232a38"/>') + "</linearGradient></defs>";
+  const deco = {
+    uni: '<path d="M-17 1C-6-5 7-9 23-10" stroke="#fff" stroke-width="3.4" fill="none"/><path d="M-17 5C-6-1 7-5 23-6" stroke="#11151B" stroke-width="1.2" fill="none" opacity=".55"/>',
+    carbone: '<path d="M-17 2C-6-4 7-8 23-9" style="stroke:' + c + '" stroke-width="2.6" fill="none"/>',
+    eclair: '<path d="M-10-17-15 0-7-2-12 12 4-6-4-5 2-17Z" fill="#FFD84A" stroke="#7A5300" stroke-width=".9"/>',
+    damier: '<path d="M-17 3C-6-3 7-7 23-8" style="stroke:' + c + '" stroke-width="3.2" fill="none"/>',
+    tortue: "",
+    chrome: '<path d="M-17 2C-6-4 7-8 23-9" stroke="#11151B" stroke-width="1.4" fill="none" opacity=".5"/>',
+    etoile: '<path d="M-17 4C-6-2 7-6 23-7" stroke="#F7CF55" stroke-width="2.4" fill="none"/><path d="M-5-15-3-9.6 2.6-9.4-1.8-6 0-.6-5-3.8-10-.6-8.2-6-12.6-9.4-7-9.6Z" fill="#FFD84A" stroke="#8A5A10" stroke-width=".7"/>',
+    holo: '<path d="M-17 2C-6-4 7-8 23-9" stroke="#fff" stroke-width="1.6" fill="none" opacity=".7"/>',
+    couronne: '<path d="M-17 3C-6-3 7-7 23-8" stroke="#11151B" stroke-width="1.6" fill="none" opacity=".45"/>'
+  }[m] || "";
+  return defs + '<path d="' + COQUE + '" style="' + remplissage(u, m, c) + '"/>' +
+    '<g clip-path="url(#' + u + 'k)">' + deco + '<path d="' + COQUE + '" fill="url(#' + u + 'h)"/></g>' +
+    '<path d="M3-10C10-11.5 16.5-9 20.5-4.5" stroke="#0b0d11" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M4-8C10-9 17-7 20-3V3C15 5 9 5 5 3 2.5 1 2.6-6 4-8Z" fill="url(#' + u + 'v)"/>' +
+    '<path d="M6-6.6C11-7.2 16-5.6 19-3" stroke="#fff" stroke-opacity=".7" stroke-width="1.1" fill="none" stroke-linecap="round"/>' +
+    '<path d="M-6-15.4l3.2-.7M-.6-16.6l3.2-.2" stroke="#0b0d11" stroke-width="1.3" stroke-linecap="round" opacity=".55"/>' +
+    '<path d="M-13.5 9.6H16.5" stroke="#0b0d11" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="' + COQUE + '" fill="none" stroke="rgba(0,0,0,.5)" stroke-width=".8"/>' +
+    (m === "couronne" ? '<path d="M-10-16.5-8.5-24-4-19.5 1-26 6-19.5 10.5-24 12-16.5Z" fill="url(#' + u + 'm)" stroke="#6B430C" stroke-width=".8"/><circle cx="1" cy="-26" r="1.6" fill="#FF4D6D"/><circle cx="-8.5" cy="-24" r="1.2" fill="#5AB8FF"/><circle cx="10.5" cy="-24" r="1.2" fill="#5AB8FF"/>' : "");
+}
+function svgCasque(nom, e) {
+  const eq = e || equipDe(nom), u = "sv" + (++NSVG), c = couleur(nom);
+  return '<svg class="casque c-' + eq.casque + '" viewBox="-17 -27 39 40" aria-hidden="true">' + casqueForme(u, eq.casque, c) + "</svg>";
+}
+
+/* ---------- Voiture : F1 de profil, ombrée, avec reflet au sol ---------- */
+/** o = { nom, e (équipement), drapeau (texte ou null), roule, reflet, label } */
+function svgVoiture(o) {
+  const u = "sv" + (++NSVG), c = couleur(o.nom), e = o.e, lv = e.livree, avecDrapeau = o.drapeau !== undefined && o.drapeau !== null;
+  const haut = avecDrapeau ? 92 : 10, sol = haut + 150, H = sol + (o.reflet ? 46 : 10);
+  const neon = lv === "neon";
+  const peinture = neon ? "fill:#0a0c11" : remplissage(u, lv === "couleur" ? "" : lv, c);
+  const filet = neon ? c : lv === "or" || lv === "oranime" ? "#3B2405" : lv === "chrome" ? "#11151B" : "#ffffff";
+  const CORPS = "M36 112L40 98C70 94 110 88 140 82C156 76 178 56 196 48L210 48C213 58 215 72 216 86L262 86C276 88 300 92 330 96L420 104C440 106 452 110 458 114L456 119C420 121 380 121 330 122L120 124L40 124Z";
+  const PONTON = "M118 123C124 106 148 97 184 95L298 94C305 94 309 98 309 104V122Z";
+  const traineeFx = {
+    simple: '<g class="vt-lignes" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".35"><path d="M-20 74h42M-34 96h56M-16 116h36"/></g>',
+    halo: '<path d="M-30 102C10 100 50 98 170 98" style="stroke:' + c + ';filter:blur(8px)" stroke-width="40" stroke-linecap="round" opacity=".42"/>',
+    flammes: '<g class="vt-flamme"><path d="M36 92C10 78-12 98-40 84-20 100-36 108-60 108-30 118-4 108 36 112Z" fill="#FF6A1A" opacity=".9"/><path d="M36 98C18 90 2 102-16 96-2 108 14 108 36 108Z" fill="#FFD23F"/><path d="M36 101C26 98 18 104 8 101 16 106 26 106 36 105Z" fill="#fff" opacity=".8"/></g>',
+    etincelles: '<g class="vt-etin" fill="#FFD84A">' + [[24, 88], [12, 100], [2, 84], [16, 112], [-6, 104], [6, 72], [-14, 92]].map(([x, y], i) => '<circle cx="' + x + '" cy="' + y + '" r="' + (2.8 - i * .25) + '"/>').join("") + "</g>",
+    comete: '<defs><linearGradient id="' + u + 'q" x1="1" x2="0"><stop offset="0" style="stop-color:' + c + '"/><stop offset="1" style="stop-color:' + c + '" stop-opacity="0"/></linearGradient></defs><path d="M140 78L-60 100 140 122Z" fill="url(#' + u + 'q)" opacity=".8"/>'
+  }[e.trainee] || "";
+  const roue = (x, y, r) => '<g transform="translate(' + x + " " + y + ')"><circle r="' + r + '" fill="url(#' + u + 'pn)"/><circle r="' + (r - 1.5) + '" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="1"/>' +
+    '<circle r="' + (r * .8).toFixed(1) + '" fill="none" stroke="#F7CF55" stroke-width="1.6" opacity=".85"/><path d="M' + (-r * .7).toFixed(1) + " " + (-r * .7).toFixed(1) + "A" + r + " " + r + " 0 0 1 " + (r * .7).toFixed(1) + " " + (-r * .7).toFixed(1) + '" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="3"/>' +
+    '<circle r="' + (r * .64).toFixed(1) + '" fill="url(#' + u + 'jd)"/><circle r="' + (r * .64).toFixed(1) + '" fill="none" stroke="url(#' + u + 'ja)" stroke-width="1.6"/><g class="vt-jante">' +
+    [0, 36, 72, 108, 144, 180, 216, 252, 288, 324].map(a => '<path d="M0 ' + (-r * .17).toFixed(1) + "L0 " + (-r * .56).toFixed(1) + '" stroke="url(#' + u + 'ja)" stroke-width="1.8" opacity=".85" transform="rotate(' + a + ')"/>').join("") +
+    '</g><circle r="' + (r * .16).toFixed(1) + '" style="fill:' + c + '"/><circle r="' + (r * .07).toFixed(1) + '" fill="#fff" opacity=".7"/></g>';
+  let drap = "", bras = "";
+  if (avecDrapeau) {
+    const t = String(o.drapeau), fs = t.length <= 4 ? 50 : t.length <= 5 ? 44 : 36;
+    drap = '<path d="M276 ' + (haut + 60) + 'L276 6" stroke="#C9CFD6" stroke-width="4" stroke-linecap="round"/>' +
+      '<g class="vt-drapeau"><clipPath id="' + u + 'f"><path d="M278 8C312 0 350 16 386 8S446 0 470 8V94C446 86 418 100 386 94S312 86 278 94Z"/></clipPath>' +
+      '<g clip-path="url(#' + u + 'f)"><rect x="276" y="0" width="196" height="104" fill="#FBFBF8"/><rect x="446" y="0" width="26" height="104" fill="url(#' + u + 'd)"/><rect x="276" y="0" width="196" height="104" fill="url(#' + u + 'o)"/></g>' +
+      '<text id="t-compte" x="362" y="' + (51 + fs * .36).toFixed(0) + '" text-anchor="middle" style="font:italic 800 ' + fs + 'px var(--f-display);letter-spacing:.02em;fill:#11151B">' + esc(t) + "</text></g>" +
+      '<defs><pattern id="' + u + 'd" width="13" height="13" patternUnits="userSpaceOnUse"><rect width="13" height="13" fill="#fff"/><rect width="6.5" height="6.5" fill="#111"/><rect x="6.5" y="6.5" width="6.5" height="6.5" fill="#111"/></pattern>' +
+      '<linearGradient id="' + u + 'o" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".3" stop-color="#000" stop-opacity=".1"/><stop offset=".55" stop-color="#fff" stop-opacity=".2"/><stop offset=".8" stop-color="#000" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient></defs>';
+    bras = '<path d="M268 ' + (haut + 88) + 'L276 ' + (haut + 50) + '" style="stroke:' + c + '" stroke-width="7.5" stroke-linecap="round"/><path d="M268 ' + (haut + 88) + 'L276 ' + (haut + 50) + '" stroke="#fff" stroke-opacity=".25" stroke-width="2" stroke-linecap="round"/>' +
+      '<rect x="270.5" y="' + (haut + 43) + '" width="11" height="10" rx="4" fill="#1b1f26"/><rect x="270.5" y="' + (haut + 49) + '" width="11" height="3" style="fill:' + c + '"/>';
+  }
+  const defs = '<defs>' + defsMotif(u, lv === "couleur" || neon ? "" : lv, c) +
+    '<linearGradient id="' + u + 'sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".22" stop-color="#fff" stop-opacity=".1"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".78" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></linearGradient>' +
+    '<linearGradient id="' + u + 'cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2f38"/><stop offset="1" stop-color="#0a0c0f"/></linearGradient>' +
+    '<radialGradient id="' + u + 'pn" cx=".42" cy=".36" r=".7"><stop offset="0" stop-color="#3a3f48"/><stop offset=".75" stop-color="#121418"/><stop offset="1" stop-color="#050607"/></radialGradient>' +
+    '<radialGradient id="' + u + 'ja" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#aeb6c1"/><stop offset="1" stop-color="#4b525c"/></radialGradient>' +
+    '<radialGradient id="' + u + 'jd" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#4a515b"/><stop offset=".7" stop-color="#1b1f25"/><stop offset="1" stop-color="#0d0f12"/></radialGradient>' +
+    '<linearGradient id="' + u + 'ti" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5d6570"/><stop offset=".5" stop-color="#f2f4f6"/><stop offset="1" stop-color="#7b838e"/></linearGradient>' +
+    '<linearGradient id="' + u + 'br" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<clipPath id="' + u + 'cl"><path d="' + CORPS + '"/><path d="' + PONTON + '"/></clipPath>' +
+    '<filter id="' + u + 'fl" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="5"/></filter>' +
+    (o.reflet ? '<linearGradient id="' + u + 'rm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="' + u + 'mk" maskUnits="userSpaceOnUse" x="0" y="' + sol + '" width="480" height="60"><rect x="0" y="' + sol + '" width="480" height="60" fill="url(#' + u + 'rm)"/></mask>' : "") + "</defs>";
+  const voiture = '<g id="' + u + 'car"><g class="vt-caisse">' +
+    // aileron arrière
+    '<path d="M8 30L32 26 36 110 14 112Z" fill="url(#' + u + 'cb)"/><path d="M8 30L32 26 32.5 32 8.5 36Z" style="fill:' + (neon ? c : c) + '"/>' +
+    '<path d="M44 56L52 56 58 100 48 102Z" fill="url(#' + u + 'cb)"/>' +
+    '<path d="M2 50C18 44 40 44 62 48L62 55C40 53 18 53 2 59Z" fill="url(#' + u + 'cb)"/>' +
+    '<path d="M4 34C20 28 42 28 62 32L62 39C42 37 20 37 4 43Z" style="' + peinture + '"/><path d="M4 34C20 28 42 28 62 32L62 39C42 37 20 37 4 43Z" fill="url(#' + u + 'sh)"/>' +
+    '<text x="33" y="38.5" text-anchor="middle" style="font:italic 800 6.5px var(--f-display);letter-spacing:.12em;fill:' + (lv === "chrome" || lv === "or" || lv === "oranime" ? "#11151B" : "#fff") + '" opacity=".9">VERSUS</text>' +
+    // fond plat et diffuseur
+    '<path d="M28 122L420 122 422 129 70 132 30 128Z" fill="url(#' + u + 'cb)"/>' +
+    // caisse et ponton
+    '<path d="' + CORPS + '" style="' + peinture + '"/><path d="' + PONTON + '" style="' + peinture + '"/>' +
+    '<g clip-path="url(#' + u + 'cl)">' +
+      (neon ? '<path d="M120 112H308M150 100H290" style="stroke:' + c + ';filter:drop-shadow(0 0 3px ' + c + ')" stroke-width="1.6"/>' : "") +
+      '<rect x="0" y="113" width="480" height="20" fill="url(#' + u + 'cb)" opacity=".92"/>' +
+      '<path d="M0 113H480" stroke="' + filet + '" stroke-width="1.6" opacity=".9"/>' +
+      '<rect x="0" y="40" width="480" height="92" fill="url(#' + u + 'sh)"/>' +
+      (lv === "oranime" || lv === "chrome" || lv === "or" ? '<rect class="vt-brille" x="-90" y="40" width="70" height="92" fill="url(#' + u + 'br)" transform="skewX(-20)" opacity="' + (lv === "oranime" ? ".9" : ".35") + '"/>' : "") +
+    "</g>" +
+    (neon ? '<path d="' + CORPS + '" fill="none" style="stroke:' + c + ';filter:drop-shadow(0 0 4px ' + c + ') drop-shadow(0 0 9px ' + c + ')" stroke-width="2"/>' : "") +
+    // entrée d'air du ponton, reflets
+    '<path d="M298 96C304 96 307 99 307 104V112H300Z" fill="#07080b"/>' +
+    '<path d="M142 83C160 76 178 58 196 50" stroke="#fff" stroke-opacity=".6" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M278 90C320 95 380 101 444 108" stroke="#fff" stroke-opacity=".5" stroke-width="1.3" fill="none" stroke-linecap="round"/>' +
+    '<path d="M190 96L296 95" stroke="#fff" stroke-opacity=".35" stroke-width="1.2" fill="none"/>' +
+    // caméra, rétroviseur, numéro
+    '<rect x="197" y="43" width="12" height="5" rx="1.5" fill="#0b0d11"/><rect x="199" y="44" width="8" height="1.6" style="fill:' + c + '"/>' +
+    '<path d="M284 92L286 84" stroke="#0b0d11" stroke-width="2"/><rect x="278" y="78" width="15" height="7" rx="3" style="' + peinture + '"/><rect x="278" y="78" width="15" height="7" rx="3" fill="url(#' + u + 'sh)"/>' +
+    '<text x="250" y="117" text-anchor="middle" style="font:italic 800 21px var(--f-display);fill:' + (lv === "chrome" || lv === "or" || lv === "oranime" ? "#11151B" : "#fff") + ';stroke:rgba(0,0,0,.35);stroke-width:.6;paint-order:stroke">' + e.numero + "</text>" +
+    '<text x="160" y="108" text-anchor="middle" style="font:italic 800 8px var(--f-display);letter-spacing:.2em;fill:' + (lv === "chrome" || lv === "or" || lv === "oranime" ? "#11151B" : "#fff") + '" opacity=".75">VERSUS</text>' +
+    // pilote, rebord du cockpit, halo
+    '<g transform="translate(236 75) scale(1.08)">' + casqueForme(u + "c", e.casque, c) + "</g>" +
+    '<path d="M214 87C230 83 250 83 264 87" stroke="#0b0d11" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M212 74C224 57 252 56 268 86" fill="none" stroke="url(#' + u + 'ti)" stroke-width="4.6" stroke-linecap="round"/>' +
+    // aileron avant
+    '<path d="M420 104L420 128" stroke="#0b0d11" stroke-width="2.4"/>' +
+    '<path d="M376 132C400 128 430 128 466 132L466 136C430 134 400 134 376 138Z" fill="url(#' + u + 'cb)"/>' +
+    '<path d="M386 126C408 122 436 123 462 126L462 129.5C436 127 408 127 386 131Z" style="' + peinture + '"/><path d="M386 126C408 122 436 123 462 126L462 129.5C436 127 408 127 386 131Z" fill="url(#' + u + 'sh)"/>' +
+    '<path d="M458 116L466 116 468 142 456 142Z" fill="url(#' + u + 'cb)"/>' +
+    "</g>" + roue(98, 116, 34) + roue(372, 119, 31) + "</g>";
+  return '<svg class="voiture' + (o.roule ? " roule" : "") + '" viewBox="0 0 480 ' + H + '" role="img" aria-label="' + esc(o.label || "Voiture de " + o.nom) + '">' + defs +
+    '<g class="vt-sol"><path d="M0 ' + sol + 'H480" stroke="currentColor" stroke-width="1.5" opacity=".22" stroke-dasharray="26 18"/></g>' + drap +
+    '<ellipse cx="240" cy="' + (sol - 2) + '" rx="215" ry="7" fill="#000" opacity=".55" filter="url(#' + u + 'fl)"/>' +
+    '<g transform="translate(6 ' + haut + ')"><g class="vt-trainee">' + traineeFx + "</g>" + voiture + "</g>" + bras +
+    (o.reflet ? '<g mask="url(#' + u + 'mk)"><use href="#' + u + 'car" transform="translate(6 ' + (2 * sol - haut) + ') scale(1 -1)"/></g>' : "") +
+    "</svg>";
+}
+
+/* ---------- Teaser : la voiture, le drapeau, le compte à rebours ---------- */
+function compteRebours(maintenant) {
+  const ms = SAISON.depart - maintenant;
+  if (ms <= 0) return "GO";
+  if (ms <= 3600e3) return Math.ceil(ms / 60e3) + " min";
+  if (ms <= 96 * 3600e3) return Math.ceil(ms / 3600e3) + " h";
+  return "J-" + Math.round((SAISON.depart - new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate())) / 864e5);
+}
+function teaser() {
+  const now = new Date(), noel = now >= SAISON.noel || (estAdmin() && stock.get("versus.teaserNoel") === "1");
+  const qui = D.personnes.some(p => p.nom === ETAT.moi) ? ETAT.moi : (D.personnes[0] || {}).nom;
+  const e = Object.assign({}, BASE_ECURIE, { numero: numeroParDefaut(qui) });
+  return '<section class="teaser">' + svgVoiture({ nom: qui, e, drapeau: compteRebours(now), roule: true, reflet: true, label: "Saison 1 : départ le 1er janvier 2027" }) +
+    '<div class="t-txt"><div class="t-saison">Saison 1</div><div class="t-date">Départ le 1<sup>er</sup> janvier 2027</div>' +
+    '<p class="t-phrase">Tout le monde sur la ligne de départ.<br>Même point de départ, mêmes chances.</p>' +
+    (noel ? '<div class="t-concept"><div><b>🏁 Championnat</b><span>Des points chaque mois : 10, 6, 4, 2, et +1 si tu bats le S&P 500.</span></div>' +
+      '<div><b>🏎️ Mon écurie</b><span>Casque, livrée, traînée, klaxon, plaque : tout se débloque en course.</span></div>' +
+      '<div><b>🎯 Défis</b><span>Bronze, argent, or, légendaire. Et quelques secrets.</span></div></div>' +
+      '<p class="t-note">Tout repart de zéro le 1<sup>er</sup> janvier : ce qui s\'est passé avant ne compte pas.</p>'
+      : '<p class="t-note">On en dit plus le 25 décembre.</p>') + "</div>" +
+    (estAdmin() ? '<div class="t-admin"><button class="lien" type="button" id="apercu-saison">👀 Aperçu admin de la saison</button><button class="lien" type="button" id="teaser-noel">' + (stock.get("versus.teaserNoel") === "1" ? "Teaser normal" : "Teaser du 25/12") + "</button></div>" : "") +
+    "</section>";
+}
+let MINUTEUR_TEASER = null;
+function animerCompte() {
+  clearInterval(MINUTEUR_TEASER);
+  MINUTEUR_TEASER = setInterval(() => {
+    const t = document.getElementById("t-compte");
+    if (!t || vueActive() !== "trophees") { clearInterval(MINUTEUR_TEASER); return; }
+    if (saisonOuverte()) { clearInterval(MINUTEUR_TEASER); rendreTrophees(); return; }
+    const txt = compteRebours(new Date());
+    if (t.textContent !== txt) { t.textContent = txt; const fs = txt.length <= 4 ? 50 : txt.length <= 5 ? 44 : 36; t.style.fontSize = fs + "px"; t.setAttribute("y", (51 + fs * .36).toFixed(0)); }
+  }, 20000);
+}
+
+/* ---------- Bloc saison : Championnat · Mon écurie · Défis ---------- */
+let ECU = null;   // brouillon de l'écurie en cours de réglage
+function rubanApercu() {
+  return '<div class="apercu-ruban"><b>Aperçu admin</b><span>Saison rejouée sur 2026 pour tester. Les autres voient le teaser jusqu\'au 1<sup>er</sup> janvier.</span><button class="lien" type="button" id="quitter-apercu">Quitter</button></div>';
+}
+function blocSaison() {
+  const ys = anneesSaison(), y = ys.includes(ETAT.saisonY) ? ETAT.saisonY : ys[ys.length - 1];
+  const o = ["championnat", "ecurie", "defis"].includes(ETAT.podium) ? ETAT.podium : "championnat";
+  const b = (id, lib) => '<button type="button" data-pod="' + id + '" aria-pressed="' + (o === id) + '">' + lib + "</button>";
+  return '<section class="saison"><div class="saison-h"><div><span class="s-k">Saison ' + numeroSaison(y) + " · " + y + (apercuSaison() ? " (répétition)" : "") + '</span><h2>Le championnat</h2></div>' +
+    (ys.length > 1 ? '<div class="s-ys">' + ys.map(a => '<button type="button" class="chip-s' + (a === y ? " on" : "") + '" data-saison="' + a + '">S' + numeroSaison(a) + "</button>").join("") + "</div>" : "") + "</div>" +
+    '<div class="seg" role="group" aria-label="Saison">' + b("championnat", "Championnat") + b("ecurie", "Mon écurie") + b("defis", "Défis") + "</div>" +
+    '<div class="s-corps">' + (o === "ecurie" ? htmlEcurie() : o === "defis" ? htmlDefis() : htmlChampionnat(y)) + "</div></section>";
+}
+function htmlChampionnat(y) {
+  const c = championnat(y);
+  const bareme = '<p class="info">Chaque mois : 1<sup>er</sup> 10 pts · 2<sup>e</sup> 6 · 3<sup>e</sup> 4 · 4<sup>e</sup> 2 · ensuite 1, et <b>+1</b> 🎯 si ton mois bat le ' + esc(D.marche.indices[iRef()]) +
+    ". Ex aequo : même place, mêmes points. À égalité de points : le plus de victoires, puis la meilleure performance de la saison. Portefeuille total, pour tout le monde.</p>";
+  const att = c.attente ? '<div class="bref">⏳ ' + esc(moisLong(c.attente.k)) + " : points distribués dès que tout le monde a saisi son relevé (il manque " + c.attente.manquent.map(n => "<b>" + esc(n) + "</b>").join(" et ") + ").</div>" : "";
+  if (!c.mois.length) return att + '<div class="vide">🏁 Les voitures sont sur la grille. Premiers points à la fin de janvier, dès que tous les relevés du mois sont là.</div>' + bareme;
+  const max = c.tot[c.classement[0]].pts;
+  const lignes = c.classement.map((n, i) => {
+    const t = c.tot[n], e = equipDe(n);
+    return '<div class="ch-l' + (n === ETAT.moi ? " moi" : "") + (i === 0 ? " tete" : "") + '"><span class="rk">' + (i + 1) + "</span>" + svgCasque(n, e) +
+      '<div class="nm"><b' + attrLivree(n, e) + ">" + esc(n) + couronne(n) + "</b><small>" + plaqueDe(n) + t.v + " victoire" + (t.v > 1 ? "s" : "") + " · " + t.pod + " podium" + (t.pod > 1 ? "s" : "") + " · " + t.bonus + " 🎯</small></div>" +
+      '<span class="pt"><b>' + t.pts + "</b><small>" + (i ? "−" + (max - t.pts) : "pts") + "</small></span></div>";
+  }).join("");
+  const noms = c.classement;
+  const tab = '<div class="scroll-x"><table class="tab ch-t"><thead><tr><th>Mois</th>' + noms.map(n => '<th><i style="background:' + couleur(n) + '"></i>' + esc(n) + "</th>").join("") + "</tr></thead><tbody>" +
+    c.mois.slice().reverse().map(m => "<tr><td>" + esc(moisCourt(m.k)) + "</td>" + noms.map(n => { const x = m.l.find(z => z.nom === n); return x ? '<td class="' + (x.rg === 1 ? "r1" : "") + '">' + x.p + (x.bonus ? "<sup>🎯</sup>" : "") + "</td>" : '<td class="muted">·</td>'; }).join("") + "</tr>").join("") +
+    "</tbody></table></div>";
+  return att + '<div class="ch">' + lignes + "</div>" + (c.complete ? '<div class="bref">🏆 <b>' + esc(c.classement[0]) + "</b> est champion de la saison " + numeroSaison(y) + ".</div>" : "") +
+    '<div><h3 class="s-h3">La course aux points</h3></div>' + boiteGraphe("g-champ", noms.map(n => ({ nom: n, c: couleur(n) }))) +
+    '<div><h3 class="s-h3">Points mois par mois</h3></div>' + tab + bareme;
+}
+function dessinerChampionnat(y) {
+  const box = $("#g-champ"); if (!box) return;
+  const c = championnat(y), ks = [c.deb].concat(c.mois.map(m => m.k));
+  tracer(box, { x: ks, series: c.classement.map(n => ({ nom: n, v: [0].concat(c.mois.map(m => m.cumul[n] !== undefined ? m.cumul[n] : null)), c: couleur(n), w: n === ETAT.moi ? 2.8 : 2, fx: equipDe(n).trainee })),
+    finEtiq: true, h: 190, fmt: x => x + " pts", fmtAxe: t => Number.isInteger(t) ? String(t) : "", titreX: k => k === c.deb ? "Départ" : "Fin " + moisCourt(k) });
+}
+function quiEcurie() { return estAdmin() ? ETAT.moi : SESSION.nom; }
+let ECU_SLOT = "casque";
+const ICONES_KLAXON = { confettis: "🎊", damier: "🏁", feu: "🎆", parade: "🎺", billets: "💸" };
+/** Rareté d'un objet : série (de base), bronze, argent, or, légendaire, secret, unique (premier millionnaire) */
+function rareteItem(slot, id) {
+  if (BASE_ECURIE[slot] === id) return { cls: "r-serie", lib: "Série" };
+  const o = origineItem(slot, id);
+  if (o.million) return { cls: "r-unique", lib: "Unique" };
+  if (o.secret) return { cls: "r-secret", lib: "Secret" };
+  if (o.defi) return { cls: ["", "r-bronze", "r-argent", "r-or", "r-legende"][o.defi.niv], lib: NIVEAUX[o.defi.niv] };
+  return { cls: "r-serie", lib: "" };
+}
+function vignetteItem(slot, id, nom, e) {
+  if (slot === "casque") return svgCasque(nom, { casque: id });
+  if (slot === "livree") return svgVoiture({ nom, e: Object.assign({}, e, { livree: id, trainee: "" }) });
+  if (slot === "trainee") return '<svg class="vg-trainee" viewBox="0 0 200 80" aria-hidden="true"><path class="fx fx-' + id + '" d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-linecap="round"/>' +
+    '<path d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-width="3.5" stroke-linecap="round"/><circle cx="192" cy="12" r="5" style="fill:' + couleur(nom) + '"/></svg>';
+  if (slot === "klaxon") return '<span class="it-emo">' + ICONES_KLAXON[id] + "</span>";
+  return id === "aucune" ? '<span class="it-emo vide">—</span>' : '<span class="plaque grande">' + esc(ITEMS.plaque[id]) + "</span>";
+}
+function htmlEcurie() {
+  const qui = quiEcurie();
+  if (!D.personnes.some(p => p.nom === qui)) return '<div class="vide">Choisis ton nom dans les réglages pour monter ton écurie.</div>';
+  if (!ECU || ECU.nom !== qui) ECU = { nom: qui, e: equipDe(qui) };
+  const ouverts = debloques(qui), e = ECU.e;
+  const slot = ECU_SLOT === "numero" || SLOTS.some(s => s[0] === ECU_SLOT) ? ECU_SLOT : "casque";
+  const total = SLOTS.reduce((a, [s]) => a + Object.keys(ITEMS[s]).length, 0) - Object.keys(BASE_ECURIE).length, nb = ouverts.size - Object.keys(BASE_ECURIE).length;
+  const showroom = '<div class="showroom"><div class="sr-num" aria-hidden="true">' + e.numero + '</div>' +
+    '<div class="sr-h"><span class="sr-k">Mon écurie · Saison 1</span><b' + attrLivree(qui, e) + ">" + esc(qui) + "</b>" +
+    '<span class="sr-p"><span class="sr-barre"><i style="width:' + (total ? nb / total * 100 : 0).toFixed(0) + '%"></i></span>' + nb + " / " + total + " objets</span></div>" +
+    svgVoiture({ nom: qui, e, reflet: true }) +
+    '<button class="sr-klaxon" type="button" id="ecu-klaxon">📯 Klaxonner</button></div>';
+  const onglets = '<div class="slot-tabs">' + SLOTS.concat([["numero", "Numéro"]]).map(([s, lib]) => '<button type="button" data-ecu-slot="' + s + '" aria-pressed="' + (s === slot) + '">' + lib +
+    "<small>" + (s === "numero" ? "#" + e.numero : esc(ITEMS[s][e[s]])) + "</small></button>").join("") + "</div>";
+  let corps;
+  if (slot === "numero") corps = '<div class="num-bloc"><input id="ecu-num" class="champ-num" inputmode="numeric" maxlength="2" value="' + e.numero + '" aria-label="Numéro de course (1 à 99)"><p class="info">Ton numéro de course, de 1 à 99 : sur le ponton de ta voiture et dans la grille.</p></div>';
+  else corps = '<div class="items">' + Object.keys(ITEMS[slot]).map(id => {
+    const ouvert = ouverts.has(slot + "." + id), org = origineItem(slot, id), r = rareteItem(slot, id), cache = !ouvert && !!org.secret, porte = e[slot] === id;
+    const sous = ouvert ? r.lib : org.million ? "👑 Premier millionnaire" : org.secret ? "Défi secret" : org.defi ? MEDAILLES[org.defi.niv] + " " + org.defi.nom : "";
+    return '<button type="button" class="it ' + r.cls + (porte ? " on" : "") + (ouvert ? "" : " verrou") + '" data-slot="' + slot + '" data-item="' + id + '">' +
+      '<span class="it-v">' + (cache ? '<span class="it-emo">?</span>' : vignetteItem(slot, id, qui, e)) + (ouvert ? "" : '<span class="it-lock">' + (org.million ? "👑" : "🔒") + "</span>") + (porte ? '<span class="it-on">Équipé</span>' : "") + "</span>" +
+      '<span class="it-n">' + (cache ? "???" : esc(ITEMS[slot][id])) + '</span><span class="it-r">' + esc(sous) + "</span></button>";
+  }).join("") + "</div>";
+  const grille = D.personnes.map(p => { const eq = p.nom === qui ? e : equipDe(p.nom); return '<div class="gr-l">' + svgCasque(p.nom, eq) + "<b" + attrLivree(p.nom, eq) + ">" + esc(p.nom) + "</b>" + (eq.plaque !== "aucune" ? '<span class="plaque">' + esc(ITEMS.plaque[eq.plaque]) + "</span>" : "") + '<span class="num">#' + eq.numero + "</span></div>"; }).join("");
+  return showroom + onglets + corps +
+    '<button class="btn acc plein" type="button" id="ecu-garder">Enregistrer mon écurie</button>' +
+    '<p class="info">Touche un objet verrouillé pour savoir quel défi l\'ouvre. Ton casque, ta livrée et ta plaque s\'affichent au classement, ta traînée sur les courbes, ton klaxon quand tu gagnes un mois.</p>' +
+    '<div><h3 class="s-h3">La grille</h3></div><div class="grille">' + grille + "</div>";
+}
+function htmlDefis() {
+  const noms = D.personnes.map(p => p.nom), E = {}; noms.forEach(n => E[n] = etatDefis(n));
+  const lib = g => g.map(([s, id]) => ITEMS[s][id] + " (" + SLOTS.find(x => x[0] === s)[1].toLowerCase() + ")").join(" + ");
+  const court = n => n.length > 5 ? n.slice(0, 4) + "." : n;
+  const tete = '<thead><tr><th>Défi</th>' + noms.map(n => '<th title="' + esc(n) + '"><i style="background:' + couleur(n) + '"></i>' + esc(court(n)) + "</th>").join("") + "</tr></thead>";
+  const fams = FAMILLES_DEFIS.map(f => '<div><h3 class="s-h3">' + f + '</h3></div><div class="scroll-x"><table class="tab succes-m defis-m">' + tete + "<tbody>" + DEFIS.filter(d => d.fam === f).map(d =>
+    '<tr><td class="n"><i>' + MEDAILLES[d.niv] + "</i>" + esc(d.nom) + "<small>" + esc(d.def) + "</small><em>→ " + esc(lib(d.gain)) + "</em></td>" + noms.map(n => {
+      const o = E[n][d.id]; return o.ok ? '<td class="ok">✓</td>' : '<td class="pr">' + (o.prog ? o.prog + "/" + o.cible + (d.unite || "") : "·") + "</td>";
+    }).join("") + "</tr>").join("") + "</tbody></table></div>").join("");
+  const secrets = '<div><h3 class="s-h3">Secrets</h3></div><div class="secrets">' + SECRETS.map(s => {
+    const qui = noms.filter(n => E[n][s.id].ok);
+    return qui.length ? '<div class="sec-l ouvert"><b>🤫 ' + esc(s.nom) + "</b><small>" + esc(s.def) + " → " + esc(lib(s.gain)) + "</small><span>" + qui.map(n => '<span style="color:' + couleur(n) + '">' + esc(n) + "</span>").join(" · ") + "</span></div>"
+      : '<div class="sec-l"><b>??? </b><small>Défi secret : personne ne l\'a encore trouvé.</small></div>';
+  }).join("") + "</div>";
+  return '<p class="info">Les défis se débloquent une fois pour toutes et ouvrent des objets pour ton écurie. Niveaux : 🥉 bronze · 🥈 argent · 🥇 or · 💎 légendaire. Portefeuille total, ' + esc(D.marche.indices[iRef()]) + " comme référence, versements des relevés du Versus.</p>" + fams + secrets;
+}
+async function garderEcurie() {
+  const qui = ECU.nom, equip = Object.assign({}, ECU.e);
+  if (SOURCE !== "api") { D.ecurie = Object.assign({}, D.ecurie, { [qui]: { equip } }); toast("Aperçu : écurie gardée sur cet appareil seulement."); rendreTrophees(); return; }
+  const rep = await posterAdmin({ action: "ecurie", personne: qui, equip });
+  toast(rep.message || (rep.ok ? "Écurie enregistrée." : "Enregistrement impossible."));
+  if (rep.ok) { D.ecurie = rep.ecurie || Object.assign({}, D.ecurie, { [qui]: { equip } }); MEMO_SAISON = { d: null, m: {} }; rendreTrophees(); }
+}
+function brancherSaison(v) {
+  v.querySelectorAll("[data-pod]").forEach(b => b.addEventListener("click", () => { ETAT.podium = b.dataset.pod; garder(); rendreTrophees(); }));
+  v.querySelectorAll("[data-saison]").forEach(b => b.addEventListener("click", () => { ETAT.saisonY = +b.dataset.saison; garder(); rendreTrophees(); }));
+  const ys = anneesSaison(), y = ys.includes(ETAT.saisonY) ? ETAT.saisonY : ys[ys.length - 1];
+  if (ETAT.podium !== "ecurie" && ETAT.podium !== "defis") dessinerChampionnat(y);
+  v.querySelectorAll("[data-ecu-slot]").forEach(b => b.addEventListener("click", () => { ECU_SLOT = b.dataset.ecuSlot; rendreTrophees(); }));
+  v.querySelectorAll(".it").forEach(b => b.addEventListener("click", () => {
+    const s = b.dataset.slot, id = b.dataset.item;
+    if (b.classList.contains("verrou")) {
+      const org = origineItem(s, id);
+      toast(org.million ? "👑 Réservé au premier millionnaire du groupe." : org.secret ? "🤫 Objet secret : un défi caché le débloque." : org.defi ? "🔒 Défi « " + org.defi.nom + " » (" + NIVEAUX[org.defi.niv].toLowerCase() + ") : " + org.defi.def + "." : "🔒 Pas encore débloqué.");
+      return;
+    }
+    ECU.e[s] = id; rendreTrophees();
+    if (s === "klaxon") confettis(id);
+  }));
+  const num = v.querySelector("#ecu-num");
+  if (num) num.addEventListener("change", () => { const n = parseInt(num.value, 10); if (n >= 1 && n <= 99) { ECU.e.numero = n; rendreTrophees(); } else { num.value = ECU.e.numero; toast("Un numéro entre 1 et 99."); } });
+  const kl = v.querySelector("#ecu-klaxon"); if (kl) kl.addEventListener("click", () => confettis(ECU.e.klaxon));
+  const g = v.querySelector("#ecu-garder"); if (g) g.addEventListener("click", garderEcurie);
+}
+
+/* ---------- Vue Podium ---------- */
 function rendreTrophees() {
   const v = $("#v-trophees");
-  if (!finGlobale(D, 0)) { v.innerHTML = '<div class="vide">Pas encore de relevé.</div>'; return; }
-  const qui = D.personnes.some(p => p.nom === ETAT.succes) ? ETAT.succes : ETAT.moi;
-  const r = succesTous()[qui] || {}, nb = SUCCES.filter(x => r[x.id] && r[x.id].k).length;
-  const tm = titresMois(0), tr = trophees(0);
-  const cols = ["champion"].concat(TITRES.map(t => t.id));
-  const total = n => cols.reduce((a, c) => a + ((tr.res[n] || {})[c] || 0), 0);
-  const classes = D.personnes.map(p => p.nom).filter(n => total(n) > 0).sort((a, b) => total(b) - total(a));
-  const tenus = tm.liste.filter(x => x.qui.length);
-  const ouvert = id => (ETAT.acc || []).includes(id) ? " open" : "";
-  v.innerHTML =
-    // 1. Succès, mis en avant
-    '<div><h2 class="sec">Succès <small>objectifs à long terme</small></h2></div>' +
-    '<div class="chips" role="group" aria-label="Succès de">' + D.personnes.map(x => '<button class="chip" type="button" data-suc="' + esc(x.nom) + '" aria-pressed="' + (x.nom === qui) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
-    '<div class="suc-tete"><b style="color:' + couleur(qui) + '">' + esc(qui) + "</b><span>" + nb + " / " + SUCCES.length + ' débloqués</span><span class="jauge"><i style="width:' + (nb / SUCCES.length * 100).toFixed(0) + '%"></i></span></div>' +
-    blocSucces(qui, true) +
-    // 2. Titres du mois, repliés
-    '<details class="acc" data-acc="titres"' + ouvert("titres") + '><summary><span class="t">🎖️ Titres du mois <small>' + esc(moisLong(tm.k)) + '</small></span><span class="r">' +
-      (tenus.length ? tenus.map(x => x.e + " " + x.qui.map(esc).join("/")).join(" · ") : "aucun titre ce mois-ci") + "</span></summary>" + blocTitres(0, true) + "</details>" +
-    // 3. Salle des trophées, repliée
-    '<details class="acc" data-acc="salle"' + ouvert("salle") + '><summary><span class="t">🏆 Salle des trophées <small>depuis le début</small></span><span class="r">' +
-      (classes.length ? classes.map(n => esc(n) + " " + total(n)).join(" · ") : "pas encore de trophée") + "</span></summary>" + blocTrophees(0, true) + "</details>" +
-    '<p class="info">Tout est calculé sur le portefeuille total, avec le ' + esc(D.marche.indices[iRef()]) + " comme référence : tout le monde voit les mêmes chiffres, quels que soient les filtres.</p>";
-  if ($("#f-fetiche")) $("#f-fetiche").addEventListener("change", e => changerFetiche(e.target.value));
-  v.querySelectorAll("[data-suc]").forEach(b => b.addEventListener("click", () => { ETAT.succes = b.dataset.suc; garder(); rendreTrophees(); }));
-  v.querySelectorAll("details[data-acc]").forEach(d => d.addEventListener("toggle", () => {
-    const l = new Set(ETAT.acc || []); if (d.open) l.add(d.dataset.acc); else l.delete(d.dataset.acc); ETAT.acc = [...l]; garder();
-  }));
-  // jauge du millionnaire : privée, lue depuis le fichier perso connecté sur cet appareil
-  if (moiConnecte()) { const z = document.createElement("div"); z.id = "m-million-z"; v.prepend(z); chargerModuleMoi(() => { if (z.isConnected) window.Moi.million(z); }); }
-}
-function blocTitres(env, nu) {
-  const t = titresMois(env);
-  if (!t.k) return "";
-  return '<div>' + (nu ? "" : '<h2 class="sec">Titres du mois <small>recalculés à chaque relevé · ' + esc(moisLong(t.k)) + "</small></h2>") + '<div class="titres-l">' +
-    t.liste.map(x => '<div class="titre-l"><span class="e">' + x.e + '</span><div class="d"><span class="k">' + esc(x.type) + "</span><b>" + esc(x.nom) + "</b><small>" + esc(x.def) + "</small></div>" +
-      (x.qui.length ? '<span class="h">' + x.qui.map(n => '<span style="color:' + couleur(n) + '">' + esc(n) + "</span>").join("<br>") + "</span>" : '<span class="h aucun">personne</span>') + "</div>").join("") +
-    '</div><p class="info" style="margin-top:8px">Cinq titres récompensent la performance, six la régularité et la maîtrise du risque : tout miser sur un levier ne suffit pas à tout rafler. Les titres sur 12 mois demandent ' + RECUL + " mois de relevés.</p></div>";
+  clearInterval(MINUTEUR_TEASER);
+  const vis = saisonVisible();
+  v.innerHTML = (apercuSaison() ? rubanApercu() : "") + bandeauMillion() + blocBilans() + (vis ? blocSaison() : teaser());
+  brancherBilans(v);
+  $("#info-million-t").addEventListener("click", () => toast(texteMillion()));
+  if (vis) brancherSaison(v);
+  else {
+    animerCompte();
+    const a = v.querySelector("#apercu-saison");
+    if (a) a.addEventListener("click", () => { stock.set("versus.apercuSaison", "1"); rendreTrophees(); window.scrollTo({ top: 0 }); });
+    const n = v.querySelector("#teaser-noel");
+    if (n) n.addEventListener("click", () => { stock.set("versus.teaserNoel", stock.get("versus.teaserNoel") === "1" ? "0" : "1"); rendreTrophees(); });
+  }
+  const q = v.querySelector("#quitter-apercu");
+  if (q) q.addEventListener("click", () => { stock.set("versus.apercuSaison", "0"); ECU = null; rendreTrophees(); });
+  if (saisonOuverte() && !stock.get("versus.saison1")) { stock.set("versus.saison1", "1"); toast("🏁 Saison 1 : c'est parti !"); confettis("damier"); }
 }
 
 /* ---------- Duel ---------- */
@@ -1439,21 +1965,36 @@ function feterChampion(v) {
   stock.set(cle, String(v.k));
   if (!deja) return;                       // première ouverture : on ne fête pas un mois ancien
   toast("Champion de " + moisLong(v.k) + " 🏆");
-  confettis();
+  confettis(saisonVisible() ? equipDe(ETAT.moi).klaxon : "confettis");
 }
-function confettis() {
+/** Confettis et klaxons de l'écurie : confettis, damier, feu (d'artifice), parade, billets */
+function confettis(style) {
   if (!ANIM) return;
   const c = document.createElement("canvas"), x = c.getContext("2d"), dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
   c.width = W * dpr; c.height = H * dpr; c.setAttribute("aria-hidden", "true");
   c.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:99";
   document.body.appendChild(c); x.scale(dpr, dpr);
-  const cols = ["--p0", "--p1", "--p2", "--p3", "--gold"].map(css);
-  const ps = Array.from({ length: 110 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .3, vx: (Math.random() - .5) * 10, vy: -Math.random() * 10 - 4,
-    r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, w: 6 + Math.random() * 5, h: 3 + Math.random() * 4, c: cols[Math.floor(Math.random() * cols.length)] }));
-  const t0 = performance.now(), duree = 2600;
+  const pal = ["--p0", "--p1", "--p2", "--p3", "--gold"].map(css);
+  const emo = { parade: ["🏁", "🎺", "🎉", "🏆", "🥁"], billets: ["💶", "💸", "💶", "💰"] }[style];
+  const hasard = l => l[Math.floor(Math.random() * l.length)];
+  let ps;
+  if (emo) ps = Array.from({ length: 46 }, () => ({ x: Math.random() * W, y: -20 - Math.random() * H * .6, vx: (Math.random() - .5) * 1.5, vy: 2 + Math.random() * 3, r: (Math.random() - .5) * .8, vr: (Math.random() - .5) * .06, e: hasard(emo), g: .04 }));
+  else if (style === "feu") ps = [[.25, .32], [.5, .2], [.75, .3], [.4, .45], [.62, .42]].flatMap(([fx, fy], j) => { const col = hasard(pal); return Array.from({ length: 34 }, (_, i) => { const a = i / 34 * 6.283, v = 3 + Math.random() * 2.5; return { x: W * fx, y: H * fy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, rond: true, w: 3.2, c: Math.random() < .3 ? css("--gold") : col, g: .06, retard: j * 9 }; }); });
+  else ps = Array.from({ length: 110 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .3, vx: (Math.random() - .5) * 10, vy: -Math.random() * 10 - 4,
+    r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, w: style === "damier" ? 8 : 6 + Math.random() * 5, h: style === "damier" ? 8 : 3 + Math.random() * 4, c: style === "damier" ? (Math.random() < .5 ? "#111" : "#f4f4f4") : hasard(pal), g: .3 }));
+  const t0 = performance.now(), duree = emo ? 3400 : 2600;
+  let f = 0;
   const pas = t => {
-    const e = t - t0; x.clearRect(0, 0, W, H);
-    ps.forEach(p => { p.vy += .3; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.globalAlpha = Math.max(0, 1 - e / duree); x.fillStyle = p.c; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore(); });
+    const e = t - t0; x.clearRect(0, 0, W, H); f++;
+    ps.forEach(p => {
+      if (p.retard && f < p.retard) return;
+      p.vy += p.g; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r = (p.r || 0) + (p.vr || 0);
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r || 0); x.globalAlpha = Math.max(0, 1 - e / duree);
+      if (p.e) { x.font = "24px serif"; x.textAlign = "center"; x.fillText(p.e, 0, 0); }
+      else if (p.rond) { x.fillStyle = p.c; x.beginPath(); x.arc(0, 0, p.w, 0, 6.283); x.fill(); }
+      else { x.fillStyle = p.c; if (style === "damier") { x.strokeStyle = "rgba(0,0,0,.25)"; x.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h); } x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+      x.restore();
+    });
     if (e < duree) requestAnimationFrame(pas); else c.remove();
   };
   requestAnimationFrame(pas);
@@ -1471,16 +2012,113 @@ function anneesBilan() {
 }
 function banniereBilan() {
   const fin = finGlobale(D, 0); if (!fin) return "";
-  const y = anneesBilan().filter(a => a * 100 + 12 >= cleMoins(fin, 2)).pop();
-  if (!y) return "";
-  return '<div class="bilan-pret"><div><b>🎁 Le bilan ' + y + " est prêt</b><small>Podium, champions, titres, duels : l'année en " + "quelques écrans.</small></div>" +
+  const now = new Date(), y = now.getFullYear() - 1;
+  if (now.getMonth() !== 0 || now.getDate() > 15 || !anneesBilan().includes(y)) return banniereRecap();
+  return '<div class="bilan-pret"><div><b>🎁 Le bilan ' + y + " est prêt</b><small>Podium, champions, records, duels : l'année en " + "quelques écrans.</small></div>" +
     '<button class="wr-btn" type="button" data-bilan="' + y + '" style="background:var(--accent);color:#fff">Ouvrir</button></div>';
 }
+/* ---------- Premier millionnaire : badge unique, le goal ultime du groupe ---------- */
+function couronne(nom) { return D && D.premierMillion && D.premierMillion.nom === nom ? '<span class="couronne" title="Premier millionnaire">👑</span>' : ""; }
+function texteMillion() {
+  const pm = D && D.premierMillion;
+  return pm ? "👑 " + pm.nom + " est le premier millionnaire du groupe (" + isoFr(pm.date) + "). Ce badge est unique : personne d'autre ne l'aura."
+    : "👑 Premier millionnaire : badge secret et unique. Le premier à 1 000 000 € de patrimoine financier le garde pour toujours. Personne ne voit où en sont les autres.";
+}
+function bandeauMillion() {
+  const pm = D && D.premierMillion;
+  return '<button class="million-strip' + (pm ? " pris" : "") + '" type="button" id="info-million-t"><span class="mc">👑</span><span><b>Premier millionnaire</b><small>' +
+    (pm ? esc(pm.nom) + " · depuis le " + esc(isoFr(pm.date)) + " · badge unique" : "badge secret · à prendre · le premier à 1 000 000 € le garde pour toujours") + "</small></span></button>";
+}
+/* ---------- Bilans (Podium) : récaps du mois pour tous, bilans de l'année pour tous, bilan de patrimoine privé ---------- */
+function moisRecap() { return moisVerdict(0).filter(k => { const v = verdictMois(0, k); return v && v.complet; }).slice().reverse().slice(0, 12); }
+function blocBilans() {
+  const onglet = ETAT.bilans === "annuel" ? "annuel" : "mensuel";
+  const ms = moisRecap(), ys = anneesBilan(), vu = Number(stock.get("versus.recapVu") || 0);
+  const prive = moiConnecte() && window.Moi && window.Moi.anneesPrivees ? window.Moi.anneesPrivees() : [];
+  let corps;
+  const plus = (id, ouvert, n) => '<button class="lien voir-plus" type="button" id="' + id + '">' + (ouvert ? "Voir moins" : "Voir plus (" + n + ")") + "</button>";
+  if (onglet === "mensuel") {
+    const visibles = ETAT.recapsTous ? ms : ms.slice(0, 2);
+    corps = ms.length ? '<div class="bilans">' + visibles.map((k, j) => '<button class="bilan-b" type="button" data-recap="' + k + '">' + (j === 0 && k > vu ? '<span class="nouveau">nouveau</span>' : "📅 ") + esc(moisLong(k)) + "</button>").join("") + "</div>" +
+      (ms.length > 2 ? plus("recaps-tous", ETAT.recapsTous, ms.length - 2) : "") : '<p class="info">Le premier récap arrive quand tous les relevés d\'un mois sont saisis.</p>';
+  } else {
+    const annees = [...new Set(ys.concat(prive))].sort((a, b) => b - a), vis = ETAT.bilansTous ? annees : annees.slice(0, 2);
+    corps = annees.length ? '<div class="bilans">' + vis.map(y => (ys.includes(y) ? '<button class="bilan-b" type="button" data-bilan="' + y + '">🎁 Bilan ' + y + "</button>" : "") +
+      (prive.includes(y) ? '<button class="bilan-b prive" type="button" data-bilan-prive="' + y + '" title="Visible seulement sur ton téléphone">🔒 Mon patrimoine ' + y + "</button>" : "")).join("") + "</div>" +
+      (annees.length > 2 ? plus("bilans-tous", ETAT.bilansTous, annees.length - 2) : "") : '<p class="info">Le premier bilan de l\'année arrive avec le relevé de décembre.</p>';
+  }
+  return '<section class="bilans-bloc"><div class="bilans-h"><h2 class="sec">Bilans</h2><div class="seg" role="group" aria-label="Bilans"><button type="button" data-bil="mensuel" aria-pressed="' + (onglet === "mensuel") + '">Mensuel</button><button type="button" data-bil="annuel" aria-pressed="' + (onglet === "annuel") + '">Annuel</button></div></div>' + corps + "</section>";
+}
+function brancherBilans(v) {
+  v.querySelectorAll("[data-bil]").forEach(b => b.addEventListener("click", () => { ETAT.bilans = b.dataset.bil; garder(); rendreTrophees(); }));
+  v.querySelectorAll("[data-recap]").forEach(b => b.addEventListener("click", () => ouvrirRecap(+b.dataset.recap)));
+  const rt = v.querySelector("#recaps-tous"); if (rt) rt.addEventListener("click", () => { ETAT.recapsTous = !ETAT.recapsTous; garder(); rendreTrophees(); });
+  const bt = v.querySelector("#bilans-tous"); if (bt) bt.addEventListener("click", () => { ETAT.bilansTous = !ETAT.bilansTous; garder(); rendreTrophees(); });
+  v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
+  v.querySelectorAll("[data-bilan-prive]").forEach(b => b.addEventListener("click", () => window.Moi.bilanPrive(+b.dataset.bilanPrive)));
+  if (moiConnecte() && !window.Moi) chargerModuleMoi(() => { if (vueActive() === "trophees") { window.Moi.prechauffer(); rendreTrophees(); } });
+}
+/* Performance du mois d'une ligne partagée : cours de fin de mois contre celui du mois précédent, sinon la variation sur 1 mois envoyée avec */
+function lignesDe(nom, k) {
+  const L = (D.lignes || {})[nom] || {}, cur = L[k], prev = L[cleMoins(k, 1)];
+  if (!cur) return null;
+  const tot = cur.lignes.reduce((a, l) => a + (l.valeur || 0), 0) || 1;
+  return { date: cur.date, lignes: cur.lignes.map(l => {
+    const p = prev && prev.lignes.find(x => x.code === l.code && x.env === l.env);
+    const r = p && p.cours > 0 && l.cours > 0 ? l.cours / p.cours - 1 : ok(l.m1) ? l.m1 : null;
+    return Object.assign({ r, poids: (l.valeur || 0) / tot }, l);
+  }).sort((a, b) => b.valeur - a.valeur) };
+}
+function ouvrirRecap(k) {
+  const v = verdictMois(0, k); if (!v) return;
+  stock.set("versus.recapVu", String(Math.max(k, Number(stock.get("versus.recapVu") || 0))));
+  const nb = v.du.length, iR = v.iR, nomI = D.marche.indices[ETAT.i1];
+  const L = [], cls = x => sens(x) === "flat" ? "" : sens(x);
+  // 1. ouverture
+  L.push({ c: "#9B87FF", h: '<div class="wr-k">Récap du mois · ' + nb + ' joueurs</div><div class="wr-big titre">' + esc(MOIS_L[k % 100 - 1]) + "<br>" + Math.floor(k / 100) + '</div><p class="wr-p">' + (ok(iR) ? esc(nomI) + " a fait <b>" + pct(iR) + "</b> ce mois-ci. " : "") + "Voyons qui a fait mieux.</p>" });
+  // 2. podium
+  L.push({ c: couleur(v.du[0].nom), h: '<div class="wr-k">Le podium du mois</div><div class="wr-l">' + v.du.map((x, j) => '<div class="wr-r"><span class="rk">' + (j + 1) + '</span><b style="color:' + couleur(x.nom) + '">' + esc(x.nom) + '</b><span class="wr-n ' + cls(x.r) + '">' + pct(x.r) + "</span></div>").join("") +
+    (ok(iR) ? '<div class="wr-r fant"><span class="rk">·</span><b>' + esc(nomI) + '</b><span class="wr-n">' + pct(iR) + "</span></div>" : "") + "</div>" });
+  // 3. chacun son mois, avec ses lignes
+  const toutes = [];
+  v.du.forEach((x, j) => {
+    const p = D.personnes.find(q => q.nom === x.nom), s = serie(p, 0), cur = s.find(z => z.k === k) || {};
+    const rg = rangs(0, debAnnee(k), k)[x.nom];
+    const li = lignesDe(x.nom, k);
+    if (li) li.lignes.forEach(l => toutes.push(Object.assign({ qui: x.nom }, l)));
+    const lignes = li ? '<div class="wr-l">' + li.lignes.slice(0, 8).map(l => '<div class="wr-r"><span class="rk" style="font-size:12px">' + F0.format(l.poids * 100) + ' %</span><b style="font-size:16px">' + esc(l.code) + "<small>" + esc(l.nom || l.env) + '</small></b><span class="wr-n ' + cls(l.r) + '">' + (ok(l.r) ? pct(l.r) : "—") + "</span></div>").join("") + "</div>" +
+      (li.lignes.length > 8 ? '<p class="wr-aide">+ ' + (li.lignes.length - 8) + " autres lignes</p>" : "") + '<p class="wr-aide">Lignes au ' + esc(isoFr(li.date)) + " · % = poids dans son portefeuille</p>"
+      : '<p class="wr-aide">Lignes non partagées ce mois-ci.</p>';
+    L.push({ c: couleur(x.nom), h: '<div class="wr-k">' + (j + 1) + (j ? "e" : "er") + " du mois" + (rg ? " · " + rg + (rg > 1 ? "e" : "er") + " sur l'année" : "") + '</div><div class="wr-mid" style="color:' + couleur(x.nom) + '">' + esc(x.nom) + '</div><div class="wr-big ' + cls(x.r) + '">' + pct(x.r) + "</div>" +
+      '<p class="wr-p">Portefeuille : <b>' + eur(cur.val) + "</b>" + (cur.verse ? " · versé ce mois-ci : <b>" + eur(cur.verse) + "</b>" : "") + (ok(iR) ? " · " + (x.r > iR ? "devant" : "derrière") + " " + esc(nomI) : "") + ".</p>" + lignes });
+  });
+  // 4. lignes stars (seulement si des lignes sont partagées)
+  const avecR = toutes.filter(l => ok(l.r));
+  if (avecR.length >= 2) {
+    const tri = avecR.slice().sort((a, b) => b.r - a.r), top = tri[0], flop = tri[tri.length - 1];
+    const parCode = {}; toutes.forEach(l => { (parCode[l.code] = parCode[l.code] || new Set()).add(l.qui); });
+    const commune = Object.entries(parCode).sort((a, b) => b[1].size - a[1].size)[0];
+    L.push({ c: "#F5C542", h: '<div class="wr-k">Les lignes du mois</div><div class="wr-g">' +
+      '<div class="wr-c"><span>⭐ Ligne star</span><b class="up">' + esc(top.code) + '</b><em>' + pct(top.r) + " · chez " + esc(top.qui) + "</em></div>" +
+      '<div class="wr-c"><span>🥶 Ligne glacée</span><b class="down">' + esc(flop.code) + '</b><em>' + pct(flop.r) + " · chez " + esc(flop.qui) + "</em></div>" +
+      (commune && commune[1].size > 1 ? '<div class="wr-c" style="grid-column:1/-1"><span>🤝 La plus partagée</span><b>' + esc(commune[0]) + "</b><em>détenue par " + [...commune[1]].map(esc).join(", ") + "</em></div>" : "") +
+      "</div>" });
+  }
+  L.push({ c: "#9B87FF", h: '<div class="wr-k">À suivre</div><div class="wr-mid">Rendez-vous fin ' + esc(MOIS_L[cleMoins(k, -1) % 100 - 1]) + '</div><p class="wr-p">Chaque récap reste dans Podium › Bilans.</p><button class="wr-btn" type="button" data-wr-fermer>Fermer</button>' });
+  ouvrirDiapos("Récap · " + moisLong(k), L);
+}
+/* Bandeaux sur le Classement : récap du mois (jusqu'au 5 du mois suivant, tant qu'il n'est pas ouvert) et bilan annuel (1er-15 janvier) */
+function banniereRecap() {
+  const k = moisRecap()[0]; if (!k) return "";
+  const now = new Date(), limite = new Date(Math.floor(cleMoins(k, -1) / 100), cleMoins(k, -1) % 100 - 1, 6);
+  if (now >= limite || Number(stock.get("versus.recapVu") || 0) >= k) return "";
+  return '<button class="bandeau-bilan" type="button" data-aller-recap="' + k + '"><span>📅 Le récap de ' + esc(MOIS_L[k % 100 - 1]) + " est dispo</span><b>Podium ›</b></button>";
+}
 function boutonsBilans() {
-  const ys = anneesBilan();
-  if (!ys.length) return "";
-  return '<div><h2 class="sec">Bilans de fin d\'année <small>disponibles après le relevé de décembre</small></h2><div class="bilans" style="margin-top:10px">' +
-    ys.slice().reverse().map(y => '<button class="bilan-b" type="button" data-bilan="' + y + '">🎁 Bilan ' + y + "</button>").join("") + "</div></div>";
+  const ys = anneesBilan(), fin = finGlobale(D, 0), an = fin ? Math.floor(fin / 100) : new Date().getFullYear();
+  const prochain = !ys.includes(an) ? '<div class="bilan-carte" style="opacity:.55;cursor:default"><span>Bientôt</span><b>' + an + "</b><small>après le relevé de décembre</small></div>" : "";
+  return '<div><h2 class="sec">Bilans de fin d\'année <small>' + (ys.length ? "touche pour revivre l'année" : "le premier arrive avec le relevé de décembre") + '</small></h2></div><div class="bilans-une">' +
+    prochain + ys.slice().reverse().map(y => '<button class="bilan-carte" type="button" data-bilan="' + y + '"><span>🎁 Le bilan</span><b>' + y + "</b><small>podium, titres, duels</small></button>").join("") + "</div>";
 }
 
 function bilanAnnee(y) {
@@ -1488,8 +2126,8 @@ function bilanAnnee(y) {
   const st = D.personnes.map(p => stats(D, p, env, deb, f, i1, null)).filter(s => s.n > 0).sort((a, b) => b.twr - a.twr);
   const idx = statsIndice(D, i1, deb, f);
   const mois = moisVerdict(env).filter(k => k > deb && k <= f);
-  const champ = {}, enTete = {}, titres = {}, records = {};
-  st.forEach(s => { champ[s.nom] = 0; enTete[s.nom] = 0; titres[s.nom] = {}; records[s.nom] = { n: 0, de: null, a: null }; });
+  const champ = {}, enTete = {}, records = {};
+  st.forEach(s => { champ[s.nom] = 0; enTete[s.nom] = 0; records[s.nom] = { n: 0, de: null, a: null }; });
   let meilleur = null, pire = null, serre = null, ecart = null, prec = null, courant = 0, debut = null;
   mois.forEach(k => {
     const du = rendementsDuMois(env, k).filter(x => x.nom in champ).sort((a, b) => b.r - a.r);
@@ -1504,9 +2142,8 @@ function bilanAnnee(y) {
     if (!serre || g < serre.g) serre = { k, g };
     if (!ecart || g > ecart.g) ecart = { k, g, haut: du[0], bas: du[du.length - 1] };
     const r = rangs(env, deb, k); const l = Object.keys(r).find(n => r[n] === 1); if (l && l in enTete) enTete[l]++;
-    titresMois(env, k).liste.forEach(t => t.qui.forEach(n => { if (titres[n]) titres[n][t.id] = (titres[n][t.id] || 0) + 1; }));
   });
-  return { y, deb, f, st, idx, mois, champ, enTete, titres, records, meilleur, pire, serre, ecart, i1nom: D.marche.indices[i1] };
+  return { y, deb, f, st, idx, mois, champ, enTete, records, meilleur, pire, serre, ecart, i1nom: D.marche.indices[i1] };
 }
 
 function diapos(b) {
@@ -1544,15 +2181,6 @@ function diapos(b) {
     (b.serre ? '<div class="wr-c"><span>🤏 Mois le plus serré</span><b>' + pts(b.serre.g).replace(/^\+/, "") + "</b><em>entre le 1er et le dernier</em><em>" + esc(moisLong(b.serre.k)) + "</em></div>" : "") +
     (b.ecart ? '<div class="wr-c"><span>💥 Plus grand écart</span><b>' + pts(b.ecart.g).replace(/^\+/, "") + "</b><em>" + esc(b.ecart.haut.nom) + " / " + esc(b.ecart.bas.nom) + "</em><em>" + esc(moisLong(b.ecart.k)) + "</em></div>" : "") +
     "</div>" });
-  // 6. les titres
-  const sig = b.st.map(s => {
-    const t = Object.entries(b.titres[s.nom]).sort((a, x) => x[1] - a[1])[0];
-    const tot = Object.values(b.titres[s.nom]).reduce((a, x) => a + x, 0);
-    return { nom: s.nom, t: t ? TITRES.find(x => x.id === t[0]) : null, n: t ? t[1] : 0, tot };
-  });
-  if (sig.some(x => x.tot)) L.push({ c: "#4C9AFF", h: '<div class="wr-k">🎖️ Les titres de l\'année</div><div class="wr-mid">Le titre qui vous colle à la peau</div><div class="wr-l">' +
-    sig.map(x => '<div class="wr-r"><span class="rk" style="font-style:normal">' + (x.t ? x.t.e : "·") + '</span><b style="color:' + C(x.nom) + '">' + esc(x.nom) + "<small>" + (x.t ? esc(x.t.nom) + " · " + x.n + " mois" : "aucun titre cette année") + '</small></b><span class="wr-n">' + x.tot + "</span></div>").join("") +
-    '</div><p class="wr-aide">À droite : nombre total de titres tenus dans l\'année. Performance, régularité et maîtrise du risque comptent autant.</p>' });
   // 7. les duels
   const qui = moi ? moi.nom : b.st[0].nom;
   const duels = b.st.filter(s => s.nom !== qui).map(s => duel(0, qui, s.nom, b.deb, b.f)).filter(d => d && d.n);
@@ -1575,11 +2203,15 @@ function diapos(b) {
 function ouvrirBilan(y) {
   const b = bilanAnnee(y);
   if (!b.st.length) { toast("Pas assez de relevés pour le bilan " + y + "."); return; }
-  const L = diapos(b);
+  ouvrirDiapos("Versus · " + y, diapos(b));
+}
+/* Diaporama plein écran (bilans annuels, récaps du mois, bilan privé) : toucher à droite = suivant, à gauche = précédent */
+function ouvrirDiapos(titre, L) {
+  if (!L || !L.length) return;
   let i = 0;
   const o = document.createElement("div");
-  o.className = "wr"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", "Bilan " + y); o.tabIndex = -1;
-  o.innerHTML = '<div class="wr-top"><div class="wr-bars">' + L.map(() => "<i></i>").join("") + '</div><div class="wr-tete"><span>Versus · ' + y + '</span><button class="wr-x" type="button" aria-label="Fermer">✕</button></div></div><div class="wr-s" aria-live="polite"></div>';
+  o.className = "wr"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", titre); o.tabIndex = -1;
+  o.innerHTML = '<div class="wr-top"><div class="wr-bars">' + L.map(() => "<i></i>").join("") + '</div><div class="wr-tete"><span>' + esc(titre) + '</span><button class="wr-x" type="button" aria-label="Fermer">✕</button></div></div><div class="wr-s" aria-live="polite"></div>';
   document.body.appendChild(o);
   const scene = o.querySelector(".wr-s"), barres = o.querySelectorAll(".wr-bars i");
   const fermer = () => { o.remove(); document.removeEventListener("keydown", clavier); };
@@ -1618,92 +2250,6 @@ function compterChiffresWr(scene) {
 }
 
 
-/* ============================================================
-   SUCCÈS : objectifs à long terme, débloqués une fois pour toutes
-   (recalculés à partir des relevés, rien n'est stocké ; date = premier mois où la condition est remplie)
-   ============================================================ */
-const SUCCES = [
-  { id: "an", e: "🎂", nom: "Un an de Versus", def: "12 relevés saisis", type: "Régularité" },
-  { id: "fourmi", e: "🐜", nom: "Fourmi d'or", def: "versé chaque mois pendant 12 mois d'affilée", type: "Régularité" },
-  { id: "diamant", e: "💎", nom: "Mains de diamant", def: "24 mois d'affilée sans aucun retrait", type: "Régularité" },
-  { id: "diversifie", e: "🌍", nom: "Diversifié", def: "3 enveloppes actives en même temps", type: "Risque maîtrisé" },
-  { id: "grandrebond", e: "🧗", nom: "Grand rebond", def: "revenir à son plus haut après une baisse d'au moins 10 %", type: "Risque maîtrisé" },
-  { id: "plus25", e: "📈", nom: "+25 %", def: "performance cumulée de +25 % depuis le premier relevé", type: "Performance" },
-  { id: "argent", e: "💶", nom: "L'argent travaille", def: "plus-value de +10 % sur l'argent versé", type: "Performance" },
-  { id: "marche", e: "🎯", nom: "Plus fort que le marché", def: "battre l'indice sur 12 mois glissants complets", type: "Performance" },
-  { id: "triple", e: "🔥", nom: "Triplé", def: "3 victoires mensuelles d'affilée", type: "Performance" },
-  { id: "roi", e: "👑", nom: "Roi de l'année", def: "gagner une année civile complète du Versus", type: "Performance" }
-];
-let MEMO_SUCCES = { d: null, i1: null, val: null };
-function succesTous() {
-  if (MEMO_SUCCES.d === D) return MEMO_SUCCES.val;
-  const env = 0, val = {};
-  const pal = palmares(D, env, null, null).filter(l => !l.enCours && !l.debutPartiel && l.vainqueur);
-  const ks = moisVerdict(env);
-  const vic = {}; ks.forEach(k => vic[k] = victoires(env, k));
-  D.personnes.forEach(p => {
-    const s = serie(p, env), res = {};
-    SUCCES.forEach(x => res[x.id] = { k: null, prog: 0, txt: "" });
-    const fait = (id, k) => { if (!res[id].k) res[id].k = k; };
-    let n = 0, sFourmi = 0, sDiamant = 0, hautAvant = 100, idx = 100, creux = 100;
-    s.forEach(z => {
-      if (typeof z.r !== "number") return;
-      const k = z.k; n++;
-      if (n >= 12) fait("an", k);
-      sFourmi = (z.verse || 0) > 0 ? sFourmi + 1 : 0; if (sFourmi >= 12) fait("fourmi", k);
-      sDiamant = (z.verse || 0) >= 0 ? sDiamant + 1 : 0; if (sDiamant >= 24) fait("diamant", k);
-      if ([1, 3, 5, 7].filter(i => (z.brut || [])[i] > 0).length >= 3) fait("diversifie", k);
-      idx *= 1 + z.r;
-      if (idx >= hautAvant) { if (creux <= hautAvant * 0.9 && idx > hautAvant) fait("grandrebond", k); hautAvant = idx; creux = idx; } else creux = Math.min(creux, idx);
-      const tout = stats(D, p, env, 0, k, null, null);
-      if (tout.twr >= 0.25) fait("plus25", k);
-      if (ok(tout.pvLatentePct) && tout.pvLatentePct >= 0.10) fait("argent", k);
-      const a12 = stats(D, p, env, cleMoins(k, 12), k, iRef(), null);
-      if (a12.n >= 12 && a12.i1 && a12.i1.n >= 12 && a12.twr > a12.i1.twr) fait("marche", k);
-      if (vic[k] && vic[k][p.nom] && vic[k][p.nom].record >= 3) fait("triple", k);
-    });
-    pal.forEach(l => { if (l.vainqueur === p.nom) fait("roi", l.annee * 100 + 12); });
-    // progression des succès pas encore débloqués (état au dernier relevé)
-    const fin = finGlobale(D, env), tout = stats(D, p, env, 0, fin, null, null), a12 = stats(D, p, env, cleMoins(fin, 12), fin, iRef(), null);
-    const v = vic[ks[ks.length - 1]] || {};
-    const pr = (id, a, b, txt) => { res[id].prog = Math.max(0, Math.min(1, a / b)); res[id].txt = txt; };
-    pr("an", n, 12, Math.min(n, 12) + " / 12 relevés");
-    pr("fourmi", sFourmi, 12, Math.min(sFourmi, 12) + " / 12 mois");
-    pr("diamant", sDiamant, 24, Math.min(sDiamant, 24) + " / 24 mois");
-    const nbEnv = (() => { const d = s.filter(z => typeof z.r === "number").pop(); return d ? [1, 3, 5, 7].filter(i => (d.brut || [])[i] > 0).length : 0; })();
-    pr("diversifie", nbEnv, 3, nbEnv + " / 3 enveloppes");
-    const enRemontee = creux <= hautAvant * 0.9;
-    pr("grandrebond", enRemontee ? idx / hautAvant : 0, 1, enRemontee ? "en cours : encore " + pct(hautAvant / idx - 1, 1, false) + " pour revenir au plus haut" : "pas de baisse de 10 % à remonter");
-    pr("plus25", ok(tout.twr) ? tout.twr : 0, 0.25, "actuellement " + pct(tout.twr));
-    pr("argent", ok(tout.pvLatentePct) ? tout.pvLatentePct : 0, 0.10, "actuellement " + pct(tout.pvLatentePct));
-    pr("marche", Math.min(a12.n / 12, 0.9), 1, a12.n < 12 ? a12.n + " / 12 mois de recul" : "écart actuel " + pts(a12.i1 ? a12.twr - a12.i1.twr : null));
-    pr("triple", v[p.nom] ? v[p.nom].record : 0, 3, "meilleure série : " + (v[p.nom] ? v[p.nom].record : 0));
-    pr("roi", 0, 1, "une année complète à gagner");
-    val[p.nom] = res;
-  });
-  MEMO_SUCCES = { d: D, val };
-  return val;
-}
-function blocSucces(nom, nu) {
-  const r = succesTous()[nom]; if (!r) return "";
-  const nb = SUCCES.filter(x => r[x.id].k).length;
-  return '<div>' + (nu ? "" : '<h2 class="sec">Succès <small>' + nb + " / " + SUCCES.length + " débloqués · objectifs à long terme</small></h2>") + '<div class="succes">' +
-    SUCCES.map(x => { const o = r[x.id];
-      return '<div class="suc' + (o.k ? " ok" : "") + '"><span class="e">' + x.e + '</span><div><b>' + esc(x.nom) + "</b><small>" + esc(x.def) + "</small>" +
-        (o.k ? '<em>Débloqué en ' + esc(moisLong(o.k)) + "</em>" : '<span class="jauge"><i style="width:' + (o.prog * 100).toFixed(0) + '%"></i></span><em>' + esc(o.txt) + "</em>") + "</div></div>"; }).join("") +
-    '</div><p class="info" style="margin-top:8px">Un succès débloqué le reste pour toujours. Calculés sur le portefeuille total.</p></div>';
-}
-/* Petit message (une seule fois) quand tu débloques un nouveau succès */
-function annoncerSucces() {
-  const r = succesTous()[ETAT.moi]; if (!r) return;
-  const cle = "versus.succes." + ETAT.moi, vus = (() => { try { return JSON.parse(stock.get(cle) || "null"); } catch (e) { return null; } })();
-  const ok_ = SUCCES.filter(x => r[x.id].k).map(x => x.id);
-  stock.set(cle, JSON.stringify(ok_));
-  if (!vus) return;                                   // première ouverture : on mémorise sans fêter
-  const neufs = SUCCES.filter(x => ok_.includes(x.id) && !vus.includes(x.id));
-  if (neufs.length) { toast("Succès débloqué : " + neufs.map(x => x.e + " " + x.nom).join(", ")); confettis(); }
-}
-
 /* ---------- Vue Mois ---------- */
 function teinte(r, max) {
   if (!ok(r)) return "";
@@ -1711,7 +2257,7 @@ function teinte(r, max) {
   return "background:color-mix(in srgb, var(" + (r >= 0 ? "--up" : "--down") + ") " + Math.round(a * 100) + "%, var(--panel))";
 }
 function rendreMois() {
-  const env = ETAT.env, i1 = ETAT.i1, i2 = ETAT.i2;
+  const env = ETAT.env, i1 = ETAT.i1, i2s = i2Actif(), i2 = i2s >= 0 ? i2s : i1;
   const fin = finGlobale(D, env);
   const v = $("#v-mois");
   if (!fin) { v.innerHTML = filtres(true, false) + '<div class="vide">Aucun relevé pour cette enveloppe.</div>'; brancherFiltres("mois"); return; }
@@ -1726,25 +2272,22 @@ function rendreMois() {
   const gagnees = {}; D.personnes.forEach(p => gagnees[p.nom] = 0); pal.forEach(l => { if (l.vainqueur) gagnees[l.vainqueur]++; });
 
   v.innerHTML = filtres(true, false) +
-    '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + " · ★ meilleur du mois</small></h2></div>" +
-    '<div class="scroll-x"><table class="grille"><thead><tr><th></th>' + ks.map(k => "<th>" + esc(moisCourt(k)) + "</th>").join("") + "</tr></thead><tbody>" +
-    lignes.map(l => '<tr><td class="nom"><i style="background:' + couleur(l.nom) + '"></i>' + esc(l.nom) + "</td>" + l.r.map((r, j) => cell(r, meilleurs[j] === l.nom)).join("") + "</tr>").join("") +
-    [i1, i2].map(n => '<tr class="indice"><td class="nom"><i style="background:var(--idx)"></i>' + esc(D.marche.indices[n]) + "</td>" + ri(n).map(r => cell(r, false)).join("") + "</tr>").join("") +
-    "</tbody></table></div>" +
-    '<div class="leg-grille"><span><i style="' + teinte(max, max) + '"></i>hausse</span><span><i style="' + teinte(-max, max) + '"></i>baisse</span><span><i style="box-shadow:inset 0 0 0 2px var(--gold)"></i>meilleur du mois entre vous</span></div>' +
-    '<div class="filtres"><label class="sel"><span>Second indice</span><select id="f-i2">' + D.marche.indices.map((n, i) => '<option value="' + i + '"' + (i === i2 ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label></div>" +
-    boutonsBilans() +
     palmaresMois(env) +
     blocDuel(env) +
     '<div><h2 class="sec">Palmarès annuel <small>années civiles · figé</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Année</th>' +
-    D.personnes.map(p => "<th>" + esc(p.nom) + "</th>").join("") + "<th>" + esc(D.marche.indices[i1]) + "</th><th>" + esc(D.marche.indices[i2]) + "</th><th>Vainqueur</th></tr></thead><tbody>" +
+    D.personnes.map(p => "<th>" + esc(p.nom) + "</th>").join("") + "<th>" + esc(D.marche.indices[i1]) + "</th>" + (i2s >= 0 ? "<th>" + esc(D.marche.indices[i2s]) + "</th>" : "") + "<th>Vainqueur</th></tr></thead><tbody>" +
     pal.map(l => "<tr><td>" + l.annee + '<br><small class="muted" style="font-weight:400;font-size:11px">' + l.mois + " mois" + (l.enCours ? " · en cours" : l.mois < 12 ? " · partiel" : "") + "</small></td>" +
       D.personnes.map(p => '<td class="' + sens(l.personnes[p.nom]) + '">' + (p.nom in l.personnes ? pct(l.personnes[p.nom]) : "—") + "</td>").join("") +
-      '<td class="muted">' + pct(l.i1) + '</td><td class="muted">' + pct(l.i2) + "</td><td>" + (l.vainqueur ? '<span class="pastille" style="background:' + couleur(l.vainqueur) + '"></span>' + esc(l.vainqueur) : "—") + "</td></tr>").join("") +
-    "<tr><td>Années gagnées</td>" + D.personnes.map(p => "<td>" + gagnees[p.nom] + "</td>").join("") + "<td></td><td></td><td></td></tr>" +
-    "</tbody></table></div></div>";
+      '<td class="muted">' + pct(l.i1) + "</td>" + (i2s >= 0 ? '<td class="muted">' + pct(l.i2) + "</td>" : "") + "<td>" + (l.vainqueur ? '<span class="pastille" style="background:' + couleur(l.vainqueur) + '"></span>' + esc(l.vainqueur) : "—") + "</td></tr>").join("") +
+    "<tr><td>Années gagnées</td>" + D.personnes.map(p => "<td>" + gagnees[p.nom] + "</td>").join("") + "<td></td>" + (i2s >= 0 ? "<td></td>" : "") + "<td></td></tr>" +
+    "</tbody></table></div></div>" +
+    '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + " · ★ meilleur du mois</small></h2></div>" +
+    '<div class="scroll-x"><table class="grille"><thead><tr><th></th>' + ks.map(k => "<th>" + esc(moisCourt(k)) + "</th>").join("") + "</tr></thead><tbody>" +
+    lignes.map(l => '<tr><td class="nom"><i style="background:' + couleur(l.nom) + '"></i>' + esc(l.nom) + "</td>" + l.r.map((r, j) => cell(r, meilleurs[j] === l.nom)).join("") + "</tr>").join("") +
+    (i2s >= 0 ? [i1, i2s] : [i1]).map(n => '<tr class="indice"><td class="nom"><i style="background:var(--idx)"></i>' + esc(D.marche.indices[n]) + "</td>" + ri(n).map(r => cell(r, false)).join("") + "</tr>").join("") +
+    "</tbody></table></div>" +
+    '<div class="leg-grille"><span><i style="' + teinte(max, max) + '"></i>hausse</span><span><i style="' + teinte(-max, max) + '"></i>baisse</span><span><i style="box-shadow:inset 0 0 0 2px var(--gold)"></i>meilleur du mois entre vous</span></div>';
   brancherFiltres("mois");
-  $("#f-i2").addEventListener("change", e => { ETAT.i2 = +e.target.value; garder(); rendreMois(); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
   ["d1", "d2"].forEach(c => { const el = $("#f-" + c); if (el) el.addEventListener("change", e => { ETAT[c] = e.target.value; garder(); rendreMois(); }); });
 }
@@ -1766,7 +2309,7 @@ function rendreFiche() {
   const v = $("#v-fiche");
   const chips = '<div class="chips" role="group" aria-label="Personne">' + D.personnes.map(x => '<button class="chip" type="button" data-fiche="' + esc(x.nom) + '" aria-pressed="' + (x.nom === p.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>";
   if (!finP) {
-    v.innerHTML = chips + filtres(true) + '<div class="vide">Pas encore de relevé pour ' + esc(p.nom) + " dans " + esc(ENVELOPPES[env]) + ".</div>";
+    v.innerHTML = chips + filtres(true, true, false) + '<div class="vide">Pas encore de relevé pour ' + esc(p.nom) + " dans " + esc(ENVELOPPES[env]) + ".</div>";
   } else {
     const deb = debutPeriode(D, ETAT.per, finP);
     const s = stats(D, p, env, deb, finP, i1, null);
@@ -1780,7 +2323,6 @@ function rendreFiche() {
     // grille annuelle
     const annees = [...new Set(sAll.filter(x => typeof x.r === "number").map(x => Math.floor(x.k / 100)))].sort().reverse();
     const max = Math.max(.04, ...sAll.filter(x => typeof x.r === "number").map(x => Math.abs(x.r)));
-    const obj = (D.objectifs || []).find(o => o.personne === p.nom);
 
     v.innerHTML = chips + filtres(true) +
       '<div class="periode">' + esc(textePeriode(deb, finP, s.n)) + (s.debutK && deb && s.debutK > cleMoins(deb, -1) ? " · l'enveloppe a démarré après le début demandé" : "") + "</div>" +
@@ -1801,72 +2343,12 @@ function rendreFiche() {
       '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + '</small></h2><div class="scroll-x"><table class="grille"><thead><tr><th></th>' + MOIS.map(m => "<th>" + m + "</th>").join("") + "<th>Année</th></tr></thead><tbody>" +
         annees.map(y => { const st = stats(D, p, env, (y - 1) * 100 + 12, y * 100 + 12, null, null); return '<tr><td class="nom">' + y + "</td>" + MOIS.map((m, j) => { const x = sAll.find(z => z.k === y * 100 + j + 1); return x && typeof x.r === "number" ? '<td style="' + teinte(x.r, max) + '">' + pct(x.r) + "</td>" : '<td class="vide">·</td>'; }).join("") + '<td style="' + teinte(st.twr, max * 3) + '"><b>' + pct(st.twr) + "</b></td></tr>"; }).join("") +
       "</tbody></table></div></div>" +
-      (obj && env === 0 ? '<div><h2 class="sec">Objectif <small>' + eur(obj.objectif) + " au " + esc(isoFr(obj.dateCible)) + '</small></h2></div><button class="lien" type="button" id="vers-obj">Voir la projection →</button>' : "") +
-      '<button class="btn ghost" type="button" id="vers-objs" style="justify-self:start">🎯 Objectifs de chacun →</button>';
+      "";
     if (vx.length > 1) tracer($("#g-fiche"), { x: vx, zeroMin: true, series: [{ nom: "Valeur", v: pts2.map(x => x.val), c: couleur(p.nom), aire: true, w: 2.2 }, { nom: "Versé cumulé", v: pts2.map(x => x.cum), c: "var(--idx)", marche: true, dash: true, w: 1.6 }], fmt: x => eur(x), fmtAxe: axeEur, titreX: k => "Fin " + moisCourt(k) });
-    const vo = $("#vers-obj"); if (vo) vo.addEventListener("click", () => allerA("objectifs"));
-    const vs = $("#vers-objs"); if (vs) vs.addEventListener("click", () => allerA("objectifs"));
     compterChiffres(v.querySelector(".hero"));
   }
   brancherFiltres("fiche");
   v.querySelectorAll("[data-fiche]").forEach(b => b.addEventListener("click", () => { ETAT.fiche = b.dataset.fiche; garder(); rendreFiche(); }));
-}
-
-/* ---------- Vue Objectifs ---------- */
-function rendreObjectifs() {
-  const v = $("#v-objectifs");
-  const objs = (D.objectifs || []).filter(o => ok(o.objectif) && o.objectif > 0);
-  if (!objs.length) { v.innerHTML = '<div class="vide">Aucun objectif dans l\'onglet Objectifs du Sheet.</div>'; return; }
-  const choisi = objs.find(o => o.personne === ETAT.fiche) || objs.find(o => o.personne === ETAT.moi) || objs[0];
-  const p = D.personnes.find(x => x.nom === choisi.personne);
-  const der = p ? (serie(p, 0).filter(x => x.val).pop() || {}).k : null;
-  const proj = der && choisi.dateCible ? projection(choisi.valeur, choisi.versementRetenu, choisi.rendement, der, choisi.dateCible) : [];
-  const hist = p ? serie(p, 0).filter(x => x.val) : [];
-  const ks = hist.map(x => x.k).concat(proj.slice(1).map(x => x.k));
-  const reel = ks.map(k => { const x = hist.find(h => h.k === k); return x ? x.val : null; });
-  const pr = ks.map(k => { const x = proj.find(h => h.k === k); return x ? x.v : null; });
-  const atteint = o => /^\d{4}-/.test(String(o.atteint)) ? isoMois(o.atteint) : (o.atteint || "—");
-
-  v.innerHTML = '<div><h2 class="sec">Objectifs <small>' + (SOURCE === "api" ? "touche « Modifier » sur ta carte" : "modifiables une fois connecté") + "</small></h2></div>" +
-    objs.map(o => {
-      const pc = Math.max(0, Math.min(1, o.progression || 0));
-      return '<div class="obj"><div class="obj-h"><b><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</b><span>" + eur(o.valeur) + ' <span class="muted">/ ' + eur(o.objectif) + "</span></span></div>" +
-        '<div class="piste" role="img" aria-label="Progression ' + pct(pc, 0, false) + '"><i style="width:' + (pc * 100).toFixed(1) + "%;background:" + couleur(o.personne) + '"></i></div>' +
-        '<div class="obj-l"><div><span>Progression</span><b>' + pct(o.progression, 0, false) + "</b></div><div><span>Atteint vers</span><b>" + esc(atteint(o)) + "</b></div><div><span>Projection au " + esc(isoFr(o.dateCible)) + '</span><b class="' + sens(o.ecart) + '">' + eur(o.projection) + "</b></div>" +
-        "<div><span>Versement retenu</span><b>" + eur(o.versementRetenu) + " /mois" + (ok(o.versementPrevu) ? "" : ' <small class="muted">(rythme réel)</small>') + "</b></div><div><span>Rendement supposé</span><b>" + pct(o.rendement, 1, false) + "</b></div><div><span>Écart à l'objectif</span><b class=\"" + sens(o.ecart) + '">' + eur(o.ecart, 0, true) + "</b></div></div>" +
-        (SOURCE === "api" && o.personne === (estAdmin() ? ETAT.moi : SESSION.nom) ? (OBJ_EDIT === o.personne ? formObjectif(o) : '<button class="lien" type="button" data-objedit="' + esc(o.personne) + '">Modifier l\'objectif</button>') : "") + "</div>";
-    }).join("") +
-    (ks.length > 1 ? '<div><h2 class="sec">Projection <small>' + esc(choisi.personne) + "</small></h2></div>" +
-      '<div class="chips" role="group" aria-label="Personne">' + objs.map(o => '<button class="chip" type="button" data-proj="' + esc(o.personne) + '" aria-pressed="' + (o === choisi) + '"><i style="background:' + couleur(o.personne) + '"></i>' + esc(o.personne) + "</button>").join("") + "</div>" +
-      boiteGraphe("g-proj", [{ nom: "Valeur réelle", c: couleur(choisi.personne) }, { nom: "Projection", c: couleur(choisi.personne), dash: true }, { nom: "Objectif", c: "var(--gold)", dash: true }]) +
-      '<p class="info">Projection : valeur du dernier relevé, + ' + eur(choisi.versementRetenu) + " versés chaque fin de mois, à " + pct(choisi.rendement, 1, false) + " par an. Ce n'est qu'un scénario régulier, les marchés ne le sont pas.</p>" : "");
-  if (ks.length > 1) tracer($("#g-proj"), { x: ks, zeroMin: true, ligneH: choisi.objectif, series: [{ nom: "Valeur réelle", v: reel, c: couleur(choisi.personne), aire: true, w: 2.2 }, { nom: "Projection", v: pr, c: couleur(choisi.personne), dash: true, w: 1.8 }], fmt: x => eur(x), fmtAxe: axeEur, titreX: k => "Fin " + moisCourt(k) });
-  v.querySelectorAll("[data-proj]").forEach(b => b.addEventListener("click", () => { ETAT.fiche = b.dataset.proj; garder(); rendreObjectifs(); }));
-  v.querySelectorAll("[data-objedit]").forEach(b => b.addEventListener("click", () => { OBJ_EDIT = b.dataset.objedit; rendreObjectifs(); }));
-  const f = $("#form-obj");
-  if (f) {
-    $("#o-annuler").addEventListener("click", () => { OBJ_EDIT = null; rendreObjectifs(); });
-    f.addEventListener("submit", async e => {
-      e.preventDefault();
-      const obj = lireNb($("#o-objectif").value), ver = lireNb($("#o-versement").value), rd = lireNb($("#o-rendement").value), dt = $("#o-date").value;
-      const err = !(obj > 0) ? "L'objectif doit être un montant positif." : !dt ? "Choisis une date cible." : Number.isNaN(ver) || (ok(ver) && ver < 0) ? "Versement illisible." : !ok(rd) || rd < -50 || rd > 50 ? "Rendement entre −50 et 50 %." : "";
-      if (err) { $("#o-err").textContent = err; return; }
-      $("#o-ok").disabled = true;
-      const rep = await posterAdmin({ action: "objectif", personne: OBJ_EDIT, objectif: obj, dateCible: dt, versementPrevu: ok(ver) ? ver : null, rendement: rd / 100 });
-      if (!rep.ok) { $("#o-err").textContent = rep.message || "Enregistrement impossible."; $("#o-ok").disabled = false; return; }
-      OBJ_EDIT = null; toast(rep.message); charger(true);
-    });
-  }
-}
-let OBJ_EDIT = null;
-function formObjectif(o) {
-  return '<form class="obj-form" id="form-obj" novalidate><div class="rang">' +
-    '<div class="champ"><label for="o-objectif">Objectif (€)</label><input id="o-objectif" type="text" inputmode="decimal" value="' + esc(enSaisie(o.objectif)) + '"></div>' +
-    '<div class="champ"><label for="o-date">Date cible</label><input id="o-date" type="date" value="' + esc(o.dateCible || "") + '"></div>' +
-    '<div class="champ"><label for="o-versement">Versement prévu (€/mois)</label><input id="o-versement" type="text" inputmode="decimal" placeholder="vide = rythme réel" value="' + esc(enSaisie(o.versementPrevu)) + '"></div>' +
-    '<div class="champ"><label for="o-rendement">Rendement supposé (%/an)</label><input id="o-rendement" type="text" inputmode="decimal" value="' + esc(enSaisie(ok(o.rendement) ? +(o.rendement * 100).toFixed(2) : null)) + '"></div>' +
-    '</div><p class="info">Versement vide : la projection prend ta médiane des 12 derniers mois.</p><p class="err-txt" id="o-err"></p>' +
-    '<div class="btn-row"><button class="btn acc" type="submit" id="o-ok">Enregistrer</button><button class="btn ghost" type="button" id="o-annuler">Annuler</button></div></form>';
 }
 
 /* ---------- Saisie du relevé ---------- */
@@ -2048,7 +2530,7 @@ let minuteur;
 function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(() => { el.hidden = true; }, 4200); }
 
 /* ---------- Navigation ---------- */
-const VUES = ["classement", "mois", "fiche", "objectifs", "trophees", "moi"];
+const VUES = ["classement", "mois", "fiche", "trophees", "moi"];
 function vueActive() {
   const h = location.hash.replace("#", "");
   if (VUES.includes(h)) return h;
@@ -2056,9 +2538,9 @@ function vueActive() {
   if (ETAT.ouverture === "moi" || ETAT.ouverture === "fiche") return "moi";
   return stock.get(CLES.vue) || "classement";
 }
-function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs, trophees: rendreTrophees, moi: rendreMoi })[v](); }
+function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=4";
+const MOI_JS = "moi.js?v=8";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");
@@ -2088,7 +2570,8 @@ function prechaufferMoi() { if (moiConnecte()) chargerModuleMoi(() => window.Moi
 function montrerVue(v) {
   if (!VUES.includes(v)) v = "classement";
   document.querySelectorAll(".view").forEach(s => { s.hidden = s.dataset.vue !== v; });
-  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v || ((v === "fiche" || v === "objectifs") && t.dataset.vue === "classement") ? "page" : "false"));
+  document.body.classList.toggle("vue-moi", v === "moi");
+  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v || (v === "fiche" && t.dataset.vue === "classement") ? "page" : "false"));
   stock.set(CLES.vue, v);
   if (D || v === "moi") rendreVue(v);
   window.scrollTo(0, 0);
@@ -2112,6 +2595,7 @@ function majMoiReglages(msg) {
   $("#moi-cle").placeholder = k ? "Clé enregistrée (laisse vide pour la garder)" : "Clé d'accès";
   $("#moi-oublier").hidden = !a && !k;
   $("#moi-etat").textContent = msg || (a && k ? "Connecté sur cet appareil." : "Aucun fichier connecté sur cet appareil.");
+  $("#moi-partage").checked = stock.get("versus.moi.partage") !== "non";
 }
 $("#moi-enregistrer").addEventListener("click", () => {
   const a = $("#moi-api").value.trim(), k = $("#moi-cle").value.trim();
@@ -2123,6 +2607,7 @@ $("#moi-enregistrer").addEventListener("click", () => {
   prechaufferMoi();
   if (vueActive() === "moi") { $("#reglages").hidden = true; rendreMoi(); }
 });
+$("#moi-partage").addEventListener("change", e => { stock.set("versus.moi.partage", e.target.checked ? "oui" : "non"); });
 $("#moi-tester").addEventListener("click", async () => {
   const a = $("#moi-api").value.trim() || stock.get(MOI_CLES.api) || "", k = $("#moi-cle").value.trim() || stock.get(MOI_CLES.cle) || "";
   if (!adresseFichierValide(a) || !k) { $("#moi-etat").textContent = "Renseigne l'adresse (/exec) et la clé pour tester."; return; }
