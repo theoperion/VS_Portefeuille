@@ -470,6 +470,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <section class="view" id="v-fiche" data-vue="fiche" hidden></section>
     <section class="view" id="v-objectifs" data-vue="objectifs" hidden></section>
     <section class="view" id="v-trophees" data-vue="trophees" hidden></section>
+    <section class="view moi" id="v-moi" data-vue="moi" hidden></section>
   </main>
 </div>
 
@@ -478,7 +479,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
     <button class="onglet" type="button" data-vue="classement"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7"/></svg><span>Classement</span></button>
     <button class="onglet" type="button" data-vue="mois"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16M15 4v16"/></svg><span>Mois</span></button>
     <button class="plus" type="button" id="btn-saisie" aria-label="Saisir un relevé"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
-    <button class="onglet" type="button" data-vue="fiche"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Fiche</span></button>
+    <button class="onglet" type="button" data-vue="moi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Moi</span></button>
     <button class="onglet" type="button" data-vue="trophees"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M16 5h3v2a3 3 0 0 1-3 3M8 5H5v2a3 3 0 0 0 3 3M12 13v4M8 20h8M10 17h4"/></svg><span>Trophées</span></button>
   </nav>
 </div>
@@ -526,10 +527,22 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
       <div class="champ"><label>Écran à l'ouverture</label>
         <div class="chips">
           <button class="chip" type="button" data-ouverture="classement">Classement</button>
-          <button class="chip" type="button" data-ouverture="fiche">Ma fiche</button>
+          <button class="chip" type="button" data-ouverture="moi">Moi</button>
           <button class="chip" type="button" data-ouverture="dernier">Dernier écran vu</button>
         </div>
       </div>
+    </section>
+    <section class="regl" id="regl-moi">
+      <h4>Mon fichier (privé)</h4>
+      <p class="info">Relie l'onglet Moi à ton fichier « Portefeuille &amp; Épargne » : colle l'adresse de sa web app (finit par /exec) et sa clé. Les deux restent sur cet appareil ; l'onglet Moi lit ton fichier directement, rien ne passe par le fichier Versus partagé.</p>
+      <div class="champ"><label for="moi-api">Adresse de ton fichier</label><input id="moi-api" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec"></div>
+      <div class="champ"><label for="moi-cle">Clé de ton fichier</label><input id="moi-cle" type="password" autocomplete="off" placeholder="Clé d'accès"></div>
+      <div class="btn-row">
+        <button class="btn ghost" type="button" id="moi-enregistrer">Enregistrer</button>
+        <button class="btn ghost" type="button" id="moi-tester">Tester</button>
+        <button class="lien danger" type="button" id="moi-oublier">Déconnecter ce fichier</button>
+      </div>
+      <p class="info" id="moi-etat"></p>
     </section>
     <section class="regl" id="regl-params" hidden>
       <h4>Calculs du classement (pour tous)</h4>
@@ -594,7 +607,7 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbzzRXa-bq-CWhNifV4vsCIxv13wzEwRl3-Wm_l4CpBky4EMN6tts3syzCYk4gMPZ9blgg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyQJqcsSJSmpxk3Rtb-kIfZKW-uJIwPaGJrt6E0WAeeiaaQ3eRY30dq6efjMJvY5U05zQ/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -721,6 +734,11 @@ $("#form-cle").addEventListener("submit", async e => {
 let SESSION = { role: "admin" };
 function estAdmin() { return SESSION.role === "admin"; }
 function afficherTout() {
+  // indice mémorisé hors liste (changement du nombre d'indices) : retour au S&P 500
+  const nbIdx = (D.marche.indices || []).length;
+  if (!(ETAT.i1 >= 0 && ETAT.i1 < nbIdx)) ETAT.i1 = iRef();
+  if (!(ETAT.i2 >= 0 && ETAT.i2 < nbIdx)) ETAT.i2 = Math.min(1, nbIdx - 1);
+  if (ETAT.i2c !== undefined && ETAT.i2c >= nbIdx) ETAT.i2c = -1;
   SESSION = D.session || { role: "admin" };
   if (!estAdmin() && D.personnes.find(p => p.nom === SESSION.nom)) { if (ETAT.moi !== SESSION.nom) { ETAT.moi = SESSION.nom; ETAT.fiche = SESSION.nom; garder(); } }
   if (!D.personnes.find(p => p.nom === ETAT.moi)) ETAT.moi = D.personnes[0].nom;
@@ -886,11 +904,13 @@ function tracer(box, conf) {
     o += '<text x="' + (m.l - 6) + '" y="' + (Y(t) + 3.5).toFixed(1) + '" text-anchor="end">' + esc(conf.fmtAxe(t)) + "</text>";
   });
   let dx = -99;
+  // étiquettes de l'axe : par défaut des clés de mois (AAAAMM) ; conf.etiqX(k, kPrécédent) pour d'autres pas (jours du module Moi)
+  const etiq = conf.etiqX || (k => (n <= 14 || (n <= 36 ? k % 100 % 3 === 1 : k % 100 === 1)) ? (k % 100 === 1 ? String(Math.floor(k / 100)) : MOIS[k % 100 - 1]) : "");
   xs.forEach((k, i) => {
-    const marque = n <= 14 || (n <= 36 ? k % 100 % 3 === 1 : k % 100 === 1);
-    if (!marque) return;
+    const lab = etiq(k, i ? xs[i - 1] : null);
+    if (!lab) return;
     const x = X(i); if (x - dx < 40) return; dx = x;
-    o += '<text x="' + x.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(k % 100 === 1 ? String(Math.floor(k / 100)) : MOIS[k % 100 - 1]) + "</text>";
+    o += '<text x="' + x.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(lab) + "</text>";
   });
   if (conf.ligneH !== undefined) o += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(conf.ligneH).toFixed(1) + '" y2="' + Y(conf.ligneH).toFixed(1) + '" stroke="' + C("var(--gold)") + '" stroke-width="1.5" stroke-dasharray="6 4"/>';
   const cid = "clip-" + (box.id || "g");
@@ -2013,21 +2033,33 @@ let minuteur;
 function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(minuteur); minuteur = setTimeout(() => { el.hidden = true; }, 4200); }
 
 /* ---------- Navigation ---------- */
-const VUES = ["classement", "mois", "fiche", "objectifs", "trophees"];
+const VUES = ["classement", "mois", "fiche", "objectifs", "trophees", "moi"];
 function vueActive() {
   const h = location.hash.replace("#", "");
   if (VUES.includes(h)) return h;
   if (ETAT.ouverture === "classement") return "classement";
-  if (ETAT.ouverture === "fiche") return "fiche";
+  if (ETAT.ouverture === "moi" || ETAT.ouverture === "fiche") return "moi";
   return stock.get(CLES.vue) || "classement";
 }
-function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs, trophees: rendreTrophees })[v](); }
+function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, objectifs: rendreObjectifs, trophees: rendreTrophees, moi: rendreMoi })[v](); }
+/* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
+const MOI_JS = "moi.js?v=1";
+function rendreMoi() {
+  if (window.Moi) { window.Moi.rendre(); return; }
+  const v = $("#v-moi");
+  v.innerHTML = '<div class="vide">Chargement de ton espace…</div>';
+  if (document.getElementById("script-moi")) return;
+  const sc = document.createElement("script"); sc.id = "script-moi"; sc.src = MOI_JS;
+  sc.onload = () => { if (vueActive() === "moi") window.Moi.rendre(); };
+  sc.onerror = () => { sc.remove(); v.innerHTML = '<div class="vide">Impossible de charger l\'onglet Moi : vérifie ta connexion.</div>'; };
+  document.head.appendChild(sc);
+}
 function montrerVue(v) {
   if (!VUES.includes(v)) v = "classement";
   document.querySelectorAll(".view").forEach(s => { s.hidden = s.dataset.vue !== v; });
-  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v || (v === "objectifs" && t.dataset.vue === "fiche") ? "page" : "false"));
+  document.querySelectorAll(".onglet").forEach(t => t.setAttribute("aria-current", t.dataset.vue === v || ((v === "fiche" || v === "objectifs") && t.dataset.vue === "classement") ? "page" : "false"));
   stock.set(CLES.vue, v);
-  if (D) rendreVue(v);
+  if (D || v === "moi") rendreVue(v);
   window.scrollTo(0, 0);
 }
 function allerA(v) { if (location.hash !== "#" + v) location.hash = v; else montrerVue(v); }
@@ -2035,7 +2067,44 @@ document.querySelectorAll(".onglet").forEach(t => t.addEventListener("click", ()
 window.addEventListener("hashchange", () => montrerVue(vueActive()));
 
 /* ---------- Réglages ---------- */
-$("#btn-reglages").addEventListener("click", () => { $("#champ-api").value = stock.get(CLES.api) || API_URL; aRevoquer = null; $("#reglages").hidden = false; chargerCodes(); });
+function ouvrirReglages(section) {
+  $("#champ-api").value = stock.get(CLES.api) || API_URL; aRevoquer = null; $("#reglages").hidden = false; chargerCodes(); majMoiReglages();
+  if (section) { const s = document.getElementById(section); if (s) setTimeout(() => { s.scrollIntoView({ block: "start" }); const i = s.querySelector("input"); if (i && !i.value) i.focus(); }, 30); }
+}
+$("#btn-reglages").addEventListener("click", () => ouvrirReglages());
+/* Mon fichier (privé) : adresse et clé du fichier personnel, gardées sur l'appareil */
+const MOI_CLES = { api: "versus.moi.api", cle: "versus.moi.cle" };
+function adresseFichierValide(a) { return /^https:\/\/script\.google(usercontent)?\.com\/.+\/exec$/.test(String(a || "").trim()); }
+function majMoiReglages(msg) {
+  const a = stock.get(MOI_CLES.api) || "", k = stock.get(MOI_CLES.cle);
+  $("#moi-api").value = a; $("#moi-cle").value = "";
+  $("#moi-cle").placeholder = k ? "Clé enregistrée (laisse vide pour la garder)" : "Clé d'accès";
+  $("#moi-oublier").hidden = !a && !k;
+  $("#moi-etat").textContent = msg || (a && k ? "Connecté sur cet appareil." : "Aucun fichier connecté sur cet appareil.");
+}
+$("#moi-enregistrer").addEventListener("click", () => {
+  const a = $("#moi-api").value.trim(), k = $("#moi-cle").value.trim();
+  if (!adresseFichierValide(a)) { $("#moi-etat").textContent = "L'adresse doit commencer par https://script.google.com/ et finir par /exec."; return; }
+  if (!k && !stock.get(MOI_CLES.cle)) { $("#moi-etat").textContent = "Saisis la clé de ton fichier."; return; }
+  if (window.Moi) window.Moi.connecter(a, k);
+  else { stock.set(MOI_CLES.api, a); if (k) stock.set(MOI_CLES.cle, k); stock.del("versus.moi.cache"); }
+  majMoiReglages("Enregistré. Ouvre l'onglet Moi pour voir ton fichier.");
+  if (vueActive() === "moi") { $("#reglages").hidden = true; rendreMoi(); }
+});
+$("#moi-tester").addEventListener("click", async () => {
+  const a = $("#moi-api").value.trim() || stock.get(MOI_CLES.api) || "", k = $("#moi-cle").value.trim() || stock.get(MOI_CLES.cle) || "";
+  if (!adresseFichierValide(a) || !k) { $("#moi-etat").textContent = "Renseigne l'adresse (/exec) et la clé pour tester."; return; }
+  $("#moi-etat").textContent = "Test en cours…";
+  let rep;
+  try { const j = await (await fetch(a + (a.includes("?") ? "&" : "?") + "action=ping&cle=" + encodeURIComponent(k), { cache: "no-store" })).json(); rep = j.ok ? "Ton fichier répond (API version " + (j.version || "?") + ")." : (j.message || "Clé refusée."); }
+  catch (e) { rep = "Impossible de joindre cette adresse : vérifie qu'elle finit par /exec et que le déploiement est en accès « Tout le monde »."; }
+  $("#moi-etat").textContent = rep;
+});
+$("#moi-oublier").addEventListener("click", () => {
+  if (window.Moi) window.Moi.oublier(); else ["versus.moi.api", "versus.moi.cle", "versus.moi.cache"].forEach(k => stock.del(k));
+  majMoiReglages("Fichier déconnecté de cet appareil (adresse, clé et copie locale effacées).");
+  if (vueActive() === "moi") rendreMoi();
+});
 $("#fermer-reglages").addEventListener("click", () => { $("#reglages").hidden = true; });
 $("#reglages").addEventListener("click", e => { if (e.target.id === "reglages") $("#reglages").hidden = true; });
 $("#saisie").addEventListener("click", e => { if (e.target.id === "saisie") $("#saisie").hidden = true; });
@@ -2059,7 +2128,7 @@ $("#changer-cle").addEventListener("click", async () => {
   if (rep.ok) { stock.set(CLES.cle, n); $("#champ-nouvelle-cle").value = ""; }
   $("#etat-source").textContent = rep.message || (rep.ok ? "Clé changée." : "Changement impossible.");
 });
-$("#btn-maj").addEventListener("click", () => charger(true));
+$("#btn-maj").addEventListener("click", () => { charger(true); if (vueActive() === "moi" && window.Moi) window.Moi.rafraichir(true); });
 function majChipsAffichage() {
   [["bandeau", "data-bandeau"], ["discret", "data-discret"], ["ouverture", "data-ouverture"]].forEach(([k, a]) =>
     document.querySelectorAll("[" + a + "]").forEach(b => b.setAttribute("aria-pressed", String(b.getAttribute(a) === ETAT[k]))));
@@ -2119,11 +2188,11 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") { $("#saisie
 let attente, largeur = window.innerWidth;
 window.addEventListener("resize", () => { if (window.innerWidth === largeur) return; largeur = window.innerWidth; clearTimeout(attente); attente = setTimeout(() => { if (D) rendreVue(vueActive()); }, 150); });
 if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (D) rendreVue(vueActive()); });
-document.addEventListener("visibilitychange", () => { if (!document.hidden && SOURCE !== "demo") charger(false); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) return; if (SOURCE !== "demo") charger(false); if (vueActive() === "moi" && window.Moi) window.Moi.rafraichir(false); });
 
 /* ---------- Démarrage ---------- */
 appliquerTheme(stock.get(CLES.theme) || "auto");
-if (ETAT.ouverture === "fiche") ETAT.fiche = ETAT.moi;
+if (ETAT.ouverture === "fiche") { ETAT.ouverture = "moi"; garder(); }
 montrerVue(vueActive());
 charger(false);
 </script>
