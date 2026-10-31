@@ -795,7 +795,7 @@ body.vue-moi .ticker { display: none; }
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbzEgxHHhbmrPOHV_ETZXV8M-VV8NCqkBvkO1PaQ-hBFWMJ9hNVd_JWbwTBKlAAA8MvTrA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwymnNZXNXmxdd78wHTCZr308uptBzimjdzaW8z2mJxSenqX3lhZuZKV7sA-h0y9u8kQA/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 const stock = {
@@ -2570,7 +2570,7 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=9";
+const MOI_JS = "moi.js?v=10";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");
@@ -2719,8 +2719,9 @@ function majLiaison() {
   bi.hidden = !im.visible; bi.disabled = !im.actif;
   bi.title = im.texte || "";
   const l = D.liaison || {};
-  $("#liaison-etat").textContent = l.active ? "Activée : le dernier jour ouvré de chaque mois, entre " + l.heure + " h et " + (l.heure + 1) + " h, ton relevé (" + (l.personne || "Théo") + ") est rempli depuis ton fichier de patrimoine. Une saisie faite à la main n'est jamais écrasée."
-    : "Désactivée. Une fois activée, ton relevé se remplit seul le dernier jour ouvré du mois après la clôture, depuis ton fichier « Portefeuille & Épargne ».";
+  const qui = (l.personnes || [l.personne || "Théo"]).join(", ");
+  $("#liaison-etat").textContent = l.active ? "Activée : le dernier jour ouvré de chaque mois, entre " + l.heure + " h et " + (l.heure + 1) + " h, les relevés de " + qui + " sont remplis depuis leurs fichiers « Portefeuille & Épargne ». Une saisie faite à la main n'est jamais écrasée."
+    : "Désactivée. Une fois activée, les relevés de " + qui + " se remplissent seuls le dernier jour ouvré du mois après la clôture, depuis leurs fichiers « Portefeuille & Épargne ».";
   $("#liaison-bascule").textContent = l.active ? "Désactiver" : "Activer";
 }
 async function actionLiaison(action, corps) {
