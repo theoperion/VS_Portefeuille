@@ -162,6 +162,23 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 body.vue-moi .ticker { display: none; }
 @media (max-width: 360px) { .logo b { font-size: 21px; } .top { gap: 6px; } .top .icon-btn { width: 34px; height: 34px; } .brand small { display: none; } }
 .bilans-bloc { display: grid; gap: 10px; }
+.vic { display: grid; gap: 0; border-radius: 16px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
+.vic-part { display: flex; height: 26px; gap: 2px; padding: 10px 12px 0; }
+.vic-part i { min-width: 6px; border-radius: 5px; display: grid; place-items: center; overflow: hidden; transform: skewX(-12deg); }
+.vic-part span { transform: skewX(12deg); font: italic 800 11px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: #fff; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.vic-l { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; align-items: center; padding: 12px; border-top: 1px solid var(--rule-2); position: relative; }
+.vic-part + .vic-l { border-top: 0; margin-top: 6px; }
+.vic-l::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 3px 3px 0; background: var(--c); }
+.vic-l.tete { background: linear-gradient(90deg, color-mix(in srgb, var(--c) 14%, var(--panel)), var(--panel) 75%); }
+.vic-n { font: italic 800 34px/1 var(--f-display); color: var(--c); text-align: center; letter-spacing: .02em; }
+.vic-n small { font: 600 12px/1 var(--f-num); color: var(--ink-3); font-style: normal; margin-left: 1px; }
+.vic-c { min-width: 0; display: grid; gap: 5px; }
+.vic-c b { font: italic 800 17px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.vic-b { display: flex; gap: 2px; }
+.vic-b i { flex: 1; min-width: 3px; max-width: 18px; height: 12px; border-radius: 2px; transform: skewX(-12deg); }
+.vic-b i.j { background: var(--rule); }
+.vic-b i.a { background: none; box-shadow: inset 0 0 0 1px var(--rule-2); }
+.vic-s { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11.5px; color: var(--ink-2); }
 /* ---------- Podium · Saison 1 ---------- */
 .casque { width: 26px; height: 26px; flex: none; overflow: visible; }
 .pos .who .casque { width: 28px; height: 28px; margin-right: -2px; }
@@ -287,7 +304,7 @@ body.vue-moi .ticker { display: none; }
 .ch-t td.r1 { color: var(--gold); font-weight: 800; }
 .ch-t sup { font-size: 8px; margin-left: 1px; }
 .champ-num { width: 64px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); font: 700 16px/1 var(--f-num); text-align: center; }
-.grille { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
+.grille-dep { display: grid; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
 .gr-l { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--rule-2); min-width: 0; }
 .gr-l:first-child { border-top: 0; }
 .gr-l b { font: italic 700 15px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
@@ -1280,9 +1297,9 @@ function anomaliesDonnees(env) {
 function aUnReleveBrut(b) { return [1, 3, 5, 7].some(i => ok(b[i])); }
 
 /* ---------- Victoires mensuelles, séries et mois en tête ---------- */
-function victoires(env, jusqua) {
-  const fin = jusqua || finGlobale(D, env);
-  const ks = [...new Set(D.personnes.flatMap(p => serie(p, env).filter(x => typeof x.r === "number" && x.k <= fin).map(x => x.k)))].sort((a, b) => a - b);
+function victoires(env, jusqua, depuis) {
+  const fin = jusqua || finGlobale(D, env), deb = depuis || 0;
+  const ks = [...new Set(D.personnes.flatMap(p => serie(p, env).filter(x => typeof x.r === "number" && x.k <= fin && x.k > deb).map(x => x.k)))].sort((a, b) => a - b);
   const res = {};
   D.personnes.forEach(p => res[p.nom] = { victoires: 0, serie: 0, record: 0, enTete: 0, battu: 0, mois: 0 });
   const series = D.personnes.map(p => ({ nom: p.nom, s: serie(p, env) }));
@@ -1400,7 +1417,7 @@ function brancherVerdict(v) {
    Tout est recalculé à partir des relevés ; seule l'écurie choisie est stockée (propriété ECURIE).
    Référence fixe : portefeuille total contre le S&P 500, quels que soient les filtres.
    ============================================================ */
-const SAISON = { premiere: 2027, depart: new Date(2027, 0, 1), noel: new Date(2026, 11, 25) };
+const SAISON = { premiere: 2027, depart: new Date(2027, 0, 1), noel: new Date(2026, 11, 1) };   // dévoilement du concept dans le teaser
 function saisonOuverte() { return Date.now() >= SAISON.depart.getTime(); }
 function apercuSaison() { return !saisonOuverte() && estAdmin() && stock.get("versus.apercuSaison") === "1"; }
 function saisonVisible() { return saisonOuverte() || apercuSaison(); }
@@ -1741,8 +1758,8 @@ function teaser() {
       '<div><b>🏎️ Mon écurie</b><span>Casque, livrée, traînée, klaxon, plaque : tout se débloque en course.</span></div>' +
       '<div><b>🎯 Défis</b><span>Bronze, argent, or, légendaire. Et quelques secrets.</span></div></div>' +
       '<p class="t-note">Tout repart de zéro le 1<sup>er</sup> janvier : ce qui s\'est passé avant ne compte pas.</p>'
-      : '<p class="t-note">On en dit plus le 25 décembre.</p>') + "</div>" +
-    (estAdmin() ? '<div class="t-admin"><button class="lien" type="button" id="apercu-saison">👀 Aperçu admin de la saison</button><button class="lien" type="button" id="teaser-noel">' + (stock.get("versus.teaserNoel") === "1" ? "Teaser normal" : "Teaser du 25/12") + "</button></div>" : "") +
+      : '<p class="t-note">On en dit plus le 1<sup>er</sup> décembre.</p>') + "</div>" +
+    (estAdmin() ? '<div class="t-admin"><button class="lien" type="button" id="apercu-saison">👀 Aperçu admin de la saison</button><button class="lien" type="button" id="teaser-noel">' + (stock.get("versus.teaserNoel") === "1" ? "Teaser normal" : "Teaser du 1er déc.") + "</button></div>" : "") +
     "</section>";
 }
 let MINUTEUR_TEASER = null;
@@ -1845,7 +1862,7 @@ function htmlEcurie() {
   return showroom + onglets + corps +
     '<button class="btn acc plein" type="button" id="ecu-garder">Enregistrer mon écurie</button>' +
     '<p class="info">Touche un objet verrouillé pour savoir quel défi l\'ouvre. Ton casque, ta livrée et ta plaque s\'affichent au classement, ta traînée sur les courbes, ton klaxon quand tu gagnes un mois.</p>' +
-    '<div><h3 class="s-h3">La grille</h3></div><div class="grille">' + grille + "</div>";
+    '<div><h3 class="s-h3">La grille</h3></div><div class="grille-dep">' + grille + "</div>";
 }
 function htmlDefis() {
   const noms = D.personnes.map(p => p.nom), E = {}; noms.forEach(n => E[n] = etatDefis(n));
@@ -1931,13 +1948,13 @@ function duel(env, a, b, deb, fin) {
   d.va -= 1; d.vb -= 1;
   return d;
 }
-function blocDuel(env) {
+function blocDuel(env, deb, fin) {
   const noms = D.personnes.map(p => p.nom);
   if (noms.length < 2) return "";
   let a = noms.includes(ETAT.d1) ? ETAT.d1 : (noms.includes(ETAT.moi) ? ETAT.moi : noms[0]);
   let b = noms.includes(ETAT.d2) && ETAT.d2 !== a ? ETAT.d2 : noms.find(n => n !== a);
   const sel = (id, val, lib) => '<label class="sel"><span>' + lib + '</span><select id="f-' + id + '">' + noms.map(n => '<option value="' + esc(n) + '"' + (n === val ? " selected" : "") + ">" + esc(n) + "</option>").join("") + "</select></label>";
-  const d = duel(env, a, b);
+  const d = duel(env, a, b, deb, fin);
   let corps;
   if (!d || !d.n) corps = '<p class="info">Pas encore de mois en commun entre ' + esc(a) + " et " + esc(b) + ".</p>";
   else {
@@ -1954,7 +1971,7 @@ function blocDuel(env) {
       '<div class="forme">Derniers mois : ' + d.forme.slice(-6).map(g => g ? '<i style="background:' + couleur(g) + '" title="' + esc(g) + '">' + esc(g.charAt(0)) + "</i>" : '<i style="background:var(--idx)">=</i>').join("") +
       (d.serie && d.serie.n >= 2 ? " · " + esc(d.serie.nom) + " gagne depuis " + d.serie.n + " mois" : "") + "</div>";
   }
-  return '<div><h2 class="sec">Duel <small>face à face, mois par mois · ' + esc(ENVELOPPES[env]) + '</small></h2><div class="duel"><div class="filtres" style="grid-template-columns:1fr 1fr">' + sel("d1", a, "Joueur 1") + sel("d2", b, "Joueur 2") + "</div>" + corps + "</div></div>";
+  return '<div><h2 class="sec">Duel <small>face à face, mois par mois</small></h2><div class="duel"><div class="filtres" style="grid-template-columns:1fr 1fr">' + sel("d1", a, "Joueur 1") + sel("d2", b, "Joueur 2") + "</div>" + corps + "</div></div>";
 }
 
 /* ---------- Confettis : une seule fois quand tu es champion du mois ---------- */
@@ -2260,8 +2277,9 @@ function rendreMois() {
   const env = ETAT.env, i1 = ETAT.i1, i2s = i2Actif(), i2 = i2s >= 0 ? i2s : i1;
   const fin = finGlobale(D, env);
   const v = $("#v-mois");
-  if (!fin) { v.innerHTML = filtres(true, false) + '<div class="vide">Aucun relevé pour cette enveloppe.</div>'; brancherFiltres("mois"); return; }
-  const ks = [...new Set(D.personnes.flatMap(p => serie(p, env).filter(x => typeof x.r === "number" && x.k <= fin).map(x => x.k)))].sort((a, b) => a - b).reverse();
+  if (!fin) { v.innerHTML = filtres(true) + '<div class="vide">Aucun relevé pour cette enveloppe.</div>'; brancherFiltres("mois"); return; }
+  const deb = debutPeriode(D, ETAT.per, fin) || 0;
+  const ks = [...new Set(D.personnes.flatMap(p => serie(p, env).filter(x => typeof x.r === "number" && x.k <= fin && x.k > deb).map(x => x.k)))].sort((a, b) => a - b).reverse();
   const lignes = D.personnes.map(p => { const s = serie(p, env); return { nom: p.nom, r: ks.map(k => { const x = s.find(y => y.k === k); return x && typeof x.r === "number" ? x.r : null; }) }; });
   const ri = n => { const m = {}; D.marche.mois.forEach(l => m[l[0]] = l[n + 1]); return ks.map(k => ok(m[k]) ? m[k] : null); };
   const max = Math.max(.04, ...lignes.flatMap(l => l.r).filter(ok).map(Math.abs));
@@ -2271,33 +2289,45 @@ function rendreMois() {
   const pal = palmares(D, env, i1, i2);
   const gagnees = {}; D.personnes.forEach(p => gagnees[p.nom] = 0); pal.forEach(l => { if (l.vainqueur) gagnees[l.vainqueur]++; });
 
-  v.innerHTML = filtres(true, false) +
-    palmaresMois(env) +
-    blocDuel(env) +
+  v.innerHTML = filtres(true) +
+    '<div class="periode">' + esc(textePeriode(deb || null, fin, ks.length)) + "</div>" +
+    palmaresMois(env, deb, fin, ks) +
+    blocDuel(env, deb, fin) +
+    '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + " · ★ meilleur du mois · le plus récent à gauche</small></h2></div>" +
+    '<div class="scroll-x"><table class="grille"><thead><tr><th></th>' + ks.map(k => "<th>" + esc(moisCourt(k)) + "</th>").join("") + "</tr></thead><tbody>" +
+    lignes.map(l => '<tr><td class="nom"><i style="background:' + couleur(l.nom) + '"></i>' + esc(l.nom) + "</td>" + l.r.map((r, j) => cell(r, meilleurs[j] === l.nom)).join("") + "</tr>").join("") +
+    (i2s >= 0 ? [i1, i2s] : [i1]).map(n => '<tr class="indice"><td class="nom"><i style="background:var(--idx)"></i>' + esc(D.marche.indices[n]) + "</td>" + ri(n).map(r => cell(r, false)).join("") + "</tr>").join("") +
+    "</tbody></table></div>" +
+    '<div class="leg-grille"><span><i style="' + teinte(max, max) + '"></i>hausse</span><span><i style="' + teinte(-max, max) + '"></i>baisse</span><span><i style="box-shadow:inset 0 0 0 2px var(--gold)"></i>meilleur du mois entre vous</span></div>' +
     '<div><h2 class="sec">Palmarès annuel <small>années civiles · figé</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Année</th>' +
     D.personnes.map(p => "<th>" + esc(p.nom) + "</th>").join("") + "<th>" + esc(D.marche.indices[i1]) + "</th>" + (i2s >= 0 ? "<th>" + esc(D.marche.indices[i2s]) + "</th>" : "") + "<th>Vainqueur</th></tr></thead><tbody>" +
     pal.map(l => "<tr><td>" + l.annee + '<br><small class="muted" style="font-weight:400;font-size:11px">' + l.mois + " mois" + (l.enCours ? " · en cours" : l.mois < 12 ? " · partiel" : "") + "</small></td>" +
       D.personnes.map(p => '<td class="' + sens(l.personnes[p.nom]) + '">' + (p.nom in l.personnes ? pct(l.personnes[p.nom]) : "—") + "</td>").join("") +
       '<td class="muted">' + pct(l.i1) + "</td>" + (i2s >= 0 ? '<td class="muted">' + pct(l.i2) + "</td>" : "") + "<td>" + (l.vainqueur ? '<span class="pastille" style="background:' + couleur(l.vainqueur) + '"></span>' + esc(l.vainqueur) : "—") + "</td></tr>").join("") +
     "<tr><td>Années gagnées</td>" + D.personnes.map(p => "<td>" + gagnees[p.nom] + "</td>").join("") + "<td></td>" + (i2s >= 0 ? "<td></td>" : "") + "<td></td></tr>" +
-    "</tbody></table></div></div>" +
-    '<div><h2 class="sec">Mois par mois <small>' + esc(ENVELOPPES[env]) + " · ★ meilleur du mois</small></h2></div>" +
-    '<div class="scroll-x"><table class="grille"><thead><tr><th></th>' + ks.map(k => "<th>" + esc(moisCourt(k)) + "</th>").join("") + "</tr></thead><tbody>" +
-    lignes.map(l => '<tr><td class="nom"><i style="background:' + couleur(l.nom) + '"></i>' + esc(l.nom) + "</td>" + l.r.map((r, j) => cell(r, meilleurs[j] === l.nom)).join("") + "</tr>").join("") +
-    (i2s >= 0 ? [i1, i2s] : [i1]).map(n => '<tr class="indice"><td class="nom"><i style="background:var(--idx)"></i>' + esc(D.marche.indices[n]) + "</td>" + ri(n).map(r => cell(r, false)).join("") + "</tr>").join("") +
-    "</tbody></table></div>" +
-    '<div class="leg-grille"><span><i style="' + teinte(max, max) + '"></i>hausse</span><span><i style="' + teinte(-max, max) + '"></i>baisse</span><span><i style="box-shadow:inset 0 0 0 2px var(--gold)"></i>meilleur du mois entre vous</span></div>';
+    "</tbody></table></div></div>";
   brancherFiltres("mois");
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
   ["d1", "d2"].forEach(c => { const el = $("#f-" + c); if (el) el.addEventListener("change", e => { ETAT[c] = e.target.value; garder(); rendreMois(); }); });
 }
 
-function palmaresMois(env) {
-  const v = victoires(env);
+/** Victoires : qui gagne le plus de mois sur la période (bande de mois, séries, mois en tête) */
+function palmaresMois(env, deb, fin, ksDesc) {
+  const v = victoires(env, fin, deb), ks = (ksDesc || []).slice().reverse();
+  const gagnant = {};
+  ks.forEach(k => { const du = rendementsDuMois(env, k).sort((a, b) => b.r - a.r); if (du.length > 1 && du[0].r - du[1].r > 1e-9) gagnant[k] = du[0].nom; });
   const tri = D.personnes.map(p => Object.assign({ nom: p.nom }, v[p.nom])).filter(x => x.mois).sort((a, b) => b.victoires - a.victoires || b.enTete - a.enTete);
-  return '<div><h2 class="sec">Victoires <small>★ = meilleur mois entre vous</small></h2><div class="scroll-x"><table class="tab"><thead><tr><th>Personne</th><th>★ Victoires</th><th>Série en cours</th><th>Record</th><th>Mois en tête</th><th>Bat ' + esc(D.marche.indices[ETAT.i1]) + "</th></tr></thead><tbody>" +
-    tri.map(x => '<tr><td><span class="pastille" style="background:' + couleur(x.nom) + '"></span>' + esc(x.nom) + "</td><td>" + x.victoires + " / " + x.mois + "</td><td>" + (x.serie >= 2 ? "<b>" + x.serie + "</b>" : x.serie || "—") + "</td><td>" + x.record + "</td><td>" + x.enTete + "</td><td>" + pct(x.mois ? x.battu / x.mois : null, 0, false) + "</td></tr>").join("") +
-    '</tbody></table></div><p class="info" style="margin-top:8px">Mois en tête : nombre de fins de mois où la personne menait le classement de l\'année en cours.</p></div>';
+  if (!tri.length) return "";
+  const total = tri.reduce((a, x) => a + x.victoires, 0), nuls = ks.filter(k => !gagnant[k] && rendementsDuMois(env, k).length > 1).length;
+  const part = total ? '<div class="vic-part" aria-hidden="true">' + tri.filter(x => x.victoires).map(x => '<i style="flex:' + x.victoires + ";background:" + couleur(x.nom) + '"><span>' + esc(x.nom) + " " + x.victoires + "</span></i>").join("") + "</div>" : "";
+  const lignes = tri.map((x, i) => {
+    const bande = ks.map(k => { const a = aRendement(D.personnes.find(p => p.nom === x.nom), env, k); return '<i class="' + (gagnant[k] === x.nom ? "g" : a ? "j" : "a") + '" title="' + esc(moisLong(k)) + '"' + (gagnant[k] === x.nom ? ' style="background:' + couleur(x.nom) + '"' : "") + "></i>"; }).join("");
+    const puces = [x.serie >= 2 ? "🔥 " + x.serie + " d'affilée" : null, x.record >= 2 ? "record " + x.record : null, x.enTete ? "👑 " + x.enTete + " mois en tête" : null, "🎯 bat l'indice " + pct(x.mois ? x.battu / x.mois : null, 0, false)].filter(Boolean);
+    return '<div class="vic-l' + (i === 0 && x.victoires ? " tete" : "") + '" style="--c:' + couleur(x.nom) + '"><span class="vic-n">' + x.victoires + "<small>/" + x.mois + "</small></span>" +
+      '<div class="vic-c"><b>' + esc(x.nom) + couronne(x.nom) + '</b><div class="vic-b">' + bande + '</div><div class="vic-s">' + puces.map(t => "<span>" + esc(t) + "</span>").join("") + "</div></div></div>";
+  }).join("");
+  return '<div><h2 class="sec">Victoires <small>meilleur mois entre vous</small></h2></div><div class="vic">' + part + lignes + "</div>" +
+    '<p class="info">Chaque case = un mois de la période, en couleur quand tu l\'as gagné' + (nuls ? " (" + nuls + " mois sans vainqueur, ex aequo)" : "") + ". Mois en tête : fins de mois où tu menais le classement de l'année. 🎯 : part de tes mois au-dessus de " + esc(D.marche.indices[ETAT.i1]) + ".</p>";
 }
 
 /* ---------- Vue Fiche ---------- */
@@ -2540,7 +2570,7 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=8";
+const MOI_JS = "moi.js?v=9";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");
