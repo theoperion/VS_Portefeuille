@@ -1225,6 +1225,7 @@ function brancherStats(v) {
   });
   const g = v.querySelector(".grille"); if (g) { const sx = g.closest(".scroll-x"); if (sx) sx.scrollLeft = sx.scrollWidth; }
   v.querySelectorAll("[data-m-patri]").forEach(b => b.addEventListener("click", () => { PREF.patri = b.dataset.mPatri; garderPref(); re(); }));
+  v.querySelectorAll("[data-m-patridet]").forEach(b => b.addEventListener("click", () => { PREF.patriDet = b.dataset.mPatridet; garderPref(); re(); }));
   dessinerCourbe(); dessinerPatrimoine(); dessinerEpargne(); dessinerPret();
 }
 
@@ -1383,7 +1384,7 @@ function empile(box, conf) {
     let d = "M" + X(0).toFixed(1) + " " + Y(haut1[0]).toFixed(1);
     for (let i = 1; i < n; i++) d += "L" + X(i).toFixed(1) + " " + Y(haut1[i]).toFixed(1);
     for (let i = n - 1; i >= 0; i--) d += "L" + X(i).toFixed(1) + " " + Y(bas0[i]).toFixed(1);
-    return '<path d="' + d + 'Z" style="fill:' + c + ';fill-opacity:' + (op || .78) + '"/>';
+    return '<path d="' + d + 'Z" style="fill:' + c + ';fill-opacity:' + (op || .78) + (conf.trait ? ';stroke:var(--panel);stroke-width:1;stroke-linejoin:round' : "") + '"/>';
   };
   let base = xs.map(() => 0);
   conf.couches.forEach(c => { const h = base.map((b, i) => b + Math.max(0, c.v[i] || 0)); o += aire(base, h, c.c, c.op); base = h; });
@@ -1430,25 +1431,72 @@ function donneesPatrimoine() {
     return Object.assign({ k: x.an * 100 + x.mo, prix, dette }, x);
   });
 }
+/* Détail du patrimoine : une couche par enveloppe de bourse (si le fichier garde leur valeur mois par mois)
+   et une par livret (soldes de fin de mois) ; ce qui ne se répartit pas reste dans une couche « autres » */
+const MIX_DET = [0, .3, .5, .66, .78, .86];
+/* teinte d'une même famille, en couleur pleine (lisible aussi dans la légende et l'info-bulle) : var(--s1) mélangée au fond du graphique */
+function nuance(v, t) {
+  if (!t) return "var(" + v + ")";
+  const lire = css => { const el = document.createElement("i"); el.style.cssText = "position:absolute;visibility:hidden;color:" + css; (document.querySelector(".moi") || document.body).appendChild(el);
+    const c = getComputedStyle(el).color; el.remove();
+    try { const cv = document.createElement("canvas"); cv.width = cv.height = 1; const x = cv.getContext("2d"); x.fillStyle = "#000"; x.fillStyle = c; x.fillRect(0, 0, 1, 1); return Array.from(x.getImageData(0, 0, 1, 1).data.slice(0, 3)); } catch (e) { return null; } };
+  const a = lire("var(" + v + ")"), f = lire("var(--panel)");
+  return a && f ? "rgb(" + a.map((c, i) => Math.round(c + (f[i] - c) * t)).join(",") + ")" : "var(" + v + ")";
+}
+function detailPatrimoine(d) {
+  const h = M.historique || {}, cols = h.cols || [], rows = h.rows || [], bourse = [], ep = [];
+  const envs = seriesValeur().filter(([k]) => k);
+  if (envs.length) {
+    const lignes = d.map(x => { let r = null; rows.forEach(z => { if (Math.floor(z[0] / 100) <= x.k) r = z; }); return r; });
+    envs.forEach(([k, l]) => { const c = cols.indexOf("v_" + k); const v = lignes.map(r => r && ok(r[c]) ? r[c] : 0); if (v.some(z => z > .5)) bourse.push({ nom: l, v }); });
+    if (bourse.length) {
+      const reste = d.map((x, i) => Math.max(0, x.bourse - bourse.reduce((a, c) => a + c.v[i], 0)));
+      if (reste.some(v => v > 1)) bourse.push({ nom: "Bourse · autres", v: reste });
+    }
+  }
+  const em = M.epargneMois;
+  if (em && em.rows && em.rows.length) {
+    const par = {}; em.rows.forEach(r => { par[cleMoisIso(r[0])] = r; });
+    em.comptes.forEach((nom, j) => { const v = d.map(x => par[x.k] ? Math.max(0, par[x.k][j + 1] || 0) : 0); if (v.some(z => z > .5)) ep.push({ nom: nom.replace(/\s+Banque Pop\.?$/, ""), v }); });
+    if (ep.length) {
+      const somme = i => ep.reduce((a, c) => a + c.v[i], 0);
+      const av = d.map((x, i) => par[x.k] ? Math.max(0, x.epargne - somme(i)) : 0), nd = d.map(x => par[x.k] ? 0 : Math.max(0, x.epargne));
+      if (av.some(v => v > .5)) ep.push({ nom: "Assurance-vie et autres", v: av });
+      if (nd.some(v => v > .5)) ep.push({ nom: "Épargne (pas de détail ce mois-là)", v: nd });
+    }
+  }
+  bourse.forEach((c, i) => { c.c = nuance("--s1", MIX_DET[i % MIX_DET.length]); c.op = .92; });
+  ep.forEach((c, i) => { c.c = nuance("--s2", MIX_DET[i % MIX_DET.length]); c.op = .92; });
+  return { bourse, ep, utile: bourse.length > 1 || ep.length > 1 };
+}
+function couchesPatrimoine(d, brut, aImmo, det) {
+  const bourse = det && det.bourse.length ? det.bourse : [{ nom: "Bourse", v: d.map(x => x.bourse), c: "var(--s1)" }];
+  const ep = det && det.ep.length ? det.ep : [{ nom: "Épargne", v: d.map(x => x.epargne), c: "var(--s2)" }];
+  const couches = bourse.concat(ep);
+  if (aImmo) couches.push(brut ? { nom: "Appartement", v: d.map(x => x.prix), c: "var(--s3)" } : { nom: "Immobilier net", v: d.map(x => x.immo), c: "var(--s3)" });
+  return couches;
+}
 function blocPatrimoineTemps() {
   const d = donneesPatrimoine(); if (!d) return "";
   const brut = PREF.patri === "brut", aImmo = d.some(x => x.prix > 0);
-  const leg = [{ nom: "Bourse", c: "var(--s1)" }, { nom: "Épargne", c: "var(--s2)" }]
-    .concat(aImmo ? (brut ? [{ nom: "Appartement", c: "var(--s3)" }, { nom: "Prêts restants", c: "var(--down)", op: .5 }] : [{ nom: "Immobilier net", c: "var(--s3)" }]) : []);
+  const det0 = detailPatrimoine(d), voirDet = det0.utile && PREF.patriDet === "1", det = voirDet ? det0 : null;
+  const leg = couchesPatrimoine(d, brut, aImmo, det).map(c => ({ nom: c.nom, c: c.c, op: c.op }))
+    .concat(brut && aImmo ? [{ nom: "Prêts restants", c: "var(--down)", op: .5 }] : []);
   const der = d[d.length - 1], prem = d.find(x => x.complet) || d[0];
   const net = x => x.bourse + x.epargne + x.immo;
   return '<div><h2 class="sec">Patrimoine dans le temps <small>fin de mois</small></h2></div>' +
     (aImmo ? '<div class="seg" role="group" aria-label="Brut ou net"><button type="button" data-m-patri="net" aria-pressed="' + !brut + '">Net</button><button type="button" data-m-patri="brut" aria-pressed="' + brut + '">Brut (dette à part)</button></div>' : "") +
+    (det0.utile ? '<div class="chips" role="group" aria-label="Niveau de détail"><button class="chip" type="button" data-m-patridet="" aria-pressed="' + !voirDet + '">Vue d\'ensemble</button><button class="chip" type="button" data-m-patridet="1" aria-pressed="' + voirDet + '">Détail par compte</button></div>' : "") +
     boiteEmpile("g-patri", leg) +
     '<p class="resume">' + (brut ? "Brut : l'appartement compté à son prix, les prêts restants en dessous de zéro. Les pointillés suivent ton patrimoine net. " : "Net : l'immobilier compte pour son prix moins les prêts restants. ") +
+      (voirDet ? "Détail : une couche par enveloppe de bourse" + (det.bourse.length ? "" : " (ton fichier ne garde pas leur valeur mois par mois : la bourse reste en un bloc)") + " et une par livret. " : "") +
       "Depuis fin " + esc(libMoisK(prem.k)) + " : <b class=\"" + sens(net(der) - net(prem)) + "\">" + eur(net(der) - net(prem), 0, true) + "</b>.</p>";
 }
 function dessinerPatrimoine() {
   const box = document.getElementById("g-patri"); if (!box) return;
   const d = donneesPatrimoine(), brut = PREF.patri === "brut", aImmo = d.some(x => x.prix > 0);
-  const couches = [{ nom: "Bourse", v: d.map(x => x.bourse), c: "var(--s1)" }, { nom: "Épargne", v: d.map(x => x.epargne), c: "var(--s2)" }];
-  if (aImmo) couches.push(brut ? { nom: "Appartement", v: d.map(x => x.prix), c: "var(--s3)" } : { nom: "Immobilier net", v: d.map(x => x.immo), c: "var(--s3)" });
-  empile(box, { x: d.map(x => x.k), couches, negs: brut && aImmo ? [{ nom: "Prêts restants", v: d.map(x => x.dette), c: "var(--down)" }] : [],
+  const det0 = detailPatrimoine(d), det = det0.utile && PREF.patriDet === "1" ? det0 : null;
+  empile(box, { x: d.map(x => x.k), couches: couchesPatrimoine(d, brut, aImmo, det), trait: !!det, negs: brut && aImmo ? [{ nom: "Prêts restants", v: d.map(x => x.dette), c: "var(--down)" }] : [],
     ligne: brut && aImmo ? { nom: "Patrimoine net", v: d.map(x => x.bourse + x.epargne + x.immo) } : null });
 }
 /* C · épargne livret par livret (soldes envoyés par l'API V10 ; l'assurance-vie = total épargne du mois moins les livrets) */

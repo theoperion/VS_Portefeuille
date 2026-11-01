@@ -1346,7 +1346,7 @@ function couleurReelle(c) { const m = /var\((--[\w-]+)\)/.exec(c); return m ? cs
 
 const PERIODES = [["mois", "Mois en cours (dernier relevé)"], ["3m", "3 derniers mois"], ["6m", "6 derniers mois"], ["ytd", "Année en cours"], ["12m", "12 derniers mois"], ["comp", "Depuis la date de comparaison"], ["tout", "Depuis le début"]];
 
-function axeEur(t) { return ETAT.discret === "oui" ? "" : t >= 1000 ? F0.format(t / 1000) + "k" : F0.format(t); }
+function axeEur(t) { return ETAT.discret === "oui" ? "" : Math.abs(t) >= 1000 ? (t < 0 ? "−" : "") + F0.format(Math.abs(t) / 1000) + "k" : F0.format(t); }
 
 /* ---------- Thème ---------- */
 function appliquerTheme(c) {
@@ -4655,7 +4655,7 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=23";
+const MOI_JS = "moi.js?v=24";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");
