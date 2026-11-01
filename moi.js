@@ -313,6 +313,11 @@ function injecterStyle() {
 .moi .ms-l input[type="text"] { font: 600 16px/1.2 var(--f-num); padding: 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); width: 100%; min-width: 0; text-align: right; }
 .moi .ms-int { grid-column: 2; justify-self: end; display: flex; gap: 5px; align-items: center; font-size: 11.5px; color: var(--ink-3); }
 .moi .ms-int input { accent-color: var(--accent); margin: 0; }
+.moi .ms-c { grid-template-columns: minmax(0, 1fr); text-align: left; color: var(--ink); cursor: pointer; font: inherit; }
+.moi .ms-c.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--panel)); }
+.moi .ms-note { margin: 0; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, var(--panel)); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); font-size: 13px; line-height: 1.45; }
+.moi .ms-fige { font-size: 13px; opacity: .7; }
+.moi #ms-form .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .moi .rang2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .moi .m-carte { display: flex; flex-wrap: wrap; gap: 3px; }
 .moi .m-tuile { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 64px; min-width: 64px; min-height: 54px; padding: 7px 8px; border-radius: 8px; background: var(--panel); border: 1px solid var(--rule); display: grid; align-content: space-between; gap: 2px; }
@@ -1038,9 +1043,11 @@ function seriesDisponibles() {
   const noms = (M.enveloppes || []).filter(e => e.type === "env").map(e => e.nom);
   const cols = (M.historique || {}).cols || [];
   const out = [["ip", "Portefeuille"]];
-  [["pea", /PEA/], ["cto", /CTO/], ["av", /^AV/], ["cr", /Crypto/i]].forEach(([k, re]) => { const n = noms.find(x => re.test(x)); if (n && cols.includes(k)) out.push([k, n]); });
+  [["pea", /PEA/], ["cto", /CTO/], ["av", /^AV|Assurance/i], ["cr", /Crypto/i]].forEach(([k, re]) => { const n = noms.find(x => re.test(x)); if (n && cols.includes(k)) out.push([k, n]); });
   return out;
 }
+/** Valeur et apports : tout le portefeuille, ou une enveloppe quand le fichier en donne le détail */
+function seriesValeur() { const cols = (M.historique || {}).cols || []; return seriesDisponibles().map(([k, l]) => k === "ip" ? ["", "Tout"] : [k, l]).filter(([k]) => !k || cols.includes("v_" + k)); }
 function fenetre(rows, per) {
   if (!rows.length || per === "tout") return rows;
   const fin = dateNum(rows[rows.length - 1][0]);
@@ -1057,6 +1064,7 @@ function htmlStats() {
     ["s1", "m1", "m6", "ytd", "a1", "twr", "mwr"].map(k => '<td class="' + (e.type === "indice" ? "" : sens(e[k])) + '">' + pct(e[k]) + "</td>").join("") + "<td>" + pct(e.vol, 1, false) + "</td></tr>";
   const courbe = h && h.rows && h.rows.length > 1 ?
     '<div class="seg" role="group" aria-label="Type de courbe"><button type="button" data-m-mode="valeur" aria-pressed="' + (mode === "valeur") + '">Valeur et apports</button><button type="button" data-m-mode="base" aria-pressed="' + (mode === "base") + '">Performance vs indices</button></div>' +
+    (mode === "valeur" && seriesValeur().length > 1 ? '<div class="chips" role="group" aria-label="Enveloppe">' + seriesValeur().map(([k, l]) => '<button class="chip" type="button" data-m-envv="' + k + '" aria-pressed="' + ((PREF.envV || "") === k) + '">' + esc(l) + "</button>").join("") + "</div>" : "") +
     (mode === "base" && choix.length > 1 ? '<div class="chips" role="group" aria-label="Ce que tu compares">' + choix.map(([k, l]) => '<button class="chip" type="button" data-m-serie="' + k + '" aria-pressed="' + (PREF.serie === k) + '">' + esc(l) + "</button>").join("") + "</div>" : "") +
     '<div class="chips" role="group" aria-label="Période">' + PERIODES_M.map(([k, l]) => '<button class="chip" type="button" data-m-per="' + k + '" aria-pressed="' + (per === k) + '">' + l + "</button>").join("") + "</div>" +
     '<div id="m-courbe-box"></div><p class="resume" id="m-resume"></p>' : '<div class="vide">Pas encore assez de relevés pour tracer une courbe.</div>';
@@ -1076,7 +1084,8 @@ function dessinerCourbe() {
   const rows = fenetre(h.rows, PREF.per), mc = couleurMoi(), cb = defObj("courbe", actifM("courbe")) || COURBES_M[0];
   let series;
   if (PREF.mode === "valeur") {
-    series = [{ nom: "Valeur", k: C("v"), c: cb[2] || mc, w: 2.2, aire: true, fx: cb[3] }, { nom: "Apports cumulés", k: C("a"), c: "var(--idx)", w: 1.6, marche: true, dash: true }];
+    const ev = seriesValeur().find(x => x[0] && x[0] === PREF.envV), kv = ev ? "_" + ev[0] : "";
+    series = [{ nom: ev ? "Valeur · " + ev[1] : "Valeur", k: C(kv ? "v" + kv : "v"), c: cb[2] || mc, w: 2.2, aire: true, fx: cb[3] }, { nom: ev ? "Versé · " + ev[1] : "Apports cumulés", k: C(kv ? "a" + kv : "a"), c: "var(--idx)", w: 1.6, marche: true, dash: true }];
   } else {
     const ch = seriesDisponibles().find(x => x[0] === PREF.serie) || ["ip", "Portefeuille"];
     series = [{ nom: ch[1], k: C(ch[0]) >= 0 ? C(ch[0]) : C("ip"), c: cb[2] || mc, w: 2.2, base: true, fx: cb[3] },
@@ -1084,7 +1093,7 @@ function dessinerCourbe() {
       { nom: "Nasdaq-100", k: C("inq"), c: "var(--gold)", w: 1.6, base: true, dash: "1.5 3.5" }];
   }
   series = series.filter(s => s.k >= 0);
-  series.forEach(s => { const b = rows[0][s.k] || 1; s.v = rows.map(r => ok(r[s.k]) ? (s.base ? r[s.k] / b - 1 : r[s.k]) : null); });
+  series.forEach(s => { const b = (rows.find(r => ok(r[s.k]) && r[s.k] !== 0) || [])[s.k] || 1; s.v = rows.map(r => ok(r[s.k]) ? (s.base ? r[s.k] / b - 1 : r[s.k]) : null); });
   zone.innerHTML = boiteGraphe("g-moi", series.map(s => ({ nom: s.nom, c: s.c, dash: s.dash === "1.5 3.5" ? "dot" : !!s.dash })));
   const court = PREF.per === "1m";
   const etiqX = (k, kp) => {
@@ -1100,8 +1109,9 @@ function dessinerCourbe() {
   const n = rows.length, d0 = dateNum(rows[0][0]), d1 = dateNum(rows[n - 1][0]);
   const r = document.getElementById("m-resume");
   if (!base) {
-    const dv = series[0].v[n - 1] - series[0].v[0], da = series[1] ? series[1].v[n - 1] - series[1].v[0] : 0;
-    r.innerHTML = "Du " + dateLongue(d0) + " au " + dateLongue(d1) + " : valeur <b>" + eur(dv, 0, true) + "</b>, dont apports <b>" + eur(da, 0, true) + '</b>, soit un gain de <b class="' + sens(dv - da) + '">' + eur(dv - da, 0, true) + "</b>.";
+    const i0 = Math.max(0, series[0].v.findIndex(x => ok(x))), d0b = dateNum(rows[i0][0]);
+    const dv = (series[0].v[n - 1] || 0) - (series[0].v[i0] || 0), da = series[1] ? (series[1].v[n - 1] || 0) - (series[1].v[i0] || 0) : 0;
+    r.innerHTML = "Du " + dateLongue(d0b) + " au " + dateLongue(d1) + " : valeur <b>" + eur(dv, 0, true) + "</b>, dont apports <b>" + eur(da, 0, true) + '</b>, soit un gain de <b class="' + sens(dv - da) + '">' + eur(dv - da, 0, true) + "</b>.";
   } else {
     const p = series[0].v[n - 1], sp = series[1] ? series[1].v[n - 1] : null;
     r.innerHTML = "Du " + dateLongue(d0) + " au " + dateLongue(d1) + ' : <b class="' + sens(p) + '">' + pct(p) + "</b>" +
@@ -1206,6 +1216,7 @@ function brancherStats(v) {
   v.querySelectorAll("[data-m-mode]").forEach(b => b.addEventListener("click", () => { PREF.mode = b.dataset.mMode; garderPref(); re(); }));
   v.querySelectorAll("[data-m-per]").forEach(b => b.addEventListener("click", () => { PREF.per = b.dataset.mPer; garderPref(); re(); }));
   v.querySelectorAll("[data-m-serie]").forEach(b => b.addEventListener("click", () => { PREF.serie = b.dataset.mSerie; garderPref(); re(); }));
+  v.querySelectorAll("[data-m-envv]").forEach(b => b.addEventListener("click", () => { PREF.envV = b.dataset.mEnvv; garderPref(); re(); }));
   v.querySelectorAll("[data-m-mois]").forEach(b => b.addEventListener("click", () => { PREF.moisMode = b.dataset.mMois; garderPref(); re(); }));
   v.querySelectorAll("[data-m-rep]").forEach(b => b.addEventListener("click", () => { PREF.rep = b.dataset.mRep; garderPref(); re(); }));
   v.querySelectorAll("td[data-cel]").forEach(td => {
@@ -1473,6 +1484,7 @@ function blocPret() {
       t("Restant dû", eur(restant), "", p.actuel ? "au " + frDate(p.actuel.date) : "") +
       t("Intérêts restants", eur(p.interetsRestants), "", "payés en " + new Date().getFullYear() + " : " + eur(p.interetsAnnee)) +
       t("Fin des prêts", p.fin ? frDate(p.fin) : "—", "", p.fin ? "dans " + Math.max(0, Math.round((new Date(p.fin) - new Date()) / (365.25 * 864e5))) + " ans" : "") +
+      (p.banque && p.prochaine ? t("Prochaine échéance", eur(p.prochaine.echeance, 2), "", "le " + frDate(p.prochaine.date) + ", assurance comprise (ta part)") : "") +
     "</div>";
 }
 function dessinerPret() {
@@ -1680,6 +1692,16 @@ function assurerFeuille() {
   }));
   document.addEventListener("keydown", e => { if (e.key === "Escape") fermerSaisieM(); });
 }
+/* Guide de la saisie d'un ordre de bourse : s'ouvre tout seul la première fois, puis depuis « ❓ » */
+const TUTO_ORDRE = [
+  { ico: "🧾", t: "Un ordre, une ligne", html: true, p: "Chaque opération passée chez ton courtier se recopie ici, <b>à la date où elle est exécutée</b>. L'app recalcule tout à partir de ces ordres : tes lignes, tes gains, ta performance." },
+  { ico: "🔀", t: "Le bon type", html: true, p: "<b>Achat</b> / <b>Vente</b> pour des titres. <b>Apport</b> quand tu vires de l'argent sur l'enveloppe, <b>Retrait</b> quand tu en sors. « Autre type » pour les dividendes, intérêts et frais. Tu vires et tu achètes le même jour ? Coche « Enregistrer aussi l'apport »." },
+  { ico: "📂", t: "Enveloppe et actif", html: true, p: "Choisis l'enveloppe (PEA, CTO, assurance vie…), puis l'actif : ceux que tu détiens déjà sont en haut de la liste. Il n'y est pas ? « <b>Ajouter un nouvel actif</b> »." },
+  { ico: "💶", t: "Montant, quantité, frais", html: true, p: "Le montant est celui de ton <b>avis d'opéré</b> : débité frais compris pour un achat, crédité net de frais pour une vente. Ensuite la quantité <b>ou</b> le prix par part : l'autre se calcule. Puis les frais de courtage." },
+  { ico: "✅", t: "Vérifie, enregistre", html: true, p: "Le récapitulatif en bas t'alerte si quelque chose cloche (plus de parts vendues que détenues, prix bizarre…). Tu achètes la même chose chaque mois ? « <b>Enregistrer comme raccourci</b> » : un tap la prochaine fois." },
+  { ico: "↩️", t: "Une erreur ?", html: true, p: "Onglet <b>Journal</b> : un ordre saisi ici se supprime pendant <b>7 jours</b>, puis il est figé (corrige alors dans ton fichier). « Refaire » reprend un ordre à la date du jour." }
+];
+function guideOrdre() { if (typeof ouvrirGuide === "function") ouvrirGuide("Saisir un ordre", TUTO_ORDRE, "C'est compris"); }
 function ouvrirSaisieM(partiel, onglet) {
   injecterStyle(); assurerFeuille(); lireCache();
   if (!M) { toast("Lecture de ton fichier en cours, réessaie dans un instant."); charger(false); return; }
@@ -1688,6 +1710,7 @@ function ouvrirSaisieM(partiel, onglet) {
   nommerRaccourci = false;
   $f("m-saisie").hidden = false;
   paneSaisie(onglet || "ordre");
+  if ((onglet || "ordre") === "ordre" && identiteSure() && !stock.get(cleStock("guideOrdre")) && !simulationM()) { stock.set(cleStock("guideOrdre"), "1"); setTimeout(guideOrdre, 250); }
 }
 function fermerSaisieM() { const s = $f("m-saisie"); if (s) s.hidden = true; confirmeSuppr = null; gererRaccourcis = false; }
 function paneSaisie(o) {
@@ -1731,6 +1754,7 @@ function rendreFormulaire() {
   const avecActif = AVEC_ACTIF.includes(F.type), avecQte = AVEC_QTE.includes(F.type), avecFrais = AVEC_FRAIS.includes(F.type);
   $f("m-pane-ordre").innerHTML =
     '<form class="form" id="m-form-ordre" novalidate>' +
+      '<button class="lien guide-l" type="button" id="f-guide">❓ Comment saisir un ordre</button>' +
       rendreRaccourcis() +
       '<div class="types" role="group" aria-label="Type d\'ordre">' + PRINCIPAUX.map(t => '<button type="button" class="type-btn" data-type="' + t + '" aria-pressed="' + (F.type === t) + '">' + t + "</button>").join("") + "</div>" +
       '<div class="rang">' +
@@ -1762,6 +1786,7 @@ function rendreFormulaire() {
       "</div>" +
     "</form>";
   const form = $f("m-form-ordre");
+  $f("f-guide").addEventListener("click", guideOrdre);
   form.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { F = formulaire({ type: b.dataset.type, date: F.date, env: F.env, actif: AVEC_ACTIF.includes(b.dataset.type) ? F.actif : "", montant: F.montant }); synchroniser(); rendreFormulaire(); }));
   $f("f-autre").addEventListener("change", e => { if (e.target.value) { F = formulaire({ type: e.target.value, date: F.date, env: F.env, montant: F.montant }); rendreFormulaire(); } });
   $f("fo-env").addEventListener("change", e => { F = formulaire({ type: F.type, date: F.date, env: e.target.value, montant: F.montant, frais: F.frais }); rendreFormulaire(); });
@@ -2780,9 +2805,24 @@ function assurerSimple() { if (RAW && M && M._d !== dVersus()) M = adapterSimple
 function finMoisIso(an, mo) { return isoJour(new Date(an, mo, 0)); }
 function moisPlus(an, mo, n) { const d = new Date(an, mo - 1 + n, 1); return [d.getFullYear(), d.getMonth() + 1]; }
 /** Échéancier d'un prêt à mensualités constantes, ramené à « ma part » */
-function echeancier(pr) {
+function echeancier(pr, banque) {
+  const part = (pr && ok(pr.part) && pr.part > 0 ? pr.part : 100) / 100;
+  // tableau d'amortissement de la banque (onglet « Échéancier prêt ») : [date, restant dû en début, capital amorti, intérêts, assurance]
+  if (banque && banque.length) {
+    const L = banque.map(r => ({ date: r[0], restant: Math.max(0, r[1] - r[2]) * part, echeance: (r[2] + r[3] + (r[4] || 0)) * part, interet: r[3] * part, assurance: (r[4] || 0) * part }));
+    const d0 = new Date(banque[0][0] + "T12:00:00"), avant = new Date(d0.getFullYear(), d0.getMonth() - 1, Math.min(d0.getDate(), 28));
+    const auj = isoJour(new Date()), an = String(new Date().getFullYear());
+    const passees = L.filter(x => x.date <= auj), futures = L.filter(x => x.date > auj), a = passees[passees.length - 1], p = futures[0];
+    return {
+      banque: true, actuel: a ? { date: a.date, restant: a.restant, echeance: a.echeance } : null, prochaine: p ? { date: p.date, restant: p.restant, echeance: p.echeance } : null,
+      interetsAnnee: passees.filter(x => x.date.slice(0, 4) === an).reduce((s, x) => s + x.interet, 0), interetsRestants: futures.reduce((s, x) => s + x.interet, 0),
+      assuranceRestante: futures.reduce((s, x) => s + x.assurance, 0), nb: L.length, debut: banque[0][0],
+      fin: L[L.length - 1].date, mensuel: [[isoJour(avant), banque[0][1] * part]].concat(L.map(x => [x.date, x.restant])),
+      restantAuj: a ? a.restant : banque[0][1] * part, part, mensualite: (p || a).echeance
+    };
+  }
   if (!pr || !(pr.capital > 0) || !(pr.duree > 0) || !pr.debut) return null;
-  const part = (ok(pr.part) && pr.part > 0 ? pr.part : 100) / 100, n = Math.round(pr.duree * 12), i = (pr.taux || 0) / 100 / 12;
+  const n = Math.round(pr.duree * 12), i = (pr.taux || 0) / 100 / 12;
   const C = pr.capital, mens = i ? C * i / (1 - Math.pow(1 + i, -n)) : C / n;
   const d0 = new Date(pr.debut + "T12:00:00"), jour = d0.getDate();
   let restant = C;
@@ -2824,8 +2864,14 @@ function adapterSimple(raw) {
     return { nom: noms[e], type: "env", regime: e === 1 ? "PEA" : e === 2 ? "AV" : e === 3 ? "CTO" : "Crypto", valeur: s.valeur, gain: s.pvLatente, gainPct: s.pvLatentePct, latente: s.pvLatente,
       twr: s.twr, mwr: s.mwr, vol: s.vol, m1: dernierR(e), ytd: st(e, debAn).twr, s1: null, m6: null, a1: null, ouverture: premier ? premier.d : null };
   }).filter(Boolean);
-  // épargne : dernier solde de chaque compte
-  const comptes = raw.comptes || [], soldes = raw.soldes || [];
+  // épargne : chaque compte part d'une valeur de départ, puis versements, retraits et intérêts ; on en déduit le solde à chaque date
+  const comptes = raw.comptes || [], mouvements = raw.soldes || [], courant = {};
+  const soldes = mouvements.map(s => {
+    const nat = s[3], v = s[2]; let b = courant[s[1]];
+    if (nat === "Départ" || nat === "Mise à jour") b = v; else if (nat === "Retrait") b = (b || 0) - v; else b = (b || 0) + v;
+    courant[s[1]] = Math.round(b * 100) / 100;
+    return [s[0], s[1], courant[s[1]], nat, s[4], s[5], v];
+  });
   const dernier = {}; soldes.forEach(s => { dernier[s[1]] = { solde: s[2], date: s[0] }; });
   const vus = comptes.filter(c => dernier[c.nom] && (c.statut !== "Fermé" || dernier[c.nom].solde > 0.5));
   const totalEp = vus.reduce((a, c) => a + dernier[c.nom].solde, 0);
@@ -2848,20 +2894,29 @@ function adapterSimple(raw) {
   const epargneMois = nomsEp.length ? { comptes: nomsEp, rows: moisParMois.filter(r => r.epargne !== null).map(r => [r.mois].concat(nomsEp.map(n => soldeA(n, r.mois) || 0))) } : null;
   // historique de la bourse : un point par relevé mensuel du Versus (indice de performance et S&P 500 rebasés)
   const mi = Dv ? rendementsIndice(Dv, iR) : {};
+  // enveloppe par enveloppe (PEA, assurance vie, CTO, crypto) : valeur, versements cumulés et indice de performance
+  const CLE_ENV = [null, "pea", "av", "cto", "cr"], parEnv = [], ipE = {}, colsH = ["d", "v", "a", "ip", "isp"];
+  if (p) [1, 2, 3, 4].forEach(e => { if (!envs.some(x => x.nom === noms[e])) return; const m = {}; serie(p, e).forEach(z => { m[z.k] = z; }); parEnv.push([e, m]); ipE[e] = null; colsH.push(CLE_ENV[e], "v_" + CLE_ENV[e], "a_" + CLE_ENV[e]); });
   let ip = 100, isp = 100;
   const rows = sTot.map((z, j) => {
     if (j > 0 && typeof z.r === "number") ip *= 1 + z.r;
     if (j > 0 && typeof mi[z.k] === "number") isp *= 1 + mi[z.k];
-    return [+String(z.d).replace(/-/g, ""), z.val, z.cum, ip, isp];
+    const ligne = [+String(z.d).replace(/-/g, ""), z.val, z.cum, ip, isp];
+    parEnv.forEach(([e, m]) => {
+      const q = m[z.k], v = q && q.val > 0 ? q.val : null;
+      if (v === null) ipE[e] = null; else if (ipE[e] === null) ipE[e] = 100; else if (typeof q.r === "number") ipE[e] *= 1 + q.r;
+      ligne.push(ipE[e], v, v === null ? null : q.cum);
+    });
+    return ligne;
   });
-  const prets = echeancier((raw.reglages || {}).pret);
+  const prets = echeancier((raw.reglages || {}).pret, raw.echeancier);
   const ap = (raw.reglages || {}).appart || {}, partA = (ok(ap.part) && ap.part > 0 ? ap.part : 100) / 100;
   const financier = (tot.valeur || 0) + totalEp;
   let immo = [], appart = null;
   if (ap.prix > 0) {
     const prix = ap.prix * partA, dette = prets ? prets.restantAuj : 0;
     appart = { prix, date: ap.date || (prets ? prets.mensuel[0][0] : null) };
-    immo = [{ nom: "Appartement (ma part)", montant: prix, note: partA < 1 ? F0.format(partA * 100) + " % de " + eur(ap.prix) : null },
+    immo = [{ nom: (ap.nom || "Appartement") + " (ma part)", montant: prix, note: partA < 1 ? F0.format(partA * 100) + " % de " + eur(ap.prix) : null },
       { nom: "Crédit immobilier : restant dû (ma part)", montant: dette, note: prets ? "fin du crédit : " + frDate(prets.fin) + " · mensualité (ma part) " + eur(prets.mensualite, 2) : "prêt pas encore saisi (➕ › Comptes et prêt)" },
       { nom: "Valeur nette immobilière", montant: prix - dette, note: null },
       { nom: "Patrimoine net (avec immobilier)", montant: financier + prix - dette, note: "L'immobilier pèse " + pct((prix - dette) / Math.max(1, financier + prix - dette), 0, false) + " du total" }];
@@ -2870,7 +2925,9 @@ function adapterSimple(raw) {
   const vers = {};
   if (p) serie(p, 0).forEach(z => { if (z.k <= fin && (z.verse || 0) > 0) { const m = String(z.k).slice(0, 4) + "-" + String(z.k).slice(4, 6); vers[m] = (vers[m] || 0) + z.verse; } });
   const prec = {};
-  soldes.forEach(s => { const av = prec[s[1]]; prec[s[1]] = s[2]; if (av !== undefined && s[3] !== "Intérêts" && s[2] - av > 0.5) { const m = s[0].slice(0, 7); vers[m] = (vers[m] || 0) + s[2] - av; } });
+  soldes.forEach(s => { const av = prec[s[1]]; prec[s[1]] = s[2];
+    const plus = s[3] === "Versement" ? s[6] : s[3] === "Mise à jour" && av !== undefined ? s[2] - av : 0;
+    if (plus > 0.5) { const m = s[0].slice(0, 7); vers[m] = (vers[m] || 0) + plus; } });
   const premier = [sTot.length ? sTot[0].d : null, premierSolde].filter(Boolean).sort()[0] || null;
   const derSaisie = soldes.length ? soldes.map(s => s[0]).sort().pop() : null;
   const vieux = derSaisie && (Date.now() - new Date(derSaisie + "T12:00:00")) / 864e5 > 31;
@@ -2879,16 +2936,16 @@ function adapterSimple(raw) {
     simple: true, profil: "simple", _d: Dv, ok: true, genere: raw.genere, personne: qui,
     majTexte: (fin ? "Bourse : relevé de " + MOIS_L[fin % 100 - 1] + " " + Math.floor(fin / 100) : "Bourse : pas encore de relevé") + (derSaisie ? " · épargne saisie le " + frDate(derSaisie) : ""),
     anomalies: "", marches: "",
-    rappel: !comptes.length ? "🔔 À mettre à jour : ajoute tes comptes d'épargne et leurs soldes (➕ › Comptes et prêt)" : vieux ? "🔔 À mettre à jour : tes soldes d'épargne (dernière saisie il y a plus d'un mois)" : derSaisie ? "✓ Soldes à jour (saisis le " + frDate(derSaisie) + ")." : "🔔 À mettre à jour : saisis le solde de tes comptes (➕ › Mes soldes)",
+    rappel: !comptes.length ? "🔔 À mettre à jour : ajoute tes comptes d'épargne et leur valeur de départ (➕ › Comptes et prêt)" : vieux ? "🔔 À mettre à jour : tes soldes d'épargne (dernière saisie il y a plus d'un mois)" : derSaisie ? "✓ Soldes à jour (saisis le " + frDate(derSaisie) + ")." : "🔔 À mettre à jour : saisis le solde de tes comptes (➕ › Mes soldes)",
     synthese: { valeur: tot.valeur || 0, apports: tot.verse || 0, gain: tot.pvLatente, gainPct: tot.pvLatentePct, latente: tot.pvLatente, latentePct: tot.pvLatentePct, mwr: tot.mwr, twr: tot.twr,
       sp500: tot.i1 ? tot.i1.twr : null, epargne: totalEp, financier, jour: null, jourPct: null, timing: "—", releve: fin },
     indices: [], enveloppes: envs.concat([total]), groupes: [], fiscalite: [], supports: [], frais: [], cibles: [], alertes: [], perfLignes: {}, signal: null,
     epargne, epargneMois, moisParMois, immo, prets,
     parametres: { rappels: [], appart },
-    historique: { cols: ["d", "v", "a", "ip", "isp"], rows },
+    historique: { cols: colsH, rows },
     ref: { enveloppes: envs.map(e => ({ nom: e.nom, regime: e.regime, ouverture: e.ouverture, statut: "Ouvert", perimetre: "Portefeuille" })), types: [], actifs: [], cours: {}, detenu: [], journal: [], raccourcis: [],
       parcours: { premier, derniereVente: null, mois: Object.keys(vers).map(m => ({ m, apports: vers[m] })) } },
-    comptes, soldes, reglages: raw.reglages || {}
+    comptes, soldes, mouvements, joursModif: raw.joursModif || 7, reglages: raw.reglages || {}
   };
 }
 
@@ -2937,13 +2994,14 @@ function brancherJourSimple(v) {
 
 /* ---- Saisie (profil simple) : soldes, historique, comptes et prêt ---- */
 let paneS = "soldes", confirmeS = null;
+const ETAT_S = { compte: null, type: "Versement" };
 function assurerFeuilleSimple() {
   if ($f("ms-saisie")) return;
   const d = document.createElement("div");
   d.className = "voile"; d.id = "ms-saisie"; d.hidden = true;
   d.innerHTML = '<div class="feuille moi m-feuille" role="dialog" aria-modal="true" aria-labelledby="ms-titre">' +
     '<h3 id="ms-titre">Mes chiffres <button class="icon-btn" type="button" id="ms-fermer" aria-label="Fermer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>' +
-    '<div class="seg m-seg4" role="group" aria-label="Saisie"><button type="button" data-ms-pane="soldes">Mes soldes</button><button type="button" data-ms-pane="historique">Historique</button>' +
+    '<div class="seg m-seg4" role="group" aria-label="Saisie"><button type="button" data-ms-pane="soldes">Mouvement</button><button type="button" data-ms-pane="historique">Historique</button>' +
       '<button type="button" data-ms-pane="comptes">Comptes et prêt</button><button type="button" data-ms-pane="versus">Relevé Versus</button></div>' +
     '<div id="ms-corps"></div></div>';
   document.body.appendChild(d);
@@ -2978,39 +3036,48 @@ function rendreSimple() {
   document.querySelectorAll("[data-ms-pane]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.msPane === paneS)));
   const comptes = (M.comptes || []), ouverts = comptes.filter(c => c.statut !== "Fermé"), soldes = M.soldes || [];
   const der = {}; soldes.forEach(s => { der[s[1]] = s; });
+  const mouv = M.mouvements || soldes, jm = M.joursModif || 7;
+  const aDepart = nom => mouv.some(s => s[1] === nom && (s[3] === "Départ" || s[3] === "Mise à jour"));
   if (paneS === "soldes") {
-    z.innerHTML = !ouverts.length ? '<p class="info">Aucun compte pour l\'instant. Ajoute d\'abord tes livrets et assurances-vie dans « Comptes et prêt ».</p><button class="btn acc" type="button" id="ms-aller-comptes">Ajouter un compte</button>'
-      : '<form class="form" id="ms-form" novalidate><div class="champ"><label for="ms-date">Date des soldes</label><input id="ms-date" type="date" value="' + aujourdhuiISO() + '" max="' + aujourdhuiISO() + '"></div>' +
-        '<div class="ms-liste">' + ouverts.map((c, i) => { const d = der[c.nom];
-          return '<div class="ms-l"><div class="ms-n"><b>' + esc(c.nom) + "</b><small>" + (d ? "dernier : " + eur(d[2], 2) + " le " + frDate(d[0]) : "pas encore de solde") + "</small></div>" +
-            '<input type="text" inputmode="decimal" autocomplete="off" data-ms-compte="' + i + '" placeholder="' + (d ? saisieNombre(d[2], 2) : "Solde") + '" aria-label="Nouveau solde de ' + esc(c.nom) + '">' +
-            '<label class="ms-int"><input type="checkbox" data-ms-int="' + i + '"> intérêts</label></div>'; }).join("") + "</div>" +
-        '<button class="btn acc plein" type="submit" id="ms-envoyer">Enregistrer</button>' +
-        '<p class="info">Remplis seulement les comptes qui ont changé : les autres gardent leur dernier solde. Coche « intérêts » quand la hausse vient des intérêts (en janvier en général) : elle ne comptera pas comme un versement dans tes séries.</p></form>';
-    const a = z.querySelector("#ms-aller-comptes"); if (a) a.addEventListener("click", () => { paneS = "comptes"; rendreSimple(); });
-    const f = z.querySelector("#ms-form");
-    if (f) f.addEventListener("submit", async e => {
+    if (!ouverts.length) {
+      z.innerHTML = '<p class="info">Aucun compte pour l\'instant. Ajoute d\'abord tes livrets et assurances-vie dans « Comptes et prêt ».</p><button class="btn acc" type="button" id="ms-aller-comptes">Ajouter un compte</button>';
+      z.querySelector("#ms-aller-comptes").addEventListener("click", () => { paneS = "comptes"; rendreSimple(); });
+      return;
+    }
+    const sel = ouverts.find(c => c.nom === ETAT_S.compte) || ouverts[0], depart = !aDepart(sel.nom), solde = der[sel.nom] ? der[sel.nom][2] : null;
+    const types = [["Versement", "➕ Versement"], ["Retrait", "➖ Retrait"], ["Intérêts", "💶 Intérêts"]];
+    if (!types.some(t => t[0] === ETAT_S.type)) ETAT_S.type = "Versement";
+    z.innerHTML = '<div class="ms-liste">' + ouverts.map(c => '<button type="button" class="ms-l ms-c' + (c.nom === sel.nom ? " on" : "") + '" data-ms-c="' + esc(c.nom) + '"><span class="ms-n"><b>' + esc(c.nom) + "</b><small>" + (aDepart(c.nom) ? "solde " + eur(der[c.nom] ? der[c.nom][2] : 0, 2) : "valeur de départ à saisir") + "</small></span></button>").join("") + "</div>" +
+      '<form class="form" id="ms-form" novalidate>' +
+      (depart
+        ? '<p class="ms-note">🏁 <b>Valeur de départ de ' + esc(sel.nom) + '</b> : le montant sur le compte à cette date. Elle se saisit <b>une seule fois</b> et se fige ensuite : après, seuls les versements, retraits et intérêts font bouger le solde.</p>'
+        : '<div class="seg" role="group" aria-label="Type de mouvement">' + types.map(t => '<button type="button" data-ms-t="' + t[0] + '" aria-pressed="' + (ETAT_S.type === t[0]) + '">' + t[1] + "</button>").join("") + "</div>") +
+      '<div class="rang2"><div class="champ"><label for="ms-montant">' + (depart ? "Valeur de départ (€)" : "Montant (€)") + '</label><input id="ms-montant" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></div>' +
+      '<div class="champ"><label for="ms-date">Date</label><input id="ms-date" type="date" value="' + aujourdhuiISO() + '" max="' + aujourdhuiISO() + '"></div></div>' +
+      '<button class="btn acc plein" type="submit" id="ms-envoyer">' + (depart ? "Fixer la valeur de départ" : "Enregistrer") + "</button>" +
+      '<p class="info">' + (depart ? "Regarde le montant exact dans ton appli bancaire avant de valider." : (ETAT_S.type === "Intérêts" ? "Les intérêts tombent en général au 1er janvier (livrets) : ils augmentent ton solde sans compter comme un versement dans tes séries." : ETAT_S.type === "Retrait" ? "Un retrait ne peut pas dépasser le solde du compte à cette date." : "Un versement compte dans ta série de mois avec un versement (Missions).") +
+        " Solde actuel : <b>" + eur(solde || 0, 2) + "</b>. Une saisie se supprime pendant " + jm + " jours dans l'historique, puis elle est figée.") + "</p></form>";
+    z.querySelectorAll("[data-ms-c]").forEach(b => b.addEventListener("click", () => { ETAT_S.compte = b.dataset.msC; rendreSimple(); }));
+    z.querySelectorAll("[data-ms-t]").forEach(b => b.addEventListener("click", () => { ETAT_S.type = b.dataset.msT; rendreSimple(); }));
+    z.querySelector("#ms-form").addEventListener("submit", async e => {
       e.preventDefault();
-      const date = z.querySelector("#ms-date").value, entrees = [];
-      let faux = null;
-      z.querySelectorAll("[data-ms-compte]").forEach(inp => {
-        if (!inp.value.trim()) return;
-        const v = lireNombre(inp.value), c = ouverts[+inp.dataset.msCompte];
-        if (!(v >= 0)) { faux = c.nom; return; }
-        entrees.push({ date, compte: c.nom, solde: v, nature: z.querySelector('[data-ms-int="' + inp.dataset.msCompte + '"]').checked ? "Intérêts" : "Mise à jour" });
-      });
-      if (faux) { toast("Montant illisible pour " + faux + "."); return; }
-      if (!entrees.length) { toast("Rien à enregistrer : remplis au moins un solde."); return; }
-      if (await envoyerSimple({ action: "soldes", entrees }, z.querySelector("#ms-envoyer"))) $f("ms-saisie").hidden = true;
+      const v = lireNombre(z.querySelector("#ms-montant").value), date = z.querySelector("#ms-date").value;
+      if (!(v >= 0) || (!depart && !(v > 0))) { toast("Montant illisible."); return; }
+      if (!date) { toast("Choisis une date."); return; }
+      if (!depart && ETAT_S.type === "Retrait") { const dispo = soldes.filter(x => x[1] === sel.nom && x[0] <= date).map(x => x[2]).pop(); if (v > (dispo || 0) + .005) { toast("Retrait trop élevé : " + sel.nom + " n'a que " + eur(dispo || 0, 2) + " à cette date."); return; } }
+      const nature = depart ? "Départ" : ETAT_S.type;
+      if (await envoyerSimple({ action: "soldes", entrees: [{ date, compte: sel.nom, montant: v, nature }] }, z.querySelector("#ms-envoyer"))) rendreSimple();
     });
   } else if (paneS === "historique") {
-    const l = soldes.slice().reverse().slice(0, 60);
-    z.innerHTML = !l.length ? '<p class="info">Pas encore de saisie.</p>' : '<div class="m-liste">' + l.map(s => '<div class="r"><span class="a">' + esc(s[1]) + '</span><span class="b">' + eur(s[2], 2) + '</span><span class="c">' + frDate(s[0]) + (s[3] === "Intérêts" ? " · intérêts" : "") + '</span><span class="d"><button class="lien danger" type="button" data-ms-suppr="' + s[5] + '">' + (confirmeS === s[5] ? "Confirmer" : "Supprimer") + "</button></span></div>").join("") + "</div>" +
-      '<p class="info">Une erreur ? Supprime la ligne puis ressaisis le bon solde. Les 60 dernières saisies sont listées.</p>';
+    const l = mouv.slice().reverse().slice(0, 80), modif = s => s[4] && (Date.now() - new Date(String(s[4]).replace(" ", "T"))) / 864e5 <= jm;
+    const lib = s => s[3] === "Départ" || s[3] === "Mise à jour" ? "🏁 départ " + eur(s[2], 2) : s[3] === "Retrait" ? "➖ " + eur(s[2], 2) : s[3] === "Intérêts" ? "💶 +" + eur(s[2], 2) : "➕ " + eur(s[2], 2);
+    z.innerHTML = !l.length ? '<p class="info">Pas encore de saisie.</p>' : '<div class="m-liste">' + l.map(s => '<div class="r"><span class="a">' + esc(s[1]) + '</span><span class="b">' + lib(s) + '</span><span class="c">' + frDate(s[0]) + " · " + esc((s[3] === "Mise à jour" ? "solde" : s[3]).toLowerCase()) + '</span><span class="d">' +
+      (modif(s) ? '<button class="lien danger" type="button" data-ms-suppr="' + s[5] + '">' + (confirmeS === s[5] ? "Confirmer" : "Supprimer") + "</button>" : '<span class="ms-fige" title="Saisie figée">🔒</span>') + "</span></div>").join("") + "</div>" +
+      '<p class="info">Une saisie se supprime pendant ' + jm + " jours, puis elle est figée 🔒. Pour corriger une saisie figée, ajoute un mouvement inverse (un retrait pour annuler un versement en trop, par exemple).</p>";
     z.querySelectorAll("[data-ms-suppr]").forEach(b => b.addEventListener("click", async () => {
       const n = +b.dataset.msSuppr;
       if (confirmeS !== n) { confirmeS = n; rendreSimple(); return; }
-      const s = soldes.find(x => x[5] === n); confirmeS = null;
+      const s = mouv.find(x => x[5] === n); confirmeS = null;
       if (s && await envoyerSimple({ action: "supprimerSolde", solde: { ligne: n, date: s[0], compte: s[1] } }, b)) rendreSimple();
     }));
   } else {
@@ -3020,19 +3087,20 @@ function rendreSimple() {
       '<form class="form" id="ms-ajout" novalidate><div class="rang2"><div class="champ"><label for="ms-nom">Nouveau compte</label><input id="ms-nom" type="text" maxlength="40" placeholder="Livret A, LDDS, AV…"></div>' +
         '<div class="champ"><label for="ms-type">Type</label><select id="ms-type"><option>Livret</option><option>Assurance-vie</option><option>Autre épargne</option></select></div></div>' +
         '<button class="btn ghost" type="submit">Ajouter ce compte</button><p class="info">Seulement l\'épargne : ton PEA et ton assurance-vie en bourse sont déjà suivis par tes relevés du Versus.</p></form>' +
-      '<h4 class="m-h4">Appartement</h4><form class="form" id="ms-reg" novalidate>' +
+      '<h4 class="m-h4">Bien immobilier</h4><form class="form" id="ms-reg" novalidate>' +
         '<div class="rang2"><div class="champ"><label for="mr-prix">Prix d\'achat total (€)</label><input id="mr-prix" type="text" inputmode="decimal" value="' + val(ap.prix, 0) + '"></div>' +
-        '<div class="champ"><label for="mr-apart">Ma part (%)</label><input id="mr-apart" type="text" inputmode="decimal" value="' + (ok(ap.part) ? val(ap.part) : "33,33") + '"></div></div>' +
-        '<div class="champ"><label for="mr-adate">Date d\'achat</label><input id="mr-adate" type="date" value="' + (ap.date || "") + '"></div>' +
-        '<h4 class="m-h4">Prêt immobilier</h4>' +
+        '<div class="champ"><label for="mr-apart">Ma part (%)</label><input id="mr-apart" type="text" inputmode="decimal" value="' + (ok(ap.part) ? val(ap.part) : "") + '" placeholder="50"></div></div>' +
+        '<div class="rang2"><div class="champ"><label for="mr-adate">Date d\'achat</label><input id="mr-adate" type="date" value="' + (ap.date || "") + '"></div>' +
+        '<div class="champ"><label for="mr-anom">Nom affiché</label><input id="mr-anom" type="text" maxlength="60" value="' + esc(ap.nom || "") + '" placeholder="Appartement"></div></div>' +
+        '<h4 class="m-h4">Prêt immobilier</h4>' + (M.prets && M.prets.banque ? '<p class="ms-note">🏦 <b>Tableau d\'amortissement de la banque</b> : ' + M.prets.nb + " échéances, du " + frDate(M.prets.debut) + " au " + frDate(M.prets.fin) + ". L'app suit ce tableau au centime (assurance comprise) : seule « Ma part » compte ci-dessous.</p>" : "") +
         '<div class="rang2"><div class="champ"><label for="mr-cap">Capital emprunté total (€)</label><input id="mr-cap" type="text" inputmode="decimal" value="' + val(pr.capital, 0) + '"></div>' +
-        '<div class="champ"><label for="mr-ppart">Ma part (%)</label><input id="mr-ppart" type="text" inputmode="decimal" value="' + (ok(pr.part) ? val(pr.part) : "33,33") + '"></div></div>' +
+        '<div class="champ"><label for="mr-ppart">Ma part (%)</label><input id="mr-ppart" type="text" inputmode="decimal" value="' + (ok(pr.part) ? val(pr.part) : "") + '" placeholder="50"></div></div>' +
         '<div class="rang2"><div class="champ"><label for="mr-taux">Taux nominal (% / an)</label><input id="mr-taux" type="text" inputmode="decimal" value="' + val(pr.taux, 3) + '"></div>' +
         '<div class="champ"><label for="mr-duree">Durée (années)</label><input id="mr-duree" type="text" inputmode="decimal" value="' + val(pr.duree, 0) + '"></div></div>' +
         '<div class="rang2"><div class="champ"><label for="mr-debut">1re échéance</label><input id="mr-debut" type="date" value="' + (pr.debut || "") + '"></div>' +
         '<div class="champ"><label for="mr-ass">Assurance / mois, ma part (€)</label><input id="mr-ass" type="text" inputmode="decimal" value="' + val(pr.assurance) + '"></div></div>' +
-        '<button class="btn acc plein" type="submit" id="mr-envoyer">Enregistrer l\'appartement et le prêt</button>' +
-        '<p class="info">Prêt à plusieurs : saisis le capital et le prix totaux, et ta part (1/3 = 33,33 %). L\'app calcule l\'échéancier et ne compte que ta part dans ton patrimoine net. Tout est dans l\'offre de prêt.</p></form>';
+        '<button class="btn acc plein" type="submit" id="mr-envoyer">Enregistrer le bien et le prêt</button>' +
+        '<p class="info">Prêt à plusieurs : saisis le capital et le prix totaux, et ta part (la moitié = 50 %, un tiers = 33,33 %). Sans tableau de la banque, l\'app calcule l\'échéancier et ne compte que ta part dans ton patrimoine net. Tout est dans l\'offre de prêt.</p></form>';
     z.querySelectorAll("[data-ms-ferme]").forEach(b => b.addEventListener("click", async () => {
       const i = +b.dataset.msFerme, c = comptes[i];
       if (c.statut !== "Fermé" && confirmeS !== "f" + i) { confirmeS = "f" + i; rendreSimple(); return; }
@@ -3047,9 +3115,9 @@ function rendreSimple() {
     z.querySelector("#ms-reg").addEventListener("submit", async e => {
       e.preventDefault();
       const n = id => { const t = z.querySelector(id).value.trim(); return t === "" ? null : lireNombre(t); };
-      const reglages = { "appart.prix": n("#mr-prix"), "appart.part": n("#mr-apart"), "appart.date": z.querySelector("#mr-adate").value || null,
+      const reglages = { "appart.nom": z.querySelector("#mr-anom").value.trim() || null, "appart.prix": n("#mr-prix"), "appart.part": n("#mr-apart"), "appart.date": z.querySelector("#mr-adate").value || null,
         "pret.capital": n("#mr-cap"), "pret.part": n("#mr-ppart"), "pret.taux": n("#mr-taux"), "pret.duree": n("#mr-duree"), "pret.debut": z.querySelector("#mr-debut").value || null, "pret.assurance": n("#mr-ass") };
-      if (Object.values(reglages).some(x => typeof x === "number" && !(x >= 0))) { toast("Un montant est illisible."); return; }
+      if (Object.entries(reglages).some(([k, x]) => k !== "appart.nom" && typeof x === "number" && !(x >= 0))) { toast("Un montant est illisible."); return; }
       if ((reglages["appart.part"] || 0) > 100 || (reglages["pret.part"] || 0) > 100) { toast("Une part ne peut pas dépasser 100 %."); return; }
       await envoyerSimple({ action: "reglages", reglages }, z.querySelector("#mr-envoyer"));
     });
