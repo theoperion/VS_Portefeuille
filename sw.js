@@ -2,7 +2,7 @@
    La coquille de l'appli (page, scripts, icônes) est gardée sur le téléphone pour s'ouvrir sans réseau.
    Réseau d'abord : en ligne, on prend toujours la dernière version ; hors ligne (ou réseau trop lent), la copie gardée.
    Les appels à l'API (script.google.com) ne passent jamais par ici : l'appli garde elle-même ses dernières données. */
-const VERSION = "versus-v10";
+const VERSION = "versus-v11";
 const COQUILLE = ["./", "index.html", "moteur.js", "moi.js?v=17", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "icon.svg"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => Promise.all(COQUILLE.map(u => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
@@ -14,7 +14,8 @@ function delai(ms) { return new Promise((_, rej) => setTimeout(() => rej(new Err
 async function reseauDabord(req, ms) {
   const cache = await caches.open(VERSION);
   try {
-    const rep = await Promise.race([fetch(req), delai(ms)]);
+    const frais = req.mode === "navigate" ? fetch(req.url, { cache: "no-cache", credentials: "same-origin" }) : fetch(req, { cache: "no-cache" });   // revalide auprès de GitHub
+    const rep = await Promise.race([frais, delai(ms)]);
     if (rep && rep.ok) cache.put(req, rep.clone());
     return rep;
   } catch (err) {

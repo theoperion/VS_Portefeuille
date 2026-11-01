@@ -354,6 +354,18 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .rg-admin { margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--gold) 18%, var(--panel)); font-size: 12.5px; }
 .etape-adm .ea-date { font-size: 13px; } .ea-l { display: grid; gap: 6px; width: 100%; font-size: 12px; color: rgba(244,245,248,.75); text-align: left; }
 .ea-l select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: #0f131b; color: #F4F5F8; font: 600 14px var(--f-text); }
+.version-app { margin: 4px 0 0; text-align: center; font: 500 11.5px/1.5 var(--f-num); color: var(--ink-3); }
+.version-app b { color: var(--ink-2); }
+.barre-admin { display: grid; gap: 8px; margin: 0 0 14px; padding: 10px 12px; border-radius: 14px; background: linear-gradient(120deg, color-mix(in srgb, var(--gold) 22%, var(--panel)), var(--panel) 75%); border: 1px solid color-mix(in srgb, var(--gold) 55%, var(--rule)); }
+.ba-h { display: flex; align-items: center; gap: 10px; } .ba-h b { flex: none; font: italic 800 13px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.ba-seg { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--panel); }
+.ba-seg button { border: 0; background: none; padding: 8px 4px; font: 700 12px/1.1 var(--f-text); color: var(--ink-2); cursor: pointer; }
+.ba-seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.ba-l { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px; align-items: center; } .ba-l > span { font: 700 10.5px/1 var(--f-num); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.ba-o { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; } .ba-o::-webkit-scrollbar { display: none; }
+.ba-o button { flex: none; border: 1px solid var(--rule); background: var(--panel); color: var(--ink-2); border-radius: 999px; padding: 6px 10px; font: 600 12px/1 var(--f-text); cursor: pointer; white-space: nowrap; }
+.ba-o button[aria-pressed="true"] { background: var(--gold); color: #2A1A03; border-color: #C98E22; }
+.barre-admin small { font-size: 12px; line-height: 1.4; color: var(--ink-2); }
 .simu-band { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; margin: 10px 16px 0; padding: 9px 12px; border-radius: 12px; font-size: 12.5px; color: #2A1A03; background: linear-gradient(120deg, #FFE596, #F7CF55); border: 1px solid #C98E22; }
 .simu-band .lien { color: #3B2405; font-weight: 700; }
 .bientot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 11px 12px; border-radius: 14px; border: 1px dashed var(--rule); background: var(--panel); }
@@ -1193,6 +1205,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
       </div>
     </section>
     <p class="info" id="etat-source"></p>
+    <p class="version-app" id="version-app"></p>
   </div>
 </div>
 
@@ -1211,6 +1224,8 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
 <script src="moteur.js"></script>
 <script>
 "use strict";
+/* Version de l'appli : à changer à chaque livraison (affichée en bas des Réglages) */
+const APP_VERSION = "10.5", APP_DATE = "1er novembre 2026";
 /* Admin : « voir l'appli à une autre date » (Réglages › Voir comme un joueur). L'horloge de l'appli est décalée ; rien n'est envoyé. */
 (function () {
   let s = null; try { s = localStorage.getItem("versus.dateSim"); } catch (e) { return; }
@@ -1394,6 +1409,7 @@ function afficherTout() {
   document.querySelectorAll("[data-moi]").forEach(x => x.addEventListener("click", () => { ETAT.moi = x.dataset.moi; ETAT.fiche = x.dataset.moi; garder(); afficherTout(); }));
   $("#bloc-moi").hidden = !estAdmin();
   majVueJoueur();
+  majVersion();
   const admin = estAdmin() && SOURCE === "api";
   $("#regl-params").hidden = !admin;
   $("#regl-liaison").hidden = !admin;
@@ -2522,7 +2538,7 @@ function teaser() {
       '<button class="btn acc" type="button" id="teaser-regles">📖 Lire toutes les règles</button>' +
       '<p class="t-note">Tout repart de zéro le 1<sup>er</sup> janvier : ce qui s\'est passé avant ne compte pas.</p>'
       : '<p class="t-note">On en dit plus le 20 novembre.</p>') + "</div>" +
-    (estAdmin() ? '<div class="t-admin"><button class="lien" type="button" id="apercu-saison">👀 Aperçu admin de la saison</button><button class="lien" type="button" id="teaser-noel">' + (stock.get("versus.teaserNoel") === "1" ? "Teaser normal" : "Teaser du 20 nov.") + "</button></div>" : "") +
+    (false ? '<div class="t-admin"><button class="lien" type="button" id="apercu-saison">👀 Aperçu admin de la saison</button><button class="lien" type="button" id="teaser-noel">' + (stock.get("versus.teaserNoel") === "1" ? "Teaser normal" : "Teaser du 20 nov.") + "</button></div>" : "") +
     "</section>";
 }
 let MINUTEUR_TEASER = null;
@@ -2539,6 +2555,34 @@ function animerCompte() {
 
 /* ---------- Bloc saison : Championnat · Mon écurie · Défis ---------- */
 let ECU = null;   // brouillon de l'écurie en cours de réglage
+/* ---------- Barre admin du Podium : tout afficher, voir comme un joueur, ou le réel d'aujourd'hui ---------- */
+function modeAdmin() { return vueJoueur() ? "joueur" : apercuSaison() ? "tout" : "reel"; }
+function barreAdmin() {
+  const m = modeAdmin(), b = (id, lib) => '<button type="button" data-madm="' + id + '" aria-pressed="' + (m === id) + '">' + lib + "</button>";
+  const desc = m === "tout" ? "Toutes les fonctions et toutes les règles, sur la saison 2026 rejouée. Rien de ce que tu fais ici n'est vu par les autres."
+    : m === "joueur" ? "Exactement ce que voit " + esc(SESSION.nom || "") + (window.DATE_SIM ? ", au " + esc(new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })) : ", aujourd'hui") + ". Rien n'est envoyé."
+    : "Ce que tout le monde voit aujourd'hui, pour de vrai. Ici, tes actions comptent.";
+  let plus = "";
+  if (m === "joueur") {
+    const vj = stock.get("versus.vueJoueur") || "", ds = stock.get("versus.dateSim") || "";
+    plus = '<div class="ba-l"><span>Joueur</span><div class="ba-o">' + D.personnes.map(p => '<button type="button" data-bajoueur="' + esc(p.nom) + '" aria-pressed="' + (vj === p.nom) + '">' + esc(p.nom) + "</button>").join("") + "</div></div>" +
+      '<div class="ba-l"><span>Date</span><div class="ba-o">' + DATES_SIM.map(([d, l]) => '<button type="button" data-badate="' + d + '" aria-pressed="' + (ds === d) + '">' + esc(l) + "</button>").join("") + "</div></div>";
+  }
+  return '<div class="barre-admin"><div class="ba-h"><b>👑 Admin</b><div class="ba-seg">' + b("tout", "Tout afficher") + b("joueur", "Vue joueur") + b("reel", "Le réel") + "</div></div>" + plus + "<small>" + desc + "</small></div>";
+}
+function brancherBarreAdmin(v) {
+  const reglerMode = m => {
+    if (m === "tout") { stock.set("versus.apercuSaison", "1"); stock.del("versus.vueJoueur"); }
+    else if (m === "reel") { stock.set("versus.apercuSaison", "0"); stock.del("versus.vueJoueur"); }
+    else { stock.set("versus.apercuSaison", "0"); stock.set("versus.vueJoueur", ETAT.moi || D.personnes[0].nom); if (!stock.get("versus.dateSim") && !chauffeOuverte()) stock.set("versus.dateSim", "2026-12-03"); }
+    if (m !== "joueur" && window.DATE_SIM) stock.del("versus.dateSim");
+    if ((stock.get("versus.dateSim") || null) !== (window.DATE_SIM || null)) { location.reload(); return; }   // l'horloge simulée se règle au chargement
+    ECU = null; MEMO_SAISON = { d: null, m: {} }; afficherTout(); window.scrollTo({ top: 0 });
+  };
+  v.querySelectorAll("[data-madm]").forEach(x => x.addEventListener("click", () => reglerMode(x.dataset.madm)));
+  v.querySelectorAll("[data-bajoueur]").forEach(x => x.addEventListener("click", () => { stock.set("versus.vueJoueur", x.dataset.bajoueur); ECU = null; MEMO_SAISON = { d: null, m: {} }; afficherTout(); }));
+  v.querySelectorAll("[data-badate]").forEach(x => x.addEventListener("click", () => { if (x.dataset.badate) stock.set("versus.dateSim", x.dataset.badate); else stock.del("versus.dateSim"); location.reload(); }));
+}
 function rubanApercu() {
   return '<div class="apercu-ruban"><b>Aperçu admin</b><span>Saison rejouée sur 2026 pour tester. Les autres voient le teaser jusqu\'au 1<sup>er</sup> janvier.</span><button class="lien" type="button" id="quitter-apercu">Quitter</button></div>';
 }
@@ -3086,7 +3130,7 @@ function revelationAVoir() {
   return l.length ? { k: kc, y, l } : null;
 }
 function ouvrirRevelation(r) {
-  stock.set("versus.revele", String(r.k));
+  if (!window.DATE_SIM) stock.set("versus.revele", String(r.k));
   const o = document.createElement("div"); o.className = "revel"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
   o.innerHTML = '<div class="rv-c"><span class="tuto-k">Révélation · ' + esc(moisLong(r.k)) + "</span><h3>Les cartes sont retournées</h3>" +
     '<div class="rv-l">' + r.l.map((x, i) => { const cd = x.c && x.c.c ? carteDef(x.c.c) : null;
@@ -3216,7 +3260,7 @@ function brancherGP(v, y) {
   const etapes = etapesGP(y), i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1;
   const jouer = () => animerGP(v, i > 0 ? etapes[i - 1].pts : null, etapes[i].pts, 2600);
   const cle = "versus.gpVu." + y, vu = +(stock.get(cle) || 0), dernier = etapes[etapes.length - 1].k || 0;
-  if (i === etapes.length - 1 && dernier > vu) { stock.set(cle, String(dernier)); placerGP(v, i > 0 ? etapes[i - 1].pts : etapes[i].pts); setTimeout(jouer, 350); }
+  if (i === etapes.length - 1 && dernier > vu) { if (!window.DATE_SIM) stock.set(cle, String(dernier)); placerGP(v, i > 0 ? etapes[i - 1].pts : etapes[i].pts); setTimeout(jouer, 350); }
   else placerGP(v, etapes[i].pts);
   const vu3 = v.querySelector("#gp-vue"); if (vu3) vu3.addEventListener("click", () => { ETAT.gp2d = ETAT.gp2d === "1" ? "0" : "1"; garder(); GP_CAMV = null; rendreTrophees(); });
   const cb = v.querySelector("#gp-cam-b"); if (cb) cb.addEventListener("click", () => { ETAT.gpCam = ETAT.gpCam === "0" ? "1" : "0"; garder(); GP_CAMV = null; rendreTrophees(); });
@@ -3298,7 +3342,7 @@ function nouveautesAVoir() {
   return ETAPES.filter(e => regleVisible(e.id) && !stock.get("versus.nouveaute." + e.id));
 }
 function ouvrirNouveautes(l) {
-  l.forEach(e => stock.set("versus.nouveaute." + e.id, "1"));
+  if (!window.DATE_SIM) l.forEach(e => stock.set("versus.nouveaute." + e.id, "1"));   // en simulation, rien n'est marqué comme vu
   const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
   o.innerHTML = '<div class="tuto-c"><span class="tuto-k">' + (l.length > 1 ? "Nouvelles règles" : "Nouvelle règle") + "</span>" + l.map(e => '<div class="tuto-i">' + e.ico + "</div><h3>" + esc(e.nom) + "</h3><p>" + esc(e.resume) + "</p>").join("") +
     '<div class="btn-row"><button class="btn ghost" type="button" data-nv="regles">Lire la règle</button><button class="btn acc" type="button" data-nv="ok">Compris 🏁</button></div></div>';
@@ -3787,8 +3831,11 @@ function monter3D(box, nom, e) {
 function rendreTrophees() {
   const v = $("#v-trophees");
   clearInterval(MINUTEUR_TEASER);
+  // admin : la première fois, le Podium s'ouvre sur « tout afficher »
+  if (D && vraiAdmin() && !stock.get("versus.modeAdmin")) { stock.set("versus.modeAdmin", "1"); if (!vueJoueur() && !window.DATE_SIM) stock.set("versus.apercuSaison", "1"); }
   const vis = saisonVisible();
-  v.innerHTML = (apercuSaison() ? rubanApercu() : "") + (vis ? blocSaison() : bandeauMillion() + teaser());
+  v.innerHTML = (D && vraiAdmin() ? barreAdmin() : "") + (vis ? blocSaison() : bandeauMillion() + teaser());
+  brancherBarreAdmin(v);
   const im = $("#info-million-t"); if (im) im.addEventListener("click", () => toast(texteMillion()));
   if (vis) brancherSaison(v);
   else {
@@ -3803,7 +3850,7 @@ function rendreTrophees() {
   if (q) q.addEventListener("click", () => { stock.set("versus.apercuSaison", "0"); ECU = null; rendreTrophees(); });
   if (saisonOuverte() && !stock.get("versus.saison1")) { stock.set("versus.saison1", "1"); toast("🏁 Saison 1 : c'est parti !"); confettis("damier"); }
   majRappels();
-  if (!saisonOuverte() && chauffeOuverte() && !apercuSaison() && !stock.get("versus.chauffe1")) { stock.set("versus.chauffe1", "1"); toast("🔥 Tour de chauffe : essaie tout, rien ne compte !"); confettis("damier"); }
+  if (!saisonOuverte() && chauffeOuverte() && !apercuSaison() && !stock.get("versus.chauffe1") && !window.DATE_SIM) { stock.set("versus.chauffe1", "1"); toast("🔥 Tour de chauffe : essaie tout, rien ne compte !"); confettis("damier"); }
 }
 
 /* ---------- Duel ---------- */
@@ -4654,6 +4701,24 @@ if (ETAT.ouverture === "fiche" || ETAT.ouverture === "moi") { ETAT.ouverture = "
   const m = /^moi-(jour|patrimoine|stats|missions)$/.exec(ETAT.ouverture || ""); if (!m || location.hash) return;
   try { const p = JSON.parse(stock.get("versus.moi.pref") || "{}"); p.onglet = m[1]; stock.set("versus.moi.pref", JSON.stringify(p)); } catch (e) { /* préférences illisibles */ }
 })();
+/* ---------- Nouvelle version en ligne ? (comparée à celle de la page sur GitHub) ---------- */
+async function verifierMiseAJour() {
+  if (location.protocol !== "https:") return;
+  try {
+    const t = await (await fetch(location.pathname.replace(/[^/]*$/, "") + "index.html?v=" + Date.now(), { cache: "no-store" })).text();
+    const m = /const APP_VERSION = "([^"]+)"/.exec(t); if (!m || m[1] === APP_VERSION) return;
+    const b = $("#simu-band"); if (!b) return;
+    b.hidden = false; b.classList.add("maj");
+    b.innerHTML = "<span>🆕 Version " + esc(m[1]) + " disponible (tu as la " + APP_VERSION + ").</span>" + '<button class="lien" type="button" id="maj-go">Mettre à jour</button>';
+    $("#maj-go").addEventListener("click", async () => { try { const r = await navigator.serviceWorker.getRegistration(); if (r) await r.update(); } catch (e) { /* rien */ } location.reload(); });
+  } catch (e) { /* hors ligne : on réessaiera */ }
+}
+/* ---------- Version affichée dans les Réglages ---------- */
+function majVersion() {
+  const el = $("#version-app"); if (!el) return;
+  const api = D && D.version ? "API V" + D.version : SOURCE === "demo" ? "API : démo" : "API : —";
+  el.innerHTML = "<b>Versus " + APP_VERSION + "</b> · " + APP_DATE + "<br>" + esc(api) + " · module Moi " + esc((MOI_JS.match(/v=(\d+)/) || [])[1] ? "v" + MOI_JS.match(/v=(\d+)/)[1] : "") + (navigator.serviceWorker && navigator.serviceWorker.controller ? " · hors connexion prêt ✓" : "");
+}
 /* ---------- Vue joueur et date simulée (admin) ---------- */
 const DATES_SIM = [["", "Aujourd'hui"], ["2026-11-20", "20 nov. · teaser"], ["2026-12-03", "3 déc. · chauffe"], ["2026-12-22", "22 déc. · cartes de janvier"],
   ["2027-01-21", "21 janv. · duels"], ["2027-03-21", "21 mars · pioche"], ["2027-06-21", "21 juin · atelier"], ["2027-11-21", "21 nov. 2027 · Finale"]];
@@ -4682,6 +4747,7 @@ montrerVue(vueActive());
 })();
 charger(false);
 window.addEventListener("online", () => { if (SOURCE === "cache") charger(false); });
+setTimeout(verifierMiseAJour, 3000);
 window.addEventListener("offline", () => { if (D && SOURCE === "api") { SOURCE = "cache"; afficherTout(); } });
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 setTimeout(prechaufferMoi, 600);
