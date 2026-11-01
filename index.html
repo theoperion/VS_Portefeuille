@@ -17,6 +17,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&family=Saira:wght@400;500;600&display=swap">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <style>
+/* iPhone : un appui (long) sur un graphique, la piste ou un bouton ne doit pas sélectionner ni proposer « Copier » */
+svg, canvas, button, .chart-box, .gp-piste, .tip, .chip, .chips, .pos, .carte, .seg, .m-flaps, .m-carte, .mm-graph, .gp-mois, .pod-tabs { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html { -webkit-tap-highlight-color: transparent; }
 /* Concept : une tour de chronométrage. Le classement des quatre portefeuilles s'affiche
    comme une course : position, couleur de l'écurie, écart au leader, indices en voitures fantômes. */
 :root {
@@ -149,9 +152,9 @@ h2.sec small { font: 400 12px/1.2 var(--f-text); letter-spacing: 0; text-transfo
 .bref { padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); font-size: 14px; color: var(--ink-2); }
 .bref b { color: var(--ink); font-weight: 600; }
 .tour { position: relative; display: grid; border-radius: 14px; overflow: hidden; background: var(--panel); border: 1px solid var(--rule); }
-.tour-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; padding: 8px 12px; font: 700 10.5px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); background: var(--panel-2); }
+.tour-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) 92px; gap: 10px; padding: 8px 12px; font: 700 10.5px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); background: var(--panel-2); }
 .tour-h span:nth-child(3) { text-align: right; }
-.pos { will-change: transform; background: var(--panel); display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 10px; row-gap: 3px; align-items: center; padding: 11px 12px; border-top: 1px solid var(--rule-2); cursor: pointer; position: relative; }
+.pos { will-change: transform; background: var(--panel); display: grid; grid-template-columns: 34px minmax(0, 1fr) 92px; grid-template-rows: auto auto; column-gap: 10px; row-gap: 3px; align-items: center; padding: 11px 12px; border-top: 1px solid var(--rule-2); cursor: pointer; position: relative; }
 .pos:hover { background: var(--panel-2); }
 .pos .rk { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; background: var(--ink); color: var(--bg); font: italic 800 17px/1 var(--f-display); }
 .pos .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -211,7 +214,7 @@ body.vue-moi .ticker { display: none; }
 /* ---------- Podium · Saison 1 ---------- */
 .casque { width: 26px; height: 26px; flex: none; overflow: visible; }
 .pos .who .casque { width: 28px; height: 28px; margin-right: -2px; }
-@media (max-width: 360px) { .pos, .tour-h { column-gap: 7px; padding-left: 8px; padding-right: 8px; grid-template-columns: 28px minmax(0, 1fr) auto; } .pos .g { font-size: 11px; white-space: nowrap; } .pos .rk { width: 26px; height: 26px; font-size: 15px; } .pos .who { gap: 5px; } .pos .who .casque { width: 21px; height: 21px; margin: 0; } .pos .t { font-size: 15px; } }
+@media (max-width: 360px) { .pos, .tour-h { column-gap: 7px; padding-left: 8px; padding-right: 8px; grid-template-columns: 28px minmax(0, 1fr) 80px; } .pos .g { font-size: 11px; white-space: nowrap; } .pos .rk { width: 26px; height: 26px; font-size: 15px; } .pos .who { gap: 5px; } .pos .who .casque { width: 21px; height: 21px; margin: 0; } .pos .t { font-size: 15px; } }
 .casque.holo { filter: drop-shadow(0 0 3px rgba(181,123,255,.6)); }
 .lv { font-style: italic; }
 .lv-chrome, .lv-or, .lv-arcenciel, .lv-oranime { -webkit-background-clip: text; background-clip: text; color: transparent !important; }
@@ -327,8 +330,8 @@ html.fige, html.fige body { overflow: hidden; }
 @media (max-width: 420px) { .rappel { grid-template-columns: auto minmax(0, 1fr) auto; } .rp-go { grid-column: 1 / -1; grid-row: 2; width: 100%; } .rp-x { grid-column: 3; grid-row: 1; } }
 .rp-x { width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; color: var(--ink-3); font-size: 14px; cursor: pointer; }
 .onglet .pastille-nav { position: absolute; top: 6px; left: calc(50% + 8px); width: 9px; height: 9px; border-radius: 50%; background: #FF5C6C; box-shadow: 0 0 0 2px var(--panel); animation: avScint 1.2s ease-in-out infinite alternate; }
-.revel { position: fixed; inset: 0; z-index: 96; display: grid; place-items: center; padding: 18px; background: rgba(5,7,12,.82); backdrop-filter: blur(6px); }
-.rv-c { width: min(400px, 100%); display: grid; gap: 12px; text-align: center; padding: 20px 16px 16px; border-radius: 20px; color: #F4F5F8; border: 1px solid #2A303C; background: radial-gradient(70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%), linear-gradient(180deg, #151a26, #0a0c12); }
+.revel { position: fixed; inset: 0; z-index: 96; display: flex; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px; background: rgba(5,7,12,.82); backdrop-filter: blur(6px); }
+.rv-c { width: min(400px, 100%); margin: auto; display: grid; gap: 12px; text-align: center; padding: 20px 16px 16px; border-radius: 20px; color: #F4F5F8; border: 1px solid #2A303C; background: radial-gradient(70% 55% at 50% 0%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%), linear-gradient(180deg, #151a26, #0a0c12); }
 .rv-c h3 { margin: 0; font: italic 800 22px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; } .rv-c p { margin: 0; font-size: 12.5px; color: rgba(244,245,248,.7); }
 .rv-l { display: grid; gap: 8px; }
 .rv-p { display: grid; grid-template-columns: 34px minmax(0, 1fr) 112px; gap: 10px; align-items: center; text-align: left; opacity: 0; animation: rvVient .4s ease-out forwards; animation-delay: calc(var(--i) * .7s); }
@@ -376,7 +379,7 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .pts-det summary { padding: 12px 0; cursor: pointer; font: italic 800 15px/1.2 var(--f-display); letter-spacing: .05em; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .pts-det summary::-webkit-details-marker { display: none; } .pts-det summary::after { content: "›"; font-style: normal; transform: rotate(90deg); transition: transform .2s; } .pts-det[open] summary::after { transform: rotate(-90deg); }
 .pts-det summary small { flex: 1; font: 500 11.5px/1.2 var(--f-text); text-transform: none; letter-spacing: 0; color: var(--ink-3); }
-.pts-det[open] { padding-bottom: 12px; display: grid; gap: 10px; }
+.pts-det[open] { padding-bottom: 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .pts-bilan { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); display: grid; gap: 3px; } .pts-bilan b { color: var(--ink); }
 .st-etat { display: grid; gap: 8px; padding: 13px 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); }
 .st-etat.ouvert { border-color: color-mix(in srgb, #3DDC97 55%, var(--rule)); background: linear-gradient(120deg, color-mix(in srgb, #3DDC97 13%, var(--panel)), var(--panel) 70%); }
@@ -408,20 +411,78 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 @media (max-width: 360px) { .s-corps .main-cartes { grid-template-columns: repeat(3, minmax(0, 1fr)); } .carte b { font-size: 11.5px; letter-spacing: .03em; } .regles-b { padding: 7px 9px; font-size: 12px; } .at-l { grid-template-columns: 22px minmax(0, 1fr) auto 30px; } .tp-grand .av { width: 76px; height: 76px; } }
 @media (prefers-reduced-motion: reduce) { .tete .t-tete, .tete .t-yeux, .at-dispo.vif { animation: none !important; } }
 
-/* Circuit en 3D : plan incliné, ciel selon la météo, étiquettes HTML au-dessus des voitures */
-.gp-piste.en3d { background: linear-gradient(180deg, #6FB7F2 0%, #A9D6F7 34%, #2E7D46 36%); }
-.gp-piste.en3d.meteo-nuages { background: linear-gradient(180deg, #8C9BAA 0%, #C3CCD5 34%, #2E7D46 36%); }
-.gp-piste.en3d.meteo-pluie { background: linear-gradient(180deg, #4A5868 0%, #7D8A99 34%, #2E7D46 36%); }
-.gp-piste.en3d.meteo-orage { background: linear-gradient(180deg, #1B2230 0%, #3A4456 34%, #2E7D46 36%); }
-.gp-piste.en3d.hab-monaco, .gp-piste.en3d.hab-neon { background: linear-gradient(180deg, #05060E 0%, #1A1640 34%, #0D1B33 36%); }
-.gp-piste.en3d.hab-desert { background: linear-gradient(180deg, #F2B36B 0%, #FBD9A6 34%, #D9A35B 36%); }
-.gp-piste.en3d.hab-neige { background: linear-gradient(180deg, #B7C8DA 0%, #E6EEF5 34%, #E6EEF5 36%); }
-.gp-scene { position: relative; }
-.gp-piste.en3d .gp-scene { perspective: 640px; perspective-origin: 50% 20%; padding: 34px 0 0; }
-.gp-piste.en3d .gp-svg { transform: rotateX(38deg) scale(1.02); transform-origin: 50% 62%; border-radius: 8px; box-shadow: 0 26px 30px rgba(0,0,0,.4); }
-.gp-svg .gp-moi { animation: gpMoi 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes gpMoi { 50% { opacity: .35; transform: scale(1.25); } }
-.gp-tags3 { position: absolute; inset: 0; pointer-events: none; }
+/* ---------- Circuit du mois : 3D (WebGL) ou carte 2D, dessinés par piste.js ---------- */
+.gp-piste { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); box-shadow: 0 8px 22px var(--shade); background: #0B0E14; isolation: isolate; }
+.gp-scene { position: relative; aspect-ratio: 16 / 10; max-height: 62vh; width: 100%; }
+.gp-rendu, .gp-rendu > canvas, .gp-rendu > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.gp-rendu > canvas { cursor: grab; } .gp-rendu > canvas:active { cursor: grabbing; }
+.gp-piste.en2d { background: radial-gradient(120% 90% at 50% 0%, #171C28, #090B10); }
+.p2-svg text { font: 800 9px/1 var(--f-num); fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.5); stroke-width: 1.6px; }
+.p2-car { cursor: pointer; } .p2-car.moi circle:first-child { animation: gpMoi 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes gpMoi { 50% { opacity: .35; transform: scale(1.25); } }
+.gp-nopiste { margin: 0; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 13px; }
+.gp-rg { position: absolute; top: -5px; left: -5px; min-width: 15px; height: 15px; padding: 0 3px; box-sizing: border-box; border-radius: 8px; background: #0B0D12; color: #fff; font: 800 9.5px/15px var(--f-num); text-align: center; box-shadow: 0 0 0 1.5px var(--c); font-style: normal; }
+.gp-t3 { transition: opacity .2s; }
+.gp-pops, .gp-zones { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.gp-pop { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 8px; border-radius: 10px; background: rgba(8,10,14,.86); color: #fff; border: 1.5px solid var(--c); font: 800 13px/1 var(--f-num); white-space: nowrap; animation: gpPop 5s ease forwards; }
+.gp-pop small { font: 700 10.5px/1 var(--f-text); opacity: .9; }
+@keyframes gpPop { 0% { opacity: 0; } 8% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+.gp-zone { position: absolute; left: 0; top: 0; padding: 3px 7px; border-radius: 999px; font: 800 11px/1.1 var(--f-num); color: #0B0D12; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.4); transition: opacity .2s; }
+.gp-zone.at { background: #3DDC97; } .gp-zone.pg { background: #FF7A85; }
+.gp-titre { margin: 2px 0 0; font: italic 800 20px/1.1 var(--f-display); letter-spacing: .04em; text-transform: uppercase; }
+.gp-atouts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+.gp-atouts > span { padding: 5px 9px; border-radius: 999px; font-weight: 700; border: 1px solid; cursor: help; }
+.gp-atouts .at { color: #17905C; border-color: color-mix(in srgb, #3DDC97 55%, transparent); background: color-mix(in srgb, #3DDC97 12%, transparent); }
+.gp-atouts .pg { color: #D93B47; border-color: color-mix(in srgb, #FF5C6C 50%, transparent); background: color-mix(in srgb, #FF5C6C 10%, transparent); }
+:root:not([data-theme="light"]) .gp-atouts .at { color: #5BE3A8; } :root:not([data-theme="light"]) .gp-atouts .pg { color: #FF8A94; }
+.gp-calend { border-radius: 14px; background: var(--panel); border: 1px solid var(--rule); overflow: hidden; }
+.gp-calend summary { padding: 11px 12px; font-weight: 700; font-size: 14px; cursor: pointer; list-style: none; }
+.gp-calend summary::-webkit-details-marker { display: none; }
+.gp-calend summary small { font-weight: 500; color: var(--ink-3); margin-left: 4px; }
+.gp-cal-l { display: grid; grid-template-columns: 42px 32px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 7px 12px; border-top: 1px solid var(--rule); font-size: 13px; }
+.gp-cal-l.ici { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.gp-cal-l.passe { opacity: .62; }
+.gp-cal-l .mo { font: 700 12px/1.1 var(--f-num); color: var(--ink-3); text-transform: uppercase; }
+.gp-cal-l .p2-vign { width: 32px; height: 22px; color: var(--ink-3); }
+.gp-cal-l b { display: block; font-size: 13.5px; } .gp-cal-l small { color: var(--ink-3); font-size: 11.5px; }
+.gp-cal-l .ap { font-size: 12px; white-space: nowrap; text-align: right; }
+.gp-cal-l .ap i { font-style: normal; font-weight: 800; } .gp-cal-l .ap .p { color: #3DDC97; } .gp-cal-l .ap .m { color: #FF7A85; }
+.gp-piste .gp-pl { font-size: 14px; padding: 3px 9px; }
+.gp-piste.en2d .gp-rg { display: none; }
+.gp-plein .gp-pl { display: none; }
+/* plein écran */
+.gp-plein { position: fixed; inset: 0; z-index: 95; background: #05070B; color: #fff; }
+.gpp-corps { position: absolute; inset: 0; }
+.gp-plein .gp-piste { position: absolute; inset: 0; border: 0; border-radius: 0; box-shadow: none; }
+.gp-plein .gp-scene { position: absolute; inset: 0; aspect-ratio: auto; max-height: none; height: 100%; }
+.gp-plein .gp-hud { top: calc(env(safe-area-inset-top, 0px) + 66px); left: auto; right: 12px; flex-direction: column; align-items: flex-end; }
+.gp-plein .gp-btns { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 58px); right: 12px; }
+.gp-plein .gp-spe { top: calc(env(safe-area-inset-top, 0px) + 136px); left: auto; right: 12px; }
+.gp-plein .gp-vue { padding: 7px 12px; font-size: 13px; }
+.gpp-h { position: absolute; left: 0; right: 0; top: 0; z-index: 4; display: flex; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 18px; background: linear-gradient(rgba(5,7,11,.85), rgba(5,7,11,0)); pointer-events: none; }
+.gpp-t { flex: 1; min-width: 0; } .gpp-t b { display: block; font: italic 800 18px/1.1 var(--f-display); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gpp-t small { font-size: 12px; opacity: .8; }
+.gpp-x { pointer-events: auto; flex: none; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(8,10,14,.7); color: #fff; font-size: 16px; cursor: pointer; }
+.gpp-tour { position: absolute; z-index: 4; left: 10px; top: calc(env(safe-area-inset-top, 0px) + 66px); display: grid; gap: 4px; pointer-events: none; }
+.gpp-tour .r { display: grid; grid-template-columns: 18px 24px minmax(0, 1fr) auto; align-items: center; gap: 6px; padding: 3px 9px 3px 4px; border-radius: 10px; background: rgba(8,10,14,.74); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-left: 3px solid var(--c); min-width: 150px; }
+.gpp-tour .r.moi { box-shadow: 0 0 0 1.5px var(--accent); }
+.gpp-tour .rk { font: italic 800 14px/1 var(--f-display); text-align: center; }
+.gpp-tour .av { width: 24px; height: 24px; }
+.gpp-tour .n { font: italic 700 13px/1 var(--f-display); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gpp-tour .p { font: 800 12px/1 var(--f-num); text-align: right; } .gpp-tour .p small { display: block; font-size: 9.5px; opacity: .7; margin-top: 2px; }
+.gpp-mois { position: absolute; z-index: 4; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); padding: 0 12px; }
+.gpp-mois .gp-mois button { background: rgba(8,10,14,.74); color: #fff; border-color: rgba(255,255,255,.2); }
+.gpp-mois .gp-mois button[aria-pressed="true"] { background: var(--accent); color: #0B0D12; border-color: var(--accent); }
+@media (orientation: landscape) and (max-height: 500px) { .gpp-tour { top: calc(env(safe-area-inset-top, 0px) + 52px); } .gpp-h { padding-top: 8px; } }
+/* Stand : le prochain Grand Prix */
+.st-gp { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--panel-2); margin-top: 10px; text-align: left; }
+.st-gp .p2-vign { width: 56px; height: 40px; color: var(--accent); }
+.st-gp b { display: block; font: italic 800 14px/1.15 var(--f-display); text-transform: uppercase; letter-spacing: .04em; }
+.st-gp small { display: block; color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+.carte .c-gp { position: absolute; top: 5px; left: 6px; padding: 2px 4px; border-radius: 5px; font: 800 9.5px/1 var(--f-num); }
+.carte .c-gp.at { background: #3DDC97; color: #05301C; } .carte .c-gp.pg { background: #FF7A85; color: #3A0509; }
+.gp-tags3 { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .gp-t3 { position: absolute; left: 0; top: 0; display: flex; align-items: center; padding: 2px; border-radius: 999px; background: var(--c); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.4); will-change: transform; }
 .gp-t3 .av { width: 26px; height: 26px; box-shadow: inset 0 0 0 1.5px #fff; } .gp-t3 .av .casque { width: 20px !important; height: 20px !important; }
 .gp-hud, .gp-btns { z-index: 3; }
@@ -446,27 +507,9 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .gp-h .s-k { display: block; }
 .gp-met { margin: 3px 0 0; font-size: 12.5px; line-height: 1.35; color: var(--ink-2); }
 .gp-rejouer { flex: none; padding: 9px 12px; font-size: 13px; }
-.gp-piste { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); box-shadow: 0 8px 22px var(--shade); background: #1b2a1f; }
-.gp-svg { display: block; width: 100%; height: auto; }
-.gp-svg .gp-tag text { font: 800 6.4px/1 var(--f-num); fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: .6; }
-.gp-svg .gp-v.tete .gp-rot { filter: drop-shadow(0 0 2.5px #FFD84A) drop-shadow(0 0 4px rgba(255,200,40,.7)); }
-.gp-svg .gp-fl { animation: gpFl .16s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: right center; }
-@keyframes gpFl { to { transform: scaleX(.75); } }
-.gp-svg .gp-et { animation: gpEt .5s linear infinite; }
-@keyframes gpEt { 50% { opacity: .3; } }
 .gp-hud { position: absolute; left: 8px; top: 8px; display: flex; gap: 6px; }
 .gp-hud span { padding: 4px 9px; border-radius: 999px; background: rgba(8,10,14,.72); color: #fff; font: 600 11.5px/1.2 var(--f-text); backdrop-filter: blur(4px); }
 .gp-hud b { font: 800 13px/1 var(--f-num); }
-.gp-meteo { position: absolute; inset: 0; pointer-events: none; }
-.meteo-soleil .gp-meteo { background: radial-gradient(60% 50% at 88% 6%, rgba(255,236,170,.55), transparent 70%); animation: gpSoleil 5s ease-in-out infinite; }
-@keyframes gpSoleil { 50% { opacity: .65; } }
-.meteo-nuages .gp-meteo { background: radial-gradient(30% 22% at 20% 30%, rgba(0,0,0,.28), transparent 70%), radial-gradient(34% 24% at 70% 60%, rgba(0,0,0,.24), transparent 70%); background-size: 200% 100%; animation: gpNuages 14s linear infinite; }
-@keyframes gpNuages { to { background-position: -200% 0; } }
-.meteo-pluie .gp-meteo, .meteo-orage .gp-meteo { background: repeating-linear-gradient(105deg, transparent 0 9px, rgba(190,215,255,.45) 9px 10px, transparent 10px 22px), linear-gradient(rgba(20,30,50,.28), rgba(20,30,50,.28)); background-size: 60px 60px, auto; animation: gpPluie .45s linear infinite; }
-.meteo-orage .gp-meteo { background: repeating-linear-gradient(105deg, transparent 0 7px, rgba(190,215,255,.55) 7px 8px, transparent 8px 16px), linear-gradient(rgba(10,14,30,.45), rgba(10,14,30,.45)); background-size: 50px 50px, auto; }
-.meteo-orage .gp-meteo::after { content: ""; position: absolute; inset: 0; background: #fff; opacity: 0; animation: gpEclair 6s infinite; }
-@keyframes gpPluie { to { background-position: -14px 60px, 0 0; } }
-@keyframes gpEclair { 0%, 91%, 95%, 100% { opacity: 0; } 92% { opacity: .55; } 93% { opacity: .1; } 94% { opacity: .4; } }
 .gp-mois { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding: 2px; }
 .gp-mois::-webkit-scrollbar { display: none; }
 .gp-mois button { flex: none; border: 1px solid var(--rule); background: var(--panel); color: var(--ink-2); border-radius: 999px; padding: 6px 11px; font: 600 12px/1 var(--f-text); cursor: pointer; }
@@ -501,13 +544,14 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .c-action { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--rule-2); }
 .c-action p { margin: 0; font-size: 13px; line-height: 1.4; color: var(--ink-2); }
 /* tuto */
-.tuto { position: fixed; inset: 0; z-index: 96; display: grid; place-items: center; padding: 20px; background: rgba(5,7,12,.78); backdrop-filter: blur(6px); }
-.tuto-c { width: min(380px, 100%); display: grid; gap: 12px; justify-items: center; text-align: center; padding: 22px 18px 18px; border-radius: 20px; color: #F4F5F8; border: 1px solid #2A303C;
+.tuto { position: fixed; inset: 0; z-index: 96; display: flex; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; background: rgba(5,7,12,.78); backdrop-filter: blur(6px); }
+.tuto-c { width: min(380px, 100%); margin: auto; display: grid; gap: 12px; justify-items: center; text-align: center; padding: 22px 18px 18px; border-radius: 20px; color: #F4F5F8; border: 1px solid #2A303C;
   background: radial-gradient(70% 55% at 50% 0%, rgba(155,135,255,.22), transparent 70%), linear-gradient(180deg, #151a26, #0a0c12); }
 .tuto-k { font: 700 10.5px/1 var(--f-num); letter-spacing: .14em; text-transform: uppercase; color: #C9BEFF; }
 .tuto-i { font-size: 44px; line-height: 1; }
 .tuto-c h3 { margin: 0; font: italic 800 24px/1.1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
 .tuto-c p { margin: 0; font-size: 14px; line-height: 1.5; color: rgba(244,245,248,.82); }
+.tuto-c.multi { gap: 8px; } .tuto-c.multi .tuto-i { font-size: 30px; margin-top: 8px; } .tuto-c.multi h3 { font-size: 19px; } .tuto-c.multi p { font-size: 13px; line-height: 1.4; } .tuto-c.multi .btn-row { margin-top: 8px; }
 .tuto-pts { display: flex; gap: 6px; } .tuto-pts i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.2); } .tuto-pts i.on { background: #F7CF55; }
 .tuto .btn-row { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tuto .btn.ghost { background: transparent; color: #F4F5F8; border-color: rgba(255,255,255,.2); }
@@ -1060,6 +1104,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
   <div class="ticker" aria-label="Marchés"><div class="ticker-track" id="ticker"></div></div>
   <div class="demo-band" id="bandeau" hidden></div>
   <div class="simu-band" id="simu-band" hidden></div>
+  <div class="simu-band maj" id="maj-band" hidden></div>
   <main>
     <section class="view" id="v-classement" data-vue="classement"></section>
     <section class="view" id="v-mois" data-vue="mois" hidden></section>
@@ -1155,7 +1200,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
       </div>
       <p class="info" id="moi-etat"></p>
       <label class="coche-r"><input type="checkbox" id="moi-partage"> Partager mes lignes de bourse dans le récap du mois</label>
-      <p class="info">En fin de mois, la liste de tes lignes de bourse (nom, montant, performance) est envoyée au Versus pour le récap que tout le monde voit dans Podium. Jamais ton épargne, ton immobilier ni tes ordres.</p>
+      <p class="info">En fin de mois, la liste de tes lignes de bourse (nom, montant, performance) est envoyée au Versus pour le récap que tout le monde voit dans l'onglet Mois. Jamais ton épargne, ton immobilier ni tes ordres.</p>
     </section>
     <section class="regl" id="regl-vue" hidden>
       <h4>Voir l'appli comme un joueur (admin)</h4>
@@ -1222,10 +1267,11 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="moteur.js"></script>
+<script src="piste.js?v=1"></script>
 <script>
 "use strict";
 /* Version de l'appli : à changer à chaque livraison (affichée en bas des Réglages) */
-const APP_VERSION = "10.6", APP_DATE = "1er novembre 2026";
+const APP_VERSION = "11.0", APP_DATE = "1er novembre 2026";
 /* Admin : « voir l'appli à une autre date » (Réglages › Voir comme un joueur). L'horloge de l'appli est décalée ; rien n'est envoyé. */
 (function () {
   let s = null; try { s = localStorage.getItem("versus.dateSim"); } catch (e) { return; }
@@ -1239,13 +1285,18 @@ const APP_VERSION = "10.6", APP_DATE = "1er novembre 2026";
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbxkMkVHDd5iFcqb7hXKoAdDJuQphmBITcUCZOiFhBnKReZwTZ86DNVo62j9jTxFjhyjXw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwyLfdD9w6NOSg8GUaIZr5d8-QhFFENz386Unnbg7R8TurONhlkQY7H7WQNA_LXrXB0Xw/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
+/* En simulation (date simulée ou vue joueur de l'admin), ce qui est « vu » (révélation, annonces, paliers, clôture…), l'état des onglets
+   et les choix privés de Moi vivent dans une mémoire de session : le vrai stockage reste intact, et on retrouve tout en revenant à l'admin. */
+const SIMULATION = (() => { try { return !!window.DATE_SIM || !!localStorage.getItem("versus.vueJoueur"); } catch (e) { return !!window.DATE_SIM; } })();
+const CLES_SIM = /^versus\.(etat|tuto1|revele|nouveaute\.|gpVu\.|chauffe1|saison1|recapVu|rappelMasque|mesCartes|mesDuels|moi\.(paliers|secrets|objets|jours|nuit|cloture|pref|afficheurs|lignesEnvoyees|million|partage))/;
+const MEM_SIM = {};
 const stock = {
-  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* indisponible */ } },
-  del(k) { try { localStorage.removeItem(k); } catch (e) { /* indisponible */ } }
+  get(k) { if (SIMULATION && k in MEM_SIM) return MEM_SIM[k]; try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { if (SIMULATION && CLES_SIM.test(k)) { MEM_SIM[k] = String(v); return; } try { localStorage.setItem(k, v); } catch (e) { /* indisponible */ } },
+  del(k) { if (SIMULATION && CLES_SIM.test(k)) { MEM_SIM[k] = null; return; } try { localStorage.removeItem(k); } catch (e) { /* indisponible */ } }
 };
 const $ = s => document.querySelector(s);
 const reduit = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1322,7 +1373,7 @@ async function charger(frais) {
   try {
     if (navigator.onLine === false) throw new Error("Hors connexion");
     const ab = window.AbortController ? new AbortController() : null, minu = ab ? setTimeout(() => ab.abort(), 20000) : null;
-    const rep = await fetch(url + (url.includes("?") ? "&" : "?") + "action=data&cle=" + encodeURIComponent(cle) + (frais ? "&frais=1" : ""), { cache: "no-store", signal: ab ? ab.signal : undefined });
+    const rep = await fetch(url + (url.includes("?") ? "&" : "?") + "action=data&cle=" + encodeURIComponent(cle) + (frais ? "&frais=1" : "") + (ETAT.moi ? "&moi=" + encodeURIComponent(ETAT.moi) : ""), { cache: "no-store", signal: ab ? ab.signal : undefined });
     clearTimeout(minu);
     const json = await rep.json();
     if (!json.ok) {
@@ -1382,6 +1433,9 @@ function estAdmin() { return SESSION.role === "admin"; }
 /** Le vrai rôle (même quand l'admin regarde l'appli comme un joueur) */
 function vraiAdmin() { return typeof D === "undefined" || !D || !D.session || D.session.role === "admin"; }
 function vueJoueur() { return vraiAdmin() && !!stock.get("versus.vueJoueur"); }
+/** Simulation : date simulée ou vue joueur. Rien ne part vers l'API, rien de « vu » n'est gardé. */
+function simulation() { return !!window.DATE_SIM || vueJoueur(); }
+const MSG_SIMULATION = "👁️ Simulation : rien n'est envoyé. Repasse en admin, aujourd'hui, pour agir pour de vrai.";
 function afficherTout() {
   if (stock.get("versus.accent") === "ecurie") appliquerAccent("ecurie");
   // indice mémorisé hors liste (changement du nombre d'indices) : retour au S&P 500
@@ -1428,8 +1482,7 @@ function afficherTout() {
 /* ---------- Codes personnels (administrateur) ---------- */
 let CODES = [], aRevoquer = null;
 async function posterAdmin(corps) {
-  if (window.DATE_SIM) return { ok: false, erreur: "simulation", message: "📅 Date simulée : rien n'est envoyé. Repasse à aujourd'hui (Réglages) pour agir pour de vrai." };
-  if (vueJoueur()) return { ok: false, erreur: "simulation", message: "👁️ Vue joueur : rien n'est envoyé. Repasse en admin (Réglages) pour agir pour de vrai." };
+  if (simulation()) return { ok: false, erreur: "simulation", message: MSG_SIMULATION };
   if (navigator.onLine === false) return { ok: false, erreur: "reseau", message: "📴 Hors connexion : réessaie quand le réseau revient." };
   try { return await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify(Object.assign({ cle: stock.get(CLES.cle) }, corps)) })).json(); }
   catch (e) { return { ok: false, message: "Impossible de joindre l'API." }; }
@@ -1439,7 +1492,7 @@ async function chargerCodes() {
   $("#liste-codes").innerHTML = '<p class="info">Chargement des codes…</p>';
   const rep = await posterAdmin({ action: "codes" });
   if (!rep.ok) { $("#liste-codes").innerHTML = '<p class="info">' + esc(rep.message || "Lecture impossible.") + "</p>"; return; }
-  CODES = rep.codes; rendreCodes();
+  CODES = rep.codes || []; rendreCodes();
 }
 function adresseApp() { return location.origin + location.pathname.replace(/index\.html$/, ""); }
 function messageCode(c) { return "Voici l'app Versus pour suivre le classement : " + adresseApp() + "\nTon code d'accès : " + c.code + "\nPour l'installer : menu du navigateur › Ajouter à l'écran d'accueil."; }
@@ -1735,7 +1788,7 @@ function rendreClassement() {
   $("#info-million").addEventListener("click", () => toast(texteMillion()));
   $("#vers-fiches").addEventListener("click", () => { if (!ETAT.fiche) ETAT.fiche = ETAT.moi; garder(); allerA("fiche"); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
-  v.querySelectorAll("[data-aller-recap]").forEach(b => b.addEventListener("click", () => { ETAT.bilans = "mensuel"; garder(); allerA("trophees"); ouvrirRecap(+b.dataset.allerRecap); }));
+  v.querySelectorAll("[data-aller-recap]").forEach(b => b.addEventListener("click", () => { ETAT.bilans = "mensuel"; garder(); allerA("mois"); ouvrirRecap(+b.dataset.allerRecap); }));
   feterChampion(dernierVerdict);
   glisserTour(v, avantTour);
   bandesDefilantes(v);
@@ -1914,7 +1967,8 @@ function estChauffe(y) { return y === SAISON.premiere - 1 && !apercuSaison(); }
 function anneesPodium() {
   if (apercuSaison()) return anneesSaison();
   if (!chauffeOuverte()) return [];
-  const l = [SAISON.premiere - 1]; for (let y = SAISON.premiere; y <= Math.max(SAISON.premiere, new Date(Date.now()).getFullYear()); y++) l.push(y); return l;
+  const l = Date.now() < new Date(SAISON.premiere, 1, 1).getTime() ? [SAISON.premiere - 1] : [];   // la chauffe reste consultable jusqu'à fin janvier
+  for (let y = SAISON.premiere; y <= Math.max(SAISON.premiere, new Date(Date.now()).getFullYear()); y++) l.push(y); return l;
 }
 /** Jour limite (exclu) pour poser une carte ou lancer un duel : le 2, ou le 6 pour le tour de chauffe */
 function jourLimite(k) { return k === CHAUFFE_K ? 6 : 2; }
@@ -1956,8 +2010,11 @@ function championnat(y) {
       const c = carteDe(y, x.nom, k); if (!c || !c.c) return;
       const def = carteDef(c.c), j = J[x.nom]; if (!def || !j) return;
       if (def.bonus && (!regleActive("pioche", k) || !j.pioche.some(z => z.c === c.c && z.k < k))) { x.carte = { id: c.c, gain: 0, cible: c.cible || null, invalide: true }; return; }
-      const g = Math.min(PLAFOND_CARTE, effetCarte(Object.assign({}, c, { revele: true }), x, l, avant, iR, { up: amelioAu(y, x.nom, k, j.niv), prev: prevL, cumAvant }));
-      x.carte = { id: c.c, gain: g, cible: c.cible || null }; x.p += g;
+      let g = effetCarte(Object.assign({}, c, { revele: true }), x, l, avant, iR, { up: amelioAu(y, x.nom, k, j.niv), prev: prevL, cumAvant });
+      // circuit du mois : +1 pour la carte atout, −1 pour la carte piège, seulement si elle a marqué
+      const at = ch ? null : atoutsDe(k), circ = at && g > 0 ? (at.atout.id === c.c ? 1 : at.piege.id === c.c ? -1 : 0) : 0;
+      g = Math.min(PLAFOND_CARTE, g + circ);
+      x.carte = { id: c.c, gain: g, cible: c.cible || null, circ }; x.p += g;
       if (c.c === "huile" && c.cible) { const xc = l.find(z => z.nom === c.cible); if (xc) { const s = xc.r > x.r + 1e-12 ? -2 : -1; recu[c.cible] = (recu[c.cible] || 0) + s; x.carte.sab = s; } }
     });
     l.forEach(x => { if (recu[x.nom]) { x.sab = Math.max(PLANCHER_SABOTAGE, recu[x.nom]); x.p += x.sab; } });
@@ -2080,7 +2137,7 @@ function etatDefis(nom) {
 /* ---------- Écurie : ce qui se débloque, ce qui est équipé ---------- */
 const ITEMS = {
   casque: { uni: "Uni", carbone: "Carbone", eclair: "Éclair", damier: "Damier", tortue: "Tortue", chrome: "Chrome", etoile: "Étoile", holo: "Holo", couronne: "Couronne", foudre: "Foudre", phenix: "Phénix", glace: "Glace", galaxie: "Galaxie", empereur: "Empereur" },
-  circuit: { classique: "Classique", monaco: "Monaco de nuit", desert: "Désert", neige: "Neige", neon: "Néon rétro" },
+  circuit: { classique: "Jour de course", monaco: "Nocturne", desert: "Golden hour", neige: "Hiver", neon: "Synthwave" },
   fond: { couleur: "Couleur", carbone: "Carbone", aurore: "Aurore", flammes: "Flammes", neon: "Néon", damier: "Damier", or: "Or", galaxie: "Galaxie" },
   finition: { aucune: "Aucune", argent: "Liseré argent", or: "Liseré or", neon: "Liseré néon", diamant: "Diamant", lauriers: "Lauriers", etoilee: "Étoilée", soleil: "Soleil" },
   livree: { couleur: "Couleur", chrome: "Chrome", or: "Or", neon: "Néon", arcenciel: "Prisme", oranime: "Or vivant", platine: "Platine", rubis: "Rubis", galaxie: "Galaxie", orrose: "Or rose" },
@@ -2089,7 +2146,7 @@ const ITEMS = {
   plaque: { aucune: "Aucune", metronome: "Le Métronome", bouclier: "Bouclier", contre: "Contre-attaque", remontada: "Roi de la remontée", premiersang: "Premier sang", fidele: "Fidèle au poste", vingt: "Pointeur" }
 };
 const BASE_ECURIE = { casque: "uni", circuit: "classique", fond: "couleur", finition: "aucune", livree: "couleur", trainee: "simple", klaxon: "confettis", plaque: "aucune" };
-const SLOTS = [["casque", "Casque"], ["finition", "Finition"], ["fond", "Avatar"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"], ["circuit", "Piste"]];
+const SLOTS = [["casque", "Casque"], ["finition", "Finition"], ["fond", "Avatar"], ["livree", "Livrée"], ["trainee", "Traînée"], ["klaxon", "Klaxon"], ["plaque", "Plaque"], ["circuit", "Ambiance"]];
 const GAINS_MILLION = [["casque", "couronne"], ["livree", "oranime"], ["klaxon", "billets"]];
 function debloques(nom) {
   const o = new Set(Object.entries(BASE_ECURIE).map(([s, v]) => s + "." + v));
@@ -2522,7 +2579,7 @@ function compteRebours(maintenant) {
   return "J-" + Math.round((SAISON.chauffe - new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate())) / 864e5);
 }
 function teaser() {
-  const now = new Date(), noel = now >= SAISON.noel || (estAdmin() && stock.get("versus.teaserNoel") === "1");
+  const now = new Date(), noel = now >= SAISON.noel;
   const qui = D.personnes.some(p => p.nom === ETAT.moi) ? ETAT.moi : (D.personnes[0] || {}).nom;
   const e = Object.assign({}, BASE_ECURIE, { numero: numeroParDefaut(qui) });
   return '<section class="teaser">' + svgVoiture({ nom: qui, e, drapeau: compteRebours(now), roule: true, reflet: true, label: "Tour de chauffe le 1er décembre, saison 1 le 1er janvier 2027" }) +
@@ -2531,14 +2588,14 @@ function teaser() {
     (noel ? '<div class="t-concept">' +
       '<div><b>🔥 Tour de chauffe</b><span>Décembre pour découvrir les règles, sans que rien ne compte. Vos cartes de janvier se posent pendant les fêtes.</span></div>' +
       '<div><b>🏁 Championnat</b><span>Chaque mois : 10, 6, 4, 2 points, et +1 🎯 si tu bats le ' + esc(D.marche.indices[iRef()]) + '.</span></div>' +
-      '<div><b>🏎️ Grand Prix</b><span>Vos voitures sur un vrai circuit, 25 points le tour, la météo du marché.</span></div>' +
+      '<div><b>🏎️ Grand Prix</b><span>Une ville par mois, de Bahreïn à Las Vegas. Vos voitures en 3D, 25 points le tour, la météo du marché.</span></div>' +
       '<div><b>🃏 Cartes de course</b><span>4 cartes de stratégie, les mêmes pour tous. Une par mois, face cachée.</span></div>' +
-      '<div><b>🎁 Nouveautés en cours de saison</b><span>' + ETAPES.map(e => e.ico + " " + esc(e.nom) + " (" + esc(moisEtape(e).replace(/ \d{4}$/, "")) + ")").join(" · ") + ". Chaque règle sera dévoilée le jour où elle s'ouvre.</span></div>" +
-      '<div><b>🙂 Ta tête au volant</b><span>Ton portrait animé, ou ton casque, à côté de ton nom. Et 23 objets uniques à rafler les premiers.</span></div></div>' +
+      '<div><b>🎁 Nouveautés en cours de saison</b><span>' + ETAPES.map(e => e.ico + " " + esc(e.nom) + " (" + esc(moisEtape(e).replace(/ \d{4}$/, "")) + ")").join(" · ") + ". Chaque règle est expliquée le 20 du mois d'avant, quand sa fenêtre s'ouvre.</span></div>" +
+      '<div><b>🙂 Ta tête au volant</b><span>Ton portrait animé, ou ton casque, à côté de ton nom. Et 24 objets uniques à rafler les premiers.</span></div></div>' +
       '<button class="btn acc" type="button" id="teaser-regles">📖 Lire toutes les règles</button>' +
       '<p class="t-note">Tout repart de zéro le 1<sup>er</sup> janvier : ce qui s\'est passé avant ne compte pas.</p>'
       : '<p class="t-note">On en dit plus le 20 novembre.</p>') + "</div>" +
-    (false ? '<div class="t-admin"><button class="lien" type="button" id="apercu-saison">👀 Aperçu admin de la saison</button><button class="lien" type="button" id="teaser-noel">' + (stock.get("versus.teaserNoel") === "1" ? "Teaser normal" : "Teaser du 20 nov.") + "</button></div>" : "") +
+
     "</section>";
 }
 let MINUTEUR_TEASER = null;
@@ -2553,7 +2610,7 @@ function animerCompte() {
   }, 20000);
 }
 
-/* ---------- Bloc saison : Championnat · Mon écurie · Défis ---------- */
+/* ---------- Bloc saison : Course · Stand · Écurie · Défis ---------- */
 let ECU = null;   // brouillon de l'écurie en cours de réglage
 /* ---------- Barre admin du Podium : tout afficher, voir comme un joueur, ou le réel d'aujourd'hui ---------- */
 function modeAdmin() { return vueJoueur() ? "joueur" : apercuSaison() ? "tout" : "reel"; }
@@ -2576,15 +2633,11 @@ function brancherBarreAdmin(v) {
     else if (m === "reel") { stock.set("versus.apercuSaison", "0"); stock.del("versus.vueJoueur"); }
     else { stock.set("versus.apercuSaison", "0"); stock.set("versus.vueJoueur", ETAT.moi || D.personnes[0].nom); if (!stock.get("versus.dateSim") && !chauffeOuverte()) stock.set("versus.dateSim", "2026-12-03"); }
     if (m !== "joueur" && window.DATE_SIM) stock.del("versus.dateSim");
-    if ((stock.get("versus.dateSim") || null) !== (window.DATE_SIM || null)) { location.reload(); return; }   // l'horloge simulée se règle au chargement
-    ECU = null; MEMO_SAISON = { d: null, m: {} }; afficherTout(); window.scrollTo({ top: 0 });
+    location.reload();   // l'horloge simulée et la mémoire de session se règlent au chargement
   };
   v.querySelectorAll("[data-madm]").forEach(x => x.addEventListener("click", () => reglerMode(x.dataset.madm)));
-  v.querySelectorAll("[data-bajoueur]").forEach(x => x.addEventListener("click", () => { stock.set("versus.vueJoueur", x.dataset.bajoueur); ECU = null; MEMO_SAISON = { d: null, m: {} }; afficherTout(); }));
+  v.querySelectorAll("[data-bajoueur]").forEach(x => x.addEventListener("click", () => { stock.set("versus.vueJoueur", x.dataset.bajoueur); location.reload(); }));
   v.querySelectorAll("[data-badate]").forEach(x => x.addEventListener("click", () => { if (x.dataset.badate) stock.set("versus.dateSim", x.dataset.badate); else stock.del("versus.dateSim"); location.reload(); }));
-}
-function rubanApercu() {
-  return '<div class="apercu-ruban"><b>Aperçu admin</b><span>Saison rejouée sur 2026 pour tester. Les autres voient le teaser jusqu\'au 1<sup>er</sup> janvier.</span><button class="lien" type="button" id="quitter-apercu">Quitter</button></div>';
 }
 function blocSaison() {
   const ys = anneesPodium(), y = saisonCourante(), ch = estChauffe(y);
@@ -2594,39 +2647,18 @@ function blocSaison() {
     '<button class="regles-b" type="button" id="regles-ouvrir" aria-label="Règles du jeu">📖 Règles</button></div></div>' +
     (ys.length > 1 ? '<div class="s-ys">' + ys.map(a => '<button type="button" class="chip-s' + (a === y ? " on" : "") + '" data-saison="' + a + '">' + (estChauffe(a) ? "🔥 Chauffe" : "Saison " + numeroSaison(a)) + "</button>").join("") + "</div>" : "") +
     (ch ? '<div class="chauffe-b">🔥 <span><b>Tour de chauffe</b> : les règles de base, et rien ne compte. Le championnat démarre le 1<sup>er</sup> janvier. <a href="#" class="lien-regles" data-regles="speciaux">En savoir plus</a></span></div>' : "") +
-    '<div class="pod-tabs" role="group" aria-label="Saison">' + b("gp", "<span>🏁</span>Course") + b("stand", "<span>🃏</span>Stand" + (rappelCartes() && kOuvertPour(y) ? '<i class="pastille" aria-label="à faire"></i>' : "")) + b("ecurie", "<span>🏎️</span>Écurie") + b("defis", "<span>🎯</span>Défis") + "</div>" +
+    '<div class="pod-tabs" role="group" aria-label="Saison">' + b("gp", "<span>🏁</span>Course") + b("stand", "<span>🃏</span>Stand" + (rappelCartes() ? '<i class="pastille" aria-label="à faire"></i>' : "")) + b("ecurie", "<span>🏎️</span>Écurie") + b("defis", "<span>🎯</span>Défis") + "</div>" +
     '<div class="s-corps">' + (o === "ecurie" ? htmlEcurie() : o === "defis" ? htmlDefis() : o === "stand" ? htmlStand(y) : htmlGrandPrix(y)) + "</div></section>";
 }
 /** Onglet du Podium : l'ancien « Championnat » est maintenant dans le Grand Prix */
 function ongletPodium() { return ["gp", "stand", "ecurie", "defis"].includes(ETAT.podium) ? ETAT.podium : "gp";
-}
-function htmlChampionnat(y) {
-  const c = championnat(y);
-  const bareme = '<p class="info">Chaque mois : 1<sup>er</sup> 10 pts · 2<sup>e</sup> 6 · 3<sup>e</sup> 4 · 4<sup>e</sup> 2 · ensuite 1, et <b>+1</b> 🎯 si ton mois bat le ' + esc(D.marche.indices[iRef()]) +
-    ". Ex aequo : même place, mêmes points. À égalité de points : le plus de victoires, puis la meilleure performance de la saison. Portefeuille total, pour tout le monde. Cartes, duels et mois spéciaux (🎰 Monaco, 🏆 Finale) s'ajoutent : <a href=\"#\" class=\"lien-regles\" data-regles=\"champ\">toutes les règles</a>.</p>";
-  const att = c.attente ? '<div class="bref">⏳ ' + esc(moisLong(c.attente.k)) + " : points distribués dès que tout le monde a saisi son relevé (il manque " + c.attente.manquent.map(n => "<b>" + esc(n) + "</b>").join(" et ") + ").</div>" : "";
-  if (!c.mois.length) return att + '<div class="vide">🏁 Les voitures sont sur la grille. Premiers points à la fin de janvier, dès que tous les relevés du mois sont là.</div>' + bareme;
-  const max = c.tot[c.classement[0]].pts;
-  const lignes = c.classement.map((n, i) => {
-    const t = c.tot[n], e = equipDe(n);
-    return '<div class="ch-l' + (n === ETAT.moi ? " moi" : "") + (i === 0 ? " tete" : "") + '"><span class="rk">' + (i + 1) + "</span>" + avatar(n, e) +
-      '<div class="nm"><b' + attrLivree(n, e) + ">" + esc(n) + couronne(n) + "</b><small>" + plaqueDe(n) + t.v + " victoire" + (t.v > 1 ? "s" : "") + " · " + t.pod + " podium" + (t.pod > 1 ? "s" : "") + " · " + t.bonus + " 🎯" + (moisEnTete(n, y) ? " · 🟡 " + moisEnTete(n, y) + " mois en tête" : "") + "</small></div>" +
-      '<span class="pt"><b>' + t.pts + "</b><small>" + (i ? "−" + (max - t.pts) : "pts") + "</small></span></div>";
-  }).join("");
-  const noms = c.classement;
-  const tab = '<div class="scroll-x"><table class="tab ch-t"><thead><tr><th>Mois</th>' + noms.map(n => '<th><i style="background:' + couleur(n) + '"></i>' + esc(n) + "</th>").join("") + "</tr></thead><tbody>" +
-    c.mois.slice().reverse().map(m => "<tr><td>" + esc(moisCourt(m.k)) + (m.spec ? " " + m.spec.ico : "") + "</td>" + noms.map(n => { const x = m.l.find(z => z.nom === n); return x ? '<td class="' + (x.rg === 1 ? "r1" : "") + '">' + x.p + (x.bonus ? "<sup>🎯</sup>" : "") + "</td>" : '<td class="muted">·</td>'; }).join("") + "</tr>").join("") +
-    "</tbody></table></div>";
-  return att + '<div class="ch">' + lignes + "</div>" + (c.complete ? '<div class="bref">🏆 <b>' + esc(c.classement[0]) + "</b> est champion de la saison " + numeroSaison(y) + ".</div>" : "") +
-    '<div><h3 class="s-h3">La course aux points</h3></div>' + boiteGraphe("g-champ", noms.map(n => ({ nom: n, c: couleur(n) }))) +
-    '<div><h3 class="s-h3">Points mois par mois</h3></div>' + tab + bareme;
 }
 /** Détail des points (l'ancien onglet Championnat), replié sous la course */
 function htmlDetailPoints(y) {
   const c = championnat(y); if (!c.mois.length) return "";
   const noms = c.classement;
   const tab = '<div class="scroll-x"><table class="tab ch-t"><thead><tr><th>Mois</th>' + noms.map(n => '<th><i style="background:' + couleur(n) + '"></i>' + esc(n) + "</th>").join("") + "</tr></thead><tbody>" +
-    c.mois.slice().reverse().map(m => "<tr><td>" + esc(moisCourt(m.k)) + (m.spec ? " " + m.spec.ico : "") + "</td>" + noms.map(n => { const x = m.l.find(z => z.nom === n); return x ? '<td class="' + (x.rg === 1 ? "r1" : "") + '">' + x.p + (x.bonus ? "<sup>🎯</sup>" : "") + "</td>" : '<td class="muted">·</td>'; }).join("") + "</tr>").join("") +
+    c.mois.slice().reverse().map(m => "<tr><td>" + GPS[circuitDe(m.k)].drap + " " + esc(moisCourt(m.k)) + (m.spec ? " " + m.spec.ico : "") + "</td>" + noms.map(n => { const x = m.l.find(z => z.nom === n); return x ? '<td class="' + (x.rg === 1 ? "r1" : "") + '">' + x.p + (x.bonus ? "<sup>🎯</sup>" : "") + "</td>" : '<td class="muted">·</td>'; }).join("") + "</tr>").join("") +
     "</tbody></table></div>";
   const bilan = noms.map(n => { const t = c.tot[n]; return "<li><b>" + esc(n) + "</b> : " + t.pts + " pts · " + t.v + " victoire" + (t.v > 1 ? "s" : "") + " · " + t.pod + " podium" + (t.pod > 1 ? "s" : "") + " · " + t.bonus + " 🎯</li>"; }).join("");
   return (c.complete ? '<div class="bref">🏆 <b>' + esc(c.classement[0]) + "</b> " + (c.chauffe ? "remporte le tour de chauffe." : "est champion de la saison " + numeroSaison(y) + ".") + "</div>" : "") +
@@ -2657,7 +2689,7 @@ function vignetteItem(slot, id, nom, e) {
   if (slot === "casque") return svgCasque(nom, { casque: id, finition: e.finition, vignette: true });
   if (slot === "finition") return svgCasque(nom, { casque: e.casque, finition: id, vignette: true });
   if (slot === "fond") return avatar(nom, Object.assign({}, e, { fond: id, vignette: true }));
-  if (slot === "circuit") { const h = HABILLAGES[id] || HABILLAGES.classique; return '<svg class="vg-piste" viewBox="0 0 360 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="360" height="240" fill="' + h.herbe + '"/>' + decoGP(h) + '<path d="' + traceGP() + '" fill="none" stroke="' + h.bord + '" stroke-width="30"/><path d="' + traceGP() + '" fill="none" stroke="' + h.piste + '" stroke-width="25"/></svg>'; }
+  if (slot === "circuit") return vignetteAmbiance(id);
   if (slot === "livree") return svgVoiture({ nom, e: Object.assign({}, e, { livree: id, trainee: "" }) });
   if (slot === "trainee") return '<svg class="vg-trainee" viewBox="0 0 200 80" aria-hidden="true"><path class="fx fx-' + id + '" d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-linecap="round"/>' +
     '<path d="M8 66C50 62 70 30 110 36S170 18 192 12" fill="none" style="stroke:' + couleur(nom) + '" stroke-width="3.5" stroke-linecap="round"/><circle cx="192" cy="12" r="5" style="fill:' + couleur(nom) + '"/></svg>';
@@ -2680,7 +2712,7 @@ function htmlEcurie() {
   const slot = ECU_SLOT === "numero" || ECU_SLOT === "pilote" || SLOTS.some(s => s[0] === ECU_SLOT) ? ECU_SLOT : "pilote";
   const total = SLOTS.reduce((a, [s]) => a + Object.keys(ITEMS[s]).length, 0) - Object.keys(BASE_ECURIE).length, nb = ouverts.size - Object.keys(BASE_ECURIE).length;
   const showroom = '<div class="showroom"><div class="sr-num" aria-hidden="true">' + e.numero + '</div>' +
-    '<div class="sr-h"><span class="sr-k">Mon écurie · Saison 1</span><span class="sr-id">' + avatar(qui, Object.assign({}, e, { vignette: true })) + "<b" + attrLivree(qui, e) + ">" + esc(qui) + "</b></span>" +
+    '<div class="sr-h"><span class="sr-k">Mon écurie · ' + (estChauffe(saisonCourante()) ? "Tour de chauffe" : "Saison " + numeroSaison(saisonCourante())) + '</span><span class="sr-id">' + avatar(qui, Object.assign({}, e, { vignette: true })) + "<b" + attrLivree(qui, e) + ">" + esc(qui) + "</b></span>" +
     '<span class="sr-p"><span class="sr-barre"><i style="width:' + (total ? nb / total * 100 : 0).toFixed(0) + '%"></i></span>' + nb + " / " + total + " objets</span></div>" +
     '<div class="sr-3d" id="sr-3d">' + svgVoiture({ nom: qui, e, reflet: true, idle: true }) + "</div>" +
     '<span class="sr-aide"></span><button class="sr-vue" type="button" id="sr-vue">' + (ETAT.sr3d === "1" ? "↔ 360° · Vue détaillée" : "🔄 Vue 360°") + '</button><button class="sr-klaxon" type="button" id="ecu-klaxon">📯 Klaxonner</button></div>';
@@ -2702,7 +2734,7 @@ function htmlEcurie() {
   const grille = D.personnes.map(p => { const eq = p.nom === qui ? e : equipDe(p.nom); return '<button type="button" class="gr-l' + (ECU_VOIR === p.nom ? " on" : "") + '" data-voir="' + esc(p.nom) + '">' + avatar(p.nom, eq) + "<b" + attrLivree(p.nom, eq) + ">" + esc(p.nom) + "</b>" + (eq.plaque !== "aucune" ? '<span class="plaque">' + esc(ITEMS.plaque[eq.plaque]) + "</span>" : "") + '<span class="num">#' + eq.numero + " ›</span></button>"; }).join("");
   return showroom + onglets + corps +
     '<button class="btn acc plein" type="button" id="ecu-garder">Enregistrer mon écurie</button>' +
-    '<p class="info">Touche un objet pour l\'essayer, « ? » pour savoir d\'où il vient. Ta voiture roule au Grand Prix avec ta livrée et ta traînée ; ta tête ou ton casque s\'affichent partout à côté de ton nom.</p>' +
+    '<p class="info">Touche un objet pour l\'essayer, « ? » pour savoir d\'où il vient. Ta voiture roule dans la Course avec ta livrée et ta traînée ; ta tête ou ton casque s\'affichent partout à côté de ton nom.</p>' +
     '<div><h3 class="s-h3">La grille <small>touche une écurie pour la voir</small></h3></div><div class="grille-dep">' + grille + "</div>" + htmlGarage(qui);
 }
 let ECU_VOIR = null;
@@ -2757,26 +2789,27 @@ async function garderEcurie() {
   if (apercuSaison()) { stock.set("versus.amelioApercu", equip.amelio || ""); envoi.amelio = Number(brut.amelioY) === anneeAmelio() ? brut.amelio || "" : ""; delete equip.amelio; }
   const local = Object.assign({}, brut, equip);
   if (!apercuSaison()) {
-    const y = anneeAmelio(), deja = amelioDe(qui, y), auj = (d => d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate())(new Date());
-    local.amelioY = y; local.amelioT = deja.t.slice(0, deja.s.length).concat(Array(Math.max(0, (equip.amelio || "").length - deja.s.length)).fill(auj));
+    const y = anneeAmelio(), deja = amelioDe(qui, y), auj = aujNum();
+    local.amelios = Object.assign({}, brut.amelios || {}, { [y]: { s: equip.amelio || "", t: deja.t.slice(0, deja.s.length).concat(Array(Math.max(0, (equip.amelio || "").length - deja.s.length)).fill(auj)) } });
+    delete local.amelio; delete local.amelioY; delete local.amelioT;
   }
   D.ecurie = Object.assign({}, avant, { [qui]: Object.assign({}, (avant || {})[qui], { equip: local }) });
   MEMO_SAISON = { d: null, m: {} }; ECU = null;
-  toast(SOURCE !== "api" ? "Aperçu : écurie gardée sur cet appareil seulement." : "Écurie enregistrée 🏎️"); rendreTrophees();
-  if (SOURCE !== "api") return;
+  toast(SOURCE !== "api" ? "Aperçu : écurie gardée sur cet appareil seulement." : simulation() ? "👁️ Simulation : écurie gardée pour voir, rien n'est envoyé." : "Écurie enregistrée 🏎️"); rendreTrophees();
+  if (SOURCE !== "api" || simulation()) return;
   const rep = await posterAdmin({ action: "ecurie", personne: qui, equip: envoi });
   if (rep.ok) { if (rep.ecurie) { D.ecurie = rep.ecurie; MEMO_SAISON = { d: null, m: {} }; } }
   else { D.ecurie = avant; MEMO_SAISON = { d: null, m: {} }; ECU = null; toast((rep.message || "Enregistrement impossible.") + " Ton écurie est revenue comme avant."); rendreTrophees(); }
 }
 function brancherSaison(v) {
-  v.querySelectorAll("[data-pod]").forEach(b => b.addEventListener("click", () => { ETAT.podium = b.dataset.pod; garder(); rendreTrophees(); }));
-  v.querySelectorAll("[data-saison]").forEach(b => b.addEventListener("click", () => { ETAT.saisonY = +b.dataset.saison; garder(); rendreTrophees(); }));
+  v.querySelectorAll("[data-pod]").forEach(b => b.addEventListener("click", () => { ETAT.podium = b.dataset.pod; if (b.dataset.pod === "stand") { const r = rappelCartes(); if (r && !kOuvertPour(saisonCourante())) choisirSaison(r.y); } garder(); rendreTrophees(); }));
+  v.querySelectorAll("[data-saison]").forEach(b => b.addEventListener("click", () => { choisirSaison(+b.dataset.saison); rendreTrophees(); }));
   const y = saisonCourante();
   const o = ongletPodium();
   if (o === "gp") { brancherGP(v, y); const dp = v.querySelector("#pts-det"); if (dp) { if (dp.open) dessinerChampionnat(y); dp.addEventListener("toggle", () => { ETAT.ptsOuvert = dp.open ? "1" : "0"; garder(); if (dp.open) dessinerChampionnat(y); }); } }
   if (o === "stand") brancherStand(v, y);
-  v.querySelectorAll("[data-aller-stand]").forEach(b => b.addEventListener("click", () => { ETAT.podium = "stand"; garder(); rendreTrophees(); const t = document.querySelector(".pod-tabs"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); }));
-  if (!stock.get("versus.tuto1")) { stock.set("versus.tuto1", "1"); ETAPES.filter(e => regleVisible(e.id)).forEach(e => stock.set("versus.nouveaute." + e.id, "1")); setTimeout(ouvrirTuto, 400); }
+  v.querySelectorAll("[data-aller-stand]").forEach(b => b.addEventListener("click", () => { const r = rappelCartes(); if (r) choisirSaison(r.y); ETAT.podium = "stand"; garder(); rendreTrophees(); const t = document.querySelector(".pod-tabs"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); }));
+  if (!stock.get("versus.tuto1")) { stock.set("versus.tuto1", "1"); ETAPES.filter(e => aujNum() >= annonceEtape(e)).forEach(e => stock.set("versus.nouveaute." + e.id, "1")); setTimeout(ouvrirTuto, 400); }
   else setTimeout(verifierRevelation, 500);
   bandesDefilantes(v); expliquerBadges(v);
   v.querySelectorAll("details.ex-bloc").forEach(d => d.addEventListener("toggle", () => { const n = +d.dataset.exn; if (d.open) EX_OUVERTS.add(n); else EX_OUVERTS.delete(n); }));
@@ -2823,7 +2856,7 @@ function brancherPilote(v) {
    Les voitures de chacun (livrée, casque, traînée) tournent sur un circuit : 25 points = un tour.
    Chaque mois se rejoue en animation, sous la météo du marché (l'indice du mois).
    Les cartes de course (une main identique pour tous, chaque saison) ajoutent de la stratégie :
-   posées face cachée avant le 2 du mois, révélées ensuite, elles donnent ou retirent quelques points.
+   posées face cachée du 20 du mois précédent au 1er inclus, révélées le 2, elles donnent ou retirent quelques points.
    ============================================================ */
 const TOUR_GP = 25;
 const CARTES = [
@@ -2834,8 +2867,10 @@ const CARTES = [
 ];
 /* Cartes : celles du Versus (révélées après la date limite), les tiennes gardées sur l'appareil, ou celles de l'aperçu admin */
 function cartesApercu() { try { return JSON.parse(stock.get("versus.cartesApercu") || "{}"); } catch (e) { return {}; } }
+function cleMesCartes() { return "versus.mesCartes." + (moiPilote() || "moi"); }
+function cleMesDuels() { return "versus.mesDuels." + (moiPilote() || "moi"); }
 function mesCartes() {
-  let loc = {}; try { loc = JSON.parse(stock.get("versus.mesCartes") || "{}"); } catch (e) { loc = {}; }
+  let loc = {}; try { loc = JSON.parse(stock.get(cleMesCartes()) || "{}"); } catch (e) { loc = {}; }
   const srv = (typeof D !== "undefined" && D && D.mesCartes) || {};   // envoyées par l'API à leur seul propriétaire
   Object.keys(srv).forEach(y => { loc[y] = Object.assign({}, loc[y] || {}, srv[y]); });
   return loc;
@@ -2891,14 +2926,18 @@ async function poserCarte(y, k, carte, cible) {
   if (SOURCE !== "api") { toast("Cartes indisponibles hors connexion."); return; }
   const yk = Math.floor(k / 100), m = mesCartes(), avant = JSON.stringify(m);
   m[yk] = m[yk] || {}; if (carte) m[yk][k] = { c: carte, cible: cible || null }; else delete m[yk][k];
-  stock.set("versus.mesCartes", JSON.stringify(m)); MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null };
+  const avantD = D.mesCartes ? JSON.stringify(D.mesCartes) : null;
+  if (D.mesCartes) { D.mesCartes[yk] = D.mesCartes[yk] || {}; if (carte) D.mesCartes[yk][k] = { c: carte, cible: cible || null }; else delete D.mesCartes[yk][k]; }
+  stock.set(cleMesCartes(), JSON.stringify(m)); MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null };
+  if (simulation()) { toast(carte ? "👁️ Simulation : carte posée pour voir, rien n'est envoyé." : "Carte reprise (simulation)."); rendreTrophees(); return; }
   toast(carte ? "🂠 Carte posée face cachée sur " + moisLong(k) + "." : "Carte reprise."); rendreTrophees();
   const rep = await posterAdmin({ action: "carte", personne: qui, mois: k, carte: carte || null, cible: cible || null });
   if (rep.ok) {
-    const n = mesCartes(); n[yk] = rep.mesCartes || n[yk] || {}; stock.set("versus.mesCartes", JSON.stringify(n));
+    const n = mesCartes(); n[yk] = rep.mesCartes || n[yk] || {}; stock.set(cleMesCartes(), JSON.stringify(n));
+    if (D.mesCartes && rep.mesCartes) D.mesCartes[yk] = rep.mesCartes;
     if (rep.cartes) D.cartes = rep.cartes; MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null };
   } else {
-    stock.set("versus.mesCartes", avant); if (D.mesCartes) D.mesCartes = null; MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null };
+    stock.set(cleMesCartes(), avant); if (avantD) D.mesCartes = JSON.parse(avantD); MEMO_SAISON = { d: null, m: {} }; MEMO_EXCL = { d: null, cle: "", v: null };
     toast(rep.message || "Impossible de poser la carte."); rendreTrophees();
   }
 }
@@ -2914,66 +2953,64 @@ function meteoMois(k) {
   return { id: "orage", ico: "⛈️", nom: "Orage", txt: t + " : déluge sur le circuit, accrochez-vous." };
 }
 
-/* ---------- Circuit : tracé lissé (Catmull-Rom) ---------- */
-const PTS_GP = [[70, 200], [180, 206], [280, 198], [326, 160], [318, 112], [282, 92], [240, 100], [212, 78], [226, 46], [262, 28], [200, 22], [120, 26], [60, 40], [32, 80], [44, 126], [80, 150], [60, 178]];
-function traceGP() {
-  const P = PTS_GP, n = P.length; let d = "M" + P[0][0] + " " + P[0][1];
-  for (let i = 0; i < n; i++) {
-    const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
-    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
-    d += "C" + c1.map(v => v.toFixed(1)).join(" ") + " " + c2.map(v => v.toFixed(1)).join(" ") + " " + p2.join(" ");
-  }
-  return d + "Z";
-}
-const HABILLAGES = {
-  classique: { herbe: "#2E7D46", herbe2: "#3A9156", piste: "#3B3F47", bord: "#E9ECEF", deco: "arbres" },
-  monaco: { herbe: "#0D1B33", herbe2: "#14284A", piste: "#2A2E36", bord: "#F7CF55", deco: "ville" },
-  desert: { herbe: "#D9A35B", herbe2: "#E8BA77", piste: "#5A4A3A", bord: "#FFF1D6", deco: "dunes" },
-  neige: { herbe: "#E6EEF5", herbe2: "#F6FAFD", piste: "#4A5462", bord: "#C62828", deco: "sapins" },
-  neon: { herbe: "#0B0620", herbe2: "#160A3A", piste: "#120B2A", bord: "#FF4FD8", deco: "grille" }
+/* ---------- Grands Prix : une ville par mois (le dessin 3D / 2D est dans piste.js) ---------- */
+const GPS = {
+  abudhabi: { gp: "Essais d'Abu Dhabi", ville: "Yas Marina", drap: "🇦🇪", txt: "La marina au crépuscule, sous l'hôtel illuminé qui enjambe la piste." },
+  bahrein: { gp: "Grand Prix de Bahreïn", ville: "Sakhir", drap: "🇧🇭", atout: "turbo", piege: "pluie", txt: "De longues lignes droites dans le désert, sous les projecteurs. Ici, il ne pleut jamais." },
+  djeddah: { gp: "Grand Prix d'Arabie saoudite", ville: "Djeddah", drap: "🇸🇦", atout: "aspiration", piege: "pari", txt: "Le circuit urbain le plus rapide, au bord de la mer Rouge. Entre les murs, parier coûte cher." },
+  melbourne: { gp: "Grand Prix d'Australie", ville: "Melbourne", drap: "🇦🇺", atout: "pluie", piege: "turbo", txt: "Autour du lac d'Albert Park. L'automne australien amène les averses." },
+  suzuka: { gp: "Grand Prix du Japon", ville: "Suzuka", drap: "🇯🇵", atout: "pari", piege: "aspiration", txt: "Le seul huit du calendrier, sous les cerisiers : on se croise, on se défie." },
+  miami: { gp: "Grand Prix de Miami", ville: "Miami", drap: "🇺🇸", atout: "turbo", piege: "pluie", txt: "Palmiers, marina et longue ligne droite sous le soleil de Floride." },
+  montreal: { gp: "Grand Prix du Canada", ville: "Montréal", drap: "🇨🇦", atout: "pari", piege: "turbo", txt: "Sur l'île, entre deux bras du fleuve. Le mur des champions punit les excès." },
+  silverstone: { gp: "Grand Prix de Grande-Bretagne", ville: "Silverstone", drap: "🇬🇧", atout: "aspiration", piege: "pari", txt: "Un ancien aérodrome, des courbes rapides et des champs à perte de vue." },
+  spa: { gp: "Grand Prix de Belgique", ville: "Spa-Francorchamps", drap: "🇧🇪", atout: "pluie", piege: "turbo", txt: "La forêt des Ardennes, le raidillon, et une météo qui change à chaque virage." },
+  monza: { gp: "Grand Prix d'Italie", ville: "Monza", drap: "🇮🇹", atout: "aspiration", piege: "pluie", txt: "Le temple de la vitesse : on y vit dans l'aspiration de celui de devant." },
+  singapour: { gp: "Grand Prix de Singapour", ville: "Marina Bay", drap: "🇸🇬", atout: "pari", piege: "aspiration", txt: "La nuit, entre les gratte-ciel. Impossible de doubler : tout se joue au mental." },
+  interlagos: { gp: "Grand Prix de São Paulo", ville: "Interlagos", drap: "🇧🇷", atout: "pluie", piege: "aspiration", txt: "Les collines de São Paulo et leurs orages légendaires." },
+  lasvegas: { gp: "Grand Prix de Las Vegas", ville: "Las Vegas", drap: "🇺🇸", atout: "turbo", piege: "pari", txt: "Le Strip illuminé et sa ligne droite interminable. Au casino, on ne parie pas." },
+  monaco: { gp: "Grand Prix de Monaco", ville: "Monte-Carlo", drap: "🇲🇨", atout: "pari", piege: "turbo", txt: "Le port, le tunnel, les rails : la puissance ne sert à rien, le culot oui." }
 };
-function decoGP(h) {
-  const r = (a, b) => { let x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return x - Math.floor(x); };
-  const spots = [[20, 20], [340, 20], [345, 215], [20, 222], [120, 120], [150, 160], [250, 150], [100, 85], [300, 70], [180, 60], [345, 110], [12, 140], [230, 225], [140, 228], [290, 130]];
-  if (h.deco === "arbres") return spots.map(([x, y], i) => '<circle cx="' + x + '" cy="' + y + '" r="' + (5 + r(i, 1) * 4).toFixed(1) + '" fill="#1E5E33"/><circle cx="' + (x - 1.5) + '" cy="' + (y - 1.5) + '" r="' + (3 + r(i, 2) * 2).toFixed(1) + '" fill="#4CAF6A" opacity=".7"/>').join("");
-  if (h.deco === "sapins") return spots.map(([x, y], i) => { const s = 6 + r(i, 3) * 4; return '<path d="M' + x + " " + (y - s) + "L" + (x + s * .6) + " " + (y + s * .5) + "L" + (x - s * .6) + " " + (y + s * .5) + 'Z" fill="#2F6B4F"/><path d="M' + x + " " + (y - s) + "L" + (x + s * .25) + " " + (y - s * .4) + "L" + (x - s * .25) + " " + (y - s * .4) + 'Z" fill="#fff"/>'; }).join("");
-  if (h.deco === "dunes") return spots.map(([x, y], i) => '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (12 + r(i, 4) * 10).toFixed(1) + '" ry="4" fill="#C98D45" opacity=".55"/>').join("") + '<g fill="#3E7D3A">' + [[120, 120], [300, 70]].map(([x, y]) => '<rect x="' + (x - 1) + '" y="' + (y - 8) + '" width="2" height="10"/><rect x="' + (x - 4) + '" y="' + (y - 4) + '" width="2" height="5" rx="1"/><rect x="' + (x + 2) + '" y="' + (y - 6) + '" width="2" height="5" rx="1"/>').join("") + "</g>";
-  if (h.deco === "ville") return spots.map(([x, y], i) => { const w = 6 + r(i, 5) * 6, hh = 8 + r(i, 6) * 14; return '<rect x="' + (x - w / 2).toFixed(1) + '" y="' + (y - hh).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + hh.toFixed(1) + '" fill="#1E3460"/>' + [0, 1, 2].map(j => '<rect x="' + (x - w / 2 + 1.5).toFixed(1) + '" y="' + (y - hh + 2 + j * 4).toFixed(1) + '" width="1.5" height="1.5" fill="#FFD84A" opacity="' + (r(i, j) > .4 ? .9 : .2) + '"/>').join(""); }).join("") + '<path d="M150 160C170 175 230 175 250 160" stroke="#3A7BD5" stroke-width="10" fill="none" opacity=".5"/>';
-  if (h.deco === "grille") return '<g stroke="#5B2A9E" stroke-width=".5" opacity=".6">' + Array.from({ length: 19 }, (_, i) => '<path d="M' + (i * 20) + ' 0V240"/>').join("") + Array.from({ length: 13 }, (_, i) => '<path d="M0 ' + (i * 20) + 'H360"/>').join("") + "</g>";
-  return "";
+const CAL_GP = ["bahrein", "djeddah", "melbourne", "suzuka", "miami", "montreal", "silverstone", "spa", "monza", "singapour", "interlagos", "lasvegas"];
+/** Circuit d'un mois : Abu Dhabi pour la chauffe, Monaco au mois tiré (une fois la règle annoncée), sinon le calendrier */
+function circuitDe(k) {
+  if (!k || k === CHAUFFE_K) return "abudhabi";
+  if (k === monacoMois(Math.floor(k / 100)) && regleVisible("monaco") && regleActive("monaco", k)) return "monaco";
+  return CAL_GP[((k % 100) - 1 + 12) % 12];
 }
-/** Petite voiture vue de dessus : livrée, casque, traînée (pointe vers +x) */
-function voitureDessus(nom, e, u) {
-  const c = couleur(nom), lv = e.livree, neon = lv === "neon", plein = MOTIFS_PLEINS.includes(lv);
-  const peint = neon ? "#0a0c11" : plein ? "url(#" + u + "m)" : c, metal = ["chrome", "or", "oranime", "platine", "orrose"].includes(lv);
-  const filet = neon ? c : metal ? "#11151B" : "#ffffff";
-  const cq = { uni: c, carbone: "#2d333d", eclair: c, damier: "#f5f5f2", tortue: "#2F8A45", chrome: "#d4dae1", etoile: "#F7CF55", holo: "#B98CFF", couronne: "#F7CF55", foudre: "#0B1020", phenix: "#FF8A1F", glace: "#BFEFFC", galaxie: "#5B2A9E", empereur: "#6B2FB3" }[e.casque] || c;
-  const tr = { halo: '<ellipse cx="-17" cy="0" rx="10" ry="5" fill="' + c + '" opacity=".4"/>',
-    flammes: '<path class="gp-fl" d="M-11-2.6-25 0-11 2.6Z" fill="#FF6A1A"/><path class="gp-fl" d="M-11-1.3-18 0-11 1.3Z" fill="#FFD23F"/>',
-    etincelles: '<g fill="#FFD84A" class="gp-et"><circle cx="-15" cy="-2" r="1"/><circle cx="-19" cy="1.6" r=".8"/><circle cx="-23" cy="-.6" r=".7"/></g>',
-    comete: '<path d="M-11-3.4-34 0-11 3.4Z" fill="' + c + '" opacity=".5"/>',
-    supernova: '<path d="M-11-3.4-31 0-11 3.4Z" fill="#9D86FF" opacity=".5"/><path d="M-20-3.4-19.2-.9-16.6 0-19.2.9-20 3.4-20.8.9-23.4 0-20.8-.9Z" fill="#fff"/>',
-    turbo: '<g stroke="#5AB8FF" stroke-width="1.1" stroke-linecap="round"><path d="M-13-3.4H-26M-14 0H-31M-13 3.4H-26"/></g>',
-    arcenciel: ["#FF5A5F", "#FFB547", "#3DDC97", "#4C9AFF", "#B57BFF"].map((col, i) => '<path d="M-11 ' + (-2.4 + i * 1.2) + 'H-29" stroke="' + col + '" stroke-width="1.1"/>').join("") }[e.trainee] || "";
-  const pneu = (x, y, w, h) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="1" fill="#0d0f13"/><rect x="' + (x + .5) + '" y="' + (y + h / 2 - .25) + '" width="' + (w - 1) + '" height=".5" fill="#F7CF55" opacity=".7"/>';
-  return '<defs>' + (plein ? defsMotif(u, lv, c) : "") + "</defs>" + tr +
-    '<ellipse cx=".8" cy="1.2" rx="12.6" ry="6.6" fill="#000" opacity=".28"/>' +
-    pneu(-9.8, -7, 4.8, 2.8) + pneu(-9.8, 4.2, 4.8, 2.8) + pneu(4.6, -6.6, 4.2, 2.5) + pneu(4.6, 4.1, 4.2, 2.5) +
-    '<path d="M6.8-5.6 6.8-1.6M6.8 1.6 6.8 5.6M-7.4-4.6-7.4-1.8M-7.4 1.8-7.4 4.6" stroke="#2a2e35" stroke-width=".6"/>' +
-    // fond plat et pontons
-    '<path d="M-9-4.4C-5-4.9-1-5 1.8-4.5C3.2-4.2 3.8-3 3.8-2V2C3.8 3 3.2 4.2 1.8 4.5C-1 5-5 4.9-9 4.4Z" fill="' + peint + '"' + (neon ? ' stroke="' + c + '" stroke-width=".6"' : "") + "/>" +
-    '<path d="M-9-4.4C-5-4.9-1-5 1.8-4.5L1.8-3.4C-1-3.8-5-3.8-9-3.4Z" fill="#fff" opacity=".18"/>' +
-    // coque centrale et museau
-    '<path d="M-10-2L-2-2.4C2-2.6 5.4-1.8 8.6-1.1L12.4-.55V.55L8.6 1.1C5.4 1.8 2 2.6-2 2.4L-10 2Z" fill="' + peint + '"' + (neon ? ' stroke="' + c + '" stroke-width=".6"' : "") + "/>" +
-    '<path d="M-9.6 0H11.6" stroke="' + filet + '" stroke-width=".55" opacity=".75"/>' +
-    '<path d="M-9.6-1.6-2-2C2-2.2 5.4-1.5 8.6-.9" stroke="#fff" stroke-width=".45" fill="none" opacity=".5"/>' +
-    // ailerons avant et arrière (couleur de l'écurie, liseré clair)
-    '<rect x="10.6" y="-6.2" width="2" height="12.4" rx=".6" fill="' + (neon ? "#0a0c11" : c) + '" stroke="' + (neon ? c : "rgba(255,255,255,.55)") + '" stroke-width=".4"/>' +
-    '<rect x="-12.6" y="-5.8" width="2.8" height="11.6" rx=".6" fill="' + (neon ? "#0a0c11" : c) + '" stroke="' + (neon ? c : "#0b0d11") + '" stroke-width=".5"/><rect x="-12.4" y="-5.2" width="2.4" height="1" fill="#fff" opacity=".35"/>' +
-    // cockpit, casque, halo
-    '<ellipse cx="-.6" cy="0" rx="2.8" ry="1.9" fill="#0b0d11"/><circle cx="-.9" cy="0" r="1.65" fill="' + cq + '" stroke="#0b0d11" stroke-width=".4"/><path d="M-.2-.9A1.1 1.1 0 0 1 .4 .5" stroke="#0b0d11" stroke-width=".5" fill="none"/>' +
-    '<path d="M-2.8-1.7C-.4-2.2 1.6-1.5 2.1 0C1.6 1.5-.4 2.2-2.8 1.7" stroke="#C9CFD6" stroke-width=".7" fill="none"/>' +
-    '<text x="-6" y=".9" text-anchor="middle" transform="rotate(90 -6 0)" style="font:italic 800 2.6px var(--f-display);fill:' + (metal ? "#11151B" : "#fff") + '">' + e.numero + "</text>";
+/** Atout et piège du circuit d'un mois, quand la règle compte pour ce mois (sinon null) */
+function atoutsDe(k) {
+  if (!k || k === CHAUFFE_K || !regleActive("circuits", k)) return null;
+  const g = GPS[circuitDe(k)]; if (!g || !g.atout) return null;
+  return { atout: carteDef(g.atout), piege: carteDef(g.piege), g };
+}
+/** … et ce qu'on a le droit d'en montrer aujourd'hui */
+function atoutsVus(k) { return regleVisible("circuits") ? atoutsDe(k) : null; }
+function couleurCasque(nom, e) {
+  const c = couleur(nom);
+  return { uni: c, carbone: "#2d333d", eclair: c, damier: "#f5f5f2", tortue: "#2F8A45", chrome: "#d4dae1", etoile: "#F7CF55", holo: "#B98CFF", couronne: "#F7CF55", foudre: "#0B1020", phenix: "#FF8A1F", glace: "#BFEFFC", galaxie: "#5B2A9E", empereur: "#6B2FB3" }[e && e.casque] || c;
+}
+const CAMS = { tv: "🎥 TV", helico: "🚁 Hélico", bord: "👁️ Embarquée" };
+function camGP() { return ETAT.gpCam === "helico" || ETAT.gpCam === "bord" ? ETAT.gpCam : ETAT.gpCam === "0" ? "helico" : "tv"; }
+function piste3D() { return !!(window.Piste && Piste.supporte()); }
+function couleurAccent() { try { return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#9B87FF"; } catch (e) { return "#9B87FF"; } }
+/** Vignette de l'ambiance (cosmétique « Ambiance » de l'écurie) */
+const AMBIANCES = {
+  classique: { h: "#3D86DD", o: "#BFE3F8", s: "#5E9E52", astre: "soleil" },
+  monaco: { h: "#03060F", o: "#1C2850", s: "#1E2A22", astre: "lune" },
+  desert: { h: "#5C86C9", o: "#FFC98A", s: "#8A7A4A", astre: "couchant" },
+  neige: { h: "#9FB5CC", o: "#EEF3F8", s: "#E8EEF4", astre: "neige" },
+  neon: { h: "#0B0220", o: "#FF2E97", s: "#12062A", astre: "synth" }
+};
+function vignetteAmbiance(id) {
+  const a = AMBIANCES[id] || AMBIANCES.classique, u = "va" + (++NSVG);
+  const astre = { soleil: '<circle cx="290" cy="46" r="20" fill="#FFF3C4"/>', lune: '<circle cx="290" cy="46" r="16" fill="#E8EEFF"/><circle cx="298" cy="40" r="14" fill="' + a.h + '"/>' + [[40, 30], [90, 60], [150, 22], [210, 70], [250, 28], [330, 90], [120, 96]].map(([x, y]) => '<circle cx="' + x + '" cy="' + y + '" r="1.6" fill="#fff"/>').join(""),
+    couchant: '<circle cx="180" cy="128" r="34" fill="#FFE0A3" opacity=".9"/>', neige: [[30, 40], [80, 90], [140, 30], [200, 100], [260, 50], [320, 80], [110, 150], [300, 170], [60, 190]].map(([x, y]) => '<circle cx="' + x + '" cy="' + y + '" r="2.4" fill="#fff"/>').join(""),
+    synth: '<circle cx="180" cy="126" r="40" fill="#FFB347"/>' + [0, 1, 2, 3].map(i => '<rect x="130" y="' + (104 + i * 7) + '" width="100" height="' + (1.5 + i) + '" fill="' + a.o + '"/>').join("") }[a.astre];
+  const sol = id === "neon" ? Array.from({ length: 9 }, (_, i) => '<path d="M180 130L' + (i * 60 - 60) + ' 240" stroke="#B03AFF" stroke-width="1.2"/>').join("") + [150, 175, 210].map(y => '<path d="M0 ' + y + 'H360" stroke="#B03AFF" stroke-width="1.2"/>').join("") : "";
+  const lum = id === "neon" ? ["#22D3EE", "#FF4FD8"] : id === "monaco" ? ["#FFE7A8", "#FFE7A8"] : ["#ffffff", "#ffffff"];
+  return '<svg class="vg-piste" viewBox="0 0 360 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="' + u + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + a.h + '"/><stop offset="1" stop-color="' + a.o + '"/></linearGradient></defs>' +
+    '<rect width="360" height="132" fill="url(#' + u + ')"/>' + astre + '<rect y="130" width="360" height="110" fill="' + a.s + '"/>' + sol +
+    '<path d="M150 130H210L330 240H30Z" fill="' + (id === "neige" ? "#5A6472" : id === "neon" ? "#120B2A" : "#3A3E46") + '"/><path d="M155 130 46 240M205 130 314 240" stroke="' + lum[0] + '" stroke-width="3"/><path d="M180 136V146M180 160V176M180 192V216" stroke="' + lum[1] + '" stroke-width="3" opacity=".8"/></svg>';
 }
 /** Position au championnat : cumul de points de chacun, mois par mois (avec le départ) */
 function etapesGP(y) {
@@ -2986,34 +3023,24 @@ let GP_ETAPE = null, GP_ANIM = null;
 function htmlGrandPrix(y) {
   const etapes = etapesGP(y), c = championnat(y);
   const i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1, et = etapes[i];
-  const qui = quiEcurie(), hab = HABILLAGES[(equipDe(qui) || {}).circuit] || HABILLAGES.classique;
-  const met = meteoMois(et.k), d = traceGP(), spe = et.k ? moisSpecial(y, et.k) : null;
+  const qui = quiEcurie(), kGP = et.k || (c.chauffe ? CHAUFFE_K : y * 100 + 1), ci = circuitDe(kGP), G = GPS[ci], at = atoutsVus(kGP);
+  const met = meteoMois(et.k), spe = et.k ? moisSpecial(y, et.k) : null;
   const ordre = Object.keys(et.pts).sort((a, b) => et.pts[b] - et.pts[a] || (c.tot[b] ? c.tot[b].v : 0) - (c.tot[a] ? c.tot[a].v : 0));
   const tete = ordre[0], tourTete = Math.floor((et.pts[tete] || 0) / TOUR_GP) + 1;
-  const v3 = ETAT.gp2d !== "1";
-  const cam = ETAT.gpCam !== "0";
-  const piste = '<div class="gp-piste meteo-' + met.id + " hab-" + ((equipDe(qui) || {}).circuit || "classique") + (v3 ? " en3d" : "") + '"><div class="gp-scene">' +
-    '<svg class="gp-svg" viewBox="0 -30 360 270" role="img" aria-label="Circuit du Grand Prix, ' + esc(et.k ? moisLong(et.k) : "départ") + '"><g id="gp-cam">' +
-    '<rect x="-200" y="-230" width="760" height="670" fill="' + hab.herbe + '"/><path d="M-200 -230H560V440H-200Z" fill="url(#gp-tex)" opacity=".5"/>' +
-    '<defs><pattern id="gp-tex" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="' + hab.herbe + '"/><rect width="8" height="16" fill="' + hab.herbe2 + '"/></pattern>' +
-    '<pattern id="gp-damier" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="#111"/><rect x="2" y="2" width="2" height="2" fill="#111"/></pattern></defs>' +
-    decoGP(hab) +
-    '<path d="' + d + '" fill="none" stroke="' + hab.bord + '" stroke-width="30" stroke-linejoin="round"/>' +
-    '<path d="' + d + '" fill="none" stroke="#C62828" stroke-width="30" stroke-dasharray="6 6" stroke-linejoin="round" opacity="' + (hab.deco === "grille" ? 0 : .9) + '"/>' +
-    '<path id="gp-trace" d="' + d + '" fill="none" stroke="' + hab.piste + '" stroke-width="25" stroke-linejoin="round"/>' +
-    (hab.deco === "grille" ? '<path d="' + d + '" fill="none" stroke="#FF4FD8" stroke-width="26" stroke-linejoin="round" opacity=".35" style="filter:blur(3px)"/><path d="' + d + '" fill="none" stroke="#22D3EE" stroke-width="1" opacity=".8"/>' : '<path d="' + d + '" fill="none" stroke="#fff" stroke-width=".8" stroke-dasharray="7 9" opacity=".45"/>') +
-    '<rect x="66" y="188" width="6" height="25" fill="url(#gp-damier)"/>' +
-    '<g id="gp-voitures">' + ordre.slice().reverse().map(n => { const e = equipDe(n), u = "gp" + (++NSVG); return '<g class="gp-v' + (n === tete && et.k ? " tete" : "") + (n === qui ? " moi" : "") + '" data-gp="' + esc(n) + '">' + (n === qui ? '<circle class="gp-moi" r="10.5" fill="none" stroke="var(--accent)" stroke-width="1.4"/>' : "") + '<g class="gp-rot">' + voitureDessus(n, e, u) + "</g></g>"; }).join("") + "</g>" +
-    "</g></svg></div>" + '<div class="gp-meteo" aria-hidden="true"></div>' +
-    '<div class="gp-tags3">' + ordre.map(n => '<span class="gp-t3' + (n === qui ? " moi" : "") + '" data-gpt3="' + esc(n) + '" style="--c:' + couleur(n) + '" title="' + esc(n) + '">' + avatar(n) + "</span>").join("") + "</div>" +
+  const deux = ETAT.gp2d === "1" || !piste3D(), cam = camGP();
+  const piste = '<div class="gp-piste' + (deux ? " en2d" : "") + '" id="gp-piste" data-circuit="' + ci + '"><div class="gp-scene" id="gp-scene"></div>' +
+    '<div class="gp-zones">' + (at ? '<span class="gp-zone at" data-zone="atout">' + at.atout.ico + ' <b>+1</b></span><span class="gp-zone pg" data-zone="piege">' + at.piege.ico + " <b>−1</b></span>" : "") + "</div>" +
+    '<div class="gp-tags3">' + ordre.map(n => '<span class="gp-t3' + (n === qui ? " moi" : "") + '" data-gpt3="' + esc(n) + '" style="--c:' + couleur(n) + '" title="' + esc(n) + '">' + avatar(n) + '<i class="gp-rg"></i></span>').join("") + "</div>" +
+    '<div class="gp-pops"></div>' +
     '<div class="gp-hud"><span class="gp-tour">Tour <b id="gp-tour">' + tourTete + "</b></span><span>" + met.ico + " " + esc(met.nom) + "</span></div>" +
-    '<div class="gp-btns"><button class="gp-vue" type="button" id="gp-cam-b" aria-pressed="' + cam + '">' + (cam ? "🎥 Caméra" : "🗺️ Circuit") + '</button><button class="gp-vue" type="button" id="gp-vue">' + (v3 ? "3D" : "2D") + "</button></div>" +
+    '<div class="gp-btns">' + (deux ? "" : '<button class="gp-vue" type="button" id="gp-cam-b" aria-label="Changer de caméra">' + CAMS[cam] + "</button>") +
+    '<button class="gp-vue" type="button" id="gp-vue" aria-label="' + (deux ? "Passer en 3D" : "Passer en carte 2D") + '">' + (deux ? "🗺️ 2D" : "🧊 3D") + '</button><button class="gp-vue gp-pl" type="button" id="gp-plein" aria-label="Plein écran">⛶</button></div>' +
     (spe ? '<div class="gp-spe">' + spe.ico + " " + esc(spe.nom) + "</div>" : "") + "</div>";
-  const chips = '<div class="gp-mois">' + etapes.map((x, j) => '<button type="button" data-gpe="' + j + '" aria-pressed="' + (j === i) + '">' + (x.k ? esc(moisCourt(x.k)) : "Départ") + "</button>").join("") + "</div>";
+  const chips = '<div class="gp-mois">' + etapes.map((x, j) => '<button type="button" data-gpe="' + j + '" aria-pressed="' + (j === i) + '">' + (x.k ? GPS[circuitDe(x.k)].drap + " " + esc(moisCourt(x.k)) : "Départ") + "</button>").join("") + "</div>";
   const lignes = ordre.map((n, r) => {
     const devant = r ? ordre[r - 1] : null, ecart = devant ? et.pts[devant] - et.pts[n] : 0, x = et.m ? et.m.l.find(z => z.nom === n) : null;
     const ca = et.k ? carteDe(y, n, et.k) : null, cdef = ca && ca.c ? carteDef(ca.c) : null;
-    const res = x && x.carte ? (x.carte.invalide ? " Pas encore piochée à ce moment-là : sans effet." : " Résultat : " + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + " pt" + (Math.abs(x.carte.gain) > 1 ? "s" : "") + (x.carte.sab ? " · " + x.carte.cible + " " + x.carte.sab : "") + ".") : "";
+    const res = x && x.carte ? (x.carte.invalide ? " Pas encore piochée à ce moment-là : sans effet." : " Résultat : " + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + " pt" + (Math.abs(x.carte.gain) > 1 ? "s" : "") + (x.carte.circ ? (x.carte.circ > 0 ? ", dont +1 d'atout du circuit" : ", dont −1 de piège du circuit") : "") + (x.carte.sab ? " · " + x.carte.cible + " " + x.carte.sab : "") + ".") : "";
     const carte = ca ? (ca.cache && !cdef ? '<span class="gp-c cache" data-bdg="Carte posée face cachée : révélée le ' + jourLimite(et.k) + ' du mois.">🂠</span>' : cdef ? '<span class="gp-c" data-bdg="' + esc(cdef.ico + " " + cdef.nom + " : " + cdef.def + res) + '">' + cdef.ico + (x && x.carte ? "<small>" + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + "</small>" : "") + "</span>" : '<span class="gp-c vide"></span>') : '<span class="gp-c vide"></span>';
     const extra = x ? (x.duels || []).map(d => '<span class="gp-x" data-bdg="⚔️ Duel ' + (d.lance ? "lancé contre " : "reçu de ") + esc(d.contre) + " : " + (d.s > 0 ? "gagné, +1" : d.s < 0 ? "perdu, −1" : "égalité, rien ne bouge") + '.">⚔️' + (d.s > 0 ? "+1" : d.s < 0 ? "−1" : "=") + "</span>").join("") +
       (x.sab ? '<span class="gp-x mal" data-bdg="🛢️ Huile sur la piste : ' + x.sab + ' pt ce mois-ci.">🛢️' + x.sab + "</span>" : "") + (x.mult > 1 ? '<span class="gp-x or" data-bdg="' + esc(et.m.spec ? et.m.spec.ico + " " + et.m.spec.nom + " : points de place doublés." : "Points doublés.") + '">×2</span>' : "") +
@@ -3023,16 +3050,27 @@ function htmlGrandPrix(y) {
       (r === 0 ? (et.k ? "en tête · tour " + (Math.floor(et.pts[n] / TOUR_GP) + 1) : "sur la grille") : "à " + ecart + " pt" + (ecart > 1 ? "s" : "") + " de " + esc(devant) + (ecart <= 3 && et.k ? ' · <span class="drs">💨 DRS</span>' : "")) +
       (x ? " · " + (x.p >= 0 ? "+" : "") + x.p + " ce mois" : "") + "</small></div>" + carte + '<span class="pt"><b>' + et.pts[n] + "</b><small>pts</small></span></div>";
   }).join("");
-  const mo = monacoMois(y);
-  const evts = (regleVisible("monaco") ? '<span data-bdg="' + esc("🎰 Grand Prix de Monaco : le dernier du championnat avant ce mois marque ses points de place en double.") + '">🎰 Monaco · ' + esc(moisLong(mo)) + "</span>" : "") +
-    (regleVisible("finale") ? '<span data-bdg="🏆 Finale : points de place doublés pour tout le monde.">🏆 Finale · décembre</span>' : "");
-  const cal = c.chauffe || !evts ? "" : '<div class="gp-cal"><span>📅 Calendrier</span>' + evts + "</div>";
-  const rap = rappelCartes(), versStand = rap && kOuvertPour(y) ? '<button class="gp-stand" type="button" data-aller-stand>🃏 <span><b>Fenêtre ouverte</b> : pose ta carte de ' + esc(moisLong(rap.k)) + "</span> ›</button>" : "";
+  const cal = htmlCalendrierGP(y, kGP);
+  const rap = rappelCartes(), versStand = rap ? '<button class="gp-stand" type="button" data-aller-stand>🃏 <span><b>Fenêtre ouverte</b> : pose ta carte de ' + esc(moisLong(rap.k)) + "</span> ›</button>" : "";
   const att = c.attente ? '<div class="bref">⏳ ' + esc(moisLong(c.attente.k)) + " : la course avance dès que tout le monde a saisi son relevé (il manque " + c.attente.manquent.map(n => "<b>" + esc(n) + "</b>").join(" et ") + ").</div>" : "";
-  return versStand + att + '<div class="gp-h"><div><span class="s-k">' + (c.chauffe ? "Tour de chauffe" : "Grand Prix") + " · " + (et.k ? esc(moisLong(et.k)) : "départ") + '</span><p class="gp-met">' + met.ico + " " + esc(met.txt) + (spe ? " " + spe.ico + " <b>" + esc(spe.nom) + "</b> : " + esc(spe.txt) : "") + '</p></div><button class="btn ghost gp-rejouer" type="button" id="gp-rejouer">▶ Rejouer</button></div>' +
-    cal + piste + chips + '<div class="gp-liste">' + lignes + "</div>" +
-    '<p class="info">' + TOUR_GP + " points = un tour de circuit. 💨 DRS : à 3 points ou moins de celui de devant. Touche une icône pour le détail." + (c.chauffe ? " 🔥 Rien ne compte pendant la chauffe." : "") + ' <a href="#" class="lien-regles" data-regles="gp">Règles</a></p>' +
+  const titreAt = at ? '<div class="gp-atouts"><span class="at" data-bdg="' + esc("Atout de " + G.ville + " : " + at.atout.ico + " " + at.atout.nom + " y gagne +1 quand elle marque.") + '">' + at.atout.ico + " " + esc(at.atout.nom) + " +1</span>" +
+    '<span class="pg" data-bdg="' + esc("Piège de " + G.ville + " : " + at.piege.ico + " " + at.piege.nom + " y perd 1 point quand elle marque.") + '">' + at.piege.ico + " " + esc(at.piege.nom) + " −1</span></div>" : "";
+  return versStand + att + '<div class="gp-h"><div><span class="s-k">' + (c.chauffe ? "Tour de chauffe" : et.k ? "Manche " + i : "Départ") + " · " + esc(moisLong(kGP)) + '</span><h3 class="gp-titre">' + G.drap + " " + esc(G.gp) + '</h3><p class="gp-met">' + esc(G.ville) + " · " + met.ico + " " + esc(met.txt) + (spe ? " " + spe.ico + " <b>" + esc(spe.nom) + "</b> : " + esc(spe.txt) : "") + '</p></div><button class="btn ghost gp-rejouer" type="button" id="gp-rejouer">▶ Rejouer</button></div>' +
+    titreAt + piste + chips + '<div class="gp-liste">' + lignes + "</div>" + cal +
+    '<p class="info">' + TOUR_GP + " points = un tour de circuit. 💨 DRS : à 3 points ou moins de celui de devant. Touche une icône pour le détail, une voiture pour la suivre." + (c.chauffe ? " 🔥 Rien ne compte pendant la chauffe." : "") + ' <a href="#" class="lien-regles" data-regles="gp">Règles</a></p>' +
     htmlDetailPoints(y);
+}
+/** Le calendrier des Grands Prix de la saison (atouts et pièges une fois la règle annoncée) */
+function htmlCalendrierGP(y, kIci) {
+  const ch = estChauffe(y), ks = ch ? [CHAUFFE_K] : Array.from({ length: 12 }, (_, i) => y * 100 + i + 1), auj = new Date(), kAuj = auj.getFullYear() * 100 + auj.getMonth() + 1;
+  const lignes = ks.map(k => {
+    const ci = circuitDe(k), g = GPS[ci], a = atoutsVus(k), spe = moisSpecial(y, k);
+    return '<div class="gp-cal-l' + (k === kIci ? " ici" : "") + (k < kAuj && !apercuSaison() ? " passe" : "") + '"><span class="mo">' + esc(moisCourt(k).replace(/\.$/, "")) + "</span>" + (window.Piste ? Piste.vignette(ci) : "") +
+      "<span><b>" + g.drap + " " + esc(g.ville) + (spe ? " " + spe.ico : "") + "</b><small>" + esc(g.gp) + "</small></span>" +
+      '<span class="ap">' + (a ? '<i class="p">' + a.atout.ico + "+1</i> <i class=\"m\">" + a.piege.ico + "−1</i>" : "") + "</span></div>";
+  }).join("");
+  return '<details class="gp-calend" id="gp-calend"' + (ETAT.calOuvert === "1" ? " open" : "") + '><summary>📅 ' + (ch ? "Le circuit du tour de chauffe" : "Calendrier de la saison") + " <small>" + (ch ? "1 Grand Prix" : "12 Grands Prix, une ville par mois") + "</small></summary>" + lignes +
+    (regleVisible("circuits") || ch ? "" : '<p class="info" style="padding:8px 12px;margin:0">🎁 Bientôt : chaque circuit aura son atout et son piège.</p>') + "</details>";
 }
 /* ---------- Mes cartes ---------- */
 let CARTE_CHOIX = null;
@@ -3055,17 +3093,20 @@ function htmlCartes(y) {
   const dejaMois = kOuvert && src[kOuvert] && src[kOuvert].c ? src[kOuvert].c : null;
   const pioche = regleVisible("pioche") ? j.pioche.map(z => Object.assign({ tire: z.k }, carteDef(z.c))) : [];
   const main = CARTES.concat(pioche);
+  const atk = kOuvert ? atoutsVus(kOuvert) : null;
   const tuile = cd => {
     const k = utilisees[cd.id], jouee = k !== undefined, ici = jouee && k === kOuvert, aug = Object.entries(AMELIOS).find(([, x]) => x.carte === cd.id), n = aug ? up[aug[0]] : 0;
+    const gp = atk && !jouee ? (atk.atout.id === cd.id ? '<span class="c-gp at" title="Atout du circuit">+1</span>' : atk.piege.id === cd.id ? '<span class="c-gp pg" title="Piège du circuit">−1</span>' : "") : "";
     return '<button type="button" class="carte' + (cd.bonus ? " bonus" : "") + (jouee && !ici ? " jouee" : "") + (ici ? " posee" : "") + (CARTE_CHOIX === cd.id ? " choix" : "") + '" data-carte="' + cd.id + '"' + (jouee && !ici || !kOuvert ? " disabled" : "") + ">" +
-      '<span class="c-ico">' + cd.ico + "</span><b>" + esc(cd.nom) + "</b><small>" + esc(cd.court) + "</small>" + (n ? '<span class="c-up">+' + n + "</span>" : "") +
+      '<span class="c-ico">' + cd.ico + "</span><b>" + esc(cd.nom) + "</b><small>" + esc(cd.court) + "</small>" + (n ? '<span class="c-up">+' + n + "</span>" : "") + gp +
       (jouee ? "<em>" + (ici ? "posée" : "jouée · " + esc(moisCourt(k))) + "</em>" : cd.tire ? "<em>🎴 " + esc(moisCourt(cd.tire)) + "</em>" : "") + "</button>";
   };
   let action = "";
   const cd = CARTE_CHOIX ? carteDef(CARTE_CHOIX) : null;
   if (cd && kOuvert) {
     const rivaux = D.personnes.map(p => p.nom).filter(n => n !== qui);
-    action = '<div class="c-action"><p><b>' + cd.ico + " " + esc(cd.nom) + "</b> · " + esc(texteCarte(cd, up)) + "</p>" +
+    const noteGP = atk && atk.atout.id === cd.id ? " 🗺️ Atout de " + atk.g.ville + " : +1 si elle marque." : atk && atk.piege.id === cd.id ? " ⚠️ Piège de " + atk.g.ville + " : −1 si elle marque." : "";
+    action = '<div class="c-action"><p><b>' + cd.ico + " " + esc(cd.nom) + "</b> · " + esc(texteCarte(cd, up) + noteGP) + "</p>" +
       (cd.cible ? '<div class="chips" role="group" aria-label="Rival">' + rivaux.map(n => '<button class="chip" type="button" data-rival="' + esc(n) + '" aria-pressed="' + (GP_RIVAL === n) + '">' + esc(n) + "</button>").join("") + "</div>" : "") +
       '<div class="btn-row"><button class="btn acc" type="button" id="c-poser"' + (cd.cible && !GP_RIVAL ? " disabled" : "") + ">Poser face cachée sur " + esc(moisLong(kOuvert)) + '</button><button class="lien" type="button" id="c-annuler">Annuler</button></div></div>';
   } else if (dejaMois) {
@@ -3095,7 +3136,7 @@ function rappelCartes() {
 }
 const VUES_RAPPEL = ["v-classement", "v-mois", "v-moi"];
 function allerAuStand() {
-  const r = rappelCartes(); if (r) ETAT.saisonY = r.y;
+  const r = rappelCartes(); if (r) choisirSaison(r.y);
   ETAT.podium = "stand"; garder();
   if (vueActive() === "trophees") rendreTrophees(); else allerA("trophees");
 }
@@ -3130,7 +3171,7 @@ function revelationAVoir() {
   return l.length ? { k: kc, y, l } : null;
 }
 function ouvrirRevelation(r) {
-  if (!window.DATE_SIM) stock.set("versus.revele", String(r.k));
+  stock.set("versus.revele", String(r.k));
   const o = document.createElement("div"); o.className = "revel"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
   o.innerHTML = '<div class="rv-c"><span class="tuto-k">Révélation · ' + esc(moisLong(r.k)) + "</span><h3>Les cartes sont retournées</h3>" +
     '<div class="rv-l">' + r.l.map((x, i) => { const cd = x.c && x.c.c ? carteDef(x.c.c) : null;
@@ -3142,7 +3183,7 @@ function ouvrirRevelation(r) {
   const fermer = () => o.remove();
   o.addEventListener("click", e => { if (e.target === o) fermer(); });
   o.querySelector('[data-rv="fermer"]').addEventListener("click", fermer);
-  o.querySelector('[data-rv="course"]').addEventListener("click", () => { fermer(); ETAT.saisonY = r.y; ETAT.podium = "gp"; garder(); if (vueActive() === "trophees") rendreTrophees(); else allerA("trophees"); });
+  o.querySelector('[data-rv="course"]').addEventListener("click", () => { fermer(); choisirSaison(r.y); ETAT.podium = "gp"; garder(); if (vueActive() === "trophees") rendreTrophees(); else allerA("trophees"); });
 }
 function verifierRevelation() {
   if (document.querySelector(".tuto, .revel, .regles")) return;
@@ -3154,6 +3195,12 @@ function joursRestants(k) {
   const fin = new Date(Math.floor(k / 100), k % 100 - 1, jourLimite(k) - 1, 23, 59, 59);
   return Math.max(0, Math.ceil((fin - new Date()) / 864e5));
 }
+/** Le Grand Prix sur lequel on pose sa carte : ville, tracé, atout et piège */
+function htmlGPStand(k) {
+  const ci = circuitDe(k), g = GPS[ci], a = atoutsVus(k);
+  return '<div class="st-gp">' + (window.Piste ? Piste.vignette(ci) : "") + "<div><b>" + g.drap + " " + esc(g.gp) + "</b><small>" + esc(g.ville) + " · " + esc(g.txt) + "</small>" +
+    (a ? '<small class="gp-atouts" style="margin-top:6px"><span class="at">' + a.atout.ico + " " + esc(a.atout.nom) + ' +1</span><span class="pg">' + a.piege.ico + " " + esc(a.piege.nom) + " −1</span></small>" : "") + "</div></div>";
+}
 function htmlStand(y) {
   const qui = moiPilote();
   if (!qui || !D.personnes.some(p => p.nom === qui)) return '<div class="vide">Choisis ton nom dans les réglages pour jouer.</div>';
@@ -3163,16 +3210,19 @@ function htmlStand(y) {
     const c = carteDe(y, qui, k), d = duelDe(y, qui, k), j = ap ? null : joursRestants(k);
     etat = '<div class="st-etat ouvert"><div class="st-h"><span class="st-feu"></span><b>Fenêtre ouverte<small>pour ' + esc(moisLong(k)) + "</small></b>" + (j !== null ? "<em>" + (j <= 1 ? "dernier jour" : "il reste " + j + " jours") + "</em>" : "<em>aperçu</em>") + "</div>" +
       '<div class="st-check"><span class="' + (c && c.c ? "ok" : "") + '">' + (c && c.c ? "✓ Carte posée" : "🃏 Carte à poser") + "</span>" + (regleVisible("duels") && regleActive("duels", k) ? '<span class="' + (d && d.cible ? "ok" : "") + '">' + (d && d.cible ? "✓ Duel lancé" : "⚔️ Duel (facultatif)") + "</span>" : "") + "</div>" +
-      "<small>Jusqu'au " + (k === CHAUFFE_K ? "5" : "1<sup>er</sup>") + " " + esc(moisLong(k).replace(/ \d{4}$/, "")) + " inclus. Tout reste caché jusqu'à la révélation, le " + jourLimite(k) + ".</small></div>";
+      "<small>Jusqu'au " + (k === CHAUFFE_K ? "5" : "1<sup>er</sup>") + " " + esc(moisLong(k).replace(/ \d{4}$/, "")) + " inclus. Tout reste caché jusqu'à la révélation, le " + jourLimite(k) + ".</small>" + htmlGPStand(k) + "</div>";
   } else {
     const autre = moisCarteOuvert();
-    etat = '<div class="st-etat"><div class="st-h"><span class="st-feu ferme"></span><b>Fenêtre fermée</b></div><small>' +
+    const d = new Date(), kc = d.getFullYear() * 100 + d.getMonth() + 1, revele = d.getDate() >= jourLimite(kc) && Math.floor(kc / 100) === y && regleActive("duels", kc);
+    const recus = revele ? D.personnes.map(p => p.nom).filter(n => n !== qui && ((duelDe(y, n, kc) || {}).cible === qui)) : [];
+    etat = '<div class="st-etat"><div class="st-h"><span class="st-feu ferme"></span><b>Fenêtre fermée</b></div>' +
+      (recus.length ? '<p class="duel-recu">⚔️ ' + recus.map(esc).join(" et ") + " t'" + (recus.length > 1 ? "ont" : "a") + " défié pour " + esc(moisLong(kc)) + " : le meilleur du mois prend 1 point à l'autre.</p>" : "") + "<small>" +
       (estChauffe(y) ? "Les cartes du tour de chauffe se posaient jusqu'au 5 décembre." + (autre ? ' <button class="lien" type="button" data-saison="' + SAISON.premiere + '">Poser ma carte de janvier ›</button>' : " Celles de janvier se poseront du 20 décembre au 1<sup>er</sup> janvier.")
         : autre ? 'La fenêtre ouverte concerne une autre saison : <button class="lien" type="button" data-saison="' + (autre === CHAUFFE_K ? SAISON.premiere - 1 : Math.floor(autre / 100)) + '">y aller ›</button>'
         : "Prochaine ouverture le <b>" + esc(pf.du) + "</b>, pour " + esc(moisLong(pf.k)) + ". En attendant, prépare ta stratégie : ta main est ci-dessous.") + "</small></div>";
   }
   return etat + htmlCartes(y) + (regleVisible("pioche") ? '<div><h3 class="s-h3">' + (regleVisible("atelier") ? "Atelier <small>niveau d\'écurie et améliorations</small>" : "Niveau d\'écurie") + "</h3></div>" + htmlAtelier(qui) : "") + htmlProchainement() +
-    '<p class="info">Le Stand regroupe tout ce qui se joue. Le Grand Prix montre la course, l\'Écurie ton look. <a href="#" class="lien-regles" data-regles="cartes">Règles des cartes</a></p>';
+    '<p class="info">Le Stand regroupe tout ce qui se joue. La Course montre la course, l\'Écurie ton look. <a href="#" class="lien-regles" data-regles="cartes">Règles des cartes</a></p>';
 }
 function brancherStand(v, y) {
   const kOuvert = () => kCartes(y);
@@ -3198,74 +3248,127 @@ let DUEL_RIVAL = null;
 function htmlDuel(y, kOuvert) {
   const qui = moiPilote(); if (!qui || !kOuvert || !regleVisible("duels") || !regleActive("duels", kOuvert)) return "";
   const d = duelDe(y, qui, kOuvert), rivaux = D.personnes.map(p => p.nom).filter(n => n !== qui);
-  const contreMoi = D.personnes.map(p => p.nom).filter(n => n !== qui).filter(n => { const x = duelDe(y, n, kOuvert); return x && x.cible === qui; });
+
   return '<div><h3 class="s-h3">Duel du mois <small>' + esc(moisLong(kOuvert)) + "</small></h3></div>" +
     '<div class="c-action duel"><p>⚔️ Défie un rival : le meilleur du mois lui prend <b>1 point</b>. Même fenêtre que les cartes, face cachée, gratuit, un défi par mois.</p>' +
     (d && d.cible ? '<p><b>⚔️ Duel lancé contre ' + esc(d.cible) + "</b>" + (d.cache ? " · révélé le " + jourLimite(kOuvert) : "") + '.</p><button class="lien" type="button" id="duel-retirer">Retirer mon duel</button>'
       : '<div class="chips" role="group" aria-label="Rival à défier">' + rivaux.map(n => '<button class="chip" type="button" data-duel="' + esc(n) + '" aria-pressed="' + (DUEL_RIVAL === n) + '">' + esc(n) + "</button>").join("") + "</div>" +
         '<button class="btn acc" type="button" id="duel-lancer"' + (DUEL_RIVAL ? "" : " disabled") + ">Lancer le duel" + (DUEL_RIVAL ? " contre " + esc(DUEL_RIVAL) : "") + "</button>") +
-    (contreMoi.length ? '<p class="duel-recu">🛡️ ' + contreMoi.map(esc).join(" et ") + " t'" + (contreMoi.length > 1 ? "ont" : "a") + " défié ce mois-ci.</p>" : "") + "</div>";
+"</div>";
 }
 let GP_RIVAL = null, GP_CIBLE = null;
-/* Place les voitures sur le circuit (et anime le passage d'une étape à l'autre) */
-let GP_CAMV = null;   // caméra courante { z, tx, ty }, lissée pendant le replay
-function placerGP(v, pts, lisse) {
-  const tr = v.querySelector("#gp-trace"); if (!tr) return;
-  const L = tr.getTotalLength(), noms = Object.keys(pts).sort((a, b) => pts[b] - pts[a]), P = {};
-  let prev = null, recul = 0;
-  noms.forEach((n, j) => {
-    recul = prev !== null && Math.abs(pts[prev] - pts[n]) < .35 ? recul + 1 : 0; prev = n;   // ex aequo : un peu derrière, pour ne pas se superposer
-    const s0 = (((pts[n] / TOUR_GP) % 1) * L - recul * 9 + L) % L, p = tr.getPointAtLength(s0), q = tr.getPointAtLength((s0 + 1.5) % L);
-    const a = Math.atan2(q.y - p.y, q.x - p.x), off = j % 2 ? 4.6 : -4.6, x = p.x - Math.sin(a) * off, y = p.y + Math.cos(a) * off;
-    P[n] = { x, y };
-    const g = v.querySelector('[data-gp="' + CSS.escape(n) + '"]'); if (g) g.setAttribute("transform", "translate(" + x.toFixed(1) + " " + y.toFixed(1) + ") rotate(" + (a * 180 / Math.PI).toFixed(1) + ") scale(1.9)");
-  });
-  // caméra : cadre le peloton (zoom jusqu'à ×2,2), sans jamais sortir du circuit
-  const camEl = v.querySelector("#gp-cam");
-  if (camEl) {
-    let cible = { z: 1, tx: 0, ty: 0 };
-    if (ETAT.gpCam !== "0") {
-      const xs = noms.map(n => P[n].x), ys = noms.map(n => P[n].y), pad = 46;
-      const bw = Math.max(...xs) - Math.min(...xs) + 2 * pad, bh = Math.max(...ys) - Math.min(...ys) + 2 * pad;
-      const z = Math.max(1, Math.min(2.2, 360 / bw, 270 / bh)), cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
-      cible = { z, tx: Math.min(0, Math.max(360 - 360 * z, 180 - z * cx)), ty: Math.min(-30 + 30 * z, Math.max(240 - 240 * z, 105 - z * cy)) };
-    }
-    const c = lisse && GP_CAMV ? { z: GP_CAMV.z + (cible.z - GP_CAMV.z) * .12, tx: GP_CAMV.tx + (cible.tx - GP_CAMV.tx) * .12, ty: GP_CAMV.ty + (cible.ty - GP_CAMV.ty) * .12 } : cible;
-    GP_CAMV = c; camEl.setAttribute("transform", "translate(" + c.tx.toFixed(2) + " " + c.ty.toFixed(2) + ") scale(" + c.z.toFixed(3) + ")");
-  }
-  // étiquettes (tête ou casque + nom) posées au-dessus de chaque voiture, droites et lisibles en 2D comme en 3D
-  const pi = v.querySelector(".gp-piste"); if (!pi) return;
-  const R = pi.getBoundingClientRect();
-  const pos = [];
-  noms.forEach(n => { const g = v.querySelector('[data-gp="' + CSS.escape(n) + '"]'), t = v.querySelector('[data-gpt3="' + CSS.escape(n) + '"]'); if (!g || !t) return;
-    const b = g.getBoundingClientRect(); pos.push({ t, x: b.left + b.width / 2 - R.left, y: b.top + b.height * .3 - R.top - 2 }); });
-  // deux étiquettes qui se chevauchent : la seconde monte d'un cran
-  pos.sort((a, b) => b.y - a.y).forEach((p, i) => { for (let j = 0; j < i; j++) { const o = pos[j]; if (Math.abs(o.x - p.x) < 28 && Math.abs(o.y - p.y) < 30) p.y = Math.min(p.y, o.y - 30); } });
-  pos.forEach(p => { p.y = Math.max(p.y, 64); p.t.style.transform = "translate(" + p.x.toFixed(1) + "px," + p.y.toFixed(1) + "px) translate(-50%,-100%)"; });
+/* ---------- Le circuit du mois : instance 3D (ou 2D) de piste.js, gardée d'un rendu à l'autre ---------- */
+let GP_INST = null, GP_PLEIN = null, GP_REJOUER = false;
+function voituresGP() {
+  const qui = quiEcurie();
+  return D.personnes.map(p => { const e = equipDe(p.nom); return { nom: p.nom, couleur: couleurReelle(couleur(p.nom)), casque: couleurReelle(couleurCasque(p.nom, e)), livree: e.livree, trainee: e.trainee, moi: p.nom === qui }; });
 }
-function animerGP(v, de, a, duree) {
-  cancelAnimationFrame(GP_ANIM);
-  if (!ANIM || !de) { placerGP(v, a); return; }
-  const t0 = performance.now(), ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  const pas = t => {
-    const e = Math.min(1, (t - t0) / duree), k = ease(e), cur = {};
-    Object.keys(a).forEach(n => cur[n] = (de[n] || 0) + ((a[n] || 0) - (de[n] || 0)) * k);
-    placerGP(v, cur, e < 1);
-    const tt = v.querySelector("#gp-tour"); if (tt) tt.textContent = Math.floor(Math.max(...Object.values(cur)) / TOUR_GP) + 1;
-    if (e < 1) GP_ANIM = requestAnimationFrame(pas);
-  };
-  GP_ANIM = requestAnimationFrame(pas);
+/** À chaque image : étiquettes au-dessus des voitures, badges d'atout, compteur de tours, tableau du plein écran */
+function etiquettesGP(api) {
+  const pi = document.getElementById("gp-piste"); if (!pi) return;
+  const cur = api.courant(), ordre = Object.keys(cur).sort((a, b) => cur[b] - cur[a]), pos = [];
+  pi.querySelectorAll("[data-gpt3]").forEach(t => {
+    const n = t.dataset.gpt3, e = api.ecran(n), rg = t.querySelector(".gp-rg"); if (rg) rg.textContent = ordre.indexOf(n) + 1;
+    if (!e || e.vis === false) { t.style.opacity = "0"; return; }
+    t.style.opacity = ""; pos.push({ t, n, x: e.x, y: e.y });
+  });
+  // deux étiquettes qui se chevauchent : la seconde monte d'un cran
+  pos.sort((a, b) => b.y - a.y).forEach((p, i) => { for (let j = 0; j < i; j++) { const o = pos[j]; if (Math.abs(o.x - p.x) < 30 && Math.abs(o.y - p.y) < 32) p.y = Math.min(p.y, o.y - 32); } });
+  const H = pi.clientHeight;
+  pos.forEach(p => { if (p.y < 44 && !pi.classList.contains("plein")) { p.t.style.opacity = "0"; p.y = -99; return; } p.t.style.transform = "translate(" + p.x.toFixed(1) + "px," + Math.min(p.y, H - 4).toFixed(1) + "px) translate(-50%,-100%)"; });
+  pi.querySelectorAll("[data-pop]").forEach(el => { const p = pos.find(q => q.n === el.dataset.pop); if (!p || p.y < 0) { el.style.opacity = "0"; return; } el.style.opacity = ""; el.style.transform = "translate(" + p.x.toFixed(1) + "px," + (p.y - 36).toFixed(1) + "px) translate(-50%,-100%)"; });
+  pi.querySelectorAll("[data-zone]").forEach(z => { const zz = api.zones && api.zones[z.dataset.zone]; const e = zz && api.ecranMonde((zz.s0 + zz.s1) / 2, 0, 5);
+    if (!e || e.vis === false) { z.style.opacity = "0"; return; } z.style.opacity = ""; z.style.transform = "translate(" + e.x.toFixed(1) + "px," + e.y.toFixed(1) + "px) translate(-50%,-50%)"; });
+  if (api.enCours()) { const tt = pi.querySelector("#gp-tour"); if (tt) tt.textContent = Math.floor(Math.max(0, ...Object.values(cur)) / TOUR_GP) + 1; }
+  if (GP_PLEIN) majTourPlein(cur);
+}
+/** Ce que chacun a marqué ce mois-ci, en bulles au-dessus des voitures, à l'arrivée */
+function bullesGP(y, i) {
+  const pi = document.getElementById("gp-piste"), et = etapesGP(y)[i]; if (!pi || !et || !et.m) return;
+  const box = pi.querySelector(".gp-pops"); if (!box) return; box.innerHTML = "";
+  et.m.l.forEach(x => {
+    const extra = [];
+    if (x.carte && !x.carte.invalide && x.carte.gain) { const cd = carteDef(x.carte.id); extra.push((cd ? cd.ico : "🃏") + (x.carte.gain > 0 ? "+" : "") + x.carte.gain); }
+    if (x.bonus) extra.push("🎯+1"); if (x.mult > 1) extra.push("×2"); if (x.sab) extra.push("🛢️" + x.sab);
+    (x.duels || []).forEach(d => { if (d.s) extra.push("⚔️" + (d.s > 0 ? "+1" : "−1")); });
+    box.insertAdjacentHTML("beforeend", '<span class="gp-pop" data-pop="' + esc(x.nom) + '" style="--c:' + couleur(x.nom) + '"><b>' + (x.p >= 0 ? "+" : "") + x.p + " pt" + (Math.abs(x.p) > 1 ? "s" : "") + "</b>" + (extra.length ? "<small>" + esc(extra.join(" ")) + "</small>" : "") + "</span>");
+  });
+  if (GP_INST) { GP_INST.api.reveiller(); etiquettesGP(GP_INST.api); }
+  setTimeout(() => { if (box.isConnected) box.innerHTML = ""; }, 5200);
 }
 function brancherGP(v, y) {
-  const etapes = etapesGP(y), i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1;
-  const jouer = () => animerGP(v, i > 0 ? etapes[i - 1].pts : null, etapes[i].pts, 2600);
-  const cle = "versus.gpVu." + y, vu = +(stock.get(cle) || 0), dernier = etapes[etapes.length - 1].k || 0;
-  if (i === etapes.length - 1 && dernier > vu) { if (!window.DATE_SIM) stock.set(cle, String(dernier)); placerGP(v, i > 0 ? etapes[i - 1].pts : etapes[i].pts); setTimeout(jouer, 350); }
-  else placerGP(v, etapes[i].pts);
-  const vu3 = v.querySelector("#gp-vue"); if (vu3) vu3.addEventListener("click", () => { ETAT.gp2d = ETAT.gp2d === "1" ? "0" : "1"; garder(); GP_CAMV = null; rendreTrophees(); });
-  const cb = v.querySelector("#gp-cam-b"); if (cb) cb.addEventListener("click", () => { ETAT.gpCam = ETAT.gpCam === "0" ? "1" : "0"; garder(); GP_CAMV = null; rendreTrophees(); });
-  const rj = v.querySelector("#gp-rejouer"); if (rj) rj.addEventListener("click", () => { placerGP(v, i > 0 ? etapes[i - 1].pts : etapes[i].pts); setTimeout(jouer, 120); });
-  v.querySelectorAll("[data-gpe]").forEach(b => b.addEventListener("click", () => { GP_ETAPE = +b.dataset.gpe; rendreTrophees(); const nv = $("#v-trophees"); const j = GP_ETAPE; const ets = etapesGP(y); placerGP(nv, j > 0 ? ets[j - 1].pts : ets[j].pts); setTimeout(() => animerGP(nv, j > 0 ? ets[j - 1].pts : null, ets[j].pts, 2600), 120); }));
+  const etapes = etapesGP(y), i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1, et = etapes[i];
+  const pi = v.querySelector("#gp-piste"), scene = v.querySelector("#gp-scene"); if (!pi || !scene) return;
+  if (!window.Piste) { scene.innerHTML = '<p class="gp-nopiste">Circuit indisponible : recharge l\'appli.</p>'; return; }
+  const c = championnat(y), kGP = et.k || (c.chauffe ? CHAUFFE_K : y * 100 + 1), ci = circuitDe(kGP), deux = pi.classList.contains("en2d"), qui = quiEcurie();
+  const amb = (equipDe(qui) || {}).circuit || "classique", met = meteoMois(et.k).id, at = atoutsVus(kGP), vs = voituresGP();
+  const cle = [ci, met, amb, deux ? "2d" : "3d", JSON.stringify(vs), at ? at.atout.id + at.piege.id : "", couleurAccent()].join("|");
+  if (GP_INST && GP_INST.cle === cle) { scene.appendChild(GP_INST.boite); GP_INST.api.redim(); }
+  else {
+    if (GP_INST) { try { GP_INST.api.detruire(); } catch (e) { } GP_INST.boite.remove(); GP_INST = null; }
+    const boite = document.createElement("div"); boite.className = "gp-rendu"; scene.appendChild(boite);
+    const focus = ETAT.gpFocus && D.personnes.some(p => p.nom === ETAT.gpFocus) ? ETAT.gpFocus : (qui && D.personnes.some(p => p.nom === qui) ? qui : D.personnes[0].nom);
+    const api = Piste.monter(boite, { circuit: ci, meteo: met, ambiance: amb, mode: deux ? "2d" : "3d", camera: camGP(), tour: TOUR_GP, voitures: vs, pts: et.pts, focus,
+      atoutCol: at ? "#3DDC97" : null, piegeCol: at ? "#FF5C6C" : null, accent: couleurAccent(), titre: GPS[ci].gp + ", " + GPS[ci].ville,
+      image: etiquettesGP, toucher: n => { ETAT.gpFocus = n; garder(); if (GP_INST) GP_INST.api.focus(n); if (camGP() === "helico" && GP_INST && GP_INST.api.type === "3d") { ETAT.gpCam = "tv"; garder(); GP_INST.api.camera("tv"); majBoutonsGP(); } toast("🎥 La caméra suit " + n + "."); },
+      perdu: () => { if (GP_INST && GP_INST.boite === boite) GP_INST = null; } });
+    GP_INST = { cle, api, boite };
+    if (api.type === "2d" && !deux) { pi.classList.add("en2d"); const cb = pi.querySelector("#gp-cam-b"); if (cb) cb.remove(); }
+  }
+  const api = GP_INST.api, depart = i > 0 ? etapes[i - 1].pts : et.pts;
+  const jouer = () => api.jouer(depart, et.pts, api.type === "3d" ? 5600 : 2600, () => bullesGP(y, i), i === 1 && api.type === "3d");
+  const cleVu = "versus.gpVu." + y, vu = +(stock.get(cleVu) || 0), dernier = etapes[etapes.length - 1].k || 0;
+  if (GP_REJOUER && i > 0) { GP_REJOUER = false; setTimeout(jouer, 150); }
+  else if (i === etapes.length - 1 && dernier > vu && i > 0) { stock.set(cleVu, String(dernier)); setTimeout(jouer, 450); }
+  else if (!api.enCours()) api.placer(et.pts);
+  GP_REJOUER = false;
+  const vu3 = v.querySelector("#gp-vue"); if (vu3) vu3.addEventListener("click", () => { ETAT.gp2d = pi.classList.contains("en2d") ? "0" : "1"; garder(); rendreTrophees(); });
+  const cb = v.querySelector("#gp-cam-b"); if (cb) cb.addEventListener("click", () => { const l = ["tv", "helico", "bord"], n = l[(l.indexOf(camGP()) + 1) % l.length]; ETAT.gpCam = n; garder(); if (GP_INST) GP_INST.api.camera(n); majBoutonsGP(); });
+  const rj = v.querySelector("#gp-rejouer"); if (rj) rj.addEventListener("click", () => { if (i > 0) jouer(); else toast("Le départ n'a pas encore eu lieu : choisis un mois."); });
+  const pl = v.querySelector("#gp-plein"); if (pl) pl.addEventListener("click", () => ouvrirPleinGP(y));
+  v.querySelectorAll(".gp-mois [data-gpe]").forEach(b => b.addEventListener("click", () => { GP_ETAPE = +b.dataset.gpe; GP_REJOUER = true; rendreTrophees(); }));
+  const cal = v.querySelector("#gp-calend"); if (cal) cal.addEventListener("toggle", () => { ETAT.calOuvert = cal.open ? "1" : "0"; garder(); });
+  if (GP_PLEIN) placerPlein(y);
+  etiquettesGP(api);
+}
+function majBoutonsGP() { document.querySelectorAll("#gp-cam-b").forEach(b => b.textContent = CAMS[camGP()]); }
+/* ---------- Plein écran : la même piste, déplacée dans une couche qui couvre tout l'écran ---------- */
+function ouvrirPleinGP(y) {
+  if (GP_PLEIN) return;
+  const o = document.createElement("div"); o.className = "gp-plein"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", "Circuit en plein écran");
+  o.innerHTML = '<div class="gpp-corps"></div><div class="gpp-h"><div class="gpp-t"></div><button class="gpp-x" type="button" aria-label="Fermer le plein écran">✕</button></div><div class="gpp-tour"></div><div class="gpp-mois"></div>';
+  document.body.appendChild(o); document.documentElement.classList.add("fige");
+  GP_PLEIN = { o, y, ancre: null, maj: 0 };
+  o.querySelector(".gpp-x").addEventListener("click", fermerPleinGP);
+  GP_PLEIN.esc = e => { if (e.key === "Escape") fermerPleinGP(); }; document.addEventListener("keydown", GP_PLEIN.esc);
+  placerPlein(y);
+}
+function placerPlein(y) {
+  const P = GP_PLEIN; if (!P) return;
+  const pi = document.querySelector(".saison #gp-piste") || document.getElementById("gp-piste"); if (!pi) { fermerPleinGP(); return; }
+  const corps = P.o.querySelector(".gpp-corps");
+  if (pi.parentNode !== corps) {
+    corps.querySelectorAll(".gp-piste").forEach(x => x.remove());
+    P.ancre = document.createElement("div"); P.ancre.className = "gp-ancre"; pi.parentNode.insertBefore(P.ancre, pi); corps.appendChild(pi);
+  }
+  const h = document.querySelector(".saison .gp-h"), t = h ? h.querySelector(".gp-titre") : null, k = h ? h.querySelector(".s-k") : null;
+  P.o.querySelector(".gpp-t").innerHTML = "<b>" + (t ? t.innerHTML : "") + "</b><small>" + (k ? k.innerHTML : "") + "</small>";
+  const ch = document.querySelector(".saison .gp-mois"); P.o.querySelector(".gpp-mois").innerHTML = ch ? ch.outerHTML : "";
+  P.o.querySelectorAll(".gpp-mois [data-gpe]").forEach(b => b.addEventListener("click", () => { GP_ETAPE = +b.dataset.gpe; GP_REJOUER = true; rendreTrophees(); }));
+  const sel = P.o.querySelector('.gpp-mois [aria-pressed="true"]'); if (sel) sel.scrollIntoView({ inline: "center", block: "nearest" });
+  if (GP_INST) { GP_INST.api.redim(); majTourPlein(GP_INST.api.courant(), true); }
+}
+function majTourPlein(cur, force) {
+  const P = GP_PLEIN; if (!P) return; const now = performance.now(); if (!force && now - P.maj < 120) return; P.maj = now;
+  const qui = quiEcurie(), ordre = Object.keys(cur).sort((a, b) => cur[b] - cur[a]), t = cur[ordre[0]] || 0;
+  P.o.querySelector(".gpp-tour").innerHTML = ordre.map((n, r) => '<div class="r' + (n === qui ? " moi" : "") + '" style="--c:' + couleur(n) + '"><span class="rk">' + (r + 1) + "</span>" + avatar(n) + '<span class="n">' + esc(n) + '</span><span class="p">' + Math.round(cur[n]) + (r ? "<small>−" + Math.round(t - cur[n]) + "</small>" : "<small>tour " + (Math.floor(t / TOUR_GP) + 1) + "</small>") + "</span></div>").join("");
+}
+function fermerPleinGP() {
+  const P = GP_PLEIN; if (!P) return; GP_PLEIN = null;
+  const pi = P.o.querySelector(".gp-piste");
+  if (pi && P.ancre && P.ancre.isConnected) P.ancre.replaceWith(pi); else if (P.ancre) P.ancre.remove();
+  document.removeEventListener("keydown", P.esc); P.o.remove(); document.documentElement.classList.remove("fige");
+  if (GP_INST) GP_INST.api.redim();
 }
 
 /* ============================================================
@@ -3286,6 +3389,7 @@ const CARTES_BONUS = [
    Avant ça, on ne montre que son nom et son mois. Pour avancer ou repousser une étape : changer « ouvre ». */
 const ETAPES = [
   { id: "duels", ico: "⚔️", nom: "Les duels", ouvre: 202702, regle: "duels", resume: "Chaque mois, tu peux défier un rival, dans la même fenêtre que ta carte. Le meilleur du mois lui prend 1 point." },
+  { id: "circuits", ico: "🗺️", nom: "Atouts et pièges des circuits", ouvre: 202703, regle: "circuits", resume: "Chaque Grand Prix favorise une carte : +1 quand elle marque. Et il en piège une autre : −1. Regarde le calendrier avant de poser ta carte." },
   { id: "pioche", ico: "🎴", nom: "La pioche et les niveaux", ouvre: 202704, regle: "pioche", resume: "Tes points font monter ton écurie de niveau. Chaque niveau gagné, et chaque mois fini dernier, te fait piocher une carte bonus. Tes premières cartes t'attendent déjà dans le Stand !" },
   { id: "monaco", ico: "🎰", nom: "Le Grand Prix de Monaco", ouvre: 202704, regle: "speciaux", resume: "Un mois de la saison, le dernier du championnat marque ses points de place en double. La date est dans le calendrier du Grand Prix." },
   { id: "atelier", ico: "🔧", nom: "L'atelier", ouvre: 202707, regle: "niveaux", resume: "Chaque niveau te donne un point à placer en Moteur, Aéro ou Pneus, pour renforcer Turbo, Aspiration et Pneus pluie." },
@@ -3342,9 +3446,9 @@ function nouveautesAVoir() {
   return ETAPES.filter(e => regleVisible(e.id) && !stock.get("versus.nouveaute." + e.id));
 }
 function ouvrirNouveautes(l) {
-  if (!window.DATE_SIM) l.forEach(e => stock.set("versus.nouveaute." + e.id, "1"));   // en simulation, rien n'est marqué comme vu
+  l.forEach(e => stock.set("versus.nouveaute." + e.id, "1"));
   const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
-  o.innerHTML = '<div class="tuto-c"><span class="tuto-k">' + (l.length > 1 ? "Nouvelles règles" : "Nouvelle règle") + "</span>" + l.map(e => '<div class="tuto-i">' + e.ico + "</div><h3>" + esc(e.nom) + "</h3><p>" + esc(e.resume) + "</p>").join("") +
+  o.innerHTML = '<div class="tuto-c' + (l.length > 2 ? " multi" : "") + '"><span class="tuto-k">' + (l.length > 1 ? "Nouvelles règles" : "Nouvelle règle") + "</span>" + l.map(e => '<div class="tuto-i">' + e.ico + "</div><h3>" + esc(e.nom) + "</h3><p>" + esc(e.resume) + "</p>").join("") +
     '<div class="btn-row"><button class="btn ghost" type="button" data-nv="regles">Lire la règle</button><button class="btn acc" type="button" data-nv="ok">Compris 🏁</button></div></div>';
   document.body.appendChild(o);
   o.addEventListener("click", ev => { if (ev.target === o) o.remove(); });
@@ -3376,13 +3480,16 @@ function moisSpecial(y, k) {
   return null;
 }
 /* ---------- Améliorations : choix datés, valables pour les cartes posées après ---------- */
-function anneeAmelio() { const d = new Date(); return d.getFullYear() + (d.getMonth() === 11 ? 1 : 0); }
+/** Saison des améliorations : celle du mois dont la fenêtre est ouverte, sinon celle de la prochaine fenêtre
+    (le 1er décembre on améliore encore pour la Finale ; dès le 2, on prépare la saison suivante) */
+function anneeAmelio() { const k = moisCarteOuvert() || prochaineFenetre().k; return Math.floor(k / 100); }
 function amelioApercu() { return stock.get("versus.amelioApercu") || ""; }
 /** Améliorations enregistrées pour une saison : { s: "mmap", t: [dates] } */
 function amelioDe(nom, y) {
   if (apercuSaison()) return { s: nom === moiPilote() ? amelioApercu() : "", t: [] };
-  const b = ((D.ecurie || {})[nom] || {}).equip || {};
-  return Number(b.amelioY) === y && /^[map]{0,8}$/.test(b.amelio || "") ? { s: b.amelio || "", t: b.amelioT || [] } : { s: "", t: [] };
+  const b = ((D.ecurie || {})[nom] || {}).equip || {}, parAn = (b.amelios || {})[y];
+  if (parAn && /^[map]{0,8}$/.test(parAn.s || "")) return { s: parAn.s || "", t: parAn.t || [] };
+  return Number(b.amelioY) === y && /^[map]{0,8}$/.test(b.amelio || "") ? { s: b.amelio || "", t: b.amelioT || [] } : { s: "", t: [] };   // ancien format (V9)
 }
 /** Niveaux d'amélioration actifs pour les cartes du mois k (n = niveau au départ du mois) */
 function amelioAu(y, nom, k, n) {
@@ -3393,7 +3500,7 @@ function amelioAu(y, nom, k, n) {
 /* ---------- Duels annoncés ---------- */
 function duelsApercu() { try { return JSON.parse(stock.get("versus.duelsApercu") || "{}"); } catch (e) { return {}; } }
 function mesDuels() {
-  let loc = {}; try { loc = JSON.parse(stock.get("versus.mesDuels") || "{}"); } catch (e) { loc = {}; }
+  let loc = {}; try { loc = JSON.parse(stock.get(cleMesDuels()) || "{}"); } catch (e) { loc = {}; }
   const srv = (typeof D !== "undefined" && D && D.mesDuels) || {};
   Object.keys(srv).forEach(y => { loc[y] = Object.assign({}, loc[y] || {}, srv[y]); });
   return loc;
@@ -3417,11 +3524,14 @@ async function lancerDuel(y, k, cible) {
   // tout de suite à l'écran ; l'envoi suit, et on revient en arrière s'il échoue
   const m = mesDuels(), avant = JSON.stringify(m); m[y] = m[y] || {};
   if (cible) m[y][k] = { cible }; else delete m[y][k];
-  stock.set("versus.mesDuels", JSON.stringify(m)); MEMO_SAISON = { d: null, m: {} };
+  const avantD = D.mesDuels ? JSON.stringify(D.mesDuels) : null;
+  if (D.mesDuels) { D.mesDuels[y] = D.mesDuels[y] || {}; if (cible) D.mesDuels[y][k] = { cible }; else delete D.mesDuels[y][k]; }
+  stock.set(cleMesDuels(), JSON.stringify(m)); MEMO_SAISON = { d: null, m: {} };
+  if (simulation()) { toast(cible ? "👁️ Simulation : duel lancé pour voir, rien n'est envoyé." : "Duel retiré (simulation)."); rendreTrophees(); return; }
   toast(cible ? "⚔️ Duel lancé contre " + cible + " sur " + moisLong(k) + "." : "Duel retiré."); rendreTrophees();
   const rep = await posterAdmin({ action: "duel", personne: qui, mois: k, cible: cible || null });
-  if (rep.ok) { if (rep.mesDuels) { const n = mesDuels(); n[y] = rep.mesDuels; stock.set("versus.mesDuels", JSON.stringify(n)); } if (rep.duels) D.duels = rep.duels; MEMO_SAISON = { d: null, m: {} }; }
-  else { stock.set("versus.mesDuels", avant); D.mesDuels = null; MEMO_SAISON = { d: null, m: {} }; toast(rep.message || "Duel impossible."); rendreTrophees(); }
+  if (rep.ok) { if (rep.mesDuels) { const n = mesDuels(); n[y] = rep.mesDuels; stock.set(cleMesDuels(), JSON.stringify(n)); if (D.mesDuels) D.mesDuels[y] = rep.mesDuels; } if (rep.duels) D.duels = rep.duels; MEMO_SAISON = { d: null, m: {} }; }
+  else { stock.set(cleMesDuels(), avant); if (avantD) D.mesDuels = JSON.parse(avantD); MEMO_SAISON = { d: null, m: {} }; toast(rep.message || "Duel impossible."); rendreTrophees(); }
 }
 
 /* ---------- Avatars « tête » : un portrait animé par pilote ---------- */
@@ -3547,8 +3657,9 @@ function svgTete(nom, eq, statique) {
 }
 
 /* ---------- Atelier : niveau d'écurie et améliorations ---------- */
+function choisirSaison(y) { ETAT.saisonY = y; ETAT.saisonYAn = new Date().getFullYear(); garder(); }
 function saisonCourante() {
-  const ys = anneesPodium(); if (ys.includes(ETAT.saisonY)) return ETAT.saisonY;
+  const ys = anneesPodium(); if (ys.includes(ETAT.saisonY) && ETAT.saisonYAn === new Date().getFullYear()) return ETAT.saisonY;
   return !saisonOuverte() && !apercuSaison() && ys.length ? ys[0] : ys[ys.length - 1];   // en décembre 2026 : la chauffe
 }
 function jeuDe(nom, y) { const c = championnat(y || saisonCourante()); return (c.jeu || {})[nom] || { xp: 0, niv: 1, pioche: [], deck: deckBonus(y, nom), i: 0 }; }
@@ -3588,11 +3699,11 @@ function htmlPilote(qui, e) {
 
 /* ---------- Règles : toujours accessibles (bouton 📖 du Podium et réglages) ---------- */
 function htmlRegles(tout) {
-  const idx = esc(D.marche.indices[iRef()]), y = saisonCourante() || SAISON.premiere, mo = monacoMois(y);
+  const idx = esc(D.marche.indices[iRef()]), y = Math.max(saisonCourante() || 0, SAISON.premiere), mo = monacoMois(y);
   const carte = c => "<li><b>" + c.ico + " " + esc(c.nom) + "</b> : " + esc(c.def.replace("l'indice", "le " + D.marche.indices[iRef()])) + "</li>";
   const s = (id, ico, t, corps) => '<section class="rg-s" id="rg-' + id + '"><h4>' + ico + " " + t + "</h4>" + corps + "</section>";
-  const vu = id => tout || regleVisible(id), vP = vu("pioche"), vA = vu("atelier"), vD = vu("duels"), vM = vu("monaco"), vF = vu("finale"), bientot = tout ? [] : ETAPES.filter(e => !regleVisible(e.id));
-  const sommaire = [["champ", "Championnat"], ["gp", "Grand Prix"], ["cartes", "Cartes"]].concat(vP ? [["pioche", "Pioche"], ["niveaux", "Niveaux"]] : [], vD ? [["duels", "Duels"]] : [], [["speciaux", "Mois spéciaux"], ["ecurie", "Écurie"], ["defis", "Défis & exclusifs"]], bientot.length ? [["bientot", "🎁 Prochainement"]] : []);
+  const vu = id => tout || regleVisible(id), vP = vu("pioche"), vA = vu("atelier"), vD = vu("duels"), vM = vu("monaco"), vF = vu("finale"), vC = vu("circuits"), bientot = tout ? [] : ETAPES.filter(e => !regleVisible(e.id));
+  const sommaire = [["champ", "Championnat"], ["gp", "Grand Prix"], ["cartes", "Cartes"]].concat(vC ? [["circuits", "Circuits"]] : [], vP ? [["pioche", "Pioche"], ["niveaux", "Niveaux"]] : [], vD ? [["duels", "Duels"]] : [], [["speciaux", "Mois spéciaux"], ["ecurie", "Écurie"], ["defis", "Défis & exclusifs"]], bientot.length ? [["bientot", "🎁 Prochainement"]] : []);
   return '<div class="rg-sommaire">' + sommaire.map(([id, l]) => '<button type="button" data-rg="' + id + '">' + l + "</button>").join("") + "</div>" +
     s("champ", "🏁", "Le championnat",
       "<p>Une saison = une année, du 1<sup>er</sup> janvier au 31 décembre. Tout repart de zéro chaque 1<sup>er</sup> janvier.</p>" +
@@ -3601,11 +3712,18 @@ function htmlRegles(tout) {
       "<li>Au total d'un mois (place + 🎯 + cartes" + (vD ? " + duels" : "") + "), on ne descend jamais sous 0.</li><li>À égalité au classement : le plus de victoires, puis la meilleure performance cumulée.</li></ul>") +
     s("gp", "🏎️", "Le Grand Prix",
       "<ul><li>Tes points te font avancer sur le circuit : <b>" + TOUR_GP + " points = un tour</b>.</li><li>Chaque fin de mois, la course se rejoue en animation. Touche un mois pour revoir son étape.</li>" +
-      "<li>La météo vient du " + idx + " du mois : ☀️ au-delà de +3 %, ⛅ entre 0 et +3 %, 🌧️ jusqu'à −3 %, ⛈️ en dessous.</li><li>💨 DRS : tu es à 3 points ou moins du pilote devant toi.</li><li>L'habillage de la piste se choisit dans l'écurie (onglet Piste).</li></ul>") +
+      "<li><b>Une ville par mois</b>, comme en Formule 1 : Bahreïn en janvier, Djeddah en février… jusqu'à Las Vegas en décembre. Le tour de chauffe se court à Abu Dhabi. Le calendrier est sous la course.</li>" +
+      "<li>La météo vient du " + idx + " du mois : ☀️ au-delà de +3 %, ⛅ entre 0 et +3 %, 🌧️ jusqu'à −3 %, ⛈️ en dessous. Il pleut aussi sur le circuit.</li><li>💨 DRS : tu es à 3 points ou moins du pilote devant toi.</li>" +
+      "<li>La course se regarde en 3D (caméra TV, hélico ou embarquée) ou sur une carte 2D, et en plein écran avec ⛶. Touche une voiture pour la suivre.</li><li>Ton ambiance (jour, nocturne, golden hour, hiver, synthwave) se choisit dans l'écurie : elle ne change que ta vue.</li></ul>") +
     s("cartes", "🃏", "Les cartes de course",
       "<p><b>Ta main de base</b>, la même pour tout le monde chaque saison :</p><ul>" + CARTES.map(carte).join("") + "</ul>" +
       "<ul><li><b>Une carte par mois au plus</b>, posée <b>face cachée entre le 20 du mois d'avant et le 1<sup>er</sup> du mois visé inclus</b> (ex. : celle de mars se pose du 20 février au 1<sup>er</sup> mars). Le reste du temps, la fenêtre est fermée.</li><li>Personne ne voit ta carte avant le 2 ; elle est révélée ensuite et compte dans le championnat.</li>" +
       "<li>Tu peux reprendre ou changer ta carte tant que la date limite n'est pas passée.</li><li><b>Rappels</b> : tant que ta carte n'est pas posée, un bandeau s'affiche en haut de l'appli et une pastille sur Podium ; un e-mail part le 20, l'avant-veille et le dernier jour (si ton adresse est enregistrée).</li><li>Le jour de la révélation, les cartes de tout le monde se retournent à l'ouverture de l'appli.</li><li>Chaque carte se joue une seule fois par saison.</li><li>Plafond : une carte rapporte au plus <b>+" + PLAFOND_CARTE + "</b> sur un mois.</li></ul>") +
+    (vC ? s("circuits", "🗺️", "Atouts et pièges des circuits",
+      "<ul><li>Chaque Grand Prix a son <b>atout</b> : une carte de la main de base qui y gagne <b>+1</b> quand elle marque.</li><li>Et son <b>piège</b> : une carte qui y perd <b>1 point</b> quand elle marque (jamais sous 0).</li>" +
+      "<li>Une carte qui ne marque rien n'est ni aidée ni punie. Les cartes bonus de la pioche ne sont pas concernées, et le plafond de +" + PLAFOND_CARTE + " par carte reste.</li><li>Le Stand et le calendrier montrent l'atout et le piège du prochain Grand Prix : à toi de garder la bonne carte pour le bon circuit.</li></ul>" +
+      "<ul>" + CAL_GP.map((id, n) => { const g = GPS[id], a = carteDef(g.atout), p = carteDef(g.piege); return "<li><b>" + esc(MOIS_L[n].charAt(0).toUpperCase() + MOIS_L[n].slice(1)) + " · " + g.drap + " " + esc(g.ville) + "</b> : " + a.ico + " " + esc(a.nom) + " +1 · " + p.ico + " " + esc(p.nom) + " −1</li>"; }).join("") +
+      (vM ? "<li><b>🎰 Monaco</b> remplace la ville de son mois : " + carteDef(GPS.monaco.atout).ico + " " + esc(carteDef(GPS.monaco.atout).nom) + " +1 · " + carteDef(GPS.monaco.piege).ico + " " + esc(carteDef(GPS.monaco.piege).nom) + " −1</li>" : "") + "</ul>") : "") +
     (vP ? s("pioche", "🎴", "La pioche bonus",
       "<p>En plus de ta main, tu pioches des cartes bonus :</p><ul><li><b>1 carte à chaque niveau d'écurie gagné</b>,</li><li><b>1 carte quand tu finis dernier d'un mois</b> (les stands te dépannent).</li></ul>" +
       "<p>Ta pioche contient ces 6 cartes, mélangées une fois pour toutes en début de saison (chacun la sienne) :</p><ul>" + CARTES_BONUS.map(carte).join("") + "</ul>" +
@@ -3618,17 +3736,17 @@ function htmlRegles(tout) {
     (vD ? s("duels", "⚔️", "Les duels annoncés",
       "<ul><li>Chaque mois, tu peux défier <b>un</b> rival, dans la même fenêtre que les cartes (du 20 au 1<sup>er</sup>).</li><li>Le duel est révélé le 2. À la fin du mois, celui qui fait la meilleure performance <b>prend 1 point à l'autre</b> (+1 / −1). Égalité parfaite : rien ne bouge.</li>" +
       "<li>Tu peux être défié par plusieurs rivaux le même mois : chaque duel compte.</li><li>Un duel ne coûte aucune carte.</li></ul>") : "") +
-    s("speciaux", "📅", "Les mois spéciaux",
+    s("speciaux", vF || vM ? "📅" : "🔥", vF || vM ? "Les mois spéciaux" : "Le tour de chauffe",
       "<ul>" + (vF ? "<li><b>🏆 Finale (décembre)</b> : points de place doublés pour tout le monde (le 🎯 reste à +1).</li>" : "") +
-      (vM ? "<li><b>🎰 Grand Prix de Monaco</b> : un mois tiré au sort entre avril et octobre, annoncé à l'avance. Le dernier du championnat avant ce mois marque ses points de place en double. Cette saison : <b>" + esc(moisLong(mo)) + "</b>.</li>" : "") +
+      (vM ? "<li><b>🎰 Grand Prix de Monaco</b> : un mois tiré au sort entre avril et octobre, annoncé à l'avance. Le dernier du championnat avant ce mois marque ses points de place en double." + (regleActive("monaco", mo) ? " Cette saison : <b>" + esc(moisLong(mo)) + "</b>." : "") + "</li>" : "") +
       "<li>🔥 <b>Tour de chauffe (décembre 2026)</b> : les règles de base, mais rien ne compte. Cartes jusqu'au 5 décembre inclus.</li></ul>") +
     s("ecurie", "🪖", "L'écurie et ton avatar",
-      "<ul><li>Casque, finition, avatar (fond), livrée, traînée, klaxon, plaque et habillage de piste se débloquent avec les défis et les exclusifs.</li><li>Ton avatar : ta <b>tête</b> (retouchable : coupe, barbe, lunettes, tenue…) ou ton <b>casque</b>, au choix, dans l'onglet Pilote.</li>" +
+      "<ul><li>Casque, finition, avatar (fond), livrée, traînée, klaxon, plaque et ambiance de course se débloquent avec les défis et les exclusifs. Ta livrée, ton casque et ta traînée se voient sur la voiture 3D.</li><li>Ton avatar : ta <b>tête</b> (retouchable : coupe, barbe, lunettes, tenue…) ou ton <b>casque</b>, au choix, dans l'onglet Pilote.</li>" +
       "<li>Le leader du championnat porte le liseré or 🟡 sur son casque, et un grand sourire sur sa tête.</li><li>L'enregistrement est instantané ; tu peux tout changer quand tu veux.</li></ul>") +
     s("defis", "🎯", "Défis et exclusifs",
       "<ul><li>Défis 🥉 🥈 🥇 💎 en quatre familles (performance, compétition, régularité, maîtrise), plus des défis secrets. Une fois réussi, c'est acquis.</li>" +
       "<li>Exclusifs 💎 : chaque objet n'existe qu'en un exemplaire. Le premier qui remplit la condition le garde pour toujours. Égalité : la meilleure valeur du critère, puis la performance du mois, puis le cumul de la saison.</li><li>Les cosmétiques ne viennent que des données publiques du Versus, jamais de ton patrimoine privé.</li></ul>") +
-    (bientot.length ? s("bientot", "🎁", "Prochainement", "<p>De nouvelles règles arrivent en cours de saison. Chacune sera expliquée le jour où elle s'ouvre.</p><ul>" + bientot.map(e => "<li>" + (estAdmin() ? '<button type="button" class="lien" data-etape="' + e.id + '">🔒 ' + esc(e.nom) + "</button>" : e.ico + " <b>" + esc(e.nom) + "</b>") + " · " + esc(moisEtape(e)) + "</li>").join("") + "</ul>") : "");
+    (bientot.length ? s("bientot", "🎁", "Prochainement", "<p>De nouvelles règles arrivent en cours de saison. Chacune est expliquée le 20 du mois d'avant, quand sa fenêtre s'ouvre.</p><ul>" + bientot.map(e => "<li>" + (estAdmin() ? '<button type="button" class="lien" data-etape="' + e.id + '">🔒 ' + esc(e.nom) + "</button>" : e.ico + " <b>" + esc(e.nom) + "</b>") + " · " + esc(moisEtape(e)) + "</li>").join("") + "</ul>") : "");
 }
 function ouvrirRegles(section, tout) {
   const o = document.createElement("div"); o.className = "regles"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", "Règles du Versus");
@@ -3647,10 +3765,10 @@ function ouvrirRegles(section, tout) {
 /* ---------- Tuto : à la première ouverture du championnat, et depuis les règles ---------- */
 const TUTO = [
   { ico: "🏁", t: "Le championnat", p: "Chaque mois, la meilleure performance prend 10 points, puis 6, 4, 2 et 1. Bats l'indice : +1 🎯. Tout repart de zéro chaque 1er janvier. Décembre 2026 est un tour de chauffe : rien ne compte." },
-  { ico: "🏎️", t: "La course", p: "Les points te font avancer sur le circuit : 25 points = un tour. Chaque fin de mois, la course se rejoue sous la météo du marché." },
+  { ico: "🏎️", t: "La course", p: "Chaque mois, un Grand Prix dans une ville différente. Tes points te font avancer : 25 points = un tour. La course se rejoue en 3D sous la météo du marché, en plein écran si tu veux." },
   { ico: "🃏", t: "Tes cartes", p: "Tout le monde a la même main de 4 cartes. Une par mois, posée face cachée dans l'onglet Stand, entre le 20 du mois d'avant et le 1er. Un bandeau te le rappelle." },
   { ico: "🙂", t: "Ton écurie", p: "Ta tête ou ton casque, ta livrée, ta traînée, ton klaxon : tout se règle dans l'onglet Écurie, et beaucoup se débloque avec les défis et les exclusifs." },
-  { ico: "🎁", t: "Et ensuite ?", p: "De nouvelles règles arrivent en cours de saison, une à la fois. Chacune est annoncée le jour où elle s'ouvre. Le bouton 📖 Règles, en haut du Podium, garde tout le détail." }
+  { ico: "🎁", t: "Et ensuite ?", p: "De nouvelles règles arrivent en cours de saison, une à la fois. Chacune est annoncée le 20 du mois d'avant, quand sa fenêtre s'ouvre. Le bouton 📖 Règles, en haut du Podium, garde tout le détail." }
 ];
 function ouvrirTuto() {
   const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); let i = 0;
@@ -3840,17 +3958,11 @@ function rendreTrophees() {
   if (vis) brancherSaison(v);
   else {
     animerCompte();
-    const a = v.querySelector("#apercu-saison");
-    if (a) a.addEventListener("click", () => { stock.set("versus.apercuSaison", "1"); rendreTrophees(); window.scrollTo({ top: 0 }); });
     const tr = v.querySelector("#teaser-regles"); if (tr) tr.addEventListener("click", () => ouvrirRegles());
-    const n = v.querySelector("#teaser-noel");
-    if (n) n.addEventListener("click", () => { stock.set("versus.teaserNoel", stock.get("versus.teaserNoel") === "1" ? "0" : "1"); rendreTrophees(); });
   }
-  const q = v.querySelector("#quitter-apercu");
-  if (q) q.addEventListener("click", () => { stock.set("versus.apercuSaison", "0"); ECU = null; rendreTrophees(); });
   if (saisonOuverte() && !stock.get("versus.saison1")) { stock.set("versus.saison1", "1"); toast("🏁 Saison 1 : c'est parti !"); confettis("damier"); }
   majRappels();
-  if (!saisonOuverte() && chauffeOuverte() && !apercuSaison() && !stock.get("versus.chauffe1") && !window.DATE_SIM) { stock.set("versus.chauffe1", "1"); toast("🔥 Tour de chauffe : essaie tout, rien ne compte !"); confettis("damier"); }
+  if (!saisonOuverte() && chauffeOuverte() && !apercuSaison() && !stock.get("versus.chauffe1")) { stock.set("versus.chauffe1", "1"); toast("🔥 Tour de chauffe : essaie tout, rien ne compte !"); confettis("damier"); }
 }
 
 /* ---------- Duel ---------- */
@@ -3969,12 +4081,11 @@ function bandeauMillion() {
   return '<button class="million-strip' + (pm ? " pris" : "") + '" type="button" id="info-million-t"><span class="mc">👑</span><span><b>Premier millionnaire</b><small>' +
     (pm ? esc(pm.nom) + " · depuis le " + esc(isoFr(pm.date)) + " · badge unique" : "badge secret · à prendre · le premier à 1 000 000 € le garde pour toujours") + "</small></span></button>";
 }
-/* ---------- Bilans (Podium) : récaps du mois pour tous, bilans de l'année pour tous, bilan de patrimoine privé ---------- */
+/* ---------- Bilans (onglet Mois) : récaps du mois pour tous, bilans de l'année pour tous ---------- */
 function moisRecap() { return moisVerdict(0).filter(k => { const v = verdictMois(0, k); return v && v.complet; }).slice().reverse().slice(0, 12); }
 function blocBilans() {
   const onglet = ETAT.bilans === "annuel" ? "annuel" : "mensuel";
   const ms = moisRecap(), ys = anneesBilan(), vu = Number(stock.get("versus.recapVu") || 0);
-  const prive = moiConnecte() && window.Moi && window.Moi.anneesPrivees ? window.Moi.anneesPrivees() : [];
   let corps;
   const plus = (id, ouvert, n) => '<button class="lien voir-plus" type="button" id="' + id + '">' + (ouvert ? "Voir moins" : "Voir plus (" + n + ")") + "</button>";
   if (onglet === "mensuel") {
@@ -3982,9 +4093,8 @@ function blocBilans() {
     corps = ms.length ? '<div class="bilans">' + visibles.map((k, j) => '<button class="bilan-b" type="button" data-recap="' + k + '">' + (j === 0 && k > vu ? '<span class="nouveau">nouveau</span>' : "📅 ") + esc(moisLong(k)) + "</button>").join("") + "</div>" +
       (ms.length > 2 ? plus("recaps-tous", ETAT.recapsTous, ms.length - 2) : "") : '<p class="info">Le premier récap arrive quand tous les relevés d\'un mois sont saisis.</p>';
   } else {
-    const annees = [...new Set(ys.concat(prive))].sort((a, b) => b - a), vis = ETAT.bilansTous ? annees : annees.slice(0, 2);
-    corps = annees.length ? '<div class="bilans">' + vis.map(y => (ys.includes(y) ? '<button class="bilan-b" type="button" data-bilan="' + y + '">🎁 Bilan ' + y + "</button>" : "") +
-      (prive.includes(y) ? '<button class="bilan-b prive" type="button" data-bilan-prive="' + y + '" title="Visible seulement sur ton téléphone">🔒 Mon patrimoine ' + y + "</button>" : "")).join("") + "</div>" +
+    const annees = ys.slice().sort((a, b) => b - a), vis = ETAT.bilansTous ? annees : annees.slice(0, 2);
+    corps = annees.length ? '<div class="bilans">' + vis.map(y => '<button class="bilan-b" type="button" data-bilan="' + y + '">🎁 Bilan ' + y + "</button>").join("") + "</div>" +
       (annees.length > 2 ? plus("bilans-tous", ETAT.bilansTous, annees.length - 2) : "") : '<p class="info">Le premier bilan de l\'année arrive avec le relevé de décembre.</p>';
   }
   return '<section class="bilans-bloc"><div class="bilans-h"><h2 class="sec">Bilans</h2><div class="seg" role="group" aria-label="Bilans"><button type="button" data-bil="mensuel" aria-pressed="' + (onglet === "mensuel") + '">Mensuel</button><button type="button" data-bil="annuel" aria-pressed="' + (onglet === "annuel") + '">Annuel</button></div></div>' + corps + "</section>";
@@ -3996,8 +4106,6 @@ function brancherBilans(v0) {
   const rt = v.querySelector("#recaps-tous"); if (rt) rt.addEventListener("click", () => { ETAT.recapsTous = !ETAT.recapsTous; garder(); re(); });
   const bt = v.querySelector("#bilans-tous"); if (bt) bt.addEventListener("click", () => { ETAT.bilansTous = !ETAT.bilansTous; garder(); re(); });
   v.querySelectorAll("[data-bilan]").forEach(b => b.addEventListener("click", () => ouvrirBilan(+b.dataset.bilan)));
-  v.querySelectorAll("[data-bilan-prive]").forEach(b => b.addEventListener("click", () => window.Moi.bilanPrive(+b.dataset.bilanPrive)));
-  if (moiConnecte() && !window.Moi) chargerModuleMoi(() => { if (vueActive() === "mois") { window.Moi.prechauffer(); re(); } });
 }
 /* Performance du mois d'une ligne partagée : cours de fin de mois contre celui du mois précédent, sinon la variation sur 1 mois envoyée avec */
 function lignesDe(nom, k) {
@@ -4045,7 +4153,7 @@ function ouvrirRecap(k) {
       (commune && commune[1].size > 1 ? '<div class="wr-c" style="grid-column:1/-1"><span>🤝 La plus partagée</span><b>' + esc(commune[0]) + "</b><em>détenue par " + [...commune[1]].map(esc).join(", ") + "</em></div>" : "") +
       "</div>" });
   }
-  L.push({ c: "#9B87FF", h: '<div class="wr-k">À suivre</div><div class="wr-mid">Rendez-vous fin ' + esc(MOIS_L[cleMoins(k, -1) % 100 - 1]) + '</div><p class="wr-p">Chaque récap reste dans Podium › Bilans.</p><button class="wr-btn" type="button" data-wr-fermer>Fermer</button>' });
+  L.push({ c: "#9B87FF", h: '<div class="wr-k">À suivre</div><div class="wr-mid">Rendez-vous fin ' + esc(MOIS_L[cleMoins(k, -1) % 100 - 1]) + '</div><p class="wr-p">Chaque récap reste dans l\'onglet Mois › Bilans.</p><button class="wr-btn" type="button" data-wr-fermer>Fermer</button>' });
   ouvrirDiapos("Récap · " + moisLong(k), L);
 }
 /* Bandeaux sur le Classement : récap du mois (jusqu'au 5 du mois suivant, tant qu'il n'est pas ouvert) et bilan annuel (1er-15 janvier) */
@@ -4053,15 +4161,8 @@ function banniereRecap() {
   const k = moisRecap()[0]; if (!k) return "";
   const now = new Date(), limite = new Date(Math.floor(cleMoins(k, -1) / 100), cleMoins(k, -1) % 100 - 1, 6);
   if (now >= limite || Number(stock.get("versus.recapVu") || 0) >= k) return "";
-  return '<button class="bandeau-bilan" type="button" data-aller-recap="' + k + '"><span>📅 Le récap de ' + esc(MOIS_L[k % 100 - 1]) + " est dispo</span><b>Podium ›</b></button>";
+  return '<button class="bandeau-bilan" type="button" data-aller-recap="' + k + '"><span>📅 Le récap de ' + esc(MOIS_L[k % 100 - 1]) + " est dispo</span><b>Mois ›</b></button>";
 }
-function boutonsBilans() {
-  const ys = anneesBilan(), fin = finGlobale(D, 0), an = fin ? Math.floor(fin / 100) : new Date().getFullYear();
-  const prochain = !ys.includes(an) ? '<div class="bilan-carte" style="opacity:.55;cursor:default"><span>Bientôt</span><b>' + an + "</b><small>après le relevé de décembre</small></div>" : "";
-  return '<div><h2 class="sec">Bilans de fin d\'année <small>' + (ys.length ? "touche pour revivre l'année" : "le premier arrive avec le relevé de décembre") + '</small></h2></div><div class="bilans-une">' +
-    prochain + ys.slice().reverse().map(y => '<button class="bilan-carte" type="button" data-bilan="' + y + '"><span>🎁 Le bilan</span><b>' + y + "</b><small>podium, titres, duels</small></button>").join("") + "</div>";
-}
-
 function bilanAnnee(y) {
   const env = 0, deb = (y - 1) * 100 + 12, f = y * 100 + 12, i1 = ETAT.i1;
   const st = D.personnes.map(p => stats(D, p, env, deb, f, i1, null)).filter(s => s.n > 0).sort((a, b) => b.twr - a.twr);
@@ -4520,7 +4621,7 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=18";
+const MOI_JS = "moi.js?v=19";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");
@@ -4707,8 +4808,8 @@ async function verifierMiseAJour() {
   try {
     const t = await (await fetch(location.pathname.replace(/[^/]*$/, "") + "index.html?v=" + Date.now(), { cache: "no-store" })).text();
     const m = /const APP_VERSION = "([^"]+)"/.exec(t); if (!m || m[1] === APP_VERSION) return;
-    const b = $("#simu-band"); if (!b) return;
-    b.hidden = false; b.classList.add("maj");
+    const b = $("#maj-band"); if (!b) return;
+    b.hidden = false;
     b.innerHTML = "<span>🆕 Version " + esc(m[1]) + " disponible (tu as la " + APP_VERSION + ").</span>" + '<button class="lien" type="button" id="maj-go">Mettre à jour</button>';
     $("#maj-go").addEventListener("click", async () => { try { const r = await navigator.serviceWorker.getRegistration(); if (r) await r.update(); } catch (e) { /* rien */ } location.reload(); });
   } catch (e) { /* hors ligne : on réessaiera */ }
@@ -4729,7 +4830,7 @@ function majVueJoueur() {
   const vj = stock.get("versus.vueJoueur") || "", ds = stock.get("versus.dateSim") || "";
   $("#choix-vue").innerHTML = '<button class="chip" type="button" data-vuej="" aria-pressed="' + !vj + '">👑 Admin</button>' + D.personnes.map(p => '<button class="chip" type="button" data-vuej="' + esc(p.nom) + '" aria-pressed="' + (vj === p.nom) + '">👁️ ' + esc(p.nom) + "</button>").join("");
   $("#choix-date").innerHTML = DATES_SIM.map(([d, l]) => '<button class="chip" type="button" data-dsim="' + d + '" aria-pressed="' + (ds === d) + '">' + esc(l) + "</button>").join("");
-  document.querySelectorAll("[data-vuej]").forEach(b => b.addEventListener("click", () => { if (b.dataset.vuej) stock.set("versus.vueJoueur", b.dataset.vuej); else stock.del("versus.vueJoueur"); ECU = null; MEMO_SAISON = { d: null, m: {} }; afficherTout(); toast(b.dataset.vuej ? "👁️ Tu vois l'appli comme " + b.dataset.vuej + "." : "👑 Retour en admin."); }));
+  document.querySelectorAll("[data-vuej]").forEach(b => b.addEventListener("click", () => { if (b.dataset.vuej) { stock.set("versus.vueJoueur", b.dataset.vuej); stock.set("versus.apercuSaison", "0"); } else { stock.del("versus.vueJoueur"); stock.del("versus.dateSim"); } location.reload(); }));
   document.querySelectorAll("[data-dsim]").forEach(b => b.addEventListener("click", () => { if (b.dataset.dsim) stock.set("versus.dateSim", b.dataset.dsim); else stock.del("versus.dateSim"); location.reload(); }));
   const band = $("#simu-band"), parts = [];
   if (vj) parts.push("👁️ Vue joueur : " + esc(SESSION.nom || vj));
@@ -4739,7 +4840,7 @@ function majVueJoueur() {
   const q = $("#simu-quitter"); if (q) q.addEventListener("click", () => { stock.del("versus.vueJoueur"); stock.del("versus.dateSim"); location.reload(); });
 }
 /* Lien direct vers le Stand (bouton des e-mails de rappel) : …/#stand */
-if (location.hash === "#stand") { ETAT.podium = "stand"; garder(); history.replaceState(null, "", location.pathname + location.search + "#trophees"); }
+if (location.hash === "#stand") { ETAT.podium = "stand"; const ko = moisCarteOuvert(); if (ko) choisirSaison(ko === CHAUFFE_K ? SAISON.premiere - 1 : Math.floor(ko / 100)); garder(); history.replaceState(null, "", location.pathname + location.search + "#trophees"); }
 montrerVue(vueActive());
 (function () {   // la dernière copie s'affiche tout de suite ; la mise à jour arrive par-dessus
   const c = stock.get(CLES.cache); if (!c || !apiUrl() || !stock.get(CLES.cle)) return;

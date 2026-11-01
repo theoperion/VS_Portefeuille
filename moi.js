@@ -586,7 +586,8 @@ function injecterStyle() {
 /* missions : série, paliers, fête (repris de Cote) */
 .moi .m-onglets button { font-size: 12.5px; padding: 10px 2px; }
 .moi .m-bilans { display: flex; flex-wrap: wrap; gap: 8px; }
-.wr .cl-flaps { display: flex; flex-wrap: nowrap; justify-content: center; align-self: stretch; width: 100%; margin: 14px 0 6px; --fh: clamp(26px, 8.4vw, 54px); }
+.wr .cl-flaps { display: flex; flex-wrap: wrap; justify-content: center; align-self: stretch; width: 100%; margin: 14px 0 6px; gap: 3px; }
+.wr .cl-flaps .m-flap { width: clamp(22px, 7vw, 40px); height: clamp(34px, 10.6vw, 60px); font-size: clamp(22px, 7vw, 40px); }
 .wr .cl-serie { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0; } .wr .cl-serie .cl-flaps { margin: 0; width: auto; align-self: auto; }
 .wr .cl-fl { font: 800 28px/1 var(--f-display); opacity: .7; }
 .wr .cl-jauge { height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; margin: 6px 0 2px; } .wr .cl-jauge i { display: block; height: 100%; background: var(--c, #9B87FF); border-radius: 4px; }
@@ -624,9 +625,9 @@ function injecterStyle() {
 .moi .pl-r:not(.fait) .pl-t { color: var(--ink-2); }
 .moi .pl-r .pl-s { font: 500 12px/1 var(--f-num); color: var(--ink-3); white-space: nowrap; }
 .moi .pl-r.fait .pl-s { color: var(--up); }
-.m-fete { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 24px 16px; text-align: center; color: #F4F5F8;
+.m-fete { position: fixed; inset: 0; z-index: 95; display: flex; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 24px 16px; text-align: center; color: #F4F5F8;
   background: radial-gradient(circle at 50% 30%, rgba(245,197,66,.35), transparent 60%), #0B0D12; }
-.m-fete > div { display: grid; gap: 16px; justify-items: center; max-width: 480px; }
+.m-fete > div { display: grid; gap: 16px; justify-items: center; max-width: 480px; margin: auto; }
 .m-fete .mf-k { font: 700 13px/1 var(--f-display); letter-spacing: .16em; text-transform: uppercase; color: #F5C542; }
 .m-fete .m-flaps { justify-content: center; }
 .m-fete h3 { margin: 0; font: italic 800 24px/1.15 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
@@ -638,6 +639,9 @@ function injecterStyle() {
 }
 
 /* ---------- Connexion à ton fichier ---------- */
+/* Simulation (l'admin regarde l'appli à une autre date ou comme un joueur) : rien ne part vers les fichiers */
+function simulationM() { return !!window.DATE_SIM || (typeof vueJoueur === "function" && vueJoueur()); }
+const MSG_SIM = "👁️ Simulation : rien n'est envoyé. Repasse en admin, aujourd'hui (Réglages ou barre du Podium) pour agir pour de vrai.";
 function adresse() { return (stock.get(K.api) || "").trim(); }
 function cle() { return stock.get(K.cle) || ""; }
 function configure() { return !!(adresse() && cle()); }
@@ -698,6 +702,7 @@ function rendre() {
   v.querySelectorAll("[data-m-ong]").forEach(b => b.addEventListener("click", () => { PREF.onglet = b.dataset.mOng; garderPref(); rendre(); window.scrollTo(0, 0); }));
   v.querySelectorAll("details.acc[data-acc]").forEach(d => d.addEventListener("toggle", () => { PREF.acc[d.dataset.acc] = d.open; garderPref(); if (d.open && d.dataset.acc === "m-courbe") dessinerCourbe(); }));
   ({ jour: M.simple ? brancherJourSimple : brancherJour, patrimoine: brancherPatrimoine, stats: brancherStats, missions: brancherMissions })[o](v);
+  if (SRC === "api") verifierPaliers();
   verifierCloture();
 }
 
@@ -847,9 +852,9 @@ function htmlJour() {
       '<div class="m-jour"><span class="badge big-b ' + sens(s.jour) + '">' + fleche(s.jour) + " " + eur(s.jour, 0, true) + " · " + pct(s.jourPct, 2) + "</span>" +
         "<span>" + (suffixe ? esc(suffixe) : hausse + " en hausse · " + baisse + " en baisse") + "</span></div>" +
     "</div>" +
-    blocSignal() +
     bandeDebut(s) +
     '<div class="m-carte" role="group" aria-label="Carte du jour : une tuile par ligne">' + carte + "</div>" +
+    blocSignal() +
     "<div>" +
       '<div class="m-tri"><h2 class="sec">' + (detail ? "Mes lignes" : "Mes enveloppes") + "</h2>" +
         '<label class="m-coche"><input type="checkbox" id="m-detail"' + (detail ? " checked" : "") + "> Lignes</label>" +
@@ -1584,7 +1589,7 @@ function badgeMillion() {
 /* le premier à 1 000 000 € de patrimoine financier revendique le badge (le montant ne quitte pas l'appareil) */
 async function revendiquerMillion() {
   try {
-    if (!M || SRC !== "api" || !((M.synthese || {}).financier >= 1e6) || typeof D === "undefined" || !D || D.premierMillion || SOURCE !== "api") return;
+    if (!M || SRC !== "api" || !((M.synthese || {}).financier >= 1e6) || typeof D === "undefined" || !D || D.premierMillion || SOURCE !== "api" || simulationM()) return;
     if (M.simple && (estAdmin() || !M.personne)) return;
     const qui = M.simple ? M.personne : estAdmin() ? ETAT.moi : SESSION.nom;
     if (stock.get("versus.moi.million") === qui) return;
@@ -1732,7 +1737,7 @@ function rendreFormulaire() {
         '<div class="champ"><label for="f-date">Date</label><input id="f-date" type="date" value="' + esc(F.date) + '"></div>' +
         '<div class="champ"><label for="f-autre">Autre type</label><select id="f-autre"><option value="">Choisir…</option>' + autres.map(t => '<option value="' + esc(t) + '"' + (F.type === t ? " selected" : "") + ">" + esc(t) + "</option>").join("") + "</select></div>" +
       "</div>" +
-      '<div class="champ"><label for="f-env">Enveloppe</label><select id="f-env">' +
+      '<div class="champ"><label for="fo-env">Enveloppe</label><select id="fo-env">' +
         groupeEnv(ouvertes.filter(e => e.perimetre === "Portefeuille"), "Bourse") + groupeEnv(ouvertes.filter(e => e.perimetre !== "Portefeuille"), "Épargne") + "</select></div>" +
       (avecActif ? '<div class="champ"><label for="f-actif">Actif</label><select id="f-actif"><option value="">Choisir l\'actif…</option>' +
         (tenus.length ? '<optgroup label="Détenus dans cette enveloppe">' + tenus.map(optA).join("") + "</optgroup>" : "") +
@@ -1759,7 +1764,7 @@ function rendreFormulaire() {
   const form = $f("m-form-ordre");
   form.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { F = formulaire({ type: b.dataset.type, date: F.date, env: F.env, actif: AVEC_ACTIF.includes(b.dataset.type) ? F.actif : "", montant: F.montant }); synchroniser(); rendreFormulaire(); }));
   $f("f-autre").addEventListener("change", e => { if (e.target.value) { F = formulaire({ type: e.target.value, date: F.date, env: F.env, montant: F.montant }); rendreFormulaire(); } });
-  $f("f-env").addEventListener("change", e => { F = formulaire({ type: F.type, date: F.date, env: e.target.value, montant: F.montant, frais: F.frais }); rendreFormulaire(); });
+  $f("fo-env").addEventListener("change", e => { F = formulaire({ type: F.type, date: F.date, env: e.target.value, montant: F.montant, frais: F.frais }); rendreFormulaire(); });
   if ($f("f-actif")) $f("f-actif").addEventListener("change", e => { F = formulaire({ type: F.type, date: F.date, env: F.env, actif: e.target.value, montant: F.montant, frais: F.frais, apport: F.apport, montantApport: F.montantApport }); synchroniser(); rendreFormulaire(); });
   if ($f("f-apport")) $f("f-apport").addEventListener("change", e => { F.apport = e.target.checked; rendreFormulaire(); });
   if ($f("f-nouvel-actif")) $f("f-nouvel-actif").addEventListener("click", () => { reglageOuvert = null; paneSaisie("maj"); setTimeout(() => { const el = document.querySelector('#m-pane-maj [data-reg="actif"]'); if (el) el.scrollIntoView({ block: "start" }); }, 40); });
@@ -1802,6 +1807,7 @@ function nomParDefaut() {
   return (F.type + (F.actif ? " " + F.actif : "") + (m > 0 ? " " + saisieNombre(m, 0) + " €" : "")).slice(0, 40);
 }
 async function posterFichier(corps) {
+  if (simulationM()) return { ok: false, erreur: "simulation", message: MSG_SIM };
   const ctrl = window.AbortController ? new AbortController() : null;
   const minuteur = setTimeout(() => { if (ctrl) ctrl.abort(); }, 45000);
   try {
@@ -2304,6 +2310,8 @@ const SECRETS_M = [
 ];
 const cleObj = (t, id) => t + "." + id;
 const cleStock = k => "versus.moi." + k + "." + ((M && M.personne) || ETAT.moi || "moi");   // une liste par personne (l'admin peut ouvrir le fichier d'un autre)
+/** On sait à qui est le fichier : son propriétaire (profil simple) ou, pour le profil complet, dès que le Versus a répondu (ETAT.moi est alors fiable) */
+function identiteSure() { return !!(M && (M.personne || dVersus())); }
 const defObj = (t, id) => (CATALOGUE[t] || []).find(x => x[0] === id);
 function nomObj(t, id) { const d = defObj(t, id); return d ? d[1] : id; }
 function apercuEmb(id) { const d = defObj("emb", id) || EMBLEMES_M[0]; return d[2]; }
@@ -2357,7 +2365,7 @@ function etatObjets() {
   if (M) {
     try { pal = paliers(); rec = recompensesPaliers(pal); pal.forEach(x => { if (x.atteint && rec.has(x.id)) rec.get(x.id).forEach(([t, id]) => ok.add(cleObj(t, id))); }); } catch (e) { /* données incomplètes */ }
     try { sec = secretsAtteints(); SECRETS_M.forEach(s => { if (sec.has(s.id)) s.rec.forEach(([t, id]) => ok.add(cleObj(t, id))); }); } catch (e) { /* idem */ }
-    stock.set(cleStock("objets"), JSON.stringify(Array.from(ok)));
+    if (identiteSure()) stock.set(cleStock("objets"), JSON.stringify(Array.from(ok)));
   }
   MEMO_OBJ = { m: M, ok, pal, rec, sec };
   return MEMO_OBJ;
@@ -2451,21 +2459,22 @@ function brancherVestiaire(v) {
 /* fête d'un palier franchi ou d'une récompense cachée : une seule fois par appareil (au premier lancement, on note sans fêter) */
 let paliersVerifies = false;
 function verifierPaliers() {
-  if (!M || paliersVerifies) return;
+  if (!M || paliersVerifies || !identiteSure()) return;
+  if (!vueMoi()) return;   // la fête attend qu'on soit sur Moi (sinon elle tomberait sur le Classement au démarrage)
   paliersVerifies = true;
   noterVisite(); oublierObjets();
   const E = etatObjets();
   const faits = E.pal.filter(x => x.atteint), ids = faits.map(x => x.id);
-  let vus = null; try { vus = JSON.parse(stock.get("versus.moi.paliers") || "null"); } catch (e) { vus = null; }
-  const nouveau = vus === null ? null : faits.filter(x => !vus.includes(x.id)).pop();
-  stock.set("versus.moi.paliers", JSON.stringify(Array.from(new Set((vus || []).concat(ids)))));
+  let vus = null; try { vus = JSON.parse(stock.get(cleStock("paliers")) || stock.get("versus.moi.paliers") || "null"); } catch (e) { vus = null; }
+  const nouveaux = vus === null ? [] : faits.filter(x => !vus.includes(x.id));
+  stock.set(cleStock("paliers"), JSON.stringify(Array.from(new Set((vus || []).concat(ids)))));
   let sv = null; try { sv = JSON.parse(stock.get(cleStock("secrets")) || "null"); } catch (e) { sv = null; }
-  const secret = sv === null ? null : SECRETS_M.find(s => E.sec.has(s.id) && !sv.includes(s.id));
+  const secrets = sv === null ? [] : SECRETS_M.filter(s => E.sec.has(s.id) && !sv.includes(s.id));
   stock.set(cleStock("secrets"), JSON.stringify(Array.from(new Set((sv || []).concat(Array.from(E.sec))))));
-  if (nouveau) feter(nouveau);
-  else if (secret) feter({ secret, titre: secret.nom, grand: "?!", quand: null, id: null });
+  const file = nouveaux.concat(secrets.map(secret => ({ secret, titre: secret.nom, grand: "?!", quand: null, id: null })));
+  if (file.length) feter(file[0], file.slice(1));
 }
-function feter(x) {
+function feter(x, suite) {
   injecterStyle();
   const o = document.createElement("div");
   o.className = "m-fete moi"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
@@ -2479,7 +2488,7 @@ function feter(x) {
     }).join("") + "</div>" : "") +
     '<button class="wr-btn" type="button" data-continuer>Continuer</button></div>';
   document.body.appendChild(o);
-  const fermer = () => o.remove();
+  const fermer = () => { o.remove(); if (suite && suite.length) feter(suite[0], suite.slice(1)); };   // enchaîne sans trou (la clôture attend la fin des fêtes)
   o.querySelector("[data-continuer]").addEventListener("click", fermer);
   o.querySelectorAll("[data-mf-eq]").forEach(b => b.addEventListener("click", () => {
     const [t, id] = b.dataset.mfEq.split("."); oublierObjets(); equiper(t, id);
@@ -2494,7 +2503,7 @@ const palOuverts = new Set();
 function htmlBilansMoi() {
   const k = moisPrecedentK(), i = k % 100 - 1, ans = anneesPrivees().slice(0, 2);
   return '<div><h2 class="sec">Mes bilans <small>privés</small></h2></div><div class="m-bilans">' +
-    '<button class="bilan-b prive" type="button" data-m-cloture="' + k + '">📅 Revoir la clôture ' + deMois(i) + esc(MOIS_L[i]) + " " + Math.floor(k / 100) + "</button>" +
+    (diaposCloture(k).length > 1 ? '<button class="bilan-b prive" type="button" data-m-cloture="' + k + '">🔒 Revoir la clôture ' + deMois(i) + esc(MOIS_L[i]) + " " + Math.floor(k / 100) + "</button>" : "") +
     ans.map(an => '<button class="bilan-b prive" type="button" data-m-bilan="' + an + '">🔒 Mon patrimoine ' + an + "</button>").join("") + "</div>";
 }
 function htmlMissions() {
@@ -2624,7 +2633,7 @@ function diaposCloture(k) {
   L.push({ c: "#4C9AFF", h: '<div class="wr-k">Le marché en ' + esc(nomM) + "</div>" + (x
     ? '<div class="wr-big"><span class="' + cls(x.eur) + '">' + eur(x.eur, 0, true) + '</span></div><p class="wr-p">' + (x.eur >= 0 ? "Ce que le marché t'a rapporté" : "Ce que le marché t'a repris") + " sur ta bourse, hors versements.</p>" +
       '<div class="wr-g"><div class="wr-c" style="grid-column:1/-1"><span>Performance du mois (TWR)</span><b class="' + cls(x.twr) + '">' + pct(x.twr) + "</b></div></div>"
-    : '<p class="wr-p">Pas de relevé de bourse pour ce mois dans ton fichier.</p>') });
+    : '<p class="wr-p">' + (M.simple ? "Ta bourse se suit dans le Versus : son bilan du mois est dans l'onglet Mois." : "Pas de relevé de bourse pour ce mois dans ton fichier.") + "</p>") });
   // 3. le versement : la série de Missions, arrêtée à la fin du mois
   let sv = null; try { sv = serieVersements(); } catch (e) { sv = null; }
   const idx = sv ? sv.liste.findIndex(z => z.m === mm) : -1;
@@ -2657,20 +2666,22 @@ function diaposCloture(k) {
 }
 function ouvrirCloture(k) { lireCache(); if (!M) return; injecterStyle(); ouvrirDiapos("Clôture · " + MOIS_L[k % 100 - 1] + " " + Math.floor(k / 100), diaposCloture(k)); }
 /* Une seule fois par mois, par appareil et par personne : à la première arrivée sur Moi, avec les données fraîches du fichier */
-let clotureVerifiee = false;
+let clotureVerifiee = 0;   // dernier mois vérifié (une PWA peut rester ouverte d'un mois à l'autre)
 function verifierCloture() {
-  if (clotureVerifiee || !M || SRC !== "api" || !vueMoi() || !configure()) return;   // copie locale : on attend la réponse du fichier
-  clotureVerifiee = true;
-  const cleC = cleStock("cloture"), k = moisPrecedentK(), vu = +(stock.get(cleC) || 0);
+  const k = moisPrecedentK();
+  if (clotureVerifiee === k || !M || SRC !== "api" || !vueMoi() || !configure() || !identiteSure()) return;   // copie locale : on attend la réponse du fichier
+  clotureVerifiee = k;
+  const cleC = cleStock("cloture"), vu = +(stock.get(cleC) || 0);
   if (!vu) { stock.set(cleC, String(k)); return; }          // premier lancement : on note le mois, sans rien afficher
   if (vu >= k) return;
-  stock.set(cleC, String(k));
-  apresLesFetes(() => ouvrirCloture(k));
+  if (diaposCloture(k).length < 2) { stock.set(cleC, String(k)); return; }   // fichier sans historique ni parcours : rien à raconter
+  apresLesFetes(() => { if (!vueMoi()) { clotureVerifiee = 0; return; } stock.set(cleC, String(k)); ouvrirCloture(k); }, () => { clotureVerifiee = 0; });
 }
 /* jamais par-dessus une fête de palier (ni un autre écran plein) : on attend qu'il soit fermé */
-function apresLesFetes(fn) {
+function apresLesFetes(fn, abandon) {
   const occupe = () => document.querySelector(".m-fete, .wr, .tuto, .revel, .regles");
-  const attendre = () => { if (occupe()) { setTimeout(attendre, 400); return; } fn(); };
+  let essais = 0;
+  const attendre = () => { if (!vueMoi()) { if (abandon) abandon(); return; } if (occupe() && essais++ < 300) { setTimeout(attendre, 400); return; } fn(); };
   setTimeout(attendre, 600);
 }
 
@@ -2688,7 +2699,7 @@ function moisDeFenetre(now) {
 function partageActif() { return stock.get("versus.moi.partage") !== "non"; }
 async function partagerLignes() {
   try {
-    if (!M || SRC !== "api" || !partageActif() || typeof D === "undefined" || !D || SOURCE !== "api") return;
+    if (!M || SRC !== "api" || !partageActif() || typeof D === "undefined" || !D || SOURCE !== "api" || simulationM()) return;
     const k = moisDeFenetre(new Date()); if (!k) return;
     const qui = estAdmin() ? ETAT.moi : SESSION.nom;
     if (!D.personnes.some(p => p.nom === qui)) return;
@@ -2759,7 +2770,7 @@ function proprietaire(raw) {
 /** À la première ouverture par son propriétaire (connecté avec son code), le fichier retient à qui il est */
 let revendique = false;
 async function revendiquerFichier() {
-  if (!RAW || revendique || estAdmin() || (RAW.reglages || {}).personne || typeof SOURCE === "undefined" || SOURCE !== "api") return;
+  if (!RAW || revendique || estAdmin() || simulationM() || (RAW.reglages || {}).personne || typeof SOURCE === "undefined" || SOURCE !== "api") return;
   const qui = proprietaire(RAW); if (!qui) return;
   revendique = true;
   const rep = await posterFichier({ action: "reglages", reglages: { "versus.nom": qui } });
