@@ -596,6 +596,16 @@ function injecterStyle() {
 .wr .cl-serie { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0; } .wr .cl-serie .cl-flaps { margin: 0; width: auto; align-self: auto; }
 .wr .cl-fl { font: 800 28px/1 var(--f-display); opacity: .7; }
 .wr .cl-jauge { height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; margin: 6px 0 2px; } .wr .cl-jauge i { display: block; height: 100%; background: var(--c, #9B87FF); border-radius: 4px; }
+.m-million .mm-plus { font: 600 12px/1 var(--f-ui, inherit); color: rgba(255,255,255,.85); background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22); border-radius: 999px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+.m-million .mm-mini { margin: 0; font-size: 12.5px; line-height: 1.4; color: rgba(255,255,255,.78); } .m-million .mm-mini b { color: #fff; }
+.moi .m-ec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.moi .m-ec-t { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 10px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); color: var(--ink-2); font: inherit; font-size: 12px; min-width: 0; }
+.moi button.m-ec-t { cursor: pointer; }
+.moi .m-ec-t .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.moi .m-ec-t b { font: italic 800 20px/1.1 var(--f-display); color: var(--ink); overflow-wrap: anywhere; }
+.moi .m-ec-t small { font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
+.moi .m-ec-t.attente { border-color: color-mix(in srgb, #F59E0B 55%, var(--rule)); }
+.moi .m-ec-t .warn { color: #F59E0B; } .moi .m-ec-t .up { color: var(--up); }
 .moi .m-serie { display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-2); }
 .moi .m-serie b { font: italic 800 20px/1 var(--f-display); letter-spacing: .04em; white-space: nowrap; color: var(--ink); }
 .moi .m-serie:not(.ok) { border-color: color-mix(in srgb, #F59E0B 55%, var(--rule)); }
@@ -1070,7 +1080,7 @@ function htmlStats() {
     '<div id="m-courbe-box"></div><p class="resume" id="m-resume"></p>' : '<div class="vide">Pas encore assez de relevés pour tracer une courbe.</div>';
   const pf = envs.find(e => e.type === "total") || envs[0] || {};
   const resume = ["m1", "ytd", "twr"].map((k, i) => '<span>' + ["1 mois", "janv.", "début"][i] + ' <b class="' + sens(pf[k]) + '">' + pct(pf[k]) + "</b></span>").join("");
-  return blocJours() +
+  return blocEnCours() + blocJours() +
     '<div><h2 class="sec">Courbe <small>' + (derniere ? "relevé du " + dateLongue(derniere) : "") + "</small></h2></div>" + courbe +
     '<details class="acc m-compact" data-acc="m-perf"' + (PREF.acc["m-perf"] ? " open" : "") + '><summary><span class="t">Performances</span><span class="m-cp-r">' + resume + "</span></summary>" +
       '<div><div class="scroll-x"><table class="tab m-perf-t"><thead><tr><th>Enveloppe</th><th>1 sem.</th><th>1 mois</th><th>6 mois</th><th>Janv.</th><th>1 an</th><th>Début</th><th>MWR</th><th>Vol.</th></tr></thead><tbody>' + envs.map(perfLigne).join("") + "</tbody></table></div></div></details>" +
@@ -1145,6 +1155,28 @@ function joursRecords() {
   }
   return out;
 }
+/* « En ce moment » : ce qui avance ce mois-ci (série de versements, palier le plus proche, objets, prochain jalon) */
+function blocEnCours() {
+  const t = [], now = new Date(), mo = MOIS_L[now.getMonth()], finM = new Date(now.getFullYear(), now.getMonth() + 1, 0), discret = ETAT.discret === "oui";
+  const tuile = (k, big, small, cls, aller) => t.push('<' + (aller ? 'button type="button" data-m-aller="' + aller + '"' : "div") + ' class="m-ec-t' + (cls ? " " + cls : "") + '"><span class="k">' + k + "</span><b>" + big + "</b><small>" + small + "</small></" + (aller ? "button" : "div") + ">");
+  try {
+    const sv = serieVersements();
+    if (sv.liste.length) tuile("Versements", sv.actuelle + " mois", "d'affilée · record " + sv.record + "<br>" + (sv.moisEnCours ? '<span class="up">' + esc(mo) + " fait ✓</span>" : '<span class="warn">' + esc(mo) + " : pas encore (jusqu'au " + dateCourte(finM) + ")</span>"), sv.moisEnCours ? "ok" : "attente");
+  } catch (e) { /* pas de parcours : tuile absente */ }
+  try {
+    const pal = paliers(), suiv = pal.filter(x => !x.atteint).sort((a, b) => b.part - a.part)[0];
+    if (suiv) tuile("Palier le plus proche", pct(Math.max(0, Math.min(1, suiv.part)), 0, false), esc(suiv.titre), "", "missions");
+  } catch (e) { /* idem */ }
+  try {
+    const E = etatObjets(), tot = Object.values(CATALOGUE).reduce((n, l) => n + l.length, 0), nb = Object.entries(CATALOGUE).reduce((n, [s, l]) => n + l.filter(d => E.ok.has(cleObj(s, d[0]))).length, 0);
+    tuile("Vestiaire", nb + " / " + tot, "objets débloqués", "", "missions");
+  } catch (e) { /* idem */ }
+  try {
+    const P = paramsMillion(), j = JALONS.concat([CIBLE]).find(x => x > P.v);
+    if (j) tuile("Prochain jalon", F0.format(j / 1000) + " 000 €", discret ? "cap sur le million" : "encore " + eur(j - P.v), "", "missions");
+  } catch (e) { /* idem */ }
+  return t.length ? '<div><h2 class="sec">En ce moment <small>' + esc(mo) + " " + now.getFullYear() + '</small></h2></div><div class="m-ec">' + t.join("") + "</div>" : "";
+}
 function blocJours() {
   const l = joursRecords(); if (l.length < 5) return "";
   const tri = l.slice().sort((x, y) => y.p - x.p), best = tri.slice(0, 5), pire = tri.slice(-5).reverse();
@@ -1212,6 +1244,7 @@ function blocFrais() {
 }
 function brancherStats(v) {
   brancherDefs(v);
+  v.querySelectorAll("[data-m-aller]").forEach(b => b.addEventListener("click", () => { PREF.onglet = b.dataset.mAller; garderPref(); rendre(); window.scrollTo(0, 0); }));
   const re = () => { rendre(); };
   v.querySelectorAll("[data-m-mode]").forEach(b => b.addEventListener("click", () => { PREF.mode = b.dataset.mMode; garderPref(); re(); }));
   v.querySelectorAll("[data-m-per]").forEach(b => b.addEventListener("click", () => { PREF.per = b.dataset.mPer; garderPref(); re(); }));
@@ -1618,14 +1651,14 @@ function textesMillion(P) {
 function htmlMillion() {
   if (!M) return "";
   const P = paramsMillion(), part = Math.max(0, Math.min(1, P.v / CIBLE)), T = textesMillion(P);
-  const discret = ETAT.discret === "oui", reduitM = !!PREF.millionReduit;
+  const discret = ETAT.discret === "oui", reduitM = PREF.millionReduit !== false;
   const texteFlap = discret ? "•••" : F0.format(Math.round(P.v));
   const piste = JALONS.map(j => '<span class="mj' + (P.v >= j ? " passe" : "") + '" style="left:' + (j / CIBLE * 100) + '%"><i></i><b>' + (j / 1000) + "k</b></span>").join("");
   const tete = '<div class="mm-h"><span class="mm-k">Cap sur le million</span><span class="mm-d"><span class="mm-prive">privé</span>' +
-    '<label class="mm-coche"><input type="checkbox" id="mm-reduire"' + (reduitM ? " checked" : "") + '> réduire</label></span></div>';
+    '<button type="button" class="mm-plus" id="mm-reduire" aria-expanded="' + !reduitM + '">' + (reduitM ? "Voir plus ▾" : "Réduire ▴") + "</button></span></div>";
   if (reduitM) return '<section class="m-million reduit" style="--mc:' + couleurMoi() + '">' + tete +
-    '<p class="mm-ligne"><b>' + F1.format(part * 100) + ' %</b><span>' + (T.quand ? "millionnaire en " + T.quand.getFullYear() : "hors de portée à ce rythme") + "</span></p>" +
-    '<div class="mm-rail mini"><i style="width:' + (part * 100).toFixed(2) + '%"></i></div></section>';
+    '<p class="mm-ligne"><b>' + F1.format(part * 100) + ' %</b><span>' + (T.quand ? "millionnaire en " + MOIS_L[T.quand.getMonth()] + " " + T.quand.getFullYear() : "hors de portée à ce rythme") + "</span></p>" +
+    '<div class="mm-rail mini"><i style="width:' + (part * 100).toFixed(2) + '%"></i></div>' + (T.sub ? '<p class="mm-mini">' + T.sub + "</p>" : "") + "</section>";
   return '<section class="m-million" style="--mc:' + couleurMoi() + '">' + tete +
     '<div class="mm-pct"><b>' + F1.format(part * 100) + '</b><span>%</span></div>' +
     '<div class="m-flaps mm-flaps" aria-label="' + esc(texteFlap) + ' euros">' + flaps(texteFlap + NB + "€", false) + "</div>" +
@@ -1665,7 +1698,7 @@ function majSimulation(el) {
 }
 function brancherMillion(el) {
   el.querySelectorAll("[data-m-million]").forEach(b => b.addEventListener("click", () => { PREF.million = b.dataset.mMillion; garderPref(); afficherMillion(el); }));
-  const r = el.querySelector("#mm-reduire"); if (r) r.addEventListener("change", () => { PREF.millionReduit = r.checked; garderPref(); afficherMillion(el); });
+  const r = el.querySelector("#mm-reduire"); if (r) r.addEventListener("click", () => { PREF.millionReduit = PREF.millionReduit === false; garderPref(); afficherMillion(el); });
   const e = el.querySelector("#mm-effort"), t = el.querySelector("#mm-rend");
   if (e) e.addEventListener("input", () => { const x = lireNombre(e.value); if (x >= 0 && x <= 100000) { PREF.effort = x; garderPref(); majSimulation(el); } });
   if (t) t.addEventListener("input", () => { const x = lireNombre(t.value); if (x >= -10 && x <= 30) { PREF.rendement = x / 100; garderPref(); majSimulation(el); } });
@@ -2580,8 +2613,6 @@ function htmlBilansMoi() {
     ans.map(an => '<button class="bilan-b prive" type="button" data-m-bilan="' + an + '">🔒 Mon patrimoine ' + an + "</button>").join("") + "</div>";
 }
 function htmlMissions() {
-  const sv = serieVersements(), auj = cleMoisD(new Date());
-  const finM = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
   const pal = paliers(), nbFaits = pal.filter(x => x.atteint).length;
   const carte = x => '<button type="button" class="palier' + (x.atteint ? " fait" : "") + '" data-palier="' + esc(x.id) + '"' + (x.atteint ? "" : " disabled") + '>' +
     '<span class="pastille">' + esc(x.court) + '</span><span class="pl-t">' + esc(x.titre) + "</span>" +
@@ -2605,13 +2636,11 @@ function htmlMissions() {
       '</summary><div class="pl-liste">' + l.map(ligneP).join("") + "</div></details>";
   }).join("");
   return '<div id="m-million-z"></div>' +
-    '<div class="m-serie' + (sv.moisEnCours ? " ok" : "") + '"><b>' + sv.actuelle + " mois</b><span>de versements d'affilée · record " + sv.record + " · " +
-      (sv.moisEnCours ? "versement de " + MOIS_L[new Date().getMonth()] + " fait ✓" : "pas encore de versement en " + MOIS_L[new Date().getMonth()] + " (même 10 € comptent, jusqu'au " + dateCourte(finM) + ")") + "</span></div>" +
-    htmlBilansMoi() +
     htmlVestiaire() +
     '<div><h2 class="sec">Paliers <small>' + nbFaits + " franchis sur " + pal.length + "</small></h2></div>" +
     '<div class="pl-blocs">' + blocs + "</div>" +
-    '<p class="info">Un palier sur deux, et toujours le dernier de chaque famille, débloque une récompense pour ton onglet Moi : afficheur, thème, courbe, fête, emblème ou titre. D\'autres sont cachées. Tout reste privé et à toi, même si tu repasses sous le palier. Touche un palier franchi pour revoir sa fête.</p>';
+    '<p class="info">Un palier sur deux, et toujours le dernier de chaque famille, débloque une récompense pour ton onglet Moi : afficheur, thème, courbe, fête, emblème ou titre. D\'autres sont cachées. Tout reste privé et à toi, même si tu repasses sous le palier. Touche un palier franchi pour revoir sa fête.</p>' +
+    htmlBilansMoi();
 }
 function brancherMissions(v) {
   const z = v.querySelector("#m-million-z"); if (z) afficherMillion(z);
