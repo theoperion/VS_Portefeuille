@@ -585,6 +585,11 @@ function injecterStyle() {
 
 /* missions : série, paliers, fête (repris de Cote) */
 .moi .m-onglets button { font-size: 12.5px; padding: 10px 2px; }
+.moi .m-bilans { display: flex; flex-wrap: wrap; gap: 8px; }
+.wr .cl-flaps { display: flex; flex-wrap: nowrap; justify-content: center; align-self: stretch; width: 100%; margin: 14px 0 6px; --fh: clamp(26px, 8.4vw, 54px); }
+.wr .cl-serie { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0; } .wr .cl-serie .cl-flaps { margin: 0; width: auto; align-self: auto; }
+.wr .cl-fl { font: 800 28px/1 var(--f-display); opacity: .7; }
+.wr .cl-jauge { height: 8px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; margin: 6px 0 2px; } .wr .cl-jauge i { display: block; height: 100%; background: var(--c, #9B87FF); border-radius: 4px; }
 .moi .m-serie { display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--panel); border: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-2); }
 .moi .m-serie b { font: italic 800 20px/1 var(--f-display); letter-spacing: .04em; white-space: nowrap; color: var(--ink); }
 .moi .m-serie:not(.ok) { border-color: color-mix(in srgb, #F59E0B 55%, var(--rule)); }
@@ -693,6 +698,7 @@ function rendre() {
   v.querySelectorAll("[data-m-ong]").forEach(b => b.addEventListener("click", () => { PREF.onglet = b.dataset.mOng; garderPref(); rendre(); window.scrollTo(0, 0); }));
   v.querySelectorAll("details.acc[data-acc]").forEach(d => d.addEventListener("toggle", () => { PREF.acc[d.dataset.acc] = d.open; garderPref(); if (d.open && d.dataset.acc === "m-courbe") dessinerCourbe(); }));
   ({ jour: M.simple ? brancherJourSimple : brancherJour, patrimoine: brancherPatrimoine, stats: brancherStats, missions: brancherMissions })[o](v);
+  verifierCloture();
 }
 
 function acc(id, titre, sous, contenu, defaut) {
@@ -2485,6 +2491,12 @@ function feter(x) {
   lancerFete();
 }
 const palOuverts = new Set();
+function htmlBilansMoi() {
+  const k = moisPrecedentK(), i = k % 100 - 1, ans = anneesPrivees().slice(0, 2);
+  return '<div><h2 class="sec">Mes bilans <small>privés</small></h2></div><div class="m-bilans">' +
+    '<button class="bilan-b prive" type="button" data-m-cloture="' + k + '">📅 Revoir la clôture ' + deMois(i) + esc(MOIS_L[i]) + " " + Math.floor(k / 100) + "</button>" +
+    ans.map(an => '<button class="bilan-b prive" type="button" data-m-bilan="' + an + '">🔒 Mon patrimoine ' + an + "</button>").join("") + "</div>";
+}
 function htmlMissions() {
   const sv = serieVersements(), auj = cleMoisD(new Date());
   const finM = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
@@ -2513,6 +2525,7 @@ function htmlMissions() {
   return '<div id="m-million-z"></div>' +
     '<div class="m-serie' + (sv.moisEnCours ? " ok" : "") + '"><b>' + sv.actuelle + " mois</b><span>de versements d'affilée · record " + sv.record + " · " +
       (sv.moisEnCours ? "versement de " + MOIS_L[new Date().getMonth()] + " fait ✓" : "pas encore de versement en " + MOIS_L[new Date().getMonth()] + " (même 10 € comptent, jusqu'au " + dateCourte(finM) + ")") + "</span></div>" +
+    htmlBilansMoi() +
     htmlVestiaire() +
     '<div><h2 class="sec">Paliers <small>' + nbFaits + " franchis sur " + pal.length + "</small></h2></div>" +
     '<div class="pl-blocs">' + blocs + "</div>" +
@@ -2523,6 +2536,8 @@ function brancherMissions(v) {
   v.querySelectorAll("details.pl-bloc").forEach(d => d.addEventListener("toggle", () => { if (d.open) palOuverts.add(d.dataset.fam); else palOuverts.delete(d.dataset.fam); }));
   const pal = paliers();
   brancherVestiaire(v);
+  v.querySelectorAll("[data-m-cloture]").forEach(b => b.addEventListener("click", () => ouvrirCloture(+b.dataset.mCloture)));
+  v.querySelectorAll("[data-m-bilan]").forEach(b => b.addEventListener("click", () => ouvrirDiapos("Mon patrimoine · " + b.dataset.mBilan, diaposPrivees(+b.dataset.mBilan))));
   v.querySelectorAll("[data-palier]").forEach(b => b.addEventListener("click", () => { const x = pal.find(p => p.id === b.dataset.palier); if (x && x.atteint) feter(x); }));
 }
 
@@ -2590,6 +2605,74 @@ function diaposPrivees(an) {
   return L;
 }
 function couleurM() { try { return D ? couleur(ETAT.moi) : "#4C9AFF"; } catch (e) { return "#4C9AFF"; } }
+
+/* ================= Clôture du mois (privée : calculée et gardée sur cet appareil, rien n'est envoyé) =================
+   Rien n'est recalculé ici : marché = moisParMois (grille des Stats), versement = serieVersements (Missions),
+   paliers et récompenses = paliers + etatObjets (Missions/Vestiaire), palettes = flaps, écran = ouvrirDiapos (bilans). */
+function moisPrecedentK() { const d = new Date(), p = new Date(d.getFullYear(), d.getMonth() - 1, 1); return p.getFullYear() * 100 + p.getMonth() + 1; }
+function deMois(i) { return /^[aeiouyéèâ]/i.test(MOIS_L[i]) ? "d'" : "de "; }   // d'avril, d'août, d'octobre
+function diaposCloture(k) {
+  const an = Math.floor(k / 100), mo = k % 100, i = mo - 1, nomM = MOIS_L[i], mm = an + "-" + String(mo).padStart(2, "0");
+  const cls = v => sens(v) === "flat" ? "" : sens(v), p2 = n => String(Math.min(99, n)).padStart(2, "0");
+  const palette = (t, anim) => '<div class="moi m-flaps cl-flaps">' + flaps(t, anim) + "</div>";
+  const L = [];
+  // 1. le mois en palettes
+  L.push({ c: couleurM(), h: '<div class="wr-k">🔒 Privé · ' + esc(ETAT.moi || "toi") + "</div>" + palette(nomM.toUpperCase(), !reduit) +
+    '<div class="wr-mid">Clôture ' + deMois(i) + esc(nomM) + " " + an + '</div><p class="wr-p">Ton mois à toi : le marché, ton versement, tes paliers. Visible seulement sur ce téléphone.</p>' });
+  // 2. le marché : résultat hors versements et TWR du mois, comme la grille « Mois par mois »
+  let x = null; try { x = moisParMois().find(z => z.an === an && z.mois === mo) || null; } catch (e) { x = null; }
+  L.push({ c: "#4C9AFF", h: '<div class="wr-k">Le marché en ' + esc(nomM) + "</div>" + (x
+    ? '<div class="wr-big"><span class="' + cls(x.eur) + '">' + eur(x.eur, 0, true) + '</span></div><p class="wr-p">' + (x.eur >= 0 ? "Ce que le marché t'a rapporté" : "Ce que le marché t'a repris") + " sur ta bourse, hors versements.</p>" +
+      '<div class="wr-g"><div class="wr-c" style="grid-column:1/-1"><span>Performance du mois (TWR)</span><b class="' + cls(x.twr) + '">' + pct(x.twr) + "</b></div></div>"
+    : '<p class="wr-p">Pas de relevé de bourse pour ce mois dans ton fichier.</p>') });
+  // 3. le versement : la série de Missions, arrêtée à la fin du mois
+  let sv = null; try { sv = serieVersements(); } catch (e) { sv = null; }
+  const idx = sv ? sv.liste.findIndex(z => z.m === mm) : -1;
+  if (idx >= 0) {
+    let run = 0, avant = 0, rec = 0;
+    for (let j = 0; j <= idx; j++) { avant = run; run = sv.liste[j].ok ? run + 1 : 0; rec = Math.max(rec, run); }
+    L.push({ c: "#FF8A3D", h: '<div class="wr-k">Ton versement</div>' + (sv.liste[idx].ok
+      ? '<div class="wr-mid">Fait ✓</div><div class="cl-serie">' + palette(p2(avant), false) + '<span class="cl-fl" aria-hidden="true">→</span>' + palette(p2(run), !reduit) + "</div>" +
+        '<p class="wr-p"><b>' + run + " mois</b> d'affilée avec un versement" + (run > 1 && run >= rec ? " : c'est ton record !" : (rec > run ? " · record " + rec + " mois" : "") + ".") + "</p>"
+      : '<div class="wr-mid">Pas ce mois-là</div><p class="wr-p">' + (avant ? "Ta série de <b>" + avant + " mois</b> repart de zéro." : "La série repart de zéro.") + " Un versement ce mois-ci, même 10 €, la relance.</p>") });
+  }
+  // 4. paliers franchis pendant le mois, 5. le plus proche, 6. récompenses débloquées
+  let E = null; try { E = etatObjets(); } catch (e) { E = null; }
+  const pal = E && E.pal ? E.pal : [];
+  if (pal.length) {
+    const franchis = pal.filter(z => z.atteint && z.quand === mm);
+    L.push({ c: "#F5C542", h: '<div class="wr-k">Paliers franchis en ' + esc(nomM) + " · " + franchis.length + "</div>" + (franchis.length
+      ? '<div class="wr-l">' + franchis.slice(0, 8).map(z => '<div class="wr-r"><span class="rk">✓</span><b style="font-size:15px">' + esc(z.titre) + "</b><span></span></div>").join("") + "</div>"
+      : '<p class="wr-p">Pas de nouveau palier ce mois-ci.</p>') });
+    const proche = pal.filter(z => !z.atteint && z.part < 1).sort((a, b) => b.part - a.part)[0];
+    if (proche) L.push({ c: "#9B87FF", h: '<div class="wr-k">Le palier le plus proche</div><div class="wr-mid">' + esc(proche.titre) + '</div><div class="wr-big">' + pct(Math.max(0, proche.part), 0, false) +
+      '</div><div class="cl-jauge"><i style="width:' + Math.round(Math.max(0, Math.min(1, proche.part)) * 100) + '%"></i></div><p class="wr-p">du chemin fait · ' + esc(proche.reste) + ".</p>" });
+    const recs = []; franchis.forEach(z => (E.rec.get(z.id) || []).forEach(r => recs.push(r)));
+    if (recs.length) L.push({ c: "#2FD1C0", h: '<div class="wr-k">Débloqué en ' + esc(nomM) + '</div><div class="wr-l">' + recs.map(([t, id]) => {
+      const so = SORTES.find(y => y[0] === t); return '<div class="wr-r"><span class="rk">' + (t === "emb" || t === "fete" ? defObj(t, id)[2] : so[2]) + '</span><b style="font-size:15px">' + esc(nomObj(t, id)) + "</b><span>" + esc(so[1]) + "</span></div>";
+    }).join("") + '</div><p class="wr-p">À équiper dans Missions › Vestiaire.</p>' });
+  }
+  L[L.length - 1].h += '<button class="wr-btn" type="button" data-wr-fermer>Fermer</button>';
+  return L;
+}
+function ouvrirCloture(k) { lireCache(); if (!M) return; injecterStyle(); ouvrirDiapos("Clôture · " + MOIS_L[k % 100 - 1] + " " + Math.floor(k / 100), diaposCloture(k)); }
+/* Une seule fois par mois, par appareil et par personne : à la première arrivée sur Moi, avec les données fraîches du fichier */
+let clotureVerifiee = false;
+function verifierCloture() {
+  if (clotureVerifiee || !M || SRC !== "api" || !vueMoi() || !configure()) return;   // copie locale : on attend la réponse du fichier
+  clotureVerifiee = true;
+  const cleC = cleStock("cloture"), k = moisPrecedentK(), vu = +(stock.get(cleC) || 0);
+  if (!vu) { stock.set(cleC, String(k)); return; }          // premier lancement : on note le mois, sans rien afficher
+  if (vu >= k) return;
+  stock.set(cleC, String(k));
+  apresLesFetes(() => ouvrirCloture(k));
+}
+/* jamais par-dessus une fête de palier (ni un autre écran plein) : on attend qu'il soit fermé */
+function apresLesFetes(fn) {
+  const occupe = () => document.querySelector(".m-fete, .wr, .tuto, .revel, .regles");
+  const attendre = () => { if (occupe()) { setTimeout(attendre, 400); return; } fn(); };
+  setTimeout(attendre, 600);
+}
 
 /* ================= Lignes partagées pour le récap mensuel (lignes de bourse seulement) ================= */
 /* Fenêtre de fin de mois : du dernier jour ouvré à 18 h jusqu'à l'ouverture du premier jour ouvré du mois suivant (9 h) */
