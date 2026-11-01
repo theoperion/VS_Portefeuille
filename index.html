@@ -354,6 +354,8 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .rg-admin { margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--gold) 18%, var(--panel)); font-size: 12.5px; }
 .etape-adm .ea-date { font-size: 13px; } .ea-l { display: grid; gap: 6px; width: 100%; font-size: 12px; color: rgba(244,245,248,.75); text-align: left; }
 .ea-l select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: #0f131b; color: #F4F5F8; font: 600 14px var(--f-text); }
+.simu-band { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; margin: 10px 16px 0; padding: 9px 12px; border-radius: 12px; font-size: 12.5px; color: #2A1A03; background: linear-gradient(120deg, #FFE596, #F7CF55); border: 1px solid #C98E22; }
+.simu-band .lien { color: #3B2405; font-weight: 700; }
 .bientot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 11px 12px; border-radius: 14px; border: 1px dashed var(--rule); background: var(--panel); }
 .bt-k { width: 100%; font: 700 10.5px/1 var(--f-num); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 2px; }
 .bt-e { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--rule); font-size: 12.5px; }
@@ -1045,6 +1047,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
   </header>
   <div class="ticker" aria-label="Marchés"><div class="ticker-track" id="ticker"></div></div>
   <div class="demo-band" id="bandeau" hidden></div>
+  <div class="simu-band" id="simu-band" hidden></div>
   <main>
     <section class="view" id="v-classement" data-vue="classement"></section>
     <section class="view" id="v-mois" data-vue="mois" hidden></section>
@@ -1142,6 +1145,12 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
       <label class="coche-r"><input type="checkbox" id="moi-partage"> Partager mes lignes de bourse dans le récap du mois</label>
       <p class="info">En fin de mois, la liste de tes lignes de bourse (nom, montant, performance) est envoyée au Versus pour le récap que tout le monde voit dans Podium. Jamais ton épargne, ton immobilier ni tes ordres.</p>
     </section>
+    <section class="regl" id="regl-vue" hidden>
+      <h4>Voir l'appli comme un joueur (admin)</h4>
+      <p class="info">Pour vérifier ce que voient les autres : sans tes droits d'admin, et à la date de ton choix. Avec une date simulée, rien n'est envoyé.</p>
+      <div class="champ"><label>Voir comme</label><div class="chips" id="choix-vue"></div></div>
+      <div class="champ"><label>Date</label><div class="chips" id="choix-date"></div></div>
+    </section>
     <section class="regl" id="regl-params" hidden>
       <h4>Indicateurs de risque (admin, pour tous)</h4>
       <div class="rang">
@@ -1202,6 +1211,15 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
 <script src="moteur.js"></script>
 <script>
 "use strict";
+/* Admin : « voir l'appli à une autre date » (Réglages › Voir comme un joueur). L'horloge de l'appli est décalée ; rien n'est envoyé. */
+(function () {
+  let s = null; try { s = localStorage.getItem("versus.dateSim"); } catch (e) { return; }
+  const cible = s ? new Date(s + "T10:00:00").getTime() : NaN; if (!cible) return;
+  const D0 = Date, decal = cible - D0.now();
+  function DateSim(...a) { return a.length ? new D0(...a) : new D0(D0.now() + decal); }
+  DateSim.prototype = D0.prototype; DateSim.now = () => D0.now() + decal; DateSim.UTC = D0.UTC; DateSim.parse = D0.parse;
+  window.Date = DateSim; window.DATE_SIM = s;
+})();
 /* ============================================================
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
@@ -1346,6 +1364,9 @@ $("#form-cle").addEventListener("submit", async e => {
 
 let SESSION = { role: "admin" };
 function estAdmin() { return SESSION.role === "admin"; }
+/** Le vrai rôle (même quand l'admin regarde l'appli comme un joueur) */
+function vraiAdmin() { return typeof D === "undefined" || !D || !D.session || D.session.role === "admin"; }
+function vueJoueur() { return vraiAdmin() && !!stock.get("versus.vueJoueur"); }
 function afficherTout() {
   if (stock.get("versus.accent") === "ecurie") appliquerAccent("ecurie");
   // indice mémorisé hors liste (changement du nombre d'indices) : retour au S&P 500
@@ -1355,6 +1376,7 @@ function afficherTout() {
   if (ETAT.i2c === undefined || ETAT.i2c === null) ETAT.i2c = ok(ETAT.i2) ? ETAT.i2 : -1;
   if (ETAT.i2c >= nbIdx) ETAT.i2c = -1;
   SESSION = D.session || { role: "admin" };
+  if (vueJoueur()) { const n = stock.get("versus.vueJoueur"); SESSION = { role: "perso", nom: D.personnes.some(p => p.nom === n) ? n : D.personnes[0].nom, simule: true }; }
   if (!estAdmin() && D.personnes.find(p => p.nom === SESSION.nom)) { if (ETAT.moi !== SESSION.nom) { ETAT.moi = SESSION.nom; ETAT.fiche = SESSION.nom; garder(); } }
   if (!D.personnes.find(p => p.nom === ETAT.moi)) ETAT.moi = D.personnes[0].nom;
   if (!ETAT.fiche || !D.personnes.find(p => p.nom === ETAT.fiche)) ETAT.fiche = ETAT.moi;
@@ -1371,6 +1393,7 @@ function afficherTout() {
   $("#choix-moi").innerHTML = D.personnes.map(p => '<button class="chip" type="button" data-moi="' + esc(p.nom) + '" aria-pressed="' + (p.nom === ETAT.moi) + '"><i style="background:' + couleur(p.nom) + '"></i>' + esc(p.nom) + "</button>").join("");
   document.querySelectorAll("[data-moi]").forEach(x => x.addEventListener("click", () => { ETAT.moi = x.dataset.moi; ETAT.fiche = x.dataset.moi; garder(); afficherTout(); }));
   $("#bloc-moi").hidden = !estAdmin();
+  majVueJoueur();
   const admin = estAdmin() && SOURCE === "api";
   $("#regl-params").hidden = !admin;
   $("#regl-liaison").hidden = !admin;
@@ -1389,6 +1412,8 @@ function afficherTout() {
 /* ---------- Codes personnels (administrateur) ---------- */
 let CODES = [], aRevoquer = null;
 async function posterAdmin(corps) {
+  if (window.DATE_SIM) return { ok: false, erreur: "simulation", message: "📅 Date simulée : rien n'est envoyé. Repasse à aujourd'hui (Réglages) pour agir pour de vrai." };
+  if (vueJoueur()) return { ok: false, erreur: "simulation", message: "👁️ Vue joueur : rien n'est envoyé. Repasse en admin (Réglages) pour agir pour de vrai." };
   if (navigator.onLine === false) return { ok: false, erreur: "reseau", message: "📴 Hors connexion : réessaie quand le réseau revient." };
   try { return await (await fetch(apiUrl(), { method: "POST", body: JSON.stringify(Object.assign({ cle: stock.get(CLES.cle) }, corps)) })).json(); }
   catch (e) { return { ok: false, message: "Impossible de joindre l'API." }; }
@@ -4629,6 +4654,25 @@ if (ETAT.ouverture === "fiche" || ETAT.ouverture === "moi") { ETAT.ouverture = "
   const m = /^moi-(jour|patrimoine|stats|missions)$/.exec(ETAT.ouverture || ""); if (!m || location.hash) return;
   try { const p = JSON.parse(stock.get("versus.moi.pref") || "{}"); p.onglet = m[1]; stock.set("versus.moi.pref", JSON.stringify(p)); } catch (e) { /* préférences illisibles */ }
 })();
+/* ---------- Vue joueur et date simulée (admin) ---------- */
+const DATES_SIM = [["", "Aujourd'hui"], ["2026-11-20", "20 nov. · teaser"], ["2026-12-03", "3 déc. · chauffe"], ["2026-12-22", "22 déc. · cartes de janvier"],
+  ["2027-01-21", "21 janv. · duels"], ["2027-03-21", "21 mars · pioche"], ["2027-06-21", "21 juin · atelier"], ["2027-11-21", "21 nov. 2027 · Finale"]];
+function majVueJoueur() {
+  const sec = $("#regl-vue"); if (!sec) return;
+  sec.hidden = !vraiAdmin() || !D || !D.personnes;
+  if (sec.hidden) return;
+  const vj = stock.get("versus.vueJoueur") || "", ds = stock.get("versus.dateSim") || "";
+  $("#choix-vue").innerHTML = '<button class="chip" type="button" data-vuej="" aria-pressed="' + !vj + '">👑 Admin</button>' + D.personnes.map(p => '<button class="chip" type="button" data-vuej="' + esc(p.nom) + '" aria-pressed="' + (vj === p.nom) + '">👁️ ' + esc(p.nom) + "</button>").join("");
+  $("#choix-date").innerHTML = DATES_SIM.map(([d, l]) => '<button class="chip" type="button" data-dsim="' + d + '" aria-pressed="' + (ds === d) + '">' + esc(l) + "</button>").join("");
+  document.querySelectorAll("[data-vuej]").forEach(b => b.addEventListener("click", () => { if (b.dataset.vuej) stock.set("versus.vueJoueur", b.dataset.vuej); else stock.del("versus.vueJoueur"); ECU = null; MEMO_SAISON = { d: null, m: {} }; afficherTout(); toast(b.dataset.vuej ? "👁️ Tu vois l'appli comme " + b.dataset.vuej + "." : "👑 Retour en admin."); }));
+  document.querySelectorAll("[data-dsim]").forEach(b => b.addEventListener("click", () => { if (b.dataset.dsim) stock.set("versus.dateSim", b.dataset.dsim); else stock.del("versus.dateSim"); location.reload(); }));
+  const band = $("#simu-band"), parts = [];
+  if (vj) parts.push("👁️ Vue joueur : " + esc(SESSION.nom || vj));
+  if (window.DATE_SIM) parts.push("📅 Simulé au " + esc(new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })) + " · rien n'est envoyé");
+  band.hidden = !parts.length;
+  band.innerHTML = parts.length ? "<span>" + parts.join(" · ") + '</span><button class="lien" type="button" id="simu-quitter">Revenir à l\'admin, aujourd\'hui</button>' : "";
+  const q = $("#simu-quitter"); if (q) q.addEventListener("click", () => { stock.del("versus.vueJoueur"); stock.del("versus.dateSim"); location.reload(); });
+}
 /* Lien direct vers le Stand (bouton des e-mails de rappel) : …/#stand */
 if (location.hash === "#stand") { ETAT.podium = "stand"; garder(); history.replaceState(null, "", location.pathname + location.search + "#trophees"); }
 montrerVue(vueActive());
