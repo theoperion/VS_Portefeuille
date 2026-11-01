@@ -450,6 +450,7 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .gp-cal-l .ap i { font-style: normal; font-weight: 800; } .gp-cal-l .ap .p { color: #3DDC97; } .gp-cal-l .ap .m { color: #FF7A85; }
 .gp-piste .gp-pl { font-size: 14px; padding: 3px 9px; }
 .gp-piste.en2d .gp-rg { display: none; }
+.guide-l { justify-self: start; font-size: 13px; }
 .gp-plein .gp-pl { display: none; }
 /* plein écran */
 .gp-plein { position: fixed; inset: 0; z-index: 95; background: #05070B; color: #fff; }
@@ -1267,7 +1268,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="moteur.js"></script>
-<script src="piste.js?v=1"></script>
+<script src="piste.js?v=2"></script>
 <script>
 "use strict";
 /* Version de l'appli : à changer à chaque livraison (affichée en bas des Réglages) */
@@ -3264,22 +3265,33 @@ function voituresGP() {
   return D.personnes.map(p => { const e = equipDe(p.nom); return { nom: p.nom, couleur: couleurReelle(couleur(p.nom)), casque: couleurReelle(couleurCasque(p.nom, e)), livree: e.livree, trainee: e.trainee, moi: p.nom === qui }; });
 }
 /** À chaque image : étiquettes au-dessus des voitures, badges d'atout, compteur de tours, tableau du plein écran */
+/* Étiquettes : les éléments sont repérés une fois (pas à chaque image), et on n'écrit dans la page que ce qui change.
+   Aucune lecture de mise en page pendant l'animation : c'est ce qui faisait saccader l'iPhone. */
+let GP_ETQ = null;
+function cacheEtq(pi) {
+  if (GP_ETQ && GP_ETQ.pi === pi && !GP_ETQ.sale) return GP_ETQ;
+  const el = (l, f) => [...pi.querySelectorAll(l)].map(e => Object.assign({ e, tr: null, op: null }, f ? f(e) : {}));
+  GP_ETQ = { pi, plein: pi.classList.contains("plein"), tags: el("[data-gpt3]", e => ({ n: e.dataset.gpt3, rg: e.querySelector(".gp-rg"), rgv: null })),
+    pops: el("[data-pop]", e => ({ n: e.dataset.pop })), zones: el("[data-zone]", e => ({ z: e.dataset.zone })), tour: pi.querySelector("#gp-tour"), tourv: null };
+  return GP_ETQ;
+}
+function poser1(o, op, tr) { if (o.op !== op) { o.e.style.opacity = op; o.op = op; } if (tr !== null && o.tr !== tr) { o.e.style.transform = tr; o.tr = tr; } }
 function etiquettesGP(api) {
   const pi = document.getElementById("gp-piste"); if (!pi) return;
-  const cur = api.courant(), ordre = Object.keys(cur).sort((a, b) => cur[b] - cur[a]), pos = [];
-  pi.querySelectorAll("[data-gpt3]").forEach(t => {
-    const n = t.dataset.gpt3, e = api.ecran(n), rg = t.querySelector(".gp-rg"); if (rg) rg.textContent = ordre.indexOf(n) + 1;
-    if (!e || e.vis === false) { t.style.opacity = "0"; return; }
-    t.style.opacity = ""; pos.push({ t, n, x: e.x, y: e.y });
+  const C = cacheEtq(pi), cur = api.courant(), ordre = Object.keys(cur).sort((a, b) => cur[b] - cur[a]), pos = [];
+  const H = api.taille ? api.taille().h : 400;
+  C.tags.forEach(o => {
+    const r = ordre.indexOf(o.n) + 1; if (o.rg && o.rgv !== r) { o.rg.textContent = r; o.rgv = r; }
+    const e = api.ecran(o.n); if (!e || e.vis === false) { poser1(o, "0", null); return; }
+    pos.push({ o, n: o.n, x: e.x, y: e.y });
   });
   // deux étiquettes qui se chevauchent : la seconde monte d'un cran
-  pos.sort((a, b) => b.y - a.y).forEach((p, i) => { for (let j = 0; j < i; j++) { const o = pos[j]; if (Math.abs(o.x - p.x) < 30 && Math.abs(o.y - p.y) < 32) p.y = Math.min(p.y, o.y - 32); } });
-  const H = pi.clientHeight;
-  pos.forEach(p => { if (p.y < 44 && !pi.classList.contains("plein")) { p.t.style.opacity = "0"; p.y = -99; return; } p.t.style.transform = "translate(" + p.x.toFixed(1) + "px," + Math.min(p.y, H - 4).toFixed(1) + "px) translate(-50%,-100%)"; });
-  pi.querySelectorAll("[data-pop]").forEach(el => { const p = pos.find(q => q.n === el.dataset.pop); if (!p || p.y < 0) { el.style.opacity = "0"; return; } el.style.opacity = ""; el.style.transform = "translate(" + p.x.toFixed(1) + "px," + (p.y - 36).toFixed(1) + "px) translate(-50%,-100%)"; });
-  pi.querySelectorAll("[data-zone]").forEach(z => { const zz = api.zones && api.zones[z.dataset.zone]; const e = zz && api.ecranMonde((zz.s0 + zz.s1) / 2, 0, 5);
-    if (!e || e.vis === false) { z.style.opacity = "0"; return; } z.style.opacity = ""; z.style.transform = "translate(" + e.x.toFixed(1) + "px," + e.y.toFixed(1) + "px) translate(-50%,-50%)"; });
-  if (api.enCours()) { const tt = pi.querySelector("#gp-tour"); if (tt) tt.textContent = Math.floor(Math.max(0, ...Object.values(cur)) / TOUR_GP) + 1; }
+  pos.sort((a, b) => b.y - a.y).forEach((p, i) => { for (let j = 0; j < i; j++) { const q = pos[j]; if (Math.abs(q.x - p.x) < 30 && Math.abs(q.y - p.y) < 32) p.y = Math.min(p.y, q.y - 32); } });
+  pos.forEach(p => { if (p.y < 44 && !C.plein) { poser1(p.o, "0", null); p.y = -99; return; } poser1(p.o, "", "translate3d(" + p.x.toFixed(0) + "px," + Math.min(p.y, H - 4).toFixed(0) + "px,0) translate(-50%,-100%)"); });
+  C.pops.forEach(o => { const p = pos.find(q => q.n === o.n); if (!p || p.y < 0) { poser1(o, "0", null); return; } poser1(o, "", "translate3d(" + p.x.toFixed(0) + "px," + (p.y - 36).toFixed(0) + "px,0) translate(-50%,-100%)"); });
+  C.zones.forEach(o => { const zz = api.zones && api.zones[o.z], e = zz && api.ecranMonde((zz.s0 + zz.s1) / 2, 0, 5);
+    if (!e || e.vis === false) { poser1(o, "0", null); return; } poser1(o, "", "translate3d(" + e.x.toFixed(0) + "px," + e.y.toFixed(0) + "px,0) translate(-50%,-50%)"); });
+  if (api.enCours() && C.tour) { const v = Math.floor(Math.max(0, ...Object.values(cur)) / TOUR_GP) + 1; if (v !== C.tourv) { C.tour.textContent = v; C.tourv = v; } }
   if (GP_PLEIN) majTourPlein(cur);
 }
 /** Ce que chacun a marqué ce mois-ci, en bulles au-dessus des voitures, à l'arrivée */
@@ -3293,8 +3305,9 @@ function bullesGP(y, i) {
     (x.duels || []).forEach(d => { if (d.s) extra.push("⚔️" + (d.s > 0 ? "+1" : "−1")); });
     box.insertAdjacentHTML("beforeend", '<span class="gp-pop" data-pop="' + esc(x.nom) + '" style="--c:' + couleur(x.nom) + '"><b>' + (x.p >= 0 ? "+" : "") + x.p + " pt" + (Math.abs(x.p) > 1 ? "s" : "") + "</b>" + (extra.length ? "<small>" + esc(extra.join(" ")) + "</small>" : "") + "</span>");
   });
+  if (GP_ETQ) GP_ETQ.sale = true;
   if (GP_INST) { GP_INST.api.reveiller(); etiquettesGP(GP_INST.api); }
-  setTimeout(() => { if (box.isConnected) box.innerHTML = ""; }, 5200);
+  setTimeout(() => { if (box.isConnected) { box.innerHTML = ""; if (GP_ETQ) GP_ETQ.sale = true; } }, 5200);
 }
 function brancherGP(v, y) {
   const etapes = etapesGP(y), i = GP_ETAPE !== null && GP_ETAPE < etapes.length ? GP_ETAPE : etapes.length - 1, et = etapes[i];
@@ -3328,6 +3341,7 @@ function brancherGP(v, y) {
   const pl = v.querySelector("#gp-plein"); if (pl) pl.addEventListener("click", () => ouvrirPleinGP(y));
   v.querySelectorAll(".gp-mois [data-gpe]").forEach(b => b.addEventListener("click", () => { GP_ETAPE = +b.dataset.gpe; GP_REJOUER = true; rendreTrophees(); }));
   const cal = v.querySelector("#gp-calend"); if (cal) cal.addEventListener("toggle", () => { ETAT.calOuvert = cal.open ? "1" : "0"; garder(); });
+  GP_ETQ = null;
   if (GP_PLEIN) placerPlein(y);
   etiquettesGP(api);
 }
@@ -3356,18 +3370,24 @@ function placerPlein(y) {
   const ch = document.querySelector(".saison .gp-mois"); P.o.querySelector(".gpp-mois").innerHTML = ch ? ch.outerHTML : "";
   P.o.querySelectorAll(".gpp-mois [data-gpe]").forEach(b => b.addEventListener("click", () => { GP_ETAPE = +b.dataset.gpe; GP_REJOUER = true; rendreTrophees(); }));
   const sel = P.o.querySelector('.gpp-mois [aria-pressed="true"]'); if (sel) sel.scrollIntoView({ inline: "center", block: "nearest" });
+  GP_ETQ = null;
   if (GP_INST) { GP_INST.api.redim(); majTourPlein(GP_INST.api.courant(), true); }
 }
 function majTourPlein(cur, force) {
-  const P = GP_PLEIN; if (!P) return; const now = performance.now(); if (!force && now - P.maj < 120) return; P.maj = now;
-  const qui = quiEcurie(), ordre = Object.keys(cur).sort((a, b) => cur[b] - cur[a]), t = cur[ordre[0]] || 0;
-  P.o.querySelector(".gpp-tour").innerHTML = ordre.map((n, r) => '<div class="r' + (n === qui ? " moi" : "") + '" style="--c:' + couleur(n) + '"><span class="rk">' + (r + 1) + "</span>" + avatar(n) + '<span class="n">' + esc(n) + '</span><span class="p">' + Math.round(cur[n]) + (r ? "<small>−" + Math.round(t - cur[n]) + "</small>" : "<small>tour " + (Math.floor(t / TOUR_GP) + 1) + "</small>") + "</span></div>").join("");
+  const P = GP_PLEIN; if (!P) return; const now = performance.now(); if (!force && now - P.maj < 150) return; P.maj = now;
+  const qui = quiEcurie(), ordre = Object.keys(cur).sort((a, b) => cur[b] - cur[a]), t = cur[ordre[0]] || 0, box = P.o.querySelector(".gpp-tour");
+  if (force || !P.lignes || P.lignes.cle !== ordre.slice().sort().join("|")) {
+    box.innerHTML = Object.keys(cur).map(n => '<div class="r' + (n === qui ? " moi" : "") + '" data-tr="' + esc(n) + '" style="--c:' + couleur(n) + '"><span class="rk"></span>' + avatar(n) + '<span class="n">' + esc(n) + '</span><span class="p"><b></b><small></small></span></div>').join("");
+    P.lignes = { cle: ordre.slice().sort().join("|"), m: {} }; box.querySelectorAll("[data-tr]").forEach(e => P.lignes.m[e.dataset.tr] = { e, rk: e.querySelector(".rk"), b: e.querySelector(".p b"), s: e.querySelector(".p small"), v: "" });
+  }
+  ordre.forEach((n, r) => { const l = P.lignes.m[n]; if (!l) return; const v = r + "|" + Math.round(cur[n]) + "|" + Math.round(t - cur[n]) + "|" + Math.floor(t / TOUR_GP); if (v === l.v) return; l.v = v;
+    l.e.style.order = r; l.rk.textContent = r + 1; l.b.textContent = Math.round(cur[n]); l.s.textContent = r ? "−" + Math.round(t - cur[n]) : "tour " + (Math.floor(t / TOUR_GP) + 1); });
 }
 function fermerPleinGP() {
   const P = GP_PLEIN; if (!P) return; GP_PLEIN = null;
   const pi = P.o.querySelector(".gp-piste");
   if (pi && P.ancre && P.ancre.isConnected) P.ancre.replaceWith(pi); else if (P.ancre) P.ancre.remove();
-  document.removeEventListener("keydown", P.esc); P.o.remove(); document.documentElement.classList.remove("fige");
+  document.removeEventListener("keydown", P.esc); P.o.remove(); document.documentElement.classList.remove("fige"); GP_ETQ = null;
   if (GP_INST) GP_INST.api.redim();
 }
 
@@ -3770,18 +3790,28 @@ const TUTO = [
   { ico: "🙂", t: "Ton écurie", p: "Ta tête ou ton casque, ta livrée, ta traînée, ton klaxon : tout se règle dans l'onglet Écurie, et beaucoup se débloque avec les défis et les exclusifs." },
   { ico: "🎁", t: "Et ensuite ?", p: "De nouvelles règles arrivent en cours de saison, une à la fois. Chacune est annoncée le 20 du mois d'avant, quand sa fenêtre s'ouvre. Le bouton 📖 Règles, en haut du Podium, garde tout le détail." }
 ];
-function ouvrirTuto() {
-  const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); let i = 0;
+function ouvrirTuto() { ouvrirGuide("Comment ça marche", TUTO, "C'est parti 🏁"); }
+/** Petit guide en diapos (tuto du jeu, saisie d'un ordre, relevé du Versus) ; les textes acceptent <b> */
+function ouvrirGuide(titre, diapos, finLib) {
+  const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", titre); let i = 0;
   const peindre = () => {
-    const s = TUTO[i];
-    o.innerHTML = '<div class="tuto-c"><span class="tuto-k">Comment ça marche · ' + (i + 1) + " / " + TUTO.length + '</span><div class="tuto-i">' + s.ico + "</div><h3>" + esc(s.t) + "</h3><p>" + esc(s.p) + "</p>" +
-      '<div class="tuto-pts">' + TUTO.map((x, j) => "<i" + (j === i ? ' class="on"' : "") + "></i>").join("") + "</div>" +
-      '<div class="btn-row"><button class="btn ghost" type="button" data-t="-1"' + (i ? "" : " disabled") + '>Précédent</button><button class="btn acc" type="button" data-t="1">' + (i === TUTO.length - 1 ? "C'est parti 🏁" : "Suivant") + "</button></div></div>";
-    o.querySelectorAll("[data-t]").forEach(b => b.addEventListener("click", () => { const n = i + +b.dataset.t; if (n >= TUTO.length) { o.remove(); return; } i = Math.max(0, n); peindre(); }));
+    const s = diapos[i];
+    o.innerHTML = '<div class="tuto-c"><span class="tuto-k">' + esc(titre) + " · " + (i + 1) + " / " + diapos.length + '</span><div class="tuto-i">' + s.ico + "</div><h3>" + esc(s.t) + "</h3><p>" + (s.html ? s.p : esc(s.p)) + "</p>" +
+      '<div class="tuto-pts">' + diapos.map((x, j) => "<i" + (j === i ? ' class="on"' : "") + "></i>").join("") + "</div>" +
+      '<div class="btn-row"><button class="btn ghost" type="button" data-t="-1"' + (i ? "" : " disabled") + '>Précédent</button><button class="btn acc" type="button" data-t="1">' + (i === diapos.length - 1 ? esc(finLib || "Compris") : "Suivant") + "</button></div></div>";
+    o.querySelectorAll("[data-t]").forEach(b => b.addEventListener("click", () => { const n = i + +b.dataset.t; if (n >= diapos.length) { o.remove(); return; } i = Math.max(0, n); peindre(); }));
   };
   peindre(); document.body.appendChild(o);
   o.addEventListener("click", e => { if (e.target === o) o.remove(); });
 }
+/* Guide du relevé mensuel du Versus (ouvert tout seul la première fois, puis depuis « ❓ ») */
+const TUTO_RELEVE = [
+  { ico: "📅", t: "Une fois par mois", html: true, p: "Le <b>dernier jour ouvré du mois</b>, après la clôture de 18 h, la ligne du mois s'ouvre. Saisis ton relevé ce soir-là ou dans les jours qui suivent : la course avance quand tout le monde l'a fait." },
+  { ico: "💶", t: "Versé ce mois", html: true, p: "Pour chaque enveloppe (PEA, assurance vie, CTO, crypto) : l'argent que tu as <b>viré dessus</b> pendant le mois. Négatif si tu en as retiré, 0 si rien. Pas tes achats d'actions : seulement ce qui entre ou sort de l'enveloppe." },
+  { ico: "📈", t: "Valeur fin de mois", html: true, p: "La <b>valeur totale</b> de l'enveloppe affichée par ta banque le dernier jour : titres et espèces compris. 0 si l'enveloppe est vidée. C'est elle qui fait ta performance du mois." },
+  { ico: "✏️", t: "7 jours pour corriger", html: true, p: "Après l'envoi, ton relevé reste <b>modifiable et annulable 7 jours</b> (onglet Journal), puis il est figé. Pareil pour les relevés remplis automatiquement : 7 jours pour les corriger. L'app te prévient si un chiffre a l'air bizarre." }
+];
+function guideReleve() { ouvrirGuide("Ton relevé du mois", TUTO_RELEVE, "C'est compris"); }
 
 /* ============================================================
    VOITURE 3D (sans bibliothèque) : petit moteur maison sur <canvas>
@@ -4418,6 +4448,8 @@ function ouvrirSaisie() {
   R = { nom: p.nom, k: null, forcer: null, erreur: "", envoi: false, tout: false };
   choisirMoisParDefaut();
   $("#saisie").hidden = false;
+  // la toute première fois, le guide s'ouvre tout seul (une fois par personne et par appareil)
+  const cleG = "versus.guideReleve." + p.nom; if (!stock.get(cleG) && !simulation()) { stock.set(cleG, "1"); setTimeout(guideReleve, 250); }
   JNOM = p.nom;
   ongletReleves("nouveau");
 }
@@ -4519,6 +4551,7 @@ function rendreSaisie() {
   $("#corps-saisie").innerHTML = '<form class="form" id="form-releve" novalidate style="display:grid;gap:14px">' +
     '<div class="chips" role="group" aria-label="Personne">' + D.personnes.filter(x => estAdmin() || x.nom === SESSION.nom).map(x => '<button class="chip" type="button" data-rp="' + esc(x.nom) + '" aria-pressed="' + (x.nom === R.nom) + '"><i style="background:' + couleur(x.nom) + '"></i>' + esc(x.nom) + "</button>").join("") + "</div>" +
     '<label class="sel"><span>Mois (valeurs au ' + finMois(R.k) + ')</span><select id="r-mois">' + opts + "</select></label>" + bandeauEtat +
+    '<button class="lien guide-l" type="button" id="r-guide">❓ Comment remplir mon relevé</button>' +
     (imp.visible && R.nom === imp.nom && R.k === imp.k ? '<div class="import-l"><button class="btn acc" type="button" id="r-importer"' + (imp.actif ? "" : " disabled") + '>Importer depuis Portefeuille & Épargne</button><small>' + esc(imp.texte) + "</small></div>" : "") +
     (avantCloture ? '<div class="alerte warn">Jour du relevé : attends la clôture (18 h) pour saisir les valeurs de fin de mois.</div>' : "") +
     NOMS_ENV.map((nom, e) => !montrer[e] ? "" :
@@ -4533,6 +4566,7 @@ function rendreSaisie() {
   $("#r-mois").addEventListener("change", e => { R.k = +e.target.value; chargerValeurs(); rendreSaisie(); });
   if ($("#r-importer")) $("#r-importer").addEventListener("click", async e => { if (await lancerImport(e.currentTarget)) { JNOM = R.nom; ongletReleves("journal"); } });
   if ($("#r-tout")) $("#r-tout").addEventListener("click", () => { R.tout = true; rendreSaisie(); });
+  $("#r-guide").addEventListener("click", guideReleve);
   NOMS_ENV.forEach((_, e) => ["v", "c"].forEach((t, j) => { const el = $("#r-" + t + e); if (el) el.addEventListener("input", () => { R.v[2 * e + j] = el.value; R.forcer = null; R.erreur = ""; majSaisie(prev); }); }));
   $("#form-releve").addEventListener("submit", ev => { ev.preventDefault(); if (!fige) envoyerReleve(false); });
   majSaisie(prev);
@@ -4621,7 +4655,7 @@ function vueActive() {
 }
 function rendreVue(v) { ({ classement: rendreClassement, mois: rendreMois, fiche: rendreFiche, trophees: rendreTrophees, moi: rendreMoi })[v](); }
 /* Onglet Moi : module privé chargé à la demande (moi.js), qui lit le fichier personnel depuis l'appareil */
-const MOI_JS = "moi.js?v=19";
+const MOI_JS = "moi.js?v=22";
 function chargerModuleMoi(apres, echec) {
   if (window.Moi) { apres(); return; }
   let sc = document.getElementById("script-moi");
