@@ -615,6 +615,12 @@ button.bt-e { cursor: pointer; color: var(--ink); }
 .fx-turbo { stroke: #5AB8FF !important; stroke-width: 5; opacity: .6; stroke-dasharray: 10 6; animation: fxDefile .5s linear infinite; }
 .fx-arcenciel { stroke: #FF6B9A !important; stroke-width: 7; opacity: .5; animation: arcHue 3s linear infinite; }
 @keyframes arcHue { to { filter: hue-rotate(360deg); } }
+.reserve-b { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 18px; padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--rule); background: transparent; color: var(--ink-2); font: inherit; text-align: left; cursor: pointer; }
+.reserve-b span { flex: 1; display: grid; gap: 2px; } .reserve-b b { color: var(--ink); font-size: 14px; } .reserve-b small { font-size: 12px; color: var(--ink-3); }
+.tr-h { margin: 10px 2px 6px; font: 700 12px/1.2 var(--f-ui, inherit); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); } .tr-h small { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--ink-3); margin-left: 6px; }
+.tr-bloc .scroll-x { margin-bottom: 4px; }
+.tr-bloc .ex-niv { display: grid; gap: 6px; justify-content: start; } .tr-bloc .ex-niv > span { white-space: nowrap; } .tr-bloc .ex-niv small { font: 500 12.5px/1.3 var(--f-ui, inherit); }
+.tr-bloc.n1 .ex-niv > span { color: #D08A4E; } .tr-bloc.n2 .ex-niv > span { color: #9AA7B5; } .tr-bloc.n3 .ex-niv > span { color: #E2A92A; } .tr-bloc.n4 .ex-niv > span { color: #B98CFF; }
 details.ex-bloc { display: grid; gap: 6px; padding: 0 8px 8px; border-radius: 14px; border: 1px solid var(--rule); background: var(--panel-2); }
 details.ex-bloc > summary { list-style: none; cursor: pointer; display: grid; gap: 7px; padding: 11px 4px 3px; }
 details.ex-bloc > summary::-webkit-details-marker { display: none; }
@@ -1272,7 +1278,7 @@ details.ex-bloc > summary .ex-niv small::after { content: " ▾"; } details.ex-b
 <script>
 "use strict";
 /* Version de l'appli : à changer à chaque livraison (affichée en bas des Réglages) */
-const APP_VERSION = "11.0", APP_DATE = "1er novembre 2026";
+const APP_VERSION = "11.1", APP_DATE = "1er novembre 2026";
 /* Admin : « voir l'appli à une autre date » (Réglages › Voir comme un joueur). L'horloge de l'appli est décalée ; rien n'est envoyé. */
 (function () {
   let s = null; try { s = localStorage.getItem("versus.dateSim"); } catch (e) { return; }
@@ -1286,7 +1292,7 @@ const APP_VERSION = "11.0", APP_DATE = "1er novembre 2026";
    CONFIGURATION : colle ici l'adresse de la web app (se termine par /exec),
    ou saisis-la dans Réglages. Vide = chiffres de démonstration.
    ============================================================ */
-const API_URL = "https://script.google.com/macros/s/AKfycbwyLfdD9w6NOSg8GUaIZr5d8-QhFFENz386Unnbg7R8TurONhlkQY7H7WQNA_LXrXB0Xw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwPrugS2j5bLq_CVvdyJFRMZN2mqlb-2cFBs2qkki--YLrOzrmGQcf0O99QvWvOdg8Yrg/exec";
 
 const CLES = { api: "versus.api", cle: "versus.cle", theme: "versus.theme", cache: "versus.cache", vue: "versus.vue", etat: "versus.etat" };
 /* En simulation (date simulée ou vue joueur de l'admin), ce qui est « vu » (révélation, annonces, paliers, clôture…), l'état des onglets
@@ -2016,6 +2022,7 @@ function championnat(y) {
       const at = ch ? null : atoutsDe(k), circ = at && g > 0 ? (at.atout.id === c.c ? 1 : at.piege.id === c.c ? -1 : 0) : 0;
       g = Math.min(PLAFOND_CARTE, g + circ);
       x.carte = { id: c.c, gain: g, cible: c.cible || null, circ }; x.p += g;
+      if (c.c === "pari" && c.cible) { const xc = l.find(z => z.nom === c.cible); if (xc) (xc.vise = xc.vise || []).push({ par: x.nom, gain: g }); }
       if (c.c === "huile" && c.cible) { const xc = l.find(z => z.nom === c.cible); if (xc) { const s = xc.r > x.r + 1e-12 ? -2 : -1; recu[c.cible] = (recu[c.cible] || 0) + s; x.carte.sab = s; } }
     });
     l.forEach(x => { if (recu[x.nom]) { x.sab = Math.max(PLANCHER_SABOTAGE, recu[x.nom]); x.p += x.sab; } });
@@ -2031,7 +2038,7 @@ function championnat(y) {
     l.forEach(x => {
       const j = J[x.nom]; if (!j) return;
       j.xp += x.base + x.bonus + (x.dernier ? 3 : 0);
-      const nv = niveauXP(j.xp); let tir = Math.max(0, nv - j.niv) + (x.dernier ? 1 : 0); x.monte = nv - j.niv; j.niv = nv;
+      const nv = niveauXP(j.xp), avecNiv = regleActive("niveaux", k); let tir = (avecNiv ? Math.max(0, nv - j.niv) : 0) + (x.dernier ? 1 : 0); x.monte = avecNiv ? nv - j.niv : 0; j.niv = nv;
       x.pioche = []; while (tir-- > 0 && j.i < j.deck.length) { const c = j.deck[j.i++]; j.pioche.push({ c, k }); x.pioche.push(c); }
     });
     prevL = l;
@@ -2591,7 +2598,7 @@ function teaser() {
       '<div><b>🏁 Championnat</b><span>Chaque mois : 10, 6, 4, 2 points, et +1 🎯 si tu bats le ' + esc(D.marche.indices[iRef()]) + '.</span></div>' +
       '<div><b>🏎️ Grand Prix</b><span>Une ville par mois, de Bahreïn à Las Vegas. Vos voitures en 3D, 25 points le tour, la météo du marché.</span></div>' +
       '<div><b>🃏 Cartes de course</b><span>4 cartes de stratégie, les mêmes pour tous. Une par mois, face cachée.</span></div>' +
-      '<div><b>🎁 Nouveautés en cours de saison</b><span>' + ETAPES.map(e => e.ico + " " + esc(e.nom) + " (" + esc(moisEtape(e).replace(/ \d{4}$/, "")) + ")").join(" · ") + ". Chaque règle est expliquée le 20 du mois d'avant, quand sa fenêtre s'ouvre.</span></div>" +
+      '<div><b>🎁 Nouveautés en cours de saison</b><span>' + etapesJeu().map(e => e.ico + " " + esc(e.nom) + " (" + esc(moisEtape(e).replace(/ \d{4}$/, "")) + ")").join(" · ") + ". Chaque règle est expliquée le 20 du mois d'avant, quand sa fenêtre s'ouvre.</span></div>" +
       '<div><b>🙂 Ta tête au volant</b><span>Ton portrait animé, ou ton casque, à côté de ton nom. Et 24 objets uniques à rafler les premiers.</span></div></div>' +
       '<button class="btn acc" type="button" id="teaser-regles">📖 Lire toutes les règles</button>' +
       '<p class="t-note">Tout repart de zéro le 1<sup>er</sup> janvier : ce qui s\'est passé avant ne compte pas.</p>'
@@ -2648,8 +2655,9 @@ function blocSaison() {
     '<button class="regles-b" type="button" id="regles-ouvrir" aria-label="Règles du jeu">📖 Règles</button></div></div>' +
     (ys.length > 1 ? '<div class="s-ys">' + ys.map(a => '<button type="button" class="chip-s' + (a === y ? " on" : "") + '" data-saison="' + a + '">' + (estChauffe(a) ? "🔥 Chauffe" : "Saison " + numeroSaison(a)) + "</button>").join("") + "</div>" : "") +
     (ch ? '<div class="chauffe-b">🔥 <span><b>Tour de chauffe</b> : les règles de base, et rien ne compte. Le championnat démarre le 1<sup>er</sup> janvier. <a href="#" class="lien-regles" data-regles="speciaux">En savoir plus</a></span></div>' : "") +
-    '<div class="pod-tabs" role="group" aria-label="Saison">' + b("gp", "<span>🏁</span>Course") + b("stand", "<span>🃏</span>Stand" + (rappelCartes() ? '<i class="pastille" aria-label="à faire"></i>' : "")) + b("ecurie", "<span>🏎️</span>Écurie") + b("defis", "<span>🎯</span>Défis") + "</div>" +
-    '<div class="s-corps">' + (o === "ecurie" ? htmlEcurie() : o === "defis" ? htmlDefis() : o === "stand" ? htmlStand(y) : htmlGrandPrix(y)) + "</div></section>";
+    '<div class="pod-tabs" role="group" aria-label="Saison">' + b("gp", "<span>🏁</span>Course") + b("stand", "<span>🃏</span>Stand" + (rappelCartes() ? '<i class="pastille" aria-label="à faire"></i>' : "")) + b("ecurie", "<span>🏎️</span>Écurie") + b("defis", "<span>🏆</span>Trophées") + "</div>" +
+    '<div class="s-corps">' + (o === "ecurie" ? htmlEcurie() : o === "defis" ? htmlDefis() : o === "stand" ? htmlStand(y) : htmlGrandPrix(y)) + "</div>" +
+    (vraiAdmin() ? '<button class="reserve-b" type="button" id="reserve-ouvrir">🧪 <span><b>Règles et idées en réserve</b><small>admin · ce qui est en jeu, ce qui dort, les réglages</small></span> ›</button>' : "") + "</section>";
 }
 /** Onglet du Podium : l'ancien « Championnat » est maintenant dans le Grand Prix */
 function ongletPodium() { return ["gp", "stand", "ecurie", "defis"].includes(ETAT.podium) ? ETAT.podium : "gp";
@@ -2665,7 +2673,7 @@ function htmlDetailPoints(y) {
   return (c.complete ? '<div class="bref">🏆 <b>' + esc(c.classement[0]) + "</b> " + (c.chauffe ? "remporte le tour de chauffe." : "est champion de la saison " + numeroSaison(y) + ".") + "</div>" : "") +
     '<details class="pts-det" id="pts-det"' + (ETAT.ptsOuvert === "1" ? " open" : "") + '><summary>📊 Détail des points <small>courbe, mois par mois, barème</small></summary>' +
     '<ul class="pts-bilan">' + bilan + "</ul>" + boiteGraphe("g-champ", noms.map(n => ({ nom: n, c: couleur(n) }))) + tab +
-    '<p class="info">Chaque mois : 10 · 6 · 4 · 2 · puis 1 point, <b>+1</b> 🎯 si ton mois bat le ' + esc(D.marche.indices[iRef()]) + ", plus cartes et duels. Ex aequo : même place, mêmes points. À égalité au total : le plus de victoires, puis la meilleure performance.</p></details>";
+    '<p class="info">Chaque mois : 10 · 6 · 4 · 2 · puis 1 point, <b>+1</b> 🎯 si ton mois bat le ' + esc(D.marche.indices[iRef()]) + ", plus les cartes" + (regleVisible("duels") ? " et les duels" : "") + ". Ex aequo : même place, mêmes points. À égalité au total : le plus de victoires, puis la meilleure performance.</p></details>";
 }
 function dessinerChampionnat(y) {
   const box = $("#g-champ"); if (!box) return;
@@ -2752,22 +2760,45 @@ function htmlGarage(qui) {
     (ex.length ? '<div class="gar-ex">' + ex.sort((a, b) => b.niv - a.niv).map(x => '<span title="' + esc(x.nom) + '">' + x.ico + " " + esc(x.nom) + "</span>").join("") + "</div>" : "") +
     '<button class="lien" type="button" id="garage-fermer">Fermer</button></div>';
 }
+/* Trophées : un seul écran, par rareté (🥉 → 💎). Dans chaque rareté, les défis (tout le monde peut les réussir)
+   et les exclusifs (un seul exemplaire). Puis les secrets. Chaque trophée débloque un objet de l'écurie. */
 function htmlDefis() {
   const noms = D.personnes.map(p => p.nom), E = {}; noms.forEach(n => E[n] = etatDefis(n));
+  const pm = D.premierMillion, idx = D.marche.indices[iRef()];
   const lib = g => g.map(([s, id]) => ITEMS[s][id] + " (" + SLOTS.find(x => x[0] === s)[1].toLowerCase() + ")").join(" + ");
   const court = n => n.length > 5 ? n.slice(0, 4) + "." : n;
   const tete = '<thead><tr><th>Défi</th>' + noms.map(n => '<th title="' + esc(n) + '"><i style="background:' + couleur(n) + '"></i>' + esc(court(n)) + "</th>").join("") + "</tr></thead>";
-  const fams = FAMILLES_DEFIS.map(f => '<div><h3 class="s-h3">' + f + '</h3></div><div class="scroll-x"><table class="tab succes-m defis-m">' + tete + "<tbody>" + DEFIS.filter(d => d.fam === f).map(d =>
-    '<tr><td class="n"><i>' + MEDAILLES[d.niv] + "</i>" + esc(d.nom) + "<small>" + esc(d.def) + "</small><em>→ " + esc(lib(d.gain)) + "</em></td>" + noms.map(n => {
-      const o = E[n][d.id]; return o.ok ? '<td class="ok">✓</td>' : '<td class="pr">' + (o.prog ? o.prog + "/" + o.cible + (d.unite || "") : "·") + "</td>";
-    }).join("") + "</tr>").join("") + "</tbody></table></div>").join("");
-  const secrets = '<div><h3 class="s-h3">Secrets</h3></div><div class="secrets">' + SECRETS.map(s => {
+  const ligneDefi = d => '<tr><td class="n"><i>' + MEDAILLES[d.niv] + "</i>" + esc(d.nom) + "<small>" + esc(d.fam) + " · " + esc(d.def) + "</small><em>→ " + esc(lib(d.gain)) + "</em></td>" + noms.map(n => {
+    const o = E[n][d.id]; return o.ok ? '<td class="ok">✓</td>' : '<td class="pr">' + (o.prog ? o.prog + "/" + o.cible + (d.unite || "") : "·") + "</td>"; }).join("") + "</tr>";
+  const ligneEx = x => {
+    const d = detenteur(x.id), item = ITEMS[x.gain[0]][x.gain[1]], slot = SLOTS.find(z => z[0] === x.gain[0])[1].toLowerCase();
+    return '<div class="ex-l' + (d ? " pris" : "") + '"><span class="ex-i">' + x.ico + "</span><div><b>" + esc(x.nom) + "</b><small>Le premier à " + esc(x.def.replace("l'indice", "le " + idx)) + " · " + esc(item) + " (" + slot + ")</small></div>" +
+      (d ? '<span class="ex-q" style="--c:' + couleur(d.nom) + '"><b>' + esc(d.nom) + "</b><small>" + esc(moisCourt(d.k)) + "</small></span>" : '<span class="ex-q libre"><b>Libre</b><small>à prendre</small></span>') + "</div>";
+  };
+  const ligneMillion = () => '<div class="ex-l' + (pm ? " pris" : "") + '"><span class="ex-i">👑</span><div><b>Premier millionnaire</b><small>Le premier à 1 000 000 € · casque Couronne, livrée Or vivant, klaxon Pluie de billets</small></div>' +
+    (pm ? '<span class="ex-q" style="--c:' + couleur(pm.nom) + '"><b>' + esc(pm.nom) + "</b><small>pour toujours</small></span>" : '<span class="ex-q libre"><b>Libre</b><small>à prendre</small></span>') + "</div>";
+  // score de trophées par pilote
+  const nbDe = n => DEFIS.filter(d => E[n][d.id].ok).length + SECRETS.filter(d => E[n][d.id].ok).length + EXCLUSIFS.filter(x => (detenteur(x.id) || {}).nom === n).length + (pm && pm.nom === n ? 1 : 0);
+  const total = DEFIS.length + SECRETS.length + EXCLUSIFS.length + 1;
+  const resume = '<div class="ex-tab">' + noms.slice().sort((a, b) => nbDe(b) - nbDe(a)).map(n => '<span style="--c:' + couleur(n) + '"><b>' + nbDe(n) + "</b>" + esc(n) + "</span>").join("") + "</div>";
+  const raretes = [1, 2, 3, 4].map(n => {
+    const dl = DEFIS.filter(d => d.niv === n), xl = EXCLUSIFS.filter(x => x.niv === n), nx = xl.length + (n === 4 ? 1 : 0);
+    const pris = xl.filter(x => detenteur(x.id)).length + (n === 4 && pm ? 1 : 0), moi = moiPilote(), faits = moi && E[moi] ? dl.filter(d => E[moi][d.id].ok).length : null;
+    return '<details class="ex-bloc tr-bloc n' + n + '" data-exn="' + n + '"' + (EX_OUVERTS.has(n) ? " open" : "") + '><summary><span class="ex-niv"><span>' + MEDAILLES[n] + " " + NIVEAUX[n] + "</span><small>" +
+      dl.length + " défis" + (faits !== null ? " (" + faits + " ✓)" : "") + " · " + nx + " exclusifs (" + pris + " pris)</small></span></summary>" +
+      '<h4 class="tr-h">Défis <small>chacun peut les réussir</small></h4><div class="scroll-x"><table class="tab succes-m defis-m">' + tete + "<tbody>" + dl.map(ligneDefi).join("") + "</tbody></table></div>" +
+      '<h4 class="tr-h">Exclusifs <small>un seul exemplaire, pour le premier</small></h4><div class="ex-liste">' + xl.map(ligneEx).join("") + (n === 4 ? ligneMillion() : "") + "</div></details>";
+  }).join("");
+  const secrets = '<div><h3 class="s-h3">🤫 Secrets <small>à découvrir</small></h3></div><div class="secrets">' + SECRETS.map(s => {
     const qui = noms.filter(n => E[n][s.id].ok);
     return qui.length ? '<div class="sec-l ouvert"><b>🤫 ' + esc(s.nom) + "</b><small>" + esc(s.def) + " → " + esc(lib(s.gain)) + "</small><span>" + qui.map(n => '<span style="color:' + couleur(n) + '">' + esc(n) + "</span>").join(" · ") + "</span></div>"
-      : '<div class="sec-l"><b>??? </b><small>Défi secret : personne ne l\'a encore trouvé.</small></div>';
+      : '<div class="sec-l"><b>??? </b><small>Trophée secret : personne ne l\'a encore trouvé.</small></div>';
   }).join("") + "</div>";
-  return (estChauffe(saisonCourante()) ? '<div class="chauffe-b">🔥 <span>Tour de chauffe : les défis et les exclusifs démarrent le 1<sup>er</sup> janvier 2027. Voici ce qui t\'attend.</span></div>' : "") +
-    bandeauMillion() + htmlCourseExclusifs() + '<p class="info">Les défis se débloquent une fois pour toutes et ouvrent des objets pour ton écurie. Niveaux : 🥉 bronze · 🥈 argent · 🥇 or · 💎 légendaire. Portefeuille total, ' + esc(D.marche.indices[iRef()]) + " comme référence, versements des relevés du Versus.</p>" + fams + secrets;
+  return (estChauffe(saisonCourante()) ? '<div class="chauffe-b">🔥 <span>Tour de chauffe : les trophées démarrent le 1<sup>er</sup> janvier 2027. Voici ce qui t\'attend.</span></div>' : "") +
+    bandeauMillion() +
+    '<div><h3 class="s-h3">Les trophées <small>' + total + " au total</small></h3></div>" + resume +
+    '<p class="info">Chaque trophée débloque un objet pour ton écurie, et reste acquis pour toujours. <b>Défis</b> : chacun peut les réussir. <b>Exclusifs</b> : un seul exemplaire, pour le premier qui y arrive (à égalité le même mois : la meilleure valeur du critère, puis la performance du mois, puis le cumul). Calculé sur les relevés publics du Versus, ' + esc(idx) + " comme référence.</p>" +
+    '<div class="ex-liste">' + raretes + "</div>" + secrets;
 }
 /* Animations du showroom : la voiture démarre au klaxon, rebondit quand on change un objet */
 function demarrer(v) {
@@ -2803,6 +2834,7 @@ async function garderEcurie() {
   else { D.ecurie = avant; MEMO_SAISON = { d: null, m: {} }; ECU = null; toast((rep.message || "Enregistrement impossible.") + " Ton écurie est revenue comme avant."); rendreTrophees(); }
 }
 function brancherSaison(v) {
+  const rs = v.querySelector("#reserve-ouvrir"); if (rs) rs.addEventListener("click", ouvrirReserve);
   v.querySelectorAll("[data-pod]").forEach(b => b.addEventListener("click", () => { ETAT.podium = b.dataset.pod; if (b.dataset.pod === "stand") { const r = rappelCartes(); if (r && !kOuvertPour(saisonCourante())) choisirSaison(r.y); } garder(); rendreTrophees(); }));
   v.querySelectorAll("[data-saison]").forEach(b => b.addEventListener("click", () => { choisirSaison(+b.dataset.saison); rendreTrophees(); }));
   const y = saisonCourante();
@@ -2810,7 +2842,7 @@ function brancherSaison(v) {
   if (o === "gp") { brancherGP(v, y); const dp = v.querySelector("#pts-det"); if (dp) { if (dp.open) dessinerChampionnat(y); dp.addEventListener("toggle", () => { ETAT.ptsOuvert = dp.open ? "1" : "0"; garder(); if (dp.open) dessinerChampionnat(y); }); } }
   if (o === "stand") brancherStand(v, y);
   v.querySelectorAll("[data-aller-stand]").forEach(b => b.addEventListener("click", () => { const r = rappelCartes(); if (r) choisirSaison(r.y); ETAT.podium = "stand"; garder(); rendreTrophees(); const t = document.querySelector(".pod-tabs"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); }));
-  if (!stock.get("versus.tuto1")) { stock.set("versus.tuto1", "1"); ETAPES.filter(e => aujNum() >= annonceEtape(e)).forEach(e => stock.set("versus.nouveaute." + e.id, "1")); setTimeout(ouvrirTuto, 400); }
+  if (!stock.get("versus.tuto1")) { stock.set("versus.tuto1", "1"); etapesJeu().filter(e => aujNum() >= annonceEtape(e)).forEach(e => stock.set("versus.nouveaute." + e.id, "1")); setTimeout(ouvrirTuto, 400); }
   else setTimeout(verifierRevelation, 500);
   bandesDefilantes(v); expliquerBadges(v);
   v.querySelectorAll("details.ex-bloc").forEach(d => d.addEventListener("toggle", () => { const n = +d.dataset.exn; if (d.open) EX_OUVERTS.add(n); else EX_OUVERTS.delete(n); }));
@@ -2864,7 +2896,7 @@ const CARTES = [
   { id: "aspiration", ico: "🌀", nom: "Aspiration", def: "Si tu bats ce mois-ci le pilote juste devant toi au championnat : +2 pts.", court: "+2 si tu bats celui de devant" },
   { id: "turbo", ico: "🚀", nom: "Turbo", def: "Si tu bats l'indice ce mois-ci, ton bonus 🎯 vaut +3 au lieu de +1.", court: "bonus 🎯 à +3" },
   { id: "pluie", ico: "🌧️", nom: "Pneus pluie", def: "Si l'indice finit le mois en baisse : +2 pts, quoi qu'il arrive.", court: "+2 si l'indice baisse" },
-  { id: "pari", ico: "🎲", nom: "Pari", def: "Désigne un rival : si tu finis devant lui ce mois-ci, +3 pts ; sinon −1.", court: "+3 / −1 contre un rival", cible: true }
+  { id: "pari", ico: "🎲", nom: "Pari", def: "Désigne un rival : si tu finis devant lui ce mois-ci, +3 pts ; sinon −1. Il découvre ton défi à la révélation.", court: "+3 / −1 contre un rival", cible: true }
 ];
 /* Cartes : celles du Versus (révélées après la date limite), les tiennes gardées sur l'appareil, ou celles de l'aperçu admin */
 function cartesApercu() { try { return JSON.parse(stock.get("versus.cartesApercu") || "{}"); } catch (e) { return {}; } }
@@ -3044,10 +3076,11 @@ function htmlGrandPrix(y) {
     const res = x && x.carte ? (x.carte.invalide ? " Pas encore piochée à ce moment-là : sans effet." : " Résultat : " + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + " pt" + (Math.abs(x.carte.gain) > 1 ? "s" : "") + (x.carte.circ ? (x.carte.circ > 0 ? ", dont +1 d'atout du circuit" : ", dont −1 de piège du circuit") : "") + (x.carte.sab ? " · " + x.carte.cible + " " + x.carte.sab : "") + ".") : "";
     const carte = ca ? (ca.cache && !cdef ? '<span class="gp-c cache" data-bdg="Carte posée face cachée : révélée le ' + jourLimite(et.k) + ' du mois.">🂠</span>' : cdef ? '<span class="gp-c" data-bdg="' + esc(cdef.ico + " " + cdef.nom + " : " + cdef.def + res) + '">' + cdef.ico + (x && x.carte ? "<small>" + (x.carte.gain > 0 ? "+" : "") + x.carte.gain + "</small>" : "") + "</span>" : '<span class="gp-c vide"></span>') : '<span class="gp-c vide"></span>';
     const extra = x ? (x.duels || []).map(d => '<span class="gp-x" data-bdg="⚔️ Duel ' + (d.lance ? "lancé contre " : "reçu de ") + esc(d.contre) + " : " + (d.s > 0 ? "gagné, +1" : d.s < 0 ? "perdu, −1" : "égalité, rien ne bouge") + '.">⚔️' + (d.s > 0 ? "+1" : d.s < 0 ? "−1" : "=") + "</span>").join("") +
+      (x.vise || []).map(z => '<span class="gp-x" data-bdg="🎲 Pari de ' + esc(z.par) + " contre " + esc(n) + " : " + (z.gain > 0 ? esc(z.par) + " a fini devant, +3 pour lui." : esc(n) + " a tenu bon, " + esc(z.par) + " perd 1 point.") + '">🎲' + (z.gain > 0 ? "" : "✓") + "</span>").join("") +
       (x.sab ? '<span class="gp-x mal" data-bdg="🛢️ Huile sur la piste : ' + x.sab + ' pt ce mois-ci.">🛢️' + x.sab + "</span>" : "") + (x.mult > 1 ? '<span class="gp-x or" data-bdg="' + esc(et.m.spec ? et.m.spec.ico + " " + et.m.spec.nom + " : points de place doublés." : "Points doublés.") + '">×2</span>' : "") +
       (x.pioche && x.pioche.length && regleVisible("pioche") ? '<span class="gp-x" data-bdg="🎴 Carte' + (x.pioche.length > 1 ? "s" : "") + " piochée" + (x.pioche.length > 1 ? "s" : "") + " ce mois-ci" + (n === qui ? " : " + esc(x.pioche.map(c => carteDef(c).nom).join(", ")) : "") + '.">🎴</span>' : "") : "";
     const jn = (c.jeu || {})[n], niv = x ? x.niv + (x.monte || 0) : jn && !et.m ? 1 : (jn ? jn.niv : 1);
-    return '<div class="gp-l' + (n === qui ? " moi" : "") + '"><span class="rk">' + (r + 1) + "</span>" + avatar(n) + '<div class="nm"><b><span' + (attrLivree(n) ? attrLivree(n).replace(' class="', ' class="gp-nom ') : ' class="gp-nom"') + ">" + esc(n) + "</span>" + (regleVisible("pioche") ? '<span class="gp-niv" data-bdg="Niveau d\'écurie ' + niv + ' : chaque niveau gagné donne une carte bonus.">N' + niv + "</span>" : "") + extra + "</b><small>" +
+    return '<div class="gp-l' + (n === qui ? " moi" : "") + '"><span class="rk">' + (r + 1) + "</span>" + avatar(n) + '<div class="nm"><b><span' + (attrLivree(n) ? attrLivree(n).replace(' class="', ' class="gp-nom ') : ' class="gp-nom"') + ">" + esc(n) + "</span>" + (regleVisible("niveaux") ? '<span class="gp-niv" data-bdg="Niveau d\'écurie ' + niv + ' : chaque niveau gagné donne une carte bonus.">N' + niv + "</span>" : "") + extra + "</b><small>" +
       (r === 0 ? (et.k ? "en tête · tour " + (Math.floor(et.pts[n] / TOUR_GP) + 1) : "sur la grille") : "à " + ecart + " pt" + (ecart > 1 ? "s" : "") + " de " + esc(devant) + (ecart <= 3 && et.k ? ' · <span class="drs">💨 DRS</span>' : "")) +
       (x ? " · " + (x.p >= 0 ? "+" : "") + x.p + " ce mois" : "") + "</small></div>" + carte + '<span class="pt"><b>' + et.pts[n] + "</b><small>pts</small></span></div>";
   }).join("");
@@ -3119,7 +3152,7 @@ function htmlCartes(y) {
   const pf = prochaineFenetre();
   const fermeture = !kOuvert ? '<p class="c-ferme">🔒 ' + (estChauffe(y) ? "Les cartes du tour de chauffe se posaient jusqu'au 5 décembre. Celles de janvier se posent dans l'onglet Saison 1, du 20 décembre au 1er janvier." + (moisCarteOuvert() === (SAISON.premiere * 100 + 1) ? ' <button class="lien" type="button" data-saison="' + SAISON.premiere + '">Poser ma carte de janvier ›</button>' : "") : moisCarteOuvert() ? "La fenêtre ouverte concerne une autre saison : change d'onglet en haut." : "Fenêtre fermée. Prochaine ouverture le " + esc(pf.du) + ", pour " + esc(moisLong(pf.k)) + ".") + "</p>" : "";
   return '<div><h3 class="s-h3">Mes cartes <small>' + reste + " en main" + (regleVisible("pioche") ? " · " + aVenir + " dans la pioche" : "") + "</small></h3></div>" +
-    '<p class="info">Touche une carte pour la poser. Une par mois, chacune une fois par saison.' + (regleVisible("pioche") ? " Tu en pioches une nouvelle à chaque niveau gagné et quand tu finis dernier d\'un mois." : "") + (ap ? " Aperçu : choisis le mois avec les puces ci-dessous ; rien n'est envoyé." : "") + "</p>" +
+    '<p class="info">Touche une carte pour la poser. Une par mois, chacune une fois par saison.' + (regleVisible("pioche") ? (regleVisible("niveaux") ? " Tu en pioches une nouvelle à chaque niveau gagné et quand tu finis dernier d\'un mois." : " Tu en pioches une nouvelle quand tu finis dernier d\'un mois.") : "") + (ap ? " Aperçu : choisis le mois avec les puces ci-dessous ; rien n'est envoyé." : "") + "</p>" +
     (ap ? '<div class="gp-mois">' + etapesGP(y).slice(1).map(x => '<button type="button" data-gpcible="' + x.k + '" aria-pressed="' + (x.k === kOuvert) + '">' + esc(moisCourt(x.k)) + "</button>").join("") + "</div>" : "") +
     '<div class="main-cartes">' + main.map(tuile).join("") + "</div>" + action + htmlDuel(y, kOuvert);
 }
@@ -3178,6 +3211,7 @@ function ouvrirRevelation(r) {
     '<div class="rv-l">' + r.l.map((x, i) => { const cd = x.c && x.c.c ? carteDef(x.c.c) : null;
       return '<div class="rv-p" style="--i:' + i + '">' + avatar(x.nom) + '<div class="rv-n"><b>' + esc(x.nom) + "</b>" + (x.d && x.d.cible ? "<small>⚔️ défie " + esc(x.d.cible) + "</small>" : "") + "</div>" +
         '<div class="rv-carte' + (cd && cd.bonus ? " bonus" : "") + '"><div class="rv-in"><div class="rv-dos">🂠</div><div class="rv-face">' + (cd ? "<span>" + cd.ico + "</span><b>" + esc(cd.nom) + "</b>" + (x.c.cible ? "<small>→ " + esc(x.c.cible) + "</small>" : "") : "<b>Pas de carte</b>") + "</div></div></div></div>"; }).join("") + "</div>" +
+    (() => { const moi = moiPilote(), p = r.l.filter(x => x.c && x.c.c === "pari" && x.c.cible === moi).map(x => x.nom); return p.length ? '<p class="duel-recu">🎲 ' + p.map(esc).join(" et ") + " te défi" + (p.length > 1 ? "ent" : "e") + " avec un Pari : finis devant !</p>" : ""; })() +
     "<p>Les effets se calculent à la fin du mois, quand tous les relevés sont saisis.</p>" +
     '<div class="btn-row"><button class="btn ghost" type="button" data-rv="fermer">Fermer</button><button class="btn acc" type="button" data-rv="course">Voir la course 🏁</button></div></div>';
   document.body.appendChild(o);
@@ -3216,13 +3250,15 @@ function htmlStand(y) {
     const autre = moisCarteOuvert();
     const d = new Date(), kc = d.getFullYear() * 100 + d.getMonth() + 1, revele = d.getDate() >= jourLimite(kc) && Math.floor(kc / 100) === y && regleActive("duels", kc);
     const recus = revele ? D.personnes.map(p => p.nom).filter(n => n !== qui && ((duelDe(y, n, kc) || {}).cible === qui)) : [];
+    const paris = d.getDate() >= jourLimite(kc) && Math.floor(kc / 100) === y ? D.personnes.map(p => p.nom).filter(n => { const c = n !== qui && carteDe(y, n, kc); return c && c.c === "pari" && c.cible === qui && !c.cache; }) : [];
     etat = '<div class="st-etat"><div class="st-h"><span class="st-feu ferme"></span><b>Fenêtre fermée</b></div>' +
-      (recus.length ? '<p class="duel-recu">⚔️ ' + recus.map(esc).join(" et ") + " t'" + (recus.length > 1 ? "ont" : "a") + " défié pour " + esc(moisLong(kc)) + " : le meilleur du mois prend 1 point à l'autre.</p>" : "") + "<small>" +
+      (recus.length ? '<p class="duel-recu">⚔️ ' + recus.map(esc).join(" et ") + " t'" + (recus.length > 1 ? "ont" : "a") + " défié pour " + esc(moisLong(kc)) + " : le meilleur du mois prend 1 point à l'autre.</p>" : "") +
+      (paris.length ? '<p class="duel-recu">🎲 ' + paris.map(esc).join(" et ") + " t'" + (paris.length > 1 ? "ont" : "a") + " lancé un Pari pour " + esc(moisLong(kc)) + " : finis devant et " + (paris.length > 1 ? "ils perdent" : "il perd") + " 1 point ; sinon, +3 pour " + (paris.length > 1 ? "eux" : "lui") + ".</p>" : "") + "<small>" +
       (estChauffe(y) ? "Les cartes du tour de chauffe se posaient jusqu'au 5 décembre." + (autre ? ' <button class="lien" type="button" data-saison="' + SAISON.premiere + '">Poser ma carte de janvier ›</button>' : " Celles de janvier se poseront du 20 décembre au 1<sup>er</sup> janvier.")
         : autre ? 'La fenêtre ouverte concerne une autre saison : <button class="lien" type="button" data-saison="' + (autre === CHAUFFE_K ? SAISON.premiere - 1 : Math.floor(autre / 100)) + '">y aller ›</button>'
         : "Prochaine ouverture le <b>" + esc(pf.du) + "</b>, pour " + esc(moisLong(pf.k)) + ". En attendant, prépare ta stratégie : ta main est ci-dessous.") + "</small></div>";
   }
-  return etat + htmlCartes(y) + (regleVisible("pioche") ? '<div><h3 class="s-h3">' + (regleVisible("atelier") ? "Atelier <small>niveau d\'écurie et améliorations</small>" : "Niveau d\'écurie") + "</h3></div>" + htmlAtelier(qui) : "") + htmlProchainement() +
+  return etat + htmlCartes(y) + (regleVisible("niveaux") ? '<div><h3 class="s-h3">' + (regleVisible("atelier") ? "Atelier <small>niveau d\'écurie et améliorations</small>" : "Niveau d\'écurie") + "</h3></div>" + htmlAtelier(qui) : "") + htmlProchainement() +
     '<p class="info">Le Stand regroupe tout ce qui se joue. La Course montre la course, l\'Écurie ton look. <a href="#" class="lien-regles" data-regles="cartes">Règles des cartes</a></p>';
 }
 function brancherStand(v, y) {
@@ -3408,25 +3444,32 @@ const CARTES_BONUS = [
    ouvre = premier mois où la règle compte. Elle est annoncée (et expliquée) le 20 du mois d'avant, à l'ouverture de sa fenêtre.
    Avant ça, on ne montre que son nom et son mois. Pour avancer ou repousser une étape : changer « ouvre ». */
 const ETAPES = [
-  { id: "duels", ico: "⚔️", nom: "Les duels", ouvre: 202702, regle: "duels", resume: "Chaque mois, tu peux défier un rival, dans la même fenêtre que ta carte. Le meilleur du mois lui prend 1 point." },
   { id: "circuits", ico: "🗺️", nom: "Atouts et pièges des circuits", ouvre: 202703, regle: "circuits", resume: "Chaque Grand Prix favorise une carte : +1 quand elle marque. Et il en piège une autre : −1. Regarde le calendrier avant de poser ta carte." },
-  { id: "pioche", ico: "🎴", nom: "La pioche et les niveaux", ouvre: 202704, regle: "pioche", resume: "Tes points font monter ton écurie de niveau. Chaque niveau gagné, et chaque mois fini dernier, te fait piocher une carte bonus. Tes premières cartes t'attendent déjà dans le Stand !" },
+  { id: "pioche", ico: "🎴", nom: "Le rattrapage", ouvre: 202704, regle: "pioche", resume: "Tu finis dernier d'un mois ? Tu pioches une carte bonus, à jouer quand tu veux. Si tu as déjà fini dernier depuis janvier, tes cartes t'attendent dans le Stand !" },
   { id: "monaco", ico: "🎰", nom: "Le Grand Prix de Monaco", ouvre: 202704, regle: "speciaux", resume: "Un mois de la saison, le dernier du championnat marque ses points de place en double. La date est dans le calendrier du Grand Prix." },
-  { id: "atelier", ico: "🔧", nom: "L'atelier", ouvre: 202707, regle: "niveaux", resume: "Chaque niveau te donne un point à placer en Moteur, Aéro ou Pneus, pour renforcer Turbo, Aspiration et Pneus pluie." },
-  { id: "finale", ico: "🏆", nom: "La Finale", ouvre: 202712, regle: "speciaux", resume: "Décembre, dernier mois de la saison : les points de place comptent double pour tout le monde." }
+  { id: "finale", ico: "🏆", nom: "La Finale", ouvre: 202712, regle: "speciaux", resume: "Décembre, dernier mois de la saison : les points de place comptent double pour tout le monde." },
+  /* Réserve : des idées codées et prêtes, mais éteintes. Rien ne s'en voit, rien ne compte, tant que l'admin ne leur donne pas une date
+     (Podium › tout en bas › « Règles et idées en réserve »). */
+  { id: "duels", ico: "⚔️", nom: "Les duels", reserve: true, regle: "duels", resume: "Chaque mois, tu peux défier un rival, dans la même fenêtre que ta carte. Le meilleur du mois lui prend 1 point." },
+  { id: "niveaux", ico: "⭐", nom: "Les niveaux d'écurie", reserve: true, regle: "niveaux", resume: "Tes points de place et tes 🎯 donnent de l'XP. Chaque niveau gagné te fait piocher une carte bonus de plus." },
+  { id: "atelier", ico: "🔧", nom: "L'atelier", reserve: true, regle: "niveaux", resume: "Chaque niveau te donne un point à placer en Moteur, Aéro ou Pneus, pour renforcer Turbo, Aspiration et Pneus pluie." }
 ];
 function etape(id) { return ETAPES.find(e => e.id === id) || null; }
 /** Mois d'ouverture : celui réglé par l'admin dans l'API s'il y en a un, sinon celui du calendrier */
-function ouvreEtape(e) { const o = typeof D !== "undefined" && D && D.etapes && +D.etapes[e.id]; return o >= 202601 ? o : e.ouvre; }
+function programmee(e) { const o = typeof D !== "undefined" && D && D.etapes && +D.etapes[e.id]; return o >= 202601 ? o : 0; }
+function ouvreEtape(e) { return programmee(e) || e.ouvre || 999912; }
+/** Règle en réserve : codée mais éteinte, tant que l'admin ne lui a pas donné de date */
+function enReserve(e) { return !!(e && e.reserve && !programmee(e)); }
+function etapesJeu() { return ETAPES.filter(e => !enReserve(e)); }
 function annonceEtape(e) { return cleMoins(ouvreEtape(e), 1) * 100 + 20; }
 /** La règle compte-t-elle pour le mois k ? (l'aperçu admin montre tout) */
-function regleActive(id, k) { if (apercuSaison()) return true; const e = etape(id); return !e || (!!k && k >= ouvreEtape(e)); }
+function regleActive(id, k) { const e = etape(id); if (enReserve(e)) return false; if (apercuSaison()) return true; return !e || (!!k && k >= ouvreEtape(e)); }
 /** La règle est-elle déjà annoncée (expliquée) ? */
-function regleVisible(id) { if (apercuSaison()) return true; const e = etape(id); return !e || aujNum() >= annonceEtape(e); }
+function regleVisible(id) { const e = etape(id); if (enReserve(e)) return false; if (apercuSaison()) return true; return !e || aujNum() >= annonceEtape(e); }
 function moisEtape(e) { return moisLong(ouvreEtape(e)); }
 /** Les nouveautés pas encore annoncées : leur nom et leur mois, rien de plus */
 function htmlProchainement(compact) {
-  const l = ETAPES.filter(e => !regleVisible(e.id)); if (!l.length) return "";
+  const l = etapesJeu().filter(e => !regleVisible(e.id)); if (!l.length) return "";
   const adm = estAdmin(), tag = adm ? "button" : "span";
   return '<div class="bientot' + (compact ? " compact" : "") + '"><span class="bt-k">🎁 Prochainement' + (adm ? " · admin : touche une règle pour la voir et régler sa date" : "") + "</span>" +
     l.map(e => "<" + tag + ' class="bt-e"' + (adm ? ' type="button" data-etape="' + e.id + '"' : "") + "><i>" + (adm ? "🔒" : e.ico) + "</i><b>" + esc(e.nom) + "</b><em>" + esc(moisEtape(e).replace(/ \d{4}$/, "")) + "</em></" + tag + ">").join("") + "</div>";
@@ -3436,12 +3479,13 @@ function ouvrirEtapeAdmin(id) {
   const e = etape(id); if (!e || !estAdmin()) return;
   const o = document.createElement("div"); o.className = "tuto"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true");
   const base = new Date(), mois = []; for (let i = 0; i < 18; i++) { const d = new Date(base.getFullYear(), base.getMonth() + i, 1); mois.push(d.getFullYear() * 100 + d.getMonth() + 1); }
-  const cur = ouvreEtape(e), visible = regleVisible(e.id), mo = moisCarteOuvert() || prochaineFenetre().k;
-  o.innerHTML = '<div class="tuto-c etape-adm"><span class="tuto-k">Admin · ' + (visible ? "déjà annoncée" : "🔒 pas encore visible") + '</span><div class="tuto-i">' + e.ico + "</div><h3>" + esc(e.nom) + "</h3><p>" + esc(e.resume) + "</p>" +
-    '<p class="ea-date">S\'ouvre pour <b>' + esc(moisLong(cur)) + "</b>" + (visible ? "" : " · annoncée aux autres le " + esc(String(annonceEtape(e) % 100)) + " " + esc(moisLong(cleMoins(cur, 1)))) + ".</p>" +
+  const res = enReserve(e), cur = res ? (moisCarteOuvert() || prochaineFenetre().k) : ouvreEtape(e), visible = regleVisible(e.id), mo = moisCarteOuvert() || prochaineFenetre().k;
+  o.innerHTML = '<div class="tuto-c etape-adm"><span class="tuto-k">Admin · ' + (res ? "🧪 en réserve, éteinte" : visible ? "déjà annoncée" : "🔒 pas encore visible") + '</span><div class="tuto-i">' + e.ico + "</div><h3>" + esc(e.nom) + "</h3><p>" + esc(e.resume) + "</p>" +
+    (res ? '<p class="ea-date">En réserve : personne ne la voit, elle ne compte pas. Donne-lui une date pour la mettre en jeu ; elle sera annoncée le 20 du mois d\'avant.</p>'
+      : '<p class="ea-date">S\'ouvre pour <b>' + esc(moisLong(cur)) + "</b>" + (visible ? "" : " · annoncée aux autres le " + esc(String(annonceEtape(e) % 100)) + " " + esc(moisLong(cleMoins(cur, 1)))) + ".</p>") +
     '<label class="ea-l">Nouvelle date <select id="ea-mois">' + mois.map(k => '<option value="' + k + '"' + (k === cur ? " selected" : "") + ">" + esc(moisLong(k)) + "</option>").join("") + "</select></label>" +
     '<div class="btn-row"><button class="btn acc" type="button" data-ea="date">Enregistrer la date</button><button class="btn ghost" type="button" data-ea="maintenant">Ouvrir pour ' + esc(moisLong(mo).replace(/ \d{4}$/, "")) + "</button></div>" +
-    '<div class="btn-row"><button class="btn ghost" type="button" data-ea="regle">Voir la règle complète</button><button class="btn ghost" type="button" data-ea="origine">Date d\'origine</button></div>' +
+    '<div class="btn-row"><button class="btn ghost" type="button" data-ea="regle">Voir la règle complète</button><button class="btn ghost" type="button" data-ea="origine"' + (res ? " disabled" : "") + ">" + (e.reserve ? "Remettre en réserve" : "Date d'origine") + "</button></div>" +
     '<button class="lien" type="button" data-ea="fermer">Fermer</button></div>';
   document.body.appendChild(o);
   const fermer = () => o.remove();
@@ -3456,14 +3500,45 @@ function ouvrirEtapeAdmin(id) {
   o.querySelector('[data-ea="date"]').addEventListener("click", () => regler(+o.querySelector("#ea-mois").value));
   o.querySelector('[data-ea="maintenant"]').addEventListener("click", () => regler(mo));
   o.querySelector('[data-ea="origine"]').addEventListener("click", () => regler(null));
-  o.querySelector('[data-ea="regle"]').addEventListener("click", () => { fermer(); ouvrirRegles(e.regle, true); });
+  o.querySelector('[data-ea="regle"]').addEventListener("click", () => { fermer(); if (e.reserve) ouvrirReserve(); else ouvrirRegles(e.regle, true); });
   o.querySelector('[data-ea="fermer"]').addEventListener("click", fermer);
 }
 document.addEventListener("click", ev => { const b = ev.target.closest && ev.target.closest("[data-etape]"); if (b) { ev.preventDefault(); const r = document.querySelector(".regles"); if (r) { r.remove(); document.documentElement.classList.remove("fige"); } ouvrirEtapeAdmin(b.dataset.etape); } });
+/* ---------- Admin : règles et idées en réserve ----------
+   Tout ce qui a été imaginé reste dans le code. Ici : ce qui est en jeu (et quand), ce qui dort (et comment le réveiller),
+   les réglages chiffrés, et les idées pas encore codées. Les autres joueurs ne voient jamais cette page. */
+const IDEES_FUTURES = [
+  ["🗺️", "Circuit bonus", "Le mois où quelqu'un décroche un exclusif, un Grand Prix spécial remplace la ville du mois."],
+  ["🔁", "Saison 2 : nouveaux tracés", "D'autres villes ou les mêmes villes à l'envers, pour renouveler la course chaque saison."],
+  ["🎴", "Nouvelles cartes", "Ajouter une carte à la main de base ou à la pioche (une seule à la fois, pour garder le jeu lisible)."]
+];
+function ouvrirReserve() {
+  if (!vraiAdmin()) return;
+  const o = document.createElement("div"); o.className = "regles"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", "Règles et idées en réserve");
+  const auj = aujNum();
+  const etat = e => enReserve(e) ? "🧪 en réserve" : regleActive(e.id, Math.floor(auj / 100)) ? "✅ en jeu depuis " + moisLong(ouvreEtape(e)) : regleVisible(e.id) ? "📣 annoncée · compte dès " + moisLong(ouvreEtape(e)) : "🔒 " + moisLong(ouvreEtape(e)) + " (annoncée le 20 du mois d'avant)";
+  const ligne = e => '<li><button type="button" class="lien" data-etape="' + e.id + '">' + e.ico + " " + esc(e.nom) + "</button> · <small>" + esc(etat(e)) + "</small><br><small>" + esc(e.resume) + "</small></li>";
+  const tmp = document.createElement("div"); tmp.innerHTML = htmlRegles(true, true);
+  const sect = id => { const x = tmp.querySelector("#rg-" + id); return x ? x.outerHTML.replace('id="rg-', 'id="rs-') : ""; };
+  const reserve = ETAPES.filter(e => e.reserve);
+  o.innerHTML = '<div class="rg-c"><div class="rg-h"><b>🧪 Règles et idées en réserve</b><button class="icon-btn rg-x" type="button" id="rg-x" aria-label="Fermer">✕</button></div><div class="rg-corps">' +
+    '<p class="rg-admin">👀 Admin seulement. On commence simple ; tout le reste est codé et attend ici. Touche une règle pour lui donner une date (elle sera annoncée le 20 du mois d\'avant) ou la remettre en réserve.</p>' +
+    '<section class="rg-s"><h4>✅ En jeu</h4><ul><li>🏁 Championnat : 10 · 6 · 4 · 2 · 1 points, +1 🎯 si tu bats l\'indice.</li><li>🏎️ Grand Prix : une ville par mois, ' + TOUR_GP + " points le tour.</li><li>🃏 Main de base : " + CARTES.map(c => c.ico + " " + esc(c.nom)).join(", ") + " (une par mois, chacune une fois par saison ; le Pari prévient sa cible).</li><li>🏆 Trophées : défis, exclusifs, secrets, Premier millionnaire → objets d'écurie.</li><li>🏎️ Écurie : cosmétiques seulement.</li></ul>" +
+      "<p><b>Calendrier des nouveautés</b></p><ul>" + etapesJeu().map(ligne).join("") + "</ul></section>" +
+    '<section class="rg-s"><h4>🧪 En réserve <small>codé, éteint</small></h4><ul>' + reserve.map(ligne).join("") + "</ul>" +
+      "<p><b>Ce qu'elles font, en détail</b> (le texte que les joueurs liront si tu les mets en jeu) :</p>" + sect("niveaux") + sect("duels") + sect("pioche") + "</section>" +
+    '<section class="rg-s"><h4>⚙️ Réglages actuels</h4><ul><li>Points de place : 10 · 6 · 4 · 2 · 1 ; 🎯 : +1 (Turbo : +3).</li><li>Un tour de circuit : ' + TOUR_GP + " points.</li><li>Gain maximum d'une carte : +" + PLAFOND_CARTE + " ; pénalité maximale reçue (Huile) : " + PLANCHER_SABOTAGE + ".</li><li>Atout / piège du circuit : +1 / −1, seulement si la carte marque.</li><li>Monaco : le dernier du championnat ×2 (mois tiré entre avril et octobre) ; Finale : tout le monde ×2 en décembre.</li><li>Rattrapage : 1 carte bonus quand tu finis dernier (6 cartes bonus, mélangées par pilote et par saison).</li><li>Niveaux (en réserve) : " + XP_NIVEAU + " XP par niveau, niveau " + NIV_MAX + " au plus ; atelier : +1 par niveau sur une carte, 2 au plus.</li></ul><p class=\"rg-admin\">Pour changer un chiffre : une session de modification (constantes en haut des règles dans le code).</p></section>" +
+    '<section class="rg-s"><h4>💡 Idées à creuser <small>pas encore codées</small></h4><ul>' + IDEES_FUTURES.map(([i, t, d]) => "<li><b>" + i + " " + esc(t) + "</b> : " + esc(d) + "</li>").join("") + "</ul></section>" +
+    "</div></div>";
+  document.body.appendChild(o); document.documentElement.classList.add("fige");
+  const fermer = () => { o.remove(); document.documentElement.classList.remove("fige"); };
+  o.addEventListener("click", e => { if (e.target === o) fermer(); });
+  o.querySelector("#rg-x").addEventListener("click", fermer);
+}
 /* Annonce d'une nouvelle règle, une fois, le jour où elle s'ouvre */
 function nouveautesAVoir() {
   if (typeof D === "undefined" || !D || apercuSaison() || !saisonVisible()) return [];
-  return ETAPES.filter(e => regleVisible(e.id) && !stock.get("versus.nouveaute." + e.id));
+  return etapesJeu().filter(e => regleVisible(e.id) && !stock.get("versus.nouveaute." + e.id));
 }
 function ouvrirNouveautes(l) {
   l.forEach(e => stock.set("versus.nouveaute." + e.id, "1"));
@@ -3718,13 +3793,13 @@ function htmlPilote(qui, e) {
 }
 
 /* ---------- Règles : toujours accessibles (bouton 📖 du Podium et réglages) ---------- */
-function htmlRegles(tout) {
+function htmlRegles(tout, modeReserve) {
   const idx = esc(D.marche.indices[iRef()]), y = Math.max(saisonCourante() || 0, SAISON.premiere), mo = monacoMois(y);
   const carte = c => "<li><b>" + c.ico + " " + esc(c.nom) + "</b> : " + esc(c.def.replace("l'indice", "le " + D.marche.indices[iRef()])) + "</li>";
   const s = (id, ico, t, corps) => '<section class="rg-s" id="rg-' + id + '"><h4>' + ico + " " + t + "</h4>" + corps + "</section>";
-  const vu = id => tout || regleVisible(id), vP = vu("pioche"), vA = vu("atelier"), vD = vu("duels"), vM = vu("monaco"), vF = vu("finale"), vC = vu("circuits"), bientot = tout ? [] : ETAPES.filter(e => !regleVisible(e.id));
-  const sommaire = [["champ", "Championnat"], ["gp", "Grand Prix"], ["cartes", "Cartes"]].concat(vC ? [["circuits", "Circuits"]] : [], vP ? [["pioche", "Pioche"], ["niveaux", "Niveaux"]] : [], vD ? [["duels", "Duels"]] : [], [["speciaux", "Mois spéciaux"], ["ecurie", "Écurie"], ["defis", "Défis & exclusifs"]], bientot.length ? [["bientot", "🎁 Prochainement"]] : []);
-  return '<div class="rg-sommaire">' + sommaire.map(([id, l]) => '<button type="button" data-rg="' + id + '">' + l + "</button>").join("") + "</div>" +
+  const vu = id => modeReserve || (tout && !enReserve(etape(id))) || regleVisible(id), vP = vu("pioche"), vN = vu("niveaux"), vA = vu("atelier"), vD = vu("duels"), vM = vu("monaco"), vF = vu("finale"), vC = vu("circuits"), bientot = tout || modeReserve ? [] : etapesJeu().filter(e => !regleVisible(e.id));
+  const sommaire = [["champ", "Championnat"], ["gp", "Grand Prix"], ["cartes", "Cartes"]].concat(vC ? [["circuits", "Circuits"]] : [], vP ? [["pioche", vN ? "Pioche" : "Rattrapage"]] : [], vN ? [["niveaux", "Niveaux"]] : [], vD ? [["duels", "Duels"]] : [], [["speciaux", "Mois spéciaux"], ["ecurie", "Écurie"], ["defis", "Trophées"]], bientot.length ? [["bientot", "🎁 Prochainement"]] : []);
+  return (modeReserve ? "" : '<div class="rg-sommaire">' + sommaire.map(([id, l]) => '<button type="button" data-rg="' + id + '">' + l + "</button>").join("") + "</div>") +
     s("champ", "🏁", "Le championnat",
       "<p>Une saison = une année, du 1<sup>er</sup> janvier au 31 décembre. Tout repart de zéro chaque 1<sup>er</sup> janvier.</p>" +
       "<ul><li>Chaque mois, on classe les performances du mois (portefeuille total, versements neutralisés).</li><li>Points de place : 1<sup>er</sup> <b>10</b> · 2<sup>e</sup> <b>6</b> · 3<sup>e</sup> <b>4</b> · 4<sup>e</sup> <b>2</b> · ensuite <b>1</b>.</li>" +
@@ -3744,11 +3819,12 @@ function htmlRegles(tout) {
       "<li>Une carte qui ne marque rien n'est ni aidée ni punie. Les cartes bonus de la pioche ne sont pas concernées, et le plafond de +" + PLAFOND_CARTE + " par carte reste.</li><li>Le Stand et le calendrier montrent l'atout et le piège du prochain Grand Prix : à toi de garder la bonne carte pour le bon circuit.</li></ul>" +
       "<ul>" + CAL_GP.map((id, n) => { const g = GPS[id], a = carteDef(g.atout), p = carteDef(g.piege); return "<li><b>" + esc(MOIS_L[n].charAt(0).toUpperCase() + MOIS_L[n].slice(1)) + " · " + g.drap + " " + esc(g.ville) + "</b> : " + a.ico + " " + esc(a.nom) + " +1 · " + p.ico + " " + esc(p.nom) + " −1</li>"; }).join("") +
       (vM ? "<li><b>🎰 Monaco</b> remplace la ville de son mois : " + carteDef(GPS.monaco.atout).ico + " " + esc(carteDef(GPS.monaco.atout).nom) + " +1 · " + carteDef(GPS.monaco.piege).ico + " " + esc(carteDef(GPS.monaco.piege).nom) + " −1</li>" : "") + "</ul>") : "") +
-    (vP ? s("pioche", "🎴", "La pioche bonus",
-      "<p>En plus de ta main, tu pioches des cartes bonus :</p><ul><li><b>1 carte à chaque niveau d'écurie gagné</b>,</li><li><b>1 carte quand tu finis dernier d'un mois</b> (les stands te dépannent).</li></ul>" +
+    (vP ? s("pioche", "🎴", vN ? "La pioche bonus" : "Le rattrapage",
+      (vN ? "<p>En plus de ta main, tu pioches des cartes bonus :</p><ul><li><b>1 carte à chaque niveau d'écurie gagné</b>,</li><li><b>1 carte quand tu finis dernier d'un mois</b> (les stands te dépannent).</li></ul>"
+        : "<p>Tu finis <b>dernier d'un mois</b> ? Les stands te dépannent : tu pioches <b>1 carte bonus</b>, qui s'ajoute à ta main. Les cartes piochées depuis janvier t'attendent dans le Stand.</p>") +
       "<p>Ta pioche contient ces 6 cartes, mélangées une fois pour toutes en début de saison (chacun la sienne) :</p><ul>" + CARTES_BONUS.map(carte).join("") + "</ul>" +
       "<ul><li>Une carte bonus se joue comme les autres : une par mois, dans la même fenêtre, une seule fois.</li><li>Elle n'est valable que sur un mois qui suit celui où tu l'as piochée.</li><li>🛢️ Huile : la pénalité qu'un pilote reçoit sur un mois est limitée à <b>" + PLANCHER_SABOTAGE + "</b>, même si plusieurs rivaux l'ont visé.</li></ul>") : "") +
-    (vP ? s("niveaux", "🔧", vA ? "Niveaux d'écurie et améliorations" : "Niveaux d'écurie",
+    (vN ? s("niveaux", "🔧", vA ? "Niveaux d'écurie et améliorations" : "Niveaux d'écurie",
       "<ul><li><b>XP</b> : chaque mois, tes points de place et ton 🎯 (sans cartes, duels ni doublement), <b>+3</b> les mois où tu finis dernier.</li><li><b>Un niveau tous les " + XP_NIVEAU + " XP</b>, du niveau 1 au niveau " + NIV_MAX + ". Les niveaux repartent à 1 chaque saison.</li>" +
       "<li>Chaque niveau gagné donne <b>1 carte bonus</b>" + (vA ? " et <b>1 point d'amélioration</b> à placer dans l'atelier (onglet Stand)" : "") + ".</li></ul>" +
       (vA ? "<ul>" + Object.values(AMELIOS).map(a => "<li><b>" + a.ico + " " + a.nom + "</b> : " + a.txt + " (2 niveaux au plus).</li>").join("") + "</ul>" +
@@ -3763,7 +3839,7 @@ function htmlRegles(tout) {
     s("ecurie", "🪖", "L'écurie et ton avatar",
       "<ul><li>Casque, finition, avatar (fond), livrée, traînée, klaxon, plaque et ambiance de course se débloquent avec les défis et les exclusifs. Ta livrée, ton casque et ta traînée se voient sur la voiture 3D.</li><li>Ton avatar : ta <b>tête</b> (retouchable : coupe, barbe, lunettes, tenue…) ou ton <b>casque</b>, au choix, dans l'onglet Pilote.</li>" +
       "<li>Le leader du championnat porte le liseré or 🟡 sur son casque, et un grand sourire sur sa tête.</li><li>L'enregistrement est instantané ; tu peux tout changer quand tu veux.</li></ul>") +
-    s("defis", "🎯", "Défis et exclusifs",
+    s("defis", "🏆", "Les trophées",
       "<ul><li>Défis 🥉 🥈 🥇 💎 en quatre familles (performance, compétition, régularité, maîtrise), plus des défis secrets. Une fois réussi, c'est acquis.</li>" +
       "<li>Exclusifs 💎 : chaque objet n'existe qu'en un exemplaire. Le premier qui remplit la condition le garde pour toujours. Égalité : la meilleure valeur du critère, puis la performance du mois, puis le cumul de la saison.</li><li>Les cosmétiques ne viennent que des données publiques du Versus, jamais de ton patrimoine privé.</li></ul>") +
     (bientot.length ? s("bientot", "🎁", "Prochainement", "<p>De nouvelles règles arrivent en cours de saison. Chacune est expliquée le 20 du mois d'avant, quand sa fenêtre s'ouvre.</p><ul>" + bientot.map(e => "<li>" + (estAdmin() ? '<button type="button" class="lien" data-etape="' + e.id + '">🔒 ' + esc(e.nom) + "</button>" : e.ico + " <b>" + esc(e.nom) + "</b>") + " · " + esc(moisEtape(e)) + "</li>").join("") + "</ul>") : "");
@@ -4856,7 +4932,7 @@ function majVersion() {
 }
 /* ---------- Vue joueur et date simulée (admin) ---------- */
 const DATES_SIM = [["", "Aujourd'hui"], ["2026-11-20", "20 nov. · teaser"], ["2026-12-03", "3 déc. · chauffe"], ["2026-12-22", "22 déc. · cartes de janvier"],
-  ["2027-01-21", "21 janv. · duels"], ["2027-03-21", "21 mars · pioche"], ["2027-06-21", "21 juin · atelier"], ["2027-11-21", "21 nov. 2027 · Finale"]];
+  ["2027-02-21", "21 févr. · circuits"], ["2027-03-21", "21 mars · rattrapage et Monaco"], ["2027-11-21", "21 nov. 2027 · Finale"]];
 function majVueJoueur() {
   const sec = $("#regl-vue"); if (!sec) return;
   sec.hidden = !vraiAdmin() || !D || !D.personnes;
